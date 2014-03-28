@@ -12,7 +12,7 @@ checker <- function(variables, datasets, varname) {
        
       if (vars == 1)  stop(paste(variables,"does not exist in 'dataset'!", sep = " "))
       if (vars == 11) stop(paste("Column",variables,"does not exist in 'dataset'!", sep = " "))
-      if (vars == 21) stop(paste("'",varname,"' logical vector must be the same length as 'dataset' column count!", sep = ""))
+      if (vars == 21) stop(paste0("'",varname,"' logical vector must be the same length as 'dataset' column count!"))
 
       return(ifelse(vars >= 100, TRUE, FALSE))
  }
@@ -26,80 +26,80 @@ incPercentile <- function(inc, weights = NULL, sort = NULL,
     } else k <- round(k)
    
    if(!is.null(dataset)) {
-       if (checker(inc,dataset,"inc")) inc <- dataset[, inc] 
+       dataset <- data.frame(dataset)
+       if (checker(inc, dataset, "inc")) inc <- dataset[, inc] 
 
        if(!is.null(weights)) {
-           if (checker(weights,dataset,"weights")) weights <- dataset[, weights] }
+           if (checker(weights, dataset, "weights")) weights <- dataset[, weights] }
      
        if(!is.null(sort)) {
-           if (checker(sort,dataset,"sort")) sort <- dataset[, sort] }
+           if (checker(sort, dataset, "sort")) sort <- dataset[, sort] }
 
        if (!is.null(Dom)) {
-            Dom2<-Dom
+            Dom2 <- Dom
             if (checker(Dom,dataset,"Dom")) {
-                    Dom <- as.data.frame(dataset[, Dom]) 
-                    names(Dom)<-Dom2 }    }
-       }
+                    Dom <- data.frame(dataset[, Dom]) 
+                    colnames(Dom) <- Dom2     }}
+      }
 
    # check vectors
    # inc
-   inc <- as.data.frame(inc)
-   if(!is.numeric(as.vector(inc[,1]))) stop("'inc' must be a numeric vector")
-   if (ncol(inc) != 1) stop("'inc' must have vector or 1 column data.frame")
-   n <- nrow(inc)                     
+   inc <- data.frame(inc)
+   n <- nrow(inc)
+   if (ncol(inc) != 1) stop("'inc' must be a vector or 1 column data.frame, matrix, data.table")
+   inc <- inc[,1]
+   if(!is.numeric(inc)) stop("'inc' must be numerical")
+   if (any(is.na(inc))) warning("'inc' has unknown values")
+   if (all(is.na(inc))) warning("'inc' has unknown all values")
 
-   # id
-   if(is.null(id)) id <- 1:n 
-   id <- as.data.frame(id)
-   if (is.null(names(id))||(names(id)=="1:n")) names(id) <- "ID"
- 
    # weights
-   if(is.null(weights)) { weights <- rep.int(1, n)
-       } else if(!is.numeric(weights)) stop("'weights' must be a numeric vector")
-   if(length(weights) != n) stop("'weights' must have the same length as 'x'")
-   
+   weights <- data.frame(weights)
+   if(is.null(weights)) weights <- data.frame(rep.int(1, n))
+   if (nrow(weights) != n) stop("'weights' must be the same length as 'x'")
+   if (ncol(weights) != 1) stop("'weights' must be vector or 1 column data.frame, matrix, data.table")
+   weights <- weights[,1]
+   if(!is.numeric(weights)) stop("'weights' must be numerical")
+
    # sort  
    if(!is.null(sort) && !is.vector(sort) && !is.ordered(sort)) {
          stop("'sort' must be a vector or ordered factor") }
-   if(!is.null(sort) && length(sort) != n) stop("'sort' must have the same length as 'x'")
+   if(!is.null(sort) && length(sort) != n) stop("'sort' must be the same length as 'x'")
 
-   # Dom     
+   # Dom
    if(!is.null(Dom)) {
-             if (is.null(colnames(Dom))) stop("'Dom' must be colnames")
-             if (nrow(Dom) != n) stop("'Dom' must have the same length as 'inc'")
+             Dom <- data.table(Dom)
+             if (is.null(names(Dom))) stop("'Dom' must be colnames")
+             if (nrow(Dom) != n) stop("'Dom' must be the same length as 'inc'")
        }
   
     ## computations
  
     # Percentiles by domain (if requested)
     if(!is.null(Dom)) {
-        D<-as.matrix(Dom) 
-        Dom0 <- as.matrix(unique(D))
-        Dom_agg<-Dom0[do.call("order", lapply(1:NCOL(Dom0), function(i) Dom0[, i])), ]
-        Dom_agg<-as.matrix(Dom_agg)
-        colnames(Dom_agg)<-colnames(Dom) 
-        
-        q=c()               
+        Dom_agg <- data.table(unique(Dom))
+        setkeyv(Dom_agg,colnames(Dom))
+        q <- c()
         for(i in 1:nrow(Dom_agg)) {
-              index <- (rowSums(Dom == matrix(Dom_agg[i,], n, ncol(D),TRUE))== ncol(D))
-              incind<-inc[index,1]
-              weightsind<-weights[index]
-              sortind<-sort[index] 
-              order <- if(is.null(sortind)) order(incind) else order(incind, sortind)
-              incind <- incind[order]
-              weightsind <- weightsind[order]  # also works if 'weights' is NULL                               
-              percentile<-weightedQuantile(incind, weightsind, probs=k/100, sorted=FALSE, na.rm=na.rm)
-              q<-rbind(q,percentile)
-              rownames(q)<-NULL
-              colnames(q)<-k }
-       q<-data.frame(Dom_agg,q)
-    } else { order <- if(is.null(sort)) order(inc[,1]) else order(inc[,1], sort)
-             inc <- inc[order,1]
-             weights <- weights[order]  # also works if 'weights' is NULL
-             q<-weightedQuantile(inc, weights, probs=k/100, sorted=TRUE, na.rm=na.rm)
-             names(q)<-k  # use percentile numbers as names
+               D <- Dom_agg[i,][rep(1, nrow(Dom)),]
+               index <- rowSums(Dom == D) == ncol(Dom)
+               incind <- inc[index]
+               weightsind <- weights[index]
+               sortind <- sort[index]
+               order <- if(is.null(sortind)) order(incind) else order(incind, sortind)
+               incind <- incind[order]
+               weightsind <- weightsind[order]  # also works if 'weights' is NULL                               
+               percentile <- weightedQuantile(incind, weightsind, probs=k/100, sorted=FALSE, na.rm=na.rm)               
+               q <- rbind(q,percentile)   }
+       colnames(q) <- k
+       rownames(q) <- NULL
+       q <- data.frame(Dom_agg, q)
+     } else {  order <- if(is.null(sort)) order(inc) else order(inc, sort)
+               inc <- inc[order]
+               weights <- weights[order]  # also works if 'weights' is NULL
+               q <- weightedQuantile(inc, weights, probs=k/100, sorted=TRUE, na.rm=na.rm)
+               names(q) <- k  # use percentile numbers as names
      }
-    ## return results
+     ## return results
     return(q)
 }
 

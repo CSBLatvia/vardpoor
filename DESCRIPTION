@@ -1,11 +1,15 @@
 Package: vardpoor
 Type: Package
-Title: Linearization and variance estimation		
-Version: 0.1.0
-Date: 2013-04-12
-Depends: R (>= 3.0.0), boot, MASS, foreach, laeken
-Author: Juris Breidaks, Aiva Baumane
-Maintainer: Juris Breidaks <jureis@inbox.lv>
-Description: Linearization and variance estimation More about what it does (maybe more than one line)
+Title: Estimation of indicators on social exclusion and poverty and its
+        linearization, variance estimation
+Version: 0.2.0.6
+Date: 2014-03-12
+Depends: R (>= 3.0.0), boot, MASS, foreach, laeken, lpSolve, data.table
+Authors@R: c(person("Juris", "Breidaks", email = "juris.breidaks@csb.gov.lv",
+        role = c("aut", "cre")), person("Martins", "Liberts", role = "aut"))
+Author: Juris Breidaks [aut, cre], Martins Liberts[aut]
+Maintainer: Juris Breidaks <Juris.Breidaks@csb.gov.lv>
+Description: Split data variables by domains, Weighted income percentile, linearization of the ratio estimator, linearization of the at-risk-of-poverty rate, linearization of the at-risk-of-poverty threshold, linearization of the GINI coefficient, linearization of the gender pay (wage) gap, linearization of the median income below the at-risk-of-poverty gap, linearization of the income quintile share ratio, linearization of the relative median at-risk-of-poverty gap, residual estimation of calibration, the estimation of the simple random sampling, estimation of the variance and deff in domain, estimation of the variance using ultimate cluster method, estimation of the variance and deff for indicators on social exclusion and poverty 
 License: GPL (>= 2)
 Repository: CRAN
+Packaged: 2014-03-06 10:33:10 UTC; jbreidaks

@@ -1,31 +1,39 @@
 
-var_srs <- function(Y, w_final) {
+var_srs <- function(Y, w) {
  
   ### Checking
   # Y
-  Y <- as.matrix(Y)
+  Y <- data.table(Y, check.names=TRUE)
   n <- nrow(Y)
   if (any(is.na(Y))) print("'Y' has unknown values")
   if (is.null(colnames(Y))) stop("'Y' must be colnames")
     
-  # w_final 
-  w_final <- as.vector(w_final)
-  if (!is.numeric(w_final)) stop("'w_final' should be numerical")
-  if (length(w_final) != n) stop("'w_final' length îs not equal with 'Y' row count")
-  if (any(is.na(w_final))) stop("'w_final' has unknown values")
+  # w 
+  w <- data.frame(w)
+  if (nrow(w) != n) stop("'w' must be equal with 'Y' row count")
+  if (ncol(w) != 1) stop("'w' must be vector or 1 column data.frame, matrix, data.table")
+  w <- w[,1]
+  if (!is.numeric(w)) stop("'w' must be numerical")
+  if (any(is.na(w))) stop("'w' has unknown values")
     
   ### Calculation
-   
-  # z
-  z <- colSums(Y*w_final)
-  z_z <- colSums(Y^2*w_final)
 
   # N
-  Nn <- sum(w_final)
-  konst <- Nn*Nn*(1-n/Nn)/((Nn-1)*n)
- 
-  var_srs_osier <- konst*(colSums((Y-z/Nn)^2*w_final))
-  var_srs_lapins <- konst*(z_z-1/Nn*z^2)
-  list(var_srs_osier <- var_srs_osier, var_srs_lapins=var_srs_lapins)
+  Nn <- sum(w)
+  .SD <- NULL
+  
+  konst <- Nn^2 * (1 - n/Nn) / n
+
+  wyN <- as.numeric(Y[, lapply(.SD, function(x) sum(x*w)/Nn)])
+
+  VO <- data.table(t(as.numeric(konst*Y[, mapply(function(x, x.vid) sum(w * (x - x.vid)^2),
+           .SD, wyN)] / (Nn - 1))))
+  setnames(VO, names(VO), names(Y))
+
+  VL <- data.table(t(as.numeric(konst*(Y[, lapply(.SD, function(x) sum(w * x^2))] / (Nn - 1) -
+    Nn / (Nn - 1) * (wyN)^2))))
+  setnames(VL, names(VL), names(Y))
+
+ return(VL)
 }
 

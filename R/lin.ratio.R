@@ -1,26 +1,30 @@
 
-lin.ratio <- function(Y, Z, weight) {
+lin.ratio <- function(Y, Z, weight, Dom=NULL) {
   # Y
-  Y <- as.matrix(Y)
-  n <- nrow(Y)
-  m <- ncol(Y)
+  Y <- data.table(Y)
   if (any(is.na(Y))) stop("'Y' has unknown values")
+  if (!is.null(Dom)) Yd <- domain(Y, Dom,"Y") else Yd <- Y
 
   # Z
-  Z <- as.matrix(Z)
-  if (nrow(Z)!= n) stop("'Y' and 'Z' have different row count")
-  if (ncol(Z)!= m) stop("'Y' and 'Z' have different column count")
+  Z <- data.table(Z)
+  if (nrow(Z)!= nrow(Y)) stop("'Y' and 'Z' have different row count")
+  if (ncol(Z)!= ncol(Y)) stop("'Y' and 'Z' have different column count")
   if (any(is.na(Z))) stop("'Z' has unknown values")
+  if (!is.null(Dom)) Zd <- domain(Z, Dom,"Z") else Zd <- Z
 
   # weight
-  weight <- as.vector(weight)
-  if (!is.numeric(weight)) stop("'weight' should be numerical")
-  if (length(weight) != n) stop("'weight' length is not equal with 'Y' row count")
+  weight <- data.frame(weight)
+  if (nrow(weight) != nrow(Y)) stop("'weight' length is not equal with 'Y' row count")
+  if (ncol(weight) != 1) stop("'weight' must be a vector or 1 column data frame, data matrix, data table")
+  weight <- weight[,1]
+  if (!is.numeric(weight)) stop("'weight' must be numerical")
   if (any(is.na(weight))) stop("'weight' has unknown value")
  
-  Z_nov <- colSums(Z * weight)
-  Y_nov <- colSums(Y * weight)
-  R_nov <- Y_nov / Z_nov
-  U <- t((1 / Z_nov) * t(Y - t(R_nov * t(Z))))
+  Y_est <- colSums(Yd * weight)
+  Z_est <- colSums(Zd * weight)
+  R_est <- Y_est / Z_est
+
+  U <- t((1 / Z_est) * t(Yd - t(R_est * t(Zd))))
+  U <- data.table(U)
   U
 }

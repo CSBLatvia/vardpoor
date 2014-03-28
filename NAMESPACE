@@ -1,10 +1,27 @@
-useDynLib(vardpoor) 
-import(lpSolve)
+### Exports
+export(domain)
+export(incPercentile)
+export(lin.ratio)
+export(linarpr)
+export(linarpt)
+export(lingini)
+export(lingini2)
+export(lingpg)
+export(linpoormed)
+export(linqsr)
+export(linrmpg)
+export(residual_est)
+export(var_srs)
+export(vardom)
+export(vardom_othstr)
+export(vardomh)
+export(variance_est)
+export(variance_othstr)
+export(varpoord)
+
 import(boot)
 import(MASS)
 import(foreach)
 import(laeken)
-
-# Export all names
-exportPattern(".")
-
+import(lpSolve)
+import(data.table)

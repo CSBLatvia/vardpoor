@@ -13,6 +13,5 @@ RnwWeave: Sweave
 LaTeX: XeLaTeX
 
 BuildType: Package
-PackageInstallArgs: --no-multiarch --with-keep.source --html
+PackageInstallArgs: --no-multiarch
 PackageBuildArgs: --md5
-PackageBuildBinaryArgs: --html

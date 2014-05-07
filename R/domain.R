@@ -1,46 +1,38 @@
-
-domain <- function(Y, D, texts) {
-   # Y
-   Y <- data.table(Y, check.names=TRUE)
-   n <- nrow(Y)
-   if (any(is.na(Y))) stop("'Y' has unknown values")
-   if (is.null(names(Y))) stop(paste(texts, "have not defined the column names!"))
-   
-   # D
-   D <- data.table(D)
-   if (any(duplicated(names(D)))) 
-           stop("'D' are duplicate column names: ", 
-                paste(names(D)[duplicated(names(D))], collapse = ","))
-   if (nrow(D) != n) stop("'D' and 'Y' have different row count")
-   if(is.null(names(D))) stop("The column names in the 'D' has not defined")
+domain <- function(Y, D) {
   
-   Dom_agg <- data.table(unique(D))
-   setkeyv(Dom_agg, names(Dom_agg))
+  name.Y <- substitute(Y)
+  name.D <- substitute(D)
+  
+  # Y
+  Y <- data.table(Y, check.names = T)
+  if (!all(sapply(Y, is.numeric))) stop(name.Y, " has non-numeric values")
+  if (any(is.na(Y))) stop(name.Y, " has unknown values")
+  n <- nrow(Y)
+
+  # D
+  D <- data.table(D, check.names = F)
+  if (any(duplicated(names(D))))
+    stop(name.D, " has duplicate column names: ",
+         paste(names(D)[duplicated(names(D))], collapse = ", "))
+  if (nrow(D) != n) stop(name.Y, " and ", name.D ," have different row count")
+  
+  Dom_agg <- unique(D)
+  setkeyv(Dom_agg, names(Dom_agg))
    	
-   k <- i <- NULL
-   domen <- foreach(i = 1:ncol(Y), .combine = cbind) %do% {
-         X_dom <- foreach(k = 1:nrow(Dom_agg), .combine = cbind) %do% 
-            ifelse(rowSums(D==Dom_agg[k,][rep(1,n),]) == ncol(D),as.data.frame(Y)[,i],0)} 
+  domen <- foreach(i = 1:ncol(Y), .combine = data.table) %:%
+    foreach(k = 1:nrow(Dom_agg), .combine = data.table) %do%
+      ifelse(rowSums(D == Dom_agg[k, ][rep(1, n), ]) == ncol(D), Y[[i]], 0)
 
-   namesD <- function(Y,D) {
-           d <- names(Y)
-           b <- names(D)
-           Dom_agg <- data.table(unique(D))
-           setkeyv(Dom_agg, names(Dom_agg))
-            
-           h <- c()   
-           for (i in 1:nrow(Dom_agg)) {
-                 c <- paste(b, as.matrix(Dom_agg[i]), sep=".")
-                 h[i] <- do.call(paste, as.list(c(c, sep="__")))}
+  namesD <- function(Y, D) {
+    h <- vector(mode = "character", length = nrow(Dom_agg))
+    for (i in 1:nrow(Dom_agg)) {
+      cc <- paste(names(D), Dom_agg[i, ], sep = ".")
+      h[i] <- paste(cc, collapse = "__")
+    }
+    foreach(i = 1:ncol(Y), .combine = c) %do% paste(names(Y)[i], h, sep="__")
+  }
   
-           g <- foreach(i = 1:ncol(Y), .combine = cbind) %do% {
-                  nsk1 <- paste(d[i], h, sep="__")}
-    
-           s <- paste(as.list(g))
-           s }
-    domen <- data.frame(domen)
-    colnames(domen) <- namesD(Y, D)
-    domen <- data.table(domen)
-    return(domen)
- }
-
+  if (!is.data.table(domen)) domen <- data.table(domen)
+  setnames(domen, namesD(Y, D))
+  return(domen)
+}

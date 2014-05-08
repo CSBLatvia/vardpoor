@@ -205,7 +205,7 @@ vardom <- function(Y, H, PSU, w_final,
   ### Calculation
       
   # Domains
-  if (!is.null(Dom)) Y1 <- domain(Y, Dom,"Y") else Y1 <- Y
+  if (!is.null(Dom)) Y1 <- domain(Y, Dom) else Y1 <- Y
 
   # Design weights
   if (!is.null(X)) w_design <- w_final / g else w_design <- w_final
@@ -213,7 +213,7 @@ vardom <- function(Y, H, PSU, w_final,
   # Ratio of two totals
   lin_outp <- NULL
   if (!is.null(Z)) {
-    if (!is.null(Dom)) Z1 <- domain(Z, Dom,"Z") else Z1 <- Z
+    if (!is.null(Dom)) Z1 <- domain(Z, Dom) else Z1 <- Z
     Y2 <- lin.ratio(Y1, Z1, w_final, Dom=NULL)
     Y2a <- lin.ratio(Y1, Z1, w_design, Dom=NULL)
     if (any(is.na(Y2))) print("Results are calculated, but there are cases where Z = 0")

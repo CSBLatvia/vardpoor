@@ -3,14 +3,14 @@ lin.ratio <- function(Y, Z, weight, Dom=NULL) {
   # Y
   Y <- data.table(Y)
   if (any(is.na(Y))) stop("'Y' has unknown values")
-  if (!is.null(Dom)) Yd <- domain(Y, Dom,"Y") else Yd <- Y
+  if (!is.null(Dom)) Yd <- domain(Y, Dom) else Yd <- Y
 
   # Z
   Z <- data.table(Z)
   if (nrow(Z)!= nrow(Y)) stop("'Y' and 'Z' have different row count")
   if (ncol(Z)!= ncol(Y)) stop("'Y' and 'Z' have different column count")
   if (any(is.na(Z))) stop("'Z' has unknown values")
-  if (!is.null(Dom)) Zd <- domain(Z, Dom,"Z") else Zd <- Z
+  if (!is.null(Dom)) Zd <- domain(Z, Dom) else Zd <- Z
 
   # weight
   weight <- data.frame(weight)

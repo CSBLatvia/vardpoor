@@ -311,7 +311,7 @@ vardomh <- function(Y, H, PSU, w_final,
      if (!is.null(Dom1)) { Dom1 <- data.table(period, Dom1)
         } else Dom1 <- period } 
 
-  if (!is.null(Dom1)) Y1 <- domain(Y, Dom1,"Y") else Y1 <- Y
+  if (!is.null(Dom1)) Y1 <- domain(Y, Dom1) else Y1 <- Y
 
   # Design weights
   if (!is.null(X)) {
@@ -328,7 +328,7 @@ vardomh <- function(Y, H, PSU, w_final,
   # Ratio of two totals
   lin_outp <- NULL
   if (!is.null(Z)) {
-    if (!is.null(Dom1)) Z1 <- domain(Z, Dom1,"Z") else Z1 <- Z
+    if (!is.null(Dom1)) Z1 <- domain(Z, Dom1) else Z1 <- Z
     Y2 <- lin.ratio(Y1, Z1, w_final, Dom=NULL)
     Y2a <- lin.ratio(Y1, Z1, w_design, Dom=NULL)
     if (any(is.na(Y2))) print("Results are calculated, but there are cases where Z = 0")

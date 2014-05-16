@@ -1,91 +1,53 @@
 \name{linarpr}
+
 \alias{linarpr}
+
 \title{Linearization of the at-risk-of-poverty rate}
+
 \usage{
-  linarpr(inc, id, weight = NULL, income_thres=NULL, wght_thres=NULL,
-          sort = NULL, Dom = NULL, period=NULL, dataset = NULL,
-          percentage = 60, order_quant=50, na.rm=FALSE, var_name="lin_arpr")
+linarpr(inc, id, weight = NULL,
+  income_thres = NULL, wght_thres = NULL,
+  sort = NULL, Dom = NULL, period = NULL, dataset = NULL,
+  percentage = 60, order_quant = 50, na.rm = FALSE,
+  var_name = "lin_arpr")
 }
+
 \arguments{
-  \item{inc}{either a numeric vector, 1 column data.frame,
-  matrix, data.table giving the equivalized disposable
-  income, or (if \code{dataset} is not \code{NULL}) a
-  character string, an integer or a logical vector (length
-  is the same as 'dataset' column count) specifying the
-  corresponding column of \code{dataset}.
-  }
-  \item{id}{optional; either 1 column data.frame, matrix,
-  data.table with column names giving the personal IDs, or
-  (if \code{dataset} is not \code{NULL}) a character string,
-  an integer or a logical vector (length is the same as
-  'dataset' column count) specifying the corresponding
-  column of \code{dataset}.
-  }
-  \item{weight}{optional; either a numeric vector, 1 column
-  data.frame, matrix, data.table giving the personal sample
-  weights, or (if \code{dataset} is not  \code{NULL}) a
-  character string, an integer or a logical vector (length
-  is the same as 'dataset' column count) specifying the
-  corresponding column of \code{dataset}.
-  }
-  \item{income_thres}{either a numeric vector, 1 column
-  data.frame, matrix, data.table giving the equivalized
-  disposable income for computation and linearization
-  of the poverty threshold, or (if \code{dataset} is not
-  \code{NULL}) a character string, an integer or a logical
-  vector (length is the same as 'dataset' column count)
-  specifying the corresponding column of \code{dataset}.
-  If \code{income_thres} is \code{NULL}, it is \code{inc}.
-  }
-  \item{wght_thres}{either a numeric vector, 1 column
-  data.frame, matrix, data.table giving the personal sample
-  weights for computation and linearization of the poverty
-  threshold, or (if \code{dataset} is not \code{NULL}) a
-  character string, an integer or a logical vector (length
-  is the same as 'dataset' column count) specifying the
-  corresponding column of \code{dataset}. If \code{wght_thres}
-  is \code{NULL}, it is \code{weight}.
-  }
-  \item{sort}{optional; either a numeric vector, 1 column
-  data.frame, matrix, data.table giving the personal IDs to
-  be used as tie-breakers for sorting, or (if \code{dataset}
-  is not \code{NULL}) a character string, an integer or a
-  logical vector (length is the same as 'dataset' column count)
-  specifying the corresponding column of \code{dataset}.
-  }
-  \item{Dom}{optional; either a data.frame, matrix, data.table
-  with column names giving different domains, or (if 
-  \code{dataset} is not \code{NULL}) character strings,
-  integers or a logical vectors (length is the same as 
-  'dataset' column count) specifying the corresponding
-  columns of \code{dataset}. If supplied, the values for
-  each domain are computed.
-  }
-  \item{period}{optional; either a data.frame, matrix, data.table
-  with column names giving different periods, or (if 
-  \code{dataset} is not \code{NULL}) character strings,
-  integers or a logical vectors (length is the same as 
-  'dataset' column count) specifying the corresponding
-  columns of \code{dataset}. If supplied, the values for
-  each period are computed independently.
-  }
-  \item{dataset}{an optional; name of the individual dataset
-  \code{data.frame}.
-  }
-  \item{percentage}{a numeric value in \eqn{[0,100]} giving the
-  percentage of the income quantile to be used for the
-  at-risk-of-poverty threshold (see \code{\link{linarpt}}).
-  }
+
+  \item{inc}{Study variable (for example equivalized disposable income). One dimentional object convertable to one-column \code{data.frame} or variable name as character, column number or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset}).}
+
+  \item{id}{Optional variable for unit ID codes. One dimentional object convertable to one-column \code{data.frame} or variable name as character, column number or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset}).}
+
+  \item{weights}{Optional weight variable. One dimentional object convertable to one-column \code{data.frame} or variable name as character, column number or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset}).}
+
+  \item{income_thres}{Variable (for example equivalized disposable income) used for computation and linearization of poverty threshold. One dimentional object convertable to one-column \code{data.frame} or variable name as character, column number or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset}). Variable spcified for \code{inc} is used as \code{income_thres} if \code{income_thres} is  not defined.}
+
+  \item{wght_thres}{Weight variable used for computation and linearization of poverty threshold. One dimentional object convertable to one-column \code{data.frame} or variable name as character, column number or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset}). Variable spcified for \code{weight} is used as \code{wght_thres} if \code{wght_thres} is  not defined.}
+
+  \item{sort}{Optional variable to be used as tie-breaker for sorting. One dimentional object convertable to one-column \code{data.frame} or variable name as character, column number or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset}).}
+
+  \item{Dom}{Optional variables used to define population domains. If supplied, linearization of the at-risk-of-poverty rate is done for each domain. An object convertable to \code{data.frame} or variable names as character vector, column numbers or logical vector (length of the vector has to be the same as the column count of \code{dataset}).}
+
+  \item{period}{Optional variable for survey period. If supplied, linearization of the at-risk-of-poverty rate is done for each time period. One dimentional object convertable to one-column \code{data.frame} or variable name as character, column number or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset}).}
+
+  \item{dataset}{Optional survey data object convertable to \code{data.frame}.}
+
+  \item{percentage}{A numeric value in \eqn{[0,100]} for \eqn{p}{p} in the formula for poverty threshold computation
+  \deqn{\frac{p}{100} \cdot Z_{\frac{\alpha}{100}}{p/100 * Z(alpha/100)}}
+
   \item{order_quant}{a numeric value in \eqn{[0,100]} giving the
   order of the income quintale (in percentage) to be used for the
   at-risk-of-poverty threshold (see \code{\link{linarpt}}).
   }
-  \item{na.rm}{a logical indicating whether missing values should
+
+\item{na.rm}{a logical indicating whether missing values should
   be removed.
   }
-  \item{var_name}{a character string specifying the name of the
+
+\item{var_name}{a character string specifying the name of the
   linearized variable.}
 }
+
 \value{
   \item{quantile}{a \code{data.frame} containing the estimated 
   value of the quintale by totals.

@@ -1,46 +1,41 @@
 \name{lin.ratio}
+
 \alias{lin.ratio}
+
 \title{Linearization of the ratio estimator}
-\description{Computes linearized variables of the ratio estimator.}
+
+\description{Computes linearized variable for the ratio estimator.}
+
 \usage{lin.ratio(Y, Z, weight, Dom=NULL)}
+
 \arguments{
-\item{Y}{data.frame, matrix, data.table with column names of the variable of interest; its length is equal to n, the sample size.}
-\item{Z}{data.frame, matrix, data.table with column names of auxiliary information; its length is equal to n, the sample size.}
-\item{weight}{vector or 1 column data.frame, matrix, data.table of the weights; its length is equal to n, the sample size.}
-\item{Dom}{optional; either a data.frame, matrix, data.table
-  with column names giving different domains, or (if 
-  \code{dataset} is not \code{NULL}) character strings,
-  integers or a logical vectors (length is the same as 
-  'dataset' column count) specifying the corresponding
-  columns of \code{dataset}. If supplied, the values for
-  each domain are computed.
-  }
+
+\item{Y}{Matrix of numerator variables. Any object convertable to \code{data.table} with numeric values, \code{NA} values are not allowed.}
+
+\item{Z}{Matrix of denominator variables. Any object convertable to \code{data.table} with numeric values, \code{NA} values are not allowed.}
+
+\item{weight}{Weight variable. One dimentional object convertable to one-column \code{data.frame}}
+
+\item{Dom}{Optional variables used to define population domains. If supplied, the linearized variables are computed for each domain. An object convertable to \code{data.table}}
 }
-\value{The function returns the data.table of the linearized variables of the ratio estimator.}
+
+\value{The function returns the \code{data.table} of the linearized variables for the ratio estimator.}
 
 \references{ 
-  Guillaume Osier and Emilio Di Meglio. The linearisation approach
-  implemented by Eurostat for the first wave of EU-SILC: what could
-  be done from the second wave onwards? 2012
-
-  Guillaume Osier (2009). Variance estimation for complex
-  indicators of poverty and inequality. \emph{Journal of
-  the European Survey Research Association}, Vol.3, No.3,
-  pp. 167-195, ISSN 1864-3361, 
-  URL \url{https://ojs.ub.uni-konstanz.de/srm/article/view/369}. \cr
+Carl-Erik Sarndal, Bengt Swensson, Jan Wretman. Model Assisted Survey Sampling. Springer-Verlag, 1992, p.178.
 }
 
 \examples{
 Y <- data.table(rchisq(10, 3))
 Z <- data.table(rchisq(10, 3))
-weightss <- rep(2, 10)
-lin.ratio(Y, Z, weightss)
+weights <- rep(2, 10)
+lin.ratio(Y, Z, weights)
 }
+
 \seealso{
-  \code{\link{domain}},   \code{\link{residual_est}},
-  \code{\link{vardom}},   \code{\link{vardomh}},
-  \code{\link{var_srs}},  \code{\link{variance_est}}
-  \code{\link{variance_othstr}}
+  \code{\link{domain}},
+  \code{\link{vardom}},
+  \code{\link{vardomh}},
 }
 
 \keyword{survey}

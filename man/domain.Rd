@@ -19,7 +19,8 @@
 
 \value{Numeric \code{data.table} containing extra variables for domain estimation.}
 
-\references{Carl-Erik Sarndal, Bengt Swensson, Jan Wretman. Model Assisted Survey Sampling. Springer-Verlag, 1992, p.70.
+\references{
+Carl-Erik Sarndal, Bengt Swensson, Jan Wretman. Model Assisted Survey Sampling. Springer-Verlag, 1992, p.70.
 }
 
 \seealso{\code{\link{vardom}}, \code{\link{vardomh}}}

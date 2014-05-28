@@ -1,9 +1,9 @@
-# PowerShell
+ï»¿# PowerShell
 
 # Atver celu T:\!Vadiba\MatNodrD\R\vardpoor
 cd "T:\!Vadiba\MatNodrD\R\vardpoor"
 
-# 1. Izpilda komandu - parbauda kïûdas
+# 1. Izpilda komandu - parbauda kÄ¼Å«das
 Rcmd.exe check vardpoor
 
 # 2. Izpilda komandu - izveido paketi
@@ -12,5 +12,5 @@ Rcmd.exe build vardpoor
 # 3. Izpilda komandu - izveido paketi .zip
 Rcmd.exe build -binary vardpoor
 
-# 3. Izpilda komandu - uzinstalç paketi
+# 3. Izpilda komandu - uzinstalÄ“ paketi
 Rcmd.exe INSTALL vardpoor

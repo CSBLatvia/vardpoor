@@ -15,7 +15,7 @@ atlikumu novērtēšanu gadījumos, ja ir veikta svaru kalibrācija.
 
 ## Installation ##
 
-# Stable verision from CRAN
+# Stable version from CRAN
 install.packages("vardpoor")
 
 # Development version from github

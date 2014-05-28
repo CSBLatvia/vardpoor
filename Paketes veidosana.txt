@@ -14,5 +14,3 @@ Rcmd.exe build -binary vardpoor
 
 # 3. Izpilda komandu - uzinstalç paketi
 Rcmd.exe INSTALL vardpoor
-
-

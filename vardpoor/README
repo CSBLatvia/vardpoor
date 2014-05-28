@@ -10,5 +10,9 @@ Precizitāte ir novērtēta ar galīgo klāsteru metodi (Hansen, Hurwitz and Mad
 
 ## Installation ##
 
+# Stable verision from CRAN
+install.packages("vardpoor")
+
+# Development version from github
 library(devtools)
 install_github("djhurio/vardpoor/vardpoor")

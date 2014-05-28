@@ -1,11 +1,11 @@
-## English ##
+ï»¿## English ##
 
 The precision estimation is done by the ultimate cluster method (Hansen, Hurwitz and Madow, 1953) with linearization for nonlinear statistics and residual estimation from the regression model to take weight calibration into account.
 
 
 ## Latvian ##
 
-Precizitâte ir novçrtçta ar galîgo klâsteru metodi (Hansen, Hurwitz and Madow, 1953), ietverot linearizâciju nelineârai statistikai, kâ arî regresijas modeïa atlikumu novçrtçğanu gadîjumos, ja ir veikta svaru kalibrâcija.
+PrecizitÄte ir novÄ“rtÄ“ta ar galÄ«go klÄsteru metodi (Hansen, Hurwitz and Madow, 1953), ietverot linearizÄciju nelineÄrai statistikai, kÄ arÄ« regresijas modeÄ¼a atlikumu novÄ“rtÄ“Å¡anu gadÄ«jumos, ja ir veikta svaru kalibrÄcija.
 
 
 ## Installation ##

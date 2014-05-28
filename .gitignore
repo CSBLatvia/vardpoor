@@ -1,3 +1,10 @@
 .Rproj.user
 .Rhistory
 .RData
+History
+doc
+*.pdf
+*.tar.gz
+*.zip
+*.xlsx
+vardpoor.Rcheck

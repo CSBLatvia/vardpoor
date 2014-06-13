@@ -29,8 +29,8 @@ Generation of domain variables,
 \details{
 \tabular{ll}{
 Package: \tab vardpoor\cr
-Version: \tab 0.2.0.8.1\cr
-Date: \tab 2014-05-27\cr
+Version: \tab 0.2.0.8.2\cr
+Date: \tab 2014-05-28\cr
 Depends: \tab R (>= 3.0.0), laeken, data.table\cr
 Imports: \tab foreach, lpSolve\cr
 License: \tab GPL (>= 2)\cr
@@ -59,16 +59,18 @@ residual_est            Residual estimation of calibration
 var_srs                 The estimation of the simple random sampling.
 vardom                  Estimation of the variance in domain by the ultimate
                         cluster method
-vardom_othstr           Variance estimation for sample surveys in domain using two
-                        stratification
+vardom_othstr           Variance estimation for sample surveys in domain 
+                        using two stratification
 vardomh                 Variance Estimation in domain for household
                         surveys by the ultimate cluster method
-vardpoor-package        Variance estimation for sample surveys by the ultimate cluster
-                        method ~~ package title ~~
-variance_est            Variance estimation for sample surveys by the ultimate cluster method
-variance_othstr         Variance estimation for sample surveys by the the new stratification
-varpoord                Estimation of the variance and deff for sample surveys for
-                        indicators on social exclusion and poverty
+vardpoor-package        Variance estimation for sample surveys by the 
+                        ultimate cluster method ~~ package title ~~
+variance_est            Variance estimation for sample surveys by the ultimate
+                        cluster method
+variance_othstr         Variance estimation for sample surveys by the the new
+                        stratification
+varpoord                Estimation of the variance and deff for sample 
+                        surveys for indicators on social exclusion and poverty
 }
 }
 \author{

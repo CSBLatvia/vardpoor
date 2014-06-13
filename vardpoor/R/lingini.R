@@ -135,7 +135,7 @@ lingini <- function(inc, id = NULL, weight = NULL, sort = NULL,
               colnames(Gini) <- c("Gini", "Gini_eu")}
     rownames(Gini) <- NULL
     gini_m[is.na(gini_m)] <- 0
-    return(list(value=Gini,lin=gini_m))
+    return(list(value=Gini, lin=gini_m))
 }
 
 
@@ -181,6 +181,6 @@ linginiCalc <- function(x, ids, weights = NULL, sort = NULL, na.rm = FALSE) {
     lin <- 100*(2*(T-G+wx+N*(x*F))-x-(Gini+1)*(T+N*x))/(N*T)
     
     lin_id <- data.table(ids,lin)
-    return(list(Gini_eu=Gini_eu,Gini=Gini_pr,lin=lin_id))
+    return(list(Gini_eu=Gini_eu, Gini=Gini_pr,lin=lin_id))
 }
 

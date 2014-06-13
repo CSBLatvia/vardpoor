@@ -90,6 +90,7 @@ where
 \eqn{z_{hij}} denotes the observed value of the analysis variable \eqn{z} for household \eqn{j} in PSU \eqn{i} of stratum \eqn{h}
 
 }
+
 \references{
 Yves G. Berger, Tim Goedeme, Guillame Osier (2013). Handbook on standard
 error estimation and other related sampling issues in EU-SILC,
@@ -98,6 +99,7 @@ URL \url{http://www.cros-portal.eu/content/handbook-standard-error-estimation-an
 Guillaume Osier and Emilio Di Meglio. The linearisation approach implemented by Eurostat for
 the first wave of EU-SILC: what could be done from the second onwards? 2012
 }
+
 \examples{
 Ys <- matrix(rchisq(10, 3), 10, 1)
 w <- rep(2, 10)

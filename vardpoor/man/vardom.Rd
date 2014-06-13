@@ -1,12 +1,22 @@
 \name{vardom}
+
 \alias{vardom}
+
 \title{Variance estimation of the sample surveys in domain by the ultimate cluster method}
-\description{Computes the variance estimation in domain.}
-\usage{vardom(Y, H, PSU, w_final, id=NULL, Dom = NULL, 
-       N_h = NULL, fh_zero=FALSE, PSU_level = TRUE, Z = NULL,
-       X = NULL, ind_gr = NULL, g = NULL,  dataset = NULL, 
-       q = rep(1, if (is.null(dataset)) nrow(data.frame(X)) else nrow(dataset)),
-       confidence = .95, outp_lin=FALSE, outp_res=FALSE)}
+
+\description{Computes the variance estimation of the sample surveys in domain by the ultimate cluster method.}
+
+\usage{
+vardom(Y, H, PSU, w_final, id=NULL,
+       Dom = NULL, N_h = NULL, fh_zero=FALSE,
+       PSU_level = TRUE, Z = NULL,
+       X = NULL, ind_gr = NULL, g = NULL,
+       dataset = NULL, 
+       q = rep(1, if (is.null(dataset)) 
+             nrow(data.frame(X)) else nrow(dataset)),
+       confidence = .95, outp_lin=FALSE,
+       outp_res=FALSE)}
+
 \arguments{
   \item{Y}{either a numeric data.frame, matrix, data.table with
   column names giving the variables of interest, or (if \code{dataset} 
@@ -105,6 +115,8 @@
   \item{outp_res}{logical. if \code{TRUE} estimated residuals
   of calibration will be printed out}
 }
+
+
 \value{
   The function returns values: 
   \item{estim}{a \code{data.table} containing the estimation(s)
@@ -176,8 +188,10 @@
   \item{all_result}{a \code{data.frame} containing all previosly definited
   values together by domains or (if \code{Dom} is \code{NULL}) totals.}
 }
+
 \details{
 Calculate variance estimation on domains based on G. Osier documents.
+
 }
 \references{
   Yves G. Berger, Tim Goedeme, Guillame Osier (2013). Handbook on standard
@@ -187,11 +201,12 @@ Calculate variance estimation on domains based on G. Osier documents.
   Guillaume Osier and Emilio Di Meglio. The linearisation approach implemented by Eurostat for
   the first wave of EU-SILC: what could be done from the second wave onwards? 2012
 
-  Deville, J. C. (1999). Variance estimation for complex statistics
+  Jean-Claude Deville (1999). Variance estimation for complex statistics
   and estimators: linearization and residual techniques. Survey
   Methodology, 25, 193-203,
   URL \url{http://www5.statcan.gc.ca/bsolc/olc-cel/olc-cel?lang=eng&catno=12-001-X19990024882}. \cr
 }
+
 \examples{
 data(eusilc)
 dataset <- data.frame(1:nrow(eusilc),eusilc)
@@ -204,10 +219,9 @@ aa<-vardom("eqIncome", H="db040", PSU="db030", w_final="rb050",
                        nrow(as.data.frame(H)) else nrow(dataset)),
            confidence = .95, outp_lin=TRUE, outp_res=TRUE)
 
-
-} \seealso{
-  \code{\link{domain}},   \code{\link{lin.ratio}},  \code{\link{residual_est}},
-  \code{\link{vardomh}},  \code{\link{var_srs}},    \code{\link{variance_est}},
-  \code{\link{variance_othstr}}
 }
+\seealso{
+\code{\link{domain}},   \code{\link{lin.ratio}},  \code{\link{residual_est}},
+\code{\link{vardomh}},  \code{\link{var_srs}},    \code{\link{variance_est}},
+\code{\link{variance_othstr}}}
 \keyword{vardpoor}

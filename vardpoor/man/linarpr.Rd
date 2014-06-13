@@ -22,7 +22,6 @@ linarpr(inc, id, weight = NULL,
 
   \item{inc}{Study variable (for example equivalized disposable income). One dimentional object convertable to one-column \code{data.frame} or variable name as character, column number or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset}).}
 
-
   \item{id}{Optional variable for unit ID codes. One dimentional object convertable to one-column \code{data.frame} or variable name as character, column number or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset}).}
 
   \item{weight}{Optional weight variable. One dimentional object convertable to one-column \code{data.frame} or variable name as character, column number or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset}).}
@@ -61,9 +60,9 @@ linarpr(inc, id, weight = NULL,
   
   \item{threshold}{A \code{data.frame} containing the estimated at-risk-of-poverty threshold.}
   
-  \item{value}{A \code{data.frame} containing the estimated at-risk-of-poverty rate. The estimates are done by domains if \code{Dom} is not \code{NULL}.}
+  \item{value}{A \code{data.frame} containing the estimated at-risk-of-poverty rate (in percentage). The estimates are done by domains if \code{Dom} is not \code{NULL}.}
   
-  \item{lin}{A \code{data.frame} containing the linearized variables of the poverty rate (in precentage). The linearized variables are computed by domains if \code{Dom} is not \code{NULL}.}
+  \item{lin}{A \code{data.frame} containing the linearized variables of the poverty rate (in percentage). The linearized variables are computed by domains if \code{Dom} is not \code{NULL}.}
 }
 
 \references{
@@ -78,7 +77,7 @@ linarpr(inc, id, weight = NULL,
   pp. 167-195, ISSN 1864-3361,
   URL \url{https://ojs.ub.uni-konstanz.de/srm/article/view/369}. \cr
 
-  Deville, J. C. (1999). Variance estimation for complex statistics
+  Jean-Claude Deville (1999). Variance estimation for complex statistics
   and estimators: linearization and residual techniques. Survey
   Methodology, 25, 193-203,
   URL \url{http://www5.statcan.gc.ca/bsolc/olc-cel/olc-cel?lang=eng&catno=12-001-X19990024882}. \cr

@@ -13,5 +13,6 @@ RnwWeave: Sweave
 LaTeX: XeLaTeX
 
 BuildType: Package
+PackagePath: vardpoor
 PackageInstallArgs: --no-multiarch
 PackageBuildArgs: --md5

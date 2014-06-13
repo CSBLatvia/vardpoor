@@ -285,7 +285,7 @@ exclusion and poverty.}
   2011, vol. LXIX, n. 1, pp. 45-65, 
   URL \url{ftp://metron.sta.uniroma1.it/RePEc/articoli/2011-1-3.pdf}. \cr
 
-  Deville, J. C. (1999). Variance estimation for complex statistics
+  Jean-Claude Deville (1999). Variance estimation for complex statistics
   and estimators: linearization and residual techniques. Survey
   Methodology, 25, 193-203,
   URL \url{http://www5.statcan.gc.ca/bsolc/olc-cel/olc-cel?lang=eng&catno=12-001-X19990024882}. \cr

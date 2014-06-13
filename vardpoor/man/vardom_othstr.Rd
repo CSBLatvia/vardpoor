@@ -172,16 +172,14 @@
   \item{all_result}{a \code{data.frame} containing all previosly definited
   values together by domains or (if \code{Dom} is \code{NULL}) totals.}
 }
-\details{
-Calculate variance estimation on domains based on G. Osier documents.
-}
-\references{
 
-  Deville, J. C. (1999). Variance estimation for complex statistics
+\references{
+  Jean-Claude Deville (1999). Variance estimation for complex statistics
   and estimators: linearization and residual techniques. Survey
   Methodology, 25, 193-203,
   URL \url{http://www5.statcan.gc.ca/bsolc/olc-cel/olc-cel?lang=eng&catno=12-001-X19990024882}. \cr
 }
+
 \examples{
 
 data(eusilc)
@@ -198,9 +196,9 @@ aa<-vardom_othstr("eqIncome", H="db040",H2="db040", PSU="db030", w_final="rb050"
                        nrow(as.data.frame(H)) else nrow(dataset)),
            confidence = .95, outp_lin=TRUE, outp_res=TRUE)
 
-} \seealso{
-  \code{\link{domain}},   \code{\link{lin.ratio}},  \code{\link{residual_est}},
-  \code{\link{vardomh}},  \code{\link{var_srs}},    \code{\link{variance_est}},
-  \code{\link{variance_othstr}}
 }
+\seealso{
+\code{\link{domain}},   \code{\link{lin.ratio}},  \code{\link{residual_est}},
+\code{\link{vardomh}},  \code{\link{var_srs}},    \code{\link{variance_est}},
+\code{\link{variance_othstr}}}
 \keyword{vardpoor}

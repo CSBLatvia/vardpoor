@@ -91,9 +91,11 @@ Estimate of \eqn{\hat{Var}\left( \hat{Y} \right)} is
 \deqn{\hat{Var}\left( \hat{Y} \right) = \sum\limits_{g=1}^{G} M_g^2 \left( \frac{1}{m_g} - \frac{1}{M_g} \right)s_g^2}
 
 }
+
 \references{ 
 M. Liberts. (2004) Non-response Analysis and Bias Estimation in a Survey on Transportation of Goods by Road.
 }
+
 \examples{
 period=NULL
 dataset=NULL
@@ -115,6 +117,7 @@ PSU <- 1:10
 variance_othstr(Y, H, H2, PSU, w_final, N_h=N_h, N_h2=N_h2, period=NULL, dataset=NULL) 
 
 } 
+
 \seealso{
   \code{\link{domain}},         \code{\link{lin.ratio}},    \code{\link{linarpr}},
   \code{\link{linarpt}},        \code{\link{lingini}},      \code{\link{lingini2}},

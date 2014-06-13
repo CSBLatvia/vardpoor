@@ -1,8 +1,12 @@
 \name{vardomh}
+
 \alias{vardomh}
+
 \title{Variance estimation for sample surveys in domain for household surveys by the ultimate
                         cluster method}
+
 \description{Computes the variance estimation in domain for household.}
+
 \usage{vardomh(Y, H, PSU, w_final, ID_household,
                id = NULL, Dom = NULL, period = NULL,
                N_h = NULL, fh_zero = FALSE, PSU_level = TRUE,
@@ -13,6 +17,7 @@
                            nrow(data.frame(X)) else nrow(datasetX)),
                confidence = .95, outp_lin = FALSE,
                outp_res = FALSE)}
+
 \arguments{
   \item{Y}{either a numeric data.frame, matrix, data.table with
   column names giving the variables of interest, or (if \code{dataset} 
@@ -147,6 +152,7 @@
   of calibration will be printed out}
 
 }
+
 \value{
   The function returns values: 
   \item{estim}{a \code{data.table} containing the estimation(s)
@@ -218,9 +224,11 @@
   \item{all_result}{a \code{data.frame} containing all previosly definited
   values together by domains or (if \code{Dom} is \code{NULL}) totals.}
 }
+
 \details{
 Calculate variance estimation on domains based on G. Osier documents.
 }
+
 \references{
   Yves G. Berger, Tim Goedeme, Guillame Osier (2013). Handbook on standard
   error estimation and other related sampling issues in EU-SILC,
@@ -229,12 +237,15 @@ Calculate variance estimation on domains based on G. Osier documents.
   Guillaume Osier and Emilio Di Meglio. The linearisation approach implemented by Eurostat for
   the first wave of EU-SILC: what could be done from the second wave onwards? 2012
 
-  Deville, J. C. (1999). Variance estimation for complex statistics
+  Jean-Claude Deville (1999). Variance estimation for complex statistics
   and estimators: linearization and residual techniques. Survey
   Methodology, 25, 193-203,
   URL \url{http://www5.statcan.gc.ca/bsolc/olc-cel/olc-cel?lang=eng&catno=12-001-X19990024882}. \cr
 }
+
+
 \examples{
+
 data(eusilc)
 dataset <- data.frame(1:nrow(eusilc),eusilc)
 colnames(dataset)[1] <- "IDd"
@@ -260,9 +271,10 @@ aa2<-vardomh("eqIncome", H="db040", PSU="db030", w_final="rb050",
            q = rep(1, if (is.null(datasetX)) 
                        nrow(as.data.frame(H)) else nrow(datasetX)),
            confidence = .95, outp_lin=TRUE, outp_res=TRUE)
+}
 
-} \seealso{
-  \code{\link{domain}},   \code{\link{lin.ratio}},  \code{\link{residual_est}},
-  \code{\link{var_srs}},  \code{\link{variance_est}}
+\seealso{
+\code{\link{domain}},   \code{\link{lin.ratio}},  \code{\link{residual_est}},
+\code{\link{var_srs}},  \code{\link{variance_est}}
 }
 \keyword{vardpoor}

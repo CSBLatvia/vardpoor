@@ -9,8 +9,10 @@ Rcmd.exe check vardpoor
 # 2. Izpilda komandu - izveido paketi
 Rcmd.exe build vardpoor
 
-# 3. Izpilda komandu - izveido paketi .zip
-Rcmd.exe build -binary vardpoor
-
-# 3. Izpilda komandu - uzinstalē paketi
+# 3. Izpilda komandu - uzinstalē paketi 
 Rcmd.exe INSTALL vardpoor
+
+vai
+
+# 3. Izpilda komandu - uzinstalē paketi un izveido paketi .zip
+Rcmd.exe INSTALL --build vardpoor

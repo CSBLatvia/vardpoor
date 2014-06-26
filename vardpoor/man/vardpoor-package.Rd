@@ -29,10 +29,10 @@ Generation of domain variables,
 \details{
 \tabular{ll}{
 Package: \tab vardpoor\cr
-Version: \tab 0.2.0.8.2\cr
-Date: \tab 2014-05-28\cr
+Version: \tab 0.2.0.9\cr
+Date: \tab 2014-06-26\cr
 Depends: \tab R (>= 3.0.0), laeken, data.table\cr
-Imports: \tab foreach, lpSolve\cr
+Imports: \tab foreach, lpSolve, plyr, reshape2, gdata\cr
 License: \tab GPL (>= 2)\cr
 URL: \tab https://github.com/djhurio/vardpoor\cr
 BugReports: \tab https://github.com/djhurio/vardpoor/issues\cr

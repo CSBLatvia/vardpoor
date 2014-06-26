@@ -29,7 +29,7 @@ vardomh <- function(Y, H, PSU, w_final,
           stop("'confidence' must be a numeric value in [0,1]")  }
 
   if(!is.null(dataset)) {
-      data <- data.frame(dataset)
+      dataset <- data.frame(dataset)
       aY <- Y
       if (min(Y %in% names(dataset))!=1) stop("'Y' does not exist in 'dataset'!")
       if (min(Y %in% names(dataset))==1) {

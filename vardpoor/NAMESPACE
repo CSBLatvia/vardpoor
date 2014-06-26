@@ -18,9 +18,15 @@ export(vardomh)
 export(variance_est)
 export(variance_othstr)
 export(varpoord)
+export(vardcros)
+export(vardchanges)
 
 importFrom(laeken)
 import(foreach)
+import(plyr)
+import(reshape2)
+import(gdata)
 import(lpSolve)
 import(data.table)
+
 

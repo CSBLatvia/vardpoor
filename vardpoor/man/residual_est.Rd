@@ -9,29 +9,22 @@
 \usage{residual_est(Y, X, weight, q, period=NULL, ind_gr)}
 
 \arguments{
-\item{Y}{matrix of the variable of interest; its length is equal to n, the sample size.}
-\item{X}{matrix of the auxiliary variables; for the calibration estimator, this is the matrix of the sample calibration variables.} 
-\item{weight}{vector of the weights; its length is equal to n, the sample size.}
-\item{q}{vector of positive values accounting for heteroscedasticity; its size is n, the sample size.}  
-\item{period}{optional; either a data.frame, matrix, data.table
-  with column names giving different periods, or (if 
-  \code{datasetX} is not \code{NULL}) character strings,
-  integers or a logical vectors (length is the same as 
-  'datasetX' column count) specifying the corresponding
-  columns of \code{datasetX}. If supplied, the values for
-  each period are computed independently.
-  }
-\item{ind_gr}{optional; either a vector, 1 column data.frame, matrix,
-  data.table giving the variable by which divided independently
-  auxiliary variables, or (if \code{datasetX} is not
-  \code{NULL}) a character string,  an integer or a logical vector
-  (length is the same as 'datasetX' column count) specifying the
-  corresponding column of \code{datasetX}. This variable is \code{NULL}
-  by default.}
+
+\item{Y}{Matrix of the variable of interest.}
+
+\item{X}{Matrix of the auxiliary variables for the calibration estimator. This is the matrix of the sample calibration variables.} 
+
+\item{weight}{Weight variable. One dimentional object convertable to one-column \code{data.frame}.}
+
+\item{q}{Variable of the positive values accounting for heteroscedasticity. One dimentional object convertable to one-column \code{data.frame}.}
+
+\item{period}{Optional variable for survey period. If supplied, residual estimation of calibration is done independently for each time period. One dimentional object convertable to one-column \code{data.frame}.}
+
+\item{ind_gr}{Optional variable by which divided independently auxiliary variables. One dimentional object convertable to one-column \code{data.frame}.}
 }
 
 \value{
-  A numeric data.frame containing the estimated residuals of calibration.
+  A numeric \code{data.frame} containing the estimated residuals of calibration.
 }
 
 \details{

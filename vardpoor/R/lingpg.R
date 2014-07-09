@@ -22,6 +22,7 @@ lingpg <- function(inc, gender = NULL, id, weight=NULL, sort = NULL,
    if (is.null(gender)) stop("'gender' must be supplied")
 
    if (!is.null(dataset)) {
+        dataset <- data.frame(dataset)
         if (checker(inc, dataset, "inc")) inc <- dataset[, inc] 
         if (checker(gender, dataset, "gender")) gender <- dataset[, gender]  
 

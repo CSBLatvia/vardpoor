@@ -1,58 +1,39 @@
 \name{variance_othstr}
+
 \alias{variance_othstr}
+
 \title{Variance estimation for sample surveys by the new stratification}
+
 \description{Computes the variance estimation by the new stratification.}
+
 \usage{variance_othstr(Y, H, H2, w_final, N_h=NULL, N_h2, s2g=FALSE, period=NULL, dataset=NULL)}
+
 \arguments{
-  \item{Y}{either a numeric data.frame, matrix, data.table with
-  column names giving the variables of interest, or (if \code{dataset} 
-  is not \code{NULL}) a character string, an integer or a
-  logical vector (length is the same as 'dataset' column count)
-  specifying the corresponding column of \code{dataset}.}
 
-  \item{H}{either 1 column data.frame, matrix, data.table with
-  column name giving elements  indicating the unit stratum,
-  or (if \code{dataset} is not \code{NULL}) a character string,
-  an integer or a logical vector (length is the same as 'dataset'
-  column count) specifying the corresponding column of \code{dataset}.}
+\item{Y}{Variables of interest. Object convertable to \code{data.frame} or variable names as character, column numbers or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset}).}
 
-  \item{H2}{either 1 column data.frame, matrix, data.table with
-  column name giving elements  indicating the unit new stratum,
-  or (if \code{dataset} is not \code{NULL}) a character string,
-  an integer or a logical vector (length is the same as 'dataset'
-  column count) specifying the corresponding column of \code{dataset}.}
+\item{H}{The unit stratum variable. One dimentional object convertable to one-column \code{data.frame} or variable name as character, column number or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset}).}
 
-  \item{w_final}{either a numeric vector, 1 column data.frame, matrix,
-  data.table giving the final weights, or (if \code{dataset} is not
-  \code{NULL}) a character string,  an integer or a logical vector
-  (length is the same as 'dataset' column count) specifying the
-  corresponding column of \code{dataset}.}
+\item{H2}{The unit new stratum variable. One dimentional object convertable to one-column \code{data.frame} or variable name as character, column number or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset}).}
 
-  \item{N_h}{either a matrix giving the first column - stratum, but
-  the second column - the total of the population in each stratum.}
+\item{w_final}{Weight variable. One dimentional object convertable to one-column \code{data.frame} or variable name as character, column number or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset}).}
 
-  \item{N_h2}{either a matrix giving the first column - new stratum, but
-  the second column - the total of the population in each stratum.}
+\item{N_h}{optional; either a \code{data.frame} giving the first column - stratum, but the second column - the total of the population in each stratum.}
 
-  \item{s2g}{by default is FALSE; calculate variance, but if s2g is TRUE, 
-  then variance estimation is taken as S^2g value.}
+\item{N_h2}{optional; either a \code{data.frame} giving the first column - new stratum, but the second column - the total of the population in each new stratum.}
 
-  \item{period}{optional; either a data.frame, matrix, data.table
-  with column names giving different periods, or (if 
-  \code{dataset} is not \code{NULL}) character strings,
-  integers or a logical vectors (length is the same as 
-  'dataset' column count) specifying the corresponding
-  columns of \code{dataset}. If supplied, the values for
-  each period are computed independently.
-  }
+\item{s2g}{by default is FALSE; calculate variance, but if s2g is TRUE, then variance estimation is taken as S^2g value.}
 
-  \item{dataset}{an optional name of the individual dataset
-  \code{data.frame}.}
+\item{period}{Optional variable for the survey periods. If supplied, the values for each period are computed independently. One dimentional object convertable to one-column \code{data.frame} or variable name as character, column number or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset}).}
+
+\item{dataset}{Optional survey data object convertable to \code{data.frame}.}
 
 }
-\value{a \code{data.table} containing the  values of the
-  variance estimation by totals.
+
+\value{A \code{data.table} containing the  values of the variance estimation.
+
 }
+
 \details{
 It is possible to compute population size \eqn{M_g} from sampling frame. The standard deviation of \eqn{g}-th stratum is
 

@@ -21,6 +21,7 @@ lingini2 <- function(inc, id = NULL, weight = NULL, sort = NULL,
        stop("'var_name' must have defined name of the linearized variable")}
 
    if (!is.null(dataset)) {
+        dataset <- data.frame(dataset)
         if (checker(inc,dataset,"inc")) inc <- dataset[, inc] 
 
         if (!is.null(id)) {

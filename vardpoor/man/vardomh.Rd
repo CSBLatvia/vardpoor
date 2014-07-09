@@ -19,228 +19,110 @@
                outp_res = FALSE)}
 
 \arguments{
-  \item{Y}{either a numeric data.frame, matrix, data.table with
-  column names giving the variables of interest, or (if \code{dataset} 
-  is not \code{NULL}) a character string, an integer or a
-  logical vector (length is the same as 'dataset' column count)
-  specifying the corresponding column of \code{dataset}.}
 
-  \item{H}{either 1 column data.frame, matrix, data.table with
-  column name giving elements  indicating the unit stratum,
-  or (if \code{dataset} is not \code{NULL}) a character string,
-  an integer or a logical vector (length is the same as 'dataset'
-  column count) specifying the corresponding column of \code{dataset}.}
+\item{Y}{Variables of interest. Object convertable to \code{data.frame} or variable names as character, column numbers or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset}).}
 
-  \item{PSU}{either 1 column data.frame, matrix, data.table giving
-  primary sampling unit, or (if \code{dataset} is not \code{NULL})
-  a character string, an integer or a logical vector (length is the
-  same as 'dataset' column count) specifying the corresponding
-  column of \code{dataset}.}
+\item{H}{The unit stratum variable. One dimentional object convertable to one-column \code{data.frame} or variable name as character, column number or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset}).}
 
-  \item{w_final}{either a numeric vector, 1 column data.frame, matrix,
-  data.table giving the final weights, or (if \code{dataset} is not
-  \code{NULL}) a character string,  an integer or a logical vector
-  (length is the same as 'dataset' column count) specifying the
-  corresponding column of \code{dataset}.}
+\item{PSU}{Primary sampling unit variable. One dimentional object convertable to one-column \code{data.frame} or variable name as character, column number or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset}).}
 
-  \item{ID_household}{either 1 column data.frame, matrix,
-   data.table with column names giving the household IDs, or
-  (if \code{dataset} is not \code{NULL}) a character string,
-  an integer or a logical vector (length is the same as
-  'dataset' column count) specifying the corresponding
-  column of \code{dataset}.}
+\item{w_final}{Weight variable. One dimentional object convertable to one-column \code{data.frame} or variable name as character, column number or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset}).}
 
-  \item{id}{optional; either 1 column data.frame, matrix,
-  data.table with column names giving the IDs, or
-  (if \code{dataset} is not \code{NULL}) a character string,
-  an integer or a logical vector (length is the same as
-  'dataset' column count) specifying the corresponding
-  column of \code{dataset}. if \code{id} is \code{NULL},
-  then it will be \code{PSU}.}
+\item{ID_household}{Variable for household ID codes. One dimentional object convertable to one-column \code{data.frame} or variable name as character, column number or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset}).}
 
-  \item{Dom}{optional; either a data.frame, matrix, data.table with
-  column names giving different domains, or (if \code{dataset} is
-  not \code{NULL}) character strings, integers or a logical vectors
-  (length is the same as 'dataset' column count) specifying the
-  corresponding columns of \code{dataset}. This variable is \code{NULL}
-  by default. If supplied, the values for each domain are computed.}
+\item{id}{Optional variable for unit ID codes. One dimentional object convertable to one-column \code{data.frame} or variable name as character, column number or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset}).}
 
-  \item{period}{optional; either a data.frame, matrix, data.table
-  with column names giving different periods, or (if 
-  \code{dataset} is not \code{NULL}) character strings,
-  integers or a logical vectors (length is the same as 
-  'dataset' column count) specifying the corresponding
-  columns of \code{dataset}. If supplied, the values for
-  each period are computed independently.
-  }
+\item{period}{Optional variable for the survey periods. If supplied, the values for each period are computed independently. Object convertable to \code{data.frame} or variable names as character, column numbers or logical vector (length of the vector has to be the same as the column count of \code{dataset}).}
 
-  \item{N_h}{optional; either a matrix giving the first column - stratum,
-  but the second column - the total of the population in each stratum.}
+\item{Dom}{Optional variables used to define population domains. If supplied, values is calculated for each domain. An object convertable to \code{data.frame} or variable names as character vector, column numbers or logical vector (length of the vector has to be the same as the column count of \code{dataset}).}
 
-  \item{fh_zero}{by default FALSE; fh is calculated as division of n_h and N_h 
-  in each strata, if true, fh value is zero in each strata.}
+\item{N_h}{optional; either a matrix giving the first column - stratum, but the second column - the total of the population in each stratum.}
 
-  \item{PSU_level}{by default TRUE; if PSU_level is true, in each strata fh
-  is calculated as division of count of PSU in sample (n_h) and count of PSU in frame(N_h). 
-  if PSU_level is false, in each strata fh is calculated as division of count of units in
-  sample (n_h) and count of units in frame(N_h), which calculated as sum of weights. }
+\item{fh_zero}{by default FALSE; fh is calculated as division of n_h and N_h in each strata, if true, fh value is zero in each strata.}
 
-  \item{Z}{optional; either a data.frame, matrix, data.table with
-  column names giving variables of denominator, or (if \code{dataset}
-  is not \code{NULL}) character strings, integers or a logical vectors
-  (length is the same as 'dataset' column count) specifying the
-  corresponding columns of \code{dataset}. This variable is \code{NULL}
-  by default. If supplied, the ratio estimation is computed.}
+\item{PSU_level}{by default TRUE; if PSU_level is true, in each strata fh is calculated as division of count of PSU in sample (n_h) and count of PSU in frame(N_h). if PSU_level is false, in each strata fh is calculated as division of count of units in sample (n_h) and count of units in frame(N_h), which calculated as sum of weights.}
 
-  \item{dataset}{an optional; name of the individual dataset
-  \code{data.frame}.}
+\item{Z}{Optional variables of denominator for ratio estimation. Object convertable to \code{data.frame} or variable names as character, column numbers or logical vector (length of the vector has to be the same as the column count of \code{dataset}).}
 
-  \item{X}{optional; either a data.frame, matrix, data.table giving
-  auxiliary variables, or (if \code{dataset} is not \code{NULL})
-  character strings, integers or a logical vectors (length is the
-  same as 'datasetX' column count) specifying the corresponding
-  columns of \code{datasetX}. This variable is \code{NULL} by default.}
+\item{dataset}{Optional survey data object convertable to \code{data.frame}.}
 
-  \item{periodX}{optional; either a data.frame, matrix, data.table
-  with column names giving different periods for data X, or (if 
-  \code{datasetX} is not \code{NULL}) character strings,
-  integers or a logical vectors (length is the same as 
-  'dataset' column count) specifying the corresponding
-  columns of \code{datasetX}. If supplied, the values for
-  each periodX are computed independently.
-  }
+\item{X}{Optional matrix of the auxiliary variables for the calibration estimator. Object convertable to \code{data.frame} or variable names as character, column numbers or logical vector (length of the vector has to be the same as the column count of \code{datasetX}).}
 
-  \item{X_ID_household}{either 1 column data.frame, matrix, data.table
-  with column name giving the household IDs for auxiliary variables,
-  or (if \code{datasetX} is not \code{NULL}) a character string,
-  an integer or a logical vector (length is the same as
-  'datasetX' column count) specifying the corresponding
-  column of \code{dataset}.}
+\item{periodX}{Optional variable ofthe survey periods. If supplied, residual estimation of calibration is done independently for each time period. Object convertable to \code{data.frame} or variable names as character, column numbers or logical vector (length of the vector has to be the same as the column count of \code{datasetX}).}
 
-  \item{ind_gr}{optional; either a vector, 1 column data.frame,
-  matrix, data.table giving the variable by which divided independently
-  auxiliary variables, or (if \code{datasetX} is not
-  \code{NULL}) a character string,  an integer or a logical vector
-  (length is the same as 'datasetX' column count) specifying the
-  corresponding column of \code{datasetX}. This variable is \code{NULL}
-  by default.}
+\item{X_ID_household}{Variable for household ID codes. One dimentional object convertable to one-column \code{data.frame} or variable name as character, column number or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{datasetX}).}
 
-  \item{g}{optional; either a numeric vector, 1 column data.frame,
-  matrix, data.table giving the g weights, or (if \code{datasetX} is not
-  \code{NULL}) a character string,  an integer or a logical vector
-  (length is the same as 'datasetX' column count) specifying the
-  corresponding column of \code{datasetX}. This variable is \code{NULL}
-  by default.}
+\item{ind_gr}{Optional variable by which divided independently auxiliary variables. One dimentional object convertable to one-column \code{data.frame} or variable name as character, column number or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{datasetX}).}
 
-  \item{datasetX}{an optional; name of the individual dataset
-  \code{data.frame}.}
+\item{g}{Optional variable of the g weights. One dimentional object convertable to one-column \code{data.frame} or variable name as character, column number or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{datasetX}).}
 
-  \item{q}{optional; either a numeric vector, 1 column data.frame,
-  matrix, data.table giving the positive values accounting for
-  heteroscedasticity, or (if \code{datasetX} is not \code{NULL}) a
-  character string,  an integer or a logical vector (length is the
-  same as 'datasetX' column count) specifying the corresponding
-  column of \code{datasetX}. This variable is \code{NULL} by default.}
+\item{datasetX}{Optional survey data object in household level convertable to \code{data.frame}.}
 
-  \item{confidence}{optional; either a positive value for confidence
-  interval. This variable by default is 0.95 .}
+\item{q}{Variable of the positive values accounting for heteroscedasticity. One dimentional object convertable to one-column \code{data.frame} or variable name as character, column number or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{datasetX}).}
 
-  \item{outp_lin}{logical. if \code{TRUE} linearized values of 
-  the ratio estimator will be printed out}
+\item{confidence}{Optional positive value for confidence interval. This variable by default is 0.95.}
 
-  \item{outp_res}{logical. if \code{TRUE} estimated residuals
-  of calibration will be printed out}
+\item{outp_lin}{Logical value. if \code{TRUE} linearized values of the ratio estimator will be printed out.}
+
+\item{outp_res}{Logical value. if \code{TRUE} estimated residuals of calibration will be printed out.}
 
 }
 
 \value{
-  The function returns values: 
-  \item{estim}{a \code{data.table} containing the estimation(s)
-  by domain, or (if \code{Dom} is \code{NULL}) totals.}
 
-  \item{var}{a \code{data.table} containing the values of the
-  variance estimation by domains or (if \code{Dom} is \code{NULL})
-  totals.}
+  A list with objects are returned by the function:
 
-  \item{se}{a \code{data.table} containing the values of the
-  standart error by domains or (if \code{Dom} is \code{NULL})
-  totals.}
+  \item{estim}{A \code{data.table} containing the estimated value.}
 
-  \item{rse}{a \code{data.table} containing the values of the
-  relative standart error (coefficient of variation) by domains
-  or (if \code{Dom} is \code{NULL}) totals in percentage.}
+  \item{var}{A \code{data.table} containing the estimated variance.}
 
-  \item{cv}{a \code{data.table} containing the values of the
-  relative standart error (coefficient of variation) by domains
-  or (if \code{Dom} is \code{NULL}) totals.}
+  \item{se}{A \code{data.table} containing the estimated standart error.}
 
-  \item{absolute_margin_of_error}{a \code{data.table} containing
-  the values of the absolute margin of error by domains or
-  (if \code{Dom} is \code{NULL}) totals.}
+  \item{rse}{A \code{data.table} containing the estiamted relative standart error (coefficient of variation).}
 
-  \item{relative_margin_of_error}{a \code{data.table} containing
-  the values of the relative margin of error by domains or
-  (if \code{Dom} is \code{NULL}) totals.}
+  \item{cv}{A \code{data.table} containing the estimated relative standart error (coefficient of variation) in percentage.}
 
-  \item{CI_lower}{a \code{data.table} containing the values of
-  the confidence interval lower bound by domains or (if \code{Dom}
-  is \code{NULL}) totals.}
+  \item{absolute_margin_of_error}{A \code{data.table} containing the estimated absolute margin of error.}
 
-  \item{CI_upper}{a \code{data.table} containing the values of
-  the confidence interval upper bound by domains or (if \code{Dom}
-  is \code{NULL}) totals.}
+  \item{relative_margin_of_error}{A \code{data.table} containing the estimated relative margin of error.}
 
-  \item{var_srs_HT}{a \code{matrix} containing the values of
-  the variance estimation of HT estimator under SRS by domains
-  or (if \code{Dom} is \code{NULL}) totals.}
+  \item{CI_lower}{A \code{data.table} containing the estimated confidence interval lower bound.}
 
-  \item{var_cur_HT}{a \code{matrix} containing the values of the
-  variance estimation of HT estimator under HT estimator under
-  current design by domains or (if \code{Dom} is \code{NULL}) totals.}
+  \item{CI_upper}{A \code{data.table} containing the estimated confidence interval upper bound.}
 
-  \item{var_srs_ca}{a \code{matrix} containing the values of
-  the variance estimation of calibrated estimator under SRS
-  by domains or (if \code{Dom} is \code{NULL}) totals.}
+  \item{var_srs_HT}{A \code{data.table} containing the estimated variance of the HT estimator under SRS.}
+
+  \item{var_cur_HT}{A \code{data.table} containing the estimated variance of the HT estimator under current design.}
+
+  \item{var_srs_ca}{A \code{data.table} containing the estimated variance of the calibrated estimator under SRS.}
   
-  \item{deff_sam}{a \code{matrix} containing the values of
-  the estimation of the design effect of sample design by
-  domains or (if \code{Dom} is \code{NULL}) totals.}
+  \item{deff_sam}{A \code{data.table} containing the estimated design effect of sample design.}
 
-  \item{deff_est}{a \code{matrix} containing the values of
-  the estimation of the design effect of estimator by domains
-  or (if \code{Dom} is \code{NULL}) totals.}
+  \item{deff_est}{A \code{data.table} containing the estimated design effect of estimator.}
 
-  \item{deff}{a \code{matrix} containing the values of
-  the estimation of the overall design effect of sample
-  design and estimator by domains or (if \code{Dom} is
-  \code{NULL}) totals.}
+  \item{deff}{A \code{data.table} containing the overall estimated design effect of sample design and estimator.}
 
-  \item{lin_out}{a \code{data.table} containing the linearized
-  values of the ratio estimator with id and PSU.}
+  \item{lin_out}{A \code{data.table} containing the linearized values of the ratio estimator with id and PSU.}
 
-  \item{res_out}{a \code{data.table} containing the estimated
-  residuals of calibration with id and PSU.}
+  \item{res_out}{A \code{data.table} containing the estimated residuals of calibration with id and PSU.}
 
-  \item{all_result}{a \code{data.frame} containing all previosly definited
-  values together by domains or (if \code{Dom} is \code{NULL}) totals.}
+  \item{all_result}{A \code{data.table} containing all previosly definited estimated values together.}
 }
 
 \details{
-Calculate variance estimation on domains based on G. Osier documents.
+Calculate variance estimation in domains for household surveys based on book of Hansen, Hurwitz and Madow.
 }
 
 \references{
-  Yves G. Berger, Tim Goedeme, Guillame Osier (2013). Handbook on standard
-  error estimation and other related sampling issues in EU-SILC,
-  URL \url{http://www.cros-portal.eu/content/handbook-standard-error-estimation-and-other-related-sampling-issues-ver-29072013}    \cr
+Morris H. Hansen, William N. Hurwitz, William G. Madow, (1953), Sample survey methods and theory Volume I Methods and applications, 257-258, Wiley. \cr
 
-  Guillaume Osier and Emilio Di Meglio. The linearisation approach implemented by Eurostat for
-  the first wave of EU-SILC: what could be done from the second wave onwards? 2012
+Guillaume Osier and Emilio Di Meglio. The linearisation approach implemented by Eurostat for the first wave of EU-SILC: what could be done from the second wave onwards? 2012 \cr
 
-  Jean-Claude Deville (1999). Variance estimation for complex statistics
-  and estimators: linearization and residual techniques. Survey
-  Methodology, 25, 193-203,
-  URL \url{http://www5.statcan.gc.ca/bsolc/olc-cel/olc-cel?lang=eng&catno=12-001-X19990024882}. \cr
+Eurostat Methodologies and Working papers, Standard error estimation for the EU-SILC indicators of poverty and social exclusion, 2013, URL \url{http://epp.eurostat.ec.europa.eu/cache/ITY_OFFPUB/KS-RA-13-024/EN/KS-RA-13-024-EN.PDF}. \cr
+
+Yves G. Berger, Tim Goedeme, Guillame Osier (2013). Handbook on standard error estimation and other related sampling issues in EU-SILC, URL \url{http://www.cros-portal.eu/content/handbook-standard-error-estimation-and-other-related-sampling-issues-ver-29072013}    \cr
+
+Jean-Claude Deville (1999). Variance estimation for complex statistics and estimators: linearization and residual techniques. Survey Methodology, 25, 193-203, URL \url{http://www5.statcan.gc.ca/bsolc/olc-cel/olc-cel?lang=eng&catno=12-001-X19990024882}. \cr
 }
 
 

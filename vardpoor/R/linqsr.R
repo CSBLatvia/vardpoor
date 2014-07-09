@@ -22,6 +22,7 @@ linqsr <- function(inc, id=NULL, weight=NULL, sort = NULL,
           stop("'alpha' must be a numeric value in [0,100]")  }
 
    if(!is.null(dataset)) {
+       dataset <- data.frame(dataset) 
        if (checker(inc, dataset, "inc")) inc <- dataset[, inc] 
 
        if(!is.null(id)) {

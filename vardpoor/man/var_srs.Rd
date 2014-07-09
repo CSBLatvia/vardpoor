@@ -9,20 +9,16 @@
 \usage{var_srs(Y, w)}
 
 \arguments{
-\item{Y}{data.frame, matrix, data.table of the variable of interest; its length is equal to n, the sample size.}
-\item{w}{vector or 1 column data.frame, matrix, data.table of the weights; its length is equal to n, the sample size.}
+\item{Y}{The variables of interest.}
+\item{w}{Weight variable. One dimentional object convertable to one-column \code{data.frame}.}
 }
 
-\value{a \code{data.frame} containing the values of the variance estimation of the simple random sampling by period.
+\value{\code{data.frame} containing the values of the variance estimation of the simple random sampling.
 }
 
 
 \references{ 
-   Pascal Ardilly and Guillaume Osier (2007). Cross-sectional
-   variance estimation for the French Labour Force Survey  
-   \emph{Journal of the European Survey Research Association},
-   Vol.1 , No.2 , pp. 75-83, ISSN 1864-3361,
-   URL \url{https://ojs.ub.uni-konstanz.de/srm/article/viewFile/77/55}. \cr
+Yves G. Berger, Tim Goedeme, Guillame Osier (2013). Handbook on standard error estimation and other related sampling issues in EU-SILC, URL \url{http://www.cros-portal.eu/content/handbook-standard-error-estimation-and-other-related-sampling-issues-ver-29072013} \cr
 }
 
 \examples{

@@ -19,7 +19,8 @@ Generation of domain variables,
     relative median at-risk-of-poverty gap),
   computation of regression residuals in case of weight calibration,
   variance estimation of sample surveys by the ultimate cluster method
-    (Hansen, Hurwitz and Madow, 1953).
+    (Hansen, Hurwitz and Madow, 1953),
+  variance estimation for longitudinal and crossectional measures and measures of change for multistage stage cluster sampling designs   (Berger, Y.G.).
   Several other precision measures are derived - standard error,
     the coefficient of variation,
     the margin of error,
@@ -29,8 +30,8 @@ Generation of domain variables,
 \details{
 \tabular{ll}{
 Package: \tab vardpoor\cr
-Version: \tab 0.2.0.9\cr
-Date: \tab 2014-06-26\cr
+Version: \tab 0.2.0.9.1\cr
+Date: \tab 2014-07-03\cr
 Depends: \tab R (>= 3.0.0), laeken, data.table\cr
 Imports: \tab foreach, lpSolve, plyr, reshape2, gdata\cr
 License: \tab GPL (>= 2)\cr
@@ -57,6 +58,11 @@ linrmpg                 Linearization of the relative median
                         at-risk-of-poverty gap
 residual_est            Residual estimation of calibration
 var_srs                 The estimation of the simple random sampling.
+vardchanges             Variance estimation for measures of change for
+                        multistage stage cluster sampling designs
+vardcros                Variance estimation for cros-sectional and
+                        longitudinal measures for any stage cluster
+                        sampling designs
 vardom                  Estimation of the variance in domain by the ultimate
                         cluster method
 vardom_othstr           Variance estimation for sample surveys in domain 

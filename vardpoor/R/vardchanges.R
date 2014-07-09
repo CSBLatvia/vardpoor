@@ -286,7 +286,7 @@ vardchanges <- function(Y1, H1, PSU1, w_final1, id1,
   data1 <- vardcros(Y=Y1, H=H1, PSU=PSU1, w_final=w_final1,
                     id=id1, Dom=Dom1, Z=Z1, country=country1,
                     period=period1, dataset=NULL,
-                    meanY=TRUE, withoutperiod=FALSE,
+                    meanY=TRUE, withperiod=TRUE,
                     netchanges=TRUE, confidence = confidence)
 
   H1 <- PSU1 <- w_final1 <- id1 <- NULL
@@ -296,7 +296,7 @@ vardchanges <- function(Y1, H1, PSU1, w_final1, id1,
   data2 <- vardcros(Y=Y2, H=H2, PSU=PSU2, w_final=w_final2,
                     id=id2, Dom=Dom2, Z=Z2, country=country2,
                     period=period2, dataset=NULL,
-                    meanY=TRUE, withoutperiod=FALSE,
+                    meanY=TRUE, withperiod=TRUE,
                     netchanges=TRUE, confidence = confidence)
   H2 <- names(H2)
   Y2 <- names(Y2)

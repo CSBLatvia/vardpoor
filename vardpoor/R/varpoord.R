@@ -599,91 +599,105 @@ varpoord <- function(inc, w_final,
   if (!is.null(X)) {
        if (np>0) IDh <- data.table(period, IDh)
        setnames(IDh, names(IDh), names(X_ID_household))
-       X0 <- data.table(X_ID_household, g, q, X)
+       X0 <- data.table(X_ID_household, ind_gr, q, g, X)
        D1 <- merge(IDh, X0, by=names(IDh))
-       g <- data.frame(D1)[,np+2]
-       q <- data.frame(D1)[,np+3]
-       X <- D1[,(np+4):ncol(D1),with=F]
-            
-       Y4 <- residual_est(Y=Y3, X=X, weight=w_design2,
-                          q=q, period=period, ind_gr=ind_gr) 
-
+       ind_gr <- D1[, np+2, with=F]
+       if (!is.null(period)) ind_gr <- data.table(D1[, names(periodX), with=F], ind_gr)
+       ind_period <- do.call("paste", c(as.list(ind_gr), sep="_"))
+       sorts <- unlist(split(Y2[, .I], ind_period))
+    
+       lin1 <- lapply(split(Y2[, .I], ind_period), function(i) 
+                   residual_est(Y=Y3[i],
+                                X=D1[i,(np+5):ncol(D1),with=F],
+                                weight=w_design2[i],
+                                q=D1[i, np+3, with=F]))
+       Y4 <- rbindlist(lin1)[sorts]
        if (outp_res) res_outp <- data.table(IDh, PSU, w_final2, Y4)
    } else Y4 <- Y3
 
   var_est <- variance_est(Y=Y4, H=H, PSU=PSU, w_final=w_final2,
                           N_h=N_h, fh_zero=fh_zero, PSU_level=PSU_level,
                           period=period, dataset=NULL)
-  np <- sum(ncol(period))
-  if (np>0) var_est <- data.table(t(colSums(var_est[,-c(1:np),with=F], na.rm=T)))
-
+  var_est <- transpos(var_est, "var", names(period))
+  if (is.null(period)) all_result <- cbind(variables=data.frame(names(Y3)), var_est)
+    
   # Variance of HT estimator under current design
   var_cur_HT <- variance_est(Y=Y3a, H=H, PSU=PSU, w_final=w_design2, 
                              N_h=N_h, fh_zero=fh_zero, PSU_level=PSU_level,
                              period=period, dataset=NULL)  
-  if (np>0) var_cur_HT <- data.table(t(colSums(var_cur_HT[,-c(1:np),with=F], na.rm=T)))
-                        
-  var_cur_HT <- data.table(t(var_cur_HT))
+  var_cur_HT <- transpos(var_cur_HT, "var_cur_HT", names(period))
+  if (is.null(period)) {all_result <- cbind(all_result, var_cur_HT)
+          } else all_result <- merge(var_est, var_cur_HT)
+  var_est <-  var_cur_HT <- NULL
   H <- PSU <- N_h <- NULL
 
+
   # Variance of HT estimator under SRS
-  var_srs_HT <- var_srs(Y=Y3a, w = w_design2)
-  var_srs_HT <- data.table(t(var_srs_HT))
-  
+  if (is.null(period)) {
+           var_srs_HT <- var_srs(Y3a, w = w_design)
+       } else {
+           period_agg <- unique(period)
+           lin1 <- lapply(1:nrow(period_agg), function(i) {
+                          per <- period_agg[i,][rep(1, nrow(Y2a)),]
+                          ind <- (rowSums(per == period) == ncol(period))
+                          data.table(period_agg[i,], 
+                                     var_srs(Y2a[ind], w = w_design[ind]))
+                        })
+           var_srs_HT <- rbindlist(lin1)
+      }
+  var_srs_HT <- transpos(var_srs_HT, "var_srs_HT", names(period))
+  if (is.null(period)) {all_result <- cbind(all_result, var_srs_HT)
+          } else all_result <- merge(all_result, var_srs_HT)
+
+
   # Variance of calibrated estimator under SRS
-  var_srs_ca <- var_srs(Y=Y4, w = w_final2)
-  var_srs_ca <- data.table(t(var_srs_ca))
-  Y3a <- Y4 <- H <- PSU <- N_h <- NULL
-  var_est2 <- data.table(t(var_est))
-  setnames(var_est2, names(var_est2), "var")
+  if (is.null(period)) {
+           var_srs_ca <- var_srs(Y4, w = w_final)
+      } else {
+           period_agg <- unique(period)
+           lin1 <- lapply(1:nrow(period_agg), function(i) {
+                          per <- period_agg[i,][rep(1, nrow(Y2a)),]
+                          ind <- (rowSums(per == period) == ncol(period))
+                          data.table(period_agg[i,], 
+                                     var_srs(Y3[ind], w = w_final[ind]))
+                        })
+           var_srs_ca <- rbindlist(lin1)
+        }
+  var_srs_ca <- transpos(var_srs_ca, "var_srs_ca", names(period))
+  if (is.null(period)) {all_result <- cbind(all_result, var_srs_ca)
+          } else all_result <- merge(all_result, var_srs_ca)
+  var_srs_HT <-  var_srs_ca <- NULL
 
-  test_v <- (var_est2<0)
-  test_v[is.na(test_v)] <- FALSE
-  if (any(test_v)) stop("Estimation of variance are negative!")
+  Y3a <- Y4 <- NULL
 
+
+  if (nrow(all_result[var_est < 0])>0) stop("Estimation of variance are negative!")
+ 
   # Effect of sample design
-  deff_sam <- var_cur_HT / var_srs_HT
+  all_result[, deff_sam:=var_cur_HT / var_srs_HT]
   
   # Effect of estimator
-  deff_est <- var_est2 / var_cur_HT
+  all_result[, deff_est:= var_est / var_cur_HT]
   
   # Overall effect of sample design and estimator
-  deff <- deff_sam * deff_est
+  all_result[, deff:= deff_sam * deff_est]
 
-  var_est3 <- var_est2
-  var_est3[xor(is.na(var_est3), test_v)] <- 0
-  se <- sqrt(var_est3)
-  se[xor(is.na(var_est3), test_v)] <- NA
-  rse <- se/estim2
-  rse[estim2==0] <- NA
-  cv <- rse*100
-  tsad <- qnorm(0.5*(1+confidence))
-  Absolute_margin_of_error <- tsad*se 
-  Relative_margin_of_error <- tsad*cv
-  CI_lower <- estim2 - tsad*se
-  CI_upper <- estim2 + tsad*se
+  all_result[, var_est2:=var_est]
+  all_result[xor(is.na(var_est2), var_est2 < 0), var_est2:=0]
+  all_result[, se:=sqrt(var_est2)]
+  all_result[xor(is.na(var_est2), var_est2 < 0), se:=0]
+  all_result[estim!=0, rse:= se/estim]
+  all_result[estim==0, rse:= NA]
+  all_result[, cv:= rse*100]
 
- 
-  cv <- rse*100
   tsad <- qnorm(0.5*(1+confidence))
-  absolute_margin_of_error <- tsad*se 
-  relative_margin_of_error <- tsad*cv
-  CI_lower <- estim2 - tsad*se
-  CI_upper <- estim2 + tsad*se
-   
-  setnames(se, names(se), "se")
-  setnames(rse, names(rse), "rse")
-  setnames(cv, names(cv), "cv")
-  setnames(absolute_margin_of_error, names(absolute_margin_of_error), "absolute_margin_of_error")
-  setnames(relative_margin_of_error, names(relative_margin_of_error), "relative_margin_of_error")
-  setnames(CI_lower, names(CI_lower), "CI_lower")
-  setnames(CI_upper, names(CI_upper), "CI_upper")
-  setnames(var_srs_HT, names(var_srs_HT), "var_srs_HT")
-  setnames(var_srs_ca, names(var_srs_ca), "var_srs_ca")
-  setnames(var_cur_HT, names(var_cur_HT), "var_cur_HT")
-  setnames(deff_sam, names(deff_sam), "deff_sam")
-  setnames(deff_est, names(deff_est), "deff_est")
-  setnames(deff, names(deff), "deff")
+  all_result[, absolute_margin_of_error:= tsad*se]
+  all_result[, relative_margin_of_error:= tsad*cv]
+  all_result[, CI_lower:= estim - tsad*se]
+  all_result[, CI_upper:= estim - tsad*se]
+  
+  setnames(all_result, c("variable", "var_est"), c("variableD", "var"))
+  if (!is.null(Z_nov)) setnames(all_result, "variableZ", "variableDZ")
 
   all_result <- cbind(estim, var_est2, se, rse, cv,
                       absolute_margin_of_error,
@@ -692,22 +706,7 @@ varpoord <- function(inc, w_final,
                       var_cur_HT, var_srs_ca,
                       deff_sam, deff_est, deff)
 
-  list(estim = estim,
-       var = var_est2,
-       se = se,
-       rse = rse,
-       cv = cv,
-       absolute_margin_of_error = absolute_margin_of_error,
-       relative_margin_of_error = relative_margin_of_error,
-       CI_lower = CI_lower,
-       CI_upper = CI_upper,
-       var_srs_HT = var_srs_HT,
-       var_cur_HT = var_cur_HT,
-       var_srs_ca = var_srs_ca,
-       deff_sam = deff_sam,
-       deff_est = deff_est,
-       deff = deff,
-       lin_out = lin_outp,
+  list(lin_out = lin_outp,
        res_out = res_outp,
        all_result = all_result)
 }

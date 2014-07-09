@@ -33,7 +33,6 @@ linpoormed <- function(inc, id, weight=NULL, sort=NULL, Dom=NULL, period=NULL,
 
    if(!is.null(dataset)) {
        dataset <- data.frame(dataset)
-
        if (checker(inc, dataset, "inc")) inc <- dataset[, inc] 
 
        if(!is.null(id)) {

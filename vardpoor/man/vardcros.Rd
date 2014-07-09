@@ -1,77 +1,75 @@
 \name{vardcros}
+
 \alias{vardcros}
-\title{Variance estimation for cros-sectional and longitudinal measures for multistage stage cluster sampling designs}
+
+\title{Variance estimation for cros-sectional and longitudinal measures for any stage cluster sampling designs}
+
 \description{Computes the variance estimation for cros-sectional and longitudinal measures for multistage stage cluster sampling designs.}
+
 \usage{
-          vardcros(Y, H, PSU, w_final, id,
-                   Dom = NULL,
-                 Z = NULL,
-country, period,
-dataset = NULL,
-meanY=TRUE,
-withoutperiod=TRUE,
-netchanges=TRUE,
-confidence = .95)}
+vardcros(Y, H, PSU, w_final, id, Dom = NULL,
+         Z = NULL, country, period,
+         dataset = NULL, meanY=TRUE,
+         withperiod=TRUE, netchanges=TRUE,
+         confidence = .95)}
 
 \arguments{
-\item{Y}{either a numeric data.frame, matrix, data.table with column names giving the variables of interest, or (if \code{dataset} is not \code{NULL}) a character string, an integer or a logical vector (length is the same as 'dataset' column count) specifying the corresponding column of \code{dataset}.}
 
-\item{H}{either 1 column data.frame, matrix, data.table with column name giving elements indicating the unit stratum, or (if \code{dataset} is not \code{NULL}) a character string, an integer or a logical vector (length is the same as 'dataset' column count) specifying the corresponding column of \code{dataset}.}
+\item{Y}{Variables of interest. Object convertable to \code{data.frame} or variable names as character, column numbers or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset}).}
 
-\item{PSU}{either 1 column data.frame, matrix, data.table giving primary sampling unit, or (if \code{dataset} is not \code{NULL}) a character string, an integer or a logical vector (length is the same as 'dataset' column count) specifying the corresponding column of \code{dataset}.}
+\item{H}{The unit stratum variable. One dimentional object convertable to one-column \code{data.frame} or variable name as character, column number or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset}).}
 
-\item{w_final}{either a numeric vector, 1 column data.frame, matrix, data.table giving the final weights, or (if \code{dataset} is not \code{NULL}) a character string, an integer or a logical vector (length is the same as 'dataset' column count) specifying the corresponding column of \code{dataset}.}
+\item{PSU}{Primary sampling unit variable. One dimentional object convertable to one-column \code{data.frame} or variable name as character, column number or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset}).}
+
+\item{w_final}{Weight variable. One dimentional object convertable to one-column \code{data.frame} or variable name as character, column number or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset}).}
 
 \item{id}{optional; either 1 column data.frame, matrix, data.table with column names giving the IDs, or (if \code{dataset} is not \code{NULL}) a character string, an integer or a logical vector (length is the same as 'dataset' column count) specifying the corresponding column of \code{dataset}.}
 
-\item{Dom}{optional; either a data.frame, matrix, data.table with column names giving different domains, or (if \code{dataset} is not \code{NULL}) character strings, integers or a logical vectors (length is the same as 'dataset' column count) specifying the corresponding columns of \code{dataset}. This variable is \code{NULL} by default. If supplied, the values for each domain are computed.}
+\item{Dom}{Optional variables used to define population domains. If supplied, variables is calculated for each domain. An object convertable to \code{data.frame} or variable names as character vector, column numbers or logical vector (length of the vector has to be the same as the column count of \code{dataset}).}
 
-\item{Z}{optional; either a data.frame, matrix, data.table with column names giving variables of denominator, or (if \code{dataset} is not \code{NULL}) character strings, integers or a logical vectors (length is the same as 'dataset' column count) specifying the corresponding columns of \code{dataset}. This variable is \code{NULL} by default. If supplied, the ratio estimation is computed.}
+\item{Z}{Optional variables of denominator for ratio estimation. If supplied, the ratio estimation is computed. Object convertable to \code{data.frame} or variable names as character, column numbers or logical vector (length of the vector has to be the same as the column count of \code{dataset}). This variable is \code{NULL} by default.}
 
 \item{country}{optional; either a data.frame, matrix, data.table with column names giving different countries, or (if \code{dataset} is not \code{NULL}) character strings, integers or a logical vectors (length is the same as 'dataset' column count) specifying the corresponding columns of \code{dataset} .}
 
-\item{period}{optional; either a data.frame, matrix, data.table with column names giving different periods, or (if \code{dataset} is not \code{NULL}) character strings, integers or a logical vectors (length is the same as 'dataset' column count) specifying the corresponding columns of \code{dataset} .}
- 
-\item{dataset}{an optional; name of the individual dataset \code{data.frame}.}
+\item{period}{Optional variable for survey period. If supplied, variables is calculated for each time period. One dimentional object convertable to one-column \code{data.frame} or variable name as character, column number or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset}).}
 
-\item{meanY}{logical value; is valid for checking variables and determine which kind it is, }
+\item{dataset}{Optional survey data object convertable to \code{data.frame}.}
 
-\item{withoutperiod}{logical value which determines is results with or without period .}
+\item{meanY}{Logical value. If value is \code{TRUE}, then is calculated mean of the variables of interest.}
 
-\item{netchanges}{logical value to produce aggregation matrix at period, country, strata and PSU for gradient .}
+\item{withperiod}{Logical value. If \code{TRUE} is value, the results is with period, if \code{FALSE}, without period.}
 
-\item{confidence}{optional; either a positive value for confidence interval. This variable by default is 0.95 .}
+\item{netchanges}{Logical value. If value is TRUE, then produce two objects: the first object is aggregation of weighted data by period (if available), country, strata and PSU, the second object is an estimation for Y, the variance, gradient for numerator and denominator by country and period (if available). If value is FALSE, then both objects containing \code{NULL}.}
+
+\item{confidence}{Optional positive value for confidence interval. This variable by default is 0.95.}
 }
 
 \value{
-The function returns values:
 
-\item{sample_size}{a \code{data.table} containing the values of the sample size (in numbers of individuals).}
+  A list with three objects are returned by the function:
 
-\item{pop_size}{a \code{data.table} containing the values of the population size (in numbers of individuals).}
+  \item{data_net_changes}{ A \code{data.table} containing aggregation of weighted data by period (if available), country, strata, PSU.}
 
-\item{total}{a \code{data.table} containing the estimations of totals.}
+  \item{var_grad}{ A \code{data.table} containing estimation for Y, the variance, gradient for numerator and denominator by country and period (if available).}
 
-\item{variance}{a \code{data.table} containing the values of the variance estimation of cross-sectional or longitudinal measures.}
-
-\item{sd_w}{a \code{data.table} containing the values of the weighted variance estimation of simple random sample.}
-
-\item{sd_nw}{a \code{data.table} containing the values of the variance estimation of simple random sample.}
-
-\item{pop}{a \code{data.table} containing the values of the population size (in numbers of households).}
-
-\item{sampl_siz}{a \code{data.table} containing the values of the sample size (in numbers of households).}
-
-\item{stderr_w}{a \code{data.table} containing the values of the weighted standard deviation estimation of simple random sample.}
-
-\item{stderr_nw}{a \code{data.table} containing the values of the standard deviation estimation of simple random sample.}
-
-\item{sd}{a \code{data.table} containing the values of the standard deviation estimation of cross-sectional or longitudinal.}
-
-\item{cv}{a \code{data.table} containing the values of the relative standart error (coefficient of variation).}
-}
+  \item{results}{ A \code{data.table} containing
+     sample_size - the values of the sample size (in numbers of individuals), \cr
+     pop_size - the values of the population size (in numbers of individuals), \cr
+     total - the estimations of totals, \cr
+     variance - the values of the variance estimation of cross-sectional or longitudinal measures, \cr
+     sd_w - the values of the weighted variance estimation of simple random sample, \cr
+     sd_nw - the values of the variance estimation of simple random sample, \cr
+     pop - the values of the population size (in numbers of households), \cr
+     sampl_siz - the values of the sample size (in numbers of households), \cr
+     stderr_w - the values of the weighted standard deviation estimation of simple random sample, \cr
+     stderr_nw - the values of the standard deviation estimation of simple random sample, \cr
+     sd - the values of the standard deviation estimation of cross-sectional or longitudinal, \cr
+     cv - the values of the relative standart error (coefficient of variation).}
+} 
 
 \references{
+Eurostat Methodologies and Working papers, Standard error estimation for the EU-SILC indicators of poverty and social exclusion, 2013, URL \url{http://epp.eurostat.ec.europa.eu/cache/ITY_OFFPUB/KS-RA-13-024/EN/KS-RA-13-024-EN.PDF}. \cr
+
 Yves G. Berger, Tim Goedeme, Guillame Osier (2013). Handbook on standard error estimation and other related sampling issues in EU-SILC,
 URL \url{http://www.cros-portal.eu/content/handbook-standard-error-estimation-and-other-related-sampling-issues-ver-29072013} \cr
 }
@@ -119,7 +117,7 @@ result1 <- vardcros(Y=c("pov", "dep", "arope"),
                     country="country", period="year",
                     dataset=data,
                     meanY=TRUE, 
-                    withoutperiod=FALSE,
+                    withperiod=TRUE,
                     netchanges=TRUE,
                     confidence = .95)
 
@@ -130,7 +128,7 @@ result2 <- vardcros(Y=c("lwi"),
                     country="country", period="year",
                     dataset=data2,
                     meanY=TRUE,
-                    withoutperiod=FALSE,
+                    withperiod=TRUE,
                     netchanges=TRUE,
                     confidence = .95)
 
@@ -228,7 +226,7 @@ result2 <- vardcros(Y="ppr", H="strata", PSU="PSU",
                     country="rb020", period=NULL,
                     dataset=apv,
                     meanY=TRUE,
-                    withoutperiod=TRUE,
+                    withperiod=FALSE,
                     netchanges=FALSE,
                     confidence = .95)
 

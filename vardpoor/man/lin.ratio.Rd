@@ -10,13 +10,13 @@
 
 \arguments{
 
-\item{Y}{Matrix of numerator variables. Any object convertable to \code{data.table} with numeric values, \code{NA} values are not allowed.}
+\item{Y}{Matrix of numerator variables. Any object convertible to \code{data.table} with numeric values, \code{NA} values are not allowed.}
 
-\item{Z}{Matrix of denominator variables. Any object convertable to \code{data.table} with numeric values, \code{NA} values are not allowed.}
+\item{Z}{Matrix of denominator variables. Any object convertible to \code{data.table} with numeric values, \code{NA} values are not allowed.}
 
-\item{weight}{Weight variable. One dimentional object convertable to one-column \code{data.frame}}
+\item{weight}{Weight variable. One dimensional object convertible to one-column \code{data.frame}}
 
-\item{Dom}{Optional variables used to define population domains. If supplied, the linearized variables are computed for each domain. An object convertable to \code{data.table}}
+\item{Dom}{Optional variables used to define population domains. If supplied, the linearized variables are computed for each domain. An object convertible to \code{data.table}}
 }
 
 \value{The function returns the \code{data.table} of the linearized variables for the ratio estimator.}

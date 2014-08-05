@@ -10,13 +10,13 @@
 
 \arguments{
 
-\item{Y}{Variables of interest. Object convertable to \code{data.frame} or variable names as character, column numbers or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset}).}
+\item{Y}{Variables of interest. Object convertible to \code{data.frame} or variable names as character, column numbers or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset}).}
 
-\item{H}{The unit stratum variable. One dimentional object convertable to one-column \code{data.frame} or variable name as character, column number or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset}).}
+\item{H}{The unit stratum variable. One dimensional object convertible to one-column \code{data.frame} or variable name as character, column number or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset}).}
 
-\item{H2}{The unit new stratum variable. One dimentional object convertable to one-column \code{data.frame} or variable name as character, column number or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset}).}
+\item{H2}{The unit new stratum variable. One dimensional object convertible to one-column \code{data.frame} or variable name as character, column number or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset}).}
 
-\item{w_final}{Weight variable. One dimentional object convertable to one-column \code{data.frame} or variable name as character, column number or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset}).}
+\item{w_final}{Weight variable. One dimensional object convertible to one-column \code{data.frame} or variable name as character, column number or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset}).}
 
 \item{N_h}{optional; either a \code{data.frame} giving the first column - stratum, but the second column - the total of the population in each stratum.}
 
@@ -24,13 +24,13 @@
 
 \item{s2g}{by default is FALSE; calculate variance, but if s2g is TRUE, then variance estimation is taken as S^2g value.}
 
-\item{period}{Optional variable for the survey periods. If supplied, the values for each period are computed independently. One dimentional object convertable to one-column \code{data.frame} or variable name as character, column number or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset}).}
+\item{period}{Optional variable for the survey periods. If supplied, the values for each period are computed independently. One dimensional object convertible to one-column \code{data.frame} or variable name as character, column number or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset}).}
 
-\item{dataset}{Optional survey data object convertable to \code{data.frame}.}
+\item{dataset}{Optional survey data object convertible to \code{data.frame}.}
 
 }
 
-\value{A \code{data.table} containing the  values of the variance estimation.
+\value{A \code{data.table} containing the values of the variance estimation.
 
 }
 
@@ -94,9 +94,13 @@ setnames(N_h2, names(N_h2), "H2")
 N_h2[, sk2:=4]
 
 w_final <- rep(2, 10)
-PSU <- 1:10
-variance_othstr(Y, H, H2, PSU, w_final, N_h=N_h, N_h2=N_h2, period=NULL, dataset=NULL) 
 
+vo <- variance_othstr(Y=Y, H=H, H2=H2,
+                      w_final=w_final,
+                      N_h=N_h, N_h2=N_h2,
+                      period=NULL,
+                      dataset=NULL)
+vo
 } 
 
 \seealso{

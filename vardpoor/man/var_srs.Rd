@@ -10,7 +10,7 @@
 
 \arguments{
 \item{Y}{The variables of interest.}
-\item{w}{Weight variable. One dimentional object convertable to one-column \code{data.frame}.}
+\item{w}{Weight variable. One dimensional object convertible to one-column \code{data.frame}.}
 }
 
 \value{\code{data.frame} containing the values of the variance estimation of the simple random sampling.

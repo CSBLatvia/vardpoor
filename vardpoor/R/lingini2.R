@@ -140,37 +140,44 @@ lingini2 <- function(inc, id = NULL, weight = NULL, sort = NULL,
 }
 
 
-## workhorse
-lingini2Calc <- function(x, ids, weights = NULL, sort = NULL, na.rm = FALSE) {
-     # initializations
-    if (isTRUE(na.rm)){
-          indices <- !is.na(x)
-          x <- x[indices]
-          if(!is.null(weights)) weights <- weights[indices]
-          if(!is.null(ids)) ids <- ids[indices]
-          if(!is.null(sort)) sort <- sort[indices]
-      } else if(any(is.na(x))) return(NA)
-     # sort values and weights
-    order <- if(is.null(sort)) order(x) else order(x, sort)
-    x <- x[order]  # order values
-    ids <- ids[order]  # order values
-    if (is.null(weights)) { weights <- rep.int(1, length(x))  # equal weights
-     } else weights <- weights[order]  # order weights
+# workhorse 
+lingini2Calc <- function(x, ids, weights = NULL, sort = NULL, na.rm = FALSE) { 
 
-    ## calculations
-    taille <- length(weights)   # Sample size
-    wx <- weights * x       # weighted values
-    N <- sum(weights)     # Estimated population size
-    cw <- cumsum(weights)   # cumulative sum of weights
-    T <- sum(wx)             # Estimated total income
+     # initializations 
+    if (isTRUE(na.rm)){ 
+          indices <- !is.na(x) 
+          x <- x[indices] 
+          if(!is.null(weights)) weights <- weights[indices] 
+          if(!is.null(ids)) ids <- ids[indices] 
+          if(!is.null(sort)) sort <- sort[indices] 
+      } else if(any(is.na(x))) return(NA) 
+     # sort values and weights 
+    order <- if(is.null(sort)) order(x) else order(x, sort) 
+    x <- x[order]  # order values 
+    ids <- ids[order]  # order values 
+    if (is.null(weights)) { weights <- rep.int(1, length(x))  # equal weights 
+     } else weights <- weights[order]  # order weights 
 
-    Nk <- c()
-    wx1 <- c()
+    ## calculations 
+    wx <- weights * x       # weighted values 
+    N <- sum(weights)     # Estimated population size 
+    cw <- cumsum(weights)   # cumulative sum of weights 
+    T <- sum(wx)             # Estimated total income 
 
-    for(i in 1:length(x)) {
-        Nk[i] <- sum(weights*(x<=x[i]))       #  Estimation of the cumulative distribution function
-        wx1[i]<- sum(wx*(x<=x[i]))           #  Weighted partial sum
-    }
+    dt <- data.table(x = x, weights = weights, wx = wx, key = "x")
+    weights0 <- wx0 <- NULL
+    dt1 <- dt[, list(weights0 = sum(weights),
+                wx0 = sum(wx)), keyby = x][,
+                Nk := cumsum(weights0)][,
+                wx1 := cumsum(wx0)]
+    dt <- merge(dt, dt1)
+
+    # Nk - estimation of the cumulative distribution function 
+    Nk <- dt[["Nk"]]
+
+    # wx - weighted partial sum
+    wx1 <- dt[["wx1"]]
+    dt <- dt1 <- NULL
 
     Num_eu <- 2 * sum(wx*cw) - sum(weights^2 * x)
     Num <- 2 * sum(wx*Nk) - sum(weights^2 * x)
@@ -190,6 +197,5 @@ lingini2Calc <- function(x, ids, weights = NULL, sort = NULL, na.rm = FALSE) {
     lin_id <- data.table(ids,lin)
 
     return(list(Gini_eu=Gini_eu, Gini=Gini_pr, lin=lin_id))
-
 }
 

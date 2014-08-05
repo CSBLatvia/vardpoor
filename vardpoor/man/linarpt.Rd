@@ -6,7 +6,7 @@
 
 \description{
   Estimate the at-risk-of-poverty threshold, which is defined as the
-  60\% of the weighted median equivalized disposable income, and its
+  60\% of the weighted median equalized disposable income, and its
   linearization.
 }
 
@@ -19,17 +19,17 @@ linarpt(inc, id = NULL, weight = NULL,
 }
 
 \arguments{
-  \item{inc}{Study variable (for example equivalized disposable income). One dimentional object convertable to one-column \code{data.frame} or variable name as character, column number or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset}).}
+  \item{inc}{Study variable (for example equalized disposable income). One dimensional object convertible to one-column \code{data.frame} or variable name as character, column number or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset}).}
 
-  \item{id}{Optional variable for unit ID codes. One dimentional object convertable to one-column \code{data.frame} or variable name as character, column number or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset}).}
+  \item{id}{Optional variable for unit ID codes. One dimensional object convertible to one-column \code{data.frame} or variable name as character, column number or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset}).}
 
-  \item{weight}{Optional weight variable. One dimentional object convertable to one-column \code{data.frame} or variable name as character, column number or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset}).}
+  \item{weight}{Optional weight variable. One dimensional object convertible to one-column \code{data.frame} or variable name as character, column number or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset}).}
 
-  \item{sort}{Optional variable to be used as tie-breaker for sorting. One dimentional object convertable to one-column \code{data.frame} or variable name as character, column number or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset}).}
+  \item{sort}{Optional variable to be used as tie-breaker for sorting. One dimensional object convertible to one-column \code{data.frame} or variable name as character, column number or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset}).}
   
-  \item{Dom}{Optional variables used to define population domains. If supplied, linearization of the at-risk-of-poverty threshold is done for each domain. An object convertable to \code{data.frame} or variable names as character vector, column numbers or logical vector (length of the vector has to be the same as the column count of \code{dataset}).}
+  \item{Dom}{Optional variables used to define population domains. If supplied, linearization of the at-risk-of-poverty threshold is done for each domain. An object convertible to \code{data.frame} or variable names as character vector, column numbers or logical vector (length of the vector has to be the same as the column count of \code{dataset}).}
 
-  \item{period}{Optional variable for survey period. If supplied, linearization of the at-risk-of-poverty threshold is done for each time period. Object convertable to \code{data.frame} or variable names as character, column numbers or logical vector (length of the vector has to be the same as the column count of \code{dataset}).}
+  \item{period}{Optional variable for survey period. If supplied, linearization of the at-risk-of-poverty threshold is done for each time period. Object convertible to \code{data.frame} or variable names as character, column numbers or logical vector (length of the vector has to be the same as the column count of \code{dataset}).}
   
   \item{dataset}{Optional survey data object convertable to \code{data.frame}.}
 
@@ -73,9 +73,9 @@ Jean-Claude Deville (1999). Variance estimation for complex statistics and estim
 data(eusilc)
 dati=data.frame(1:nrow(eusilc),eusilc)
 colnames(dati)[1]<-"IDd"
-d<-linarpt("eqIncome", id="IDd", weight = "rb050", Dom = NULL,
+d<-linarpt(inc="eqIncome", id="IDd", weight = "rb050", Dom = NULL,
             dataset = dati, percentage = 60, order_quant=50, na.rm = FALSE)
-dd<-linarpt("eqIncome", id="IDd", weight = "rb050", Dom = "db040",
+dd<-linarpt(inc="eqIncome", id="IDd", weight = "rb050", Dom = "db040",
              dataset = dati, percentage = 60, order_quant=50, na.rm = FALSE)
 }
 

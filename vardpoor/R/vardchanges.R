@@ -364,7 +364,10 @@ vardchanges <- function(Y1, H1, PSU1, w_final1, id1,
 
   meanpop=TRUE
   fit <- lapply(1:nrowv, function(i) {
+                   i=1
            fits <- lapply(split(data, data$country), function(d) {
+                   i=1
+                   d=data
                    y1 <- paste0(period[i], "_1")
                    y2 <- paste0(period[i], "_2")
                    if (meanpop) { z1 <- paste0(",", toString(echnames[i]), "_1") 

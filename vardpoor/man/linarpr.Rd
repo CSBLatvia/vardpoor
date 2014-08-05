@@ -6,7 +6,7 @@
 
 \description{
   Estimate the at-risk-of-poverty rate, which is defined as the
-  proportion of persons with equivalized disposable income below
+  proportion of persons with equalized disposable income below
   the at-risk-of-poverty threshold, and its linearization.
 }
 
@@ -20,23 +20,23 @@ linarpr(inc, id, weight = NULL,
 
 \arguments{
 
-  \item{inc}{Study variable (for example equivalized disposable income). One dimentional object convertable to one-column \code{data.frame} or variable name as character, column number or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset}).}
+  \item{inc}{Study variable (for example equalized disposable income). One dimensional object convertible to one-column \code{data.frame} or variable name as character, column number or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset}).}
 
-  \item{id}{Optional variable for unit ID codes. One dimentional object convertable to one-column \code{data.frame} or variable name as character, column number or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset}).}
+  \item{id}{Optional variable for unit ID codes. One dimensional object convertible to one-column \code{data.frame} or variable name as character, column number or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset}).}
 
-  \item{weight}{Optional weight variable. One dimentional object convertable to one-column \code{data.frame} or variable name as character, column number or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset}).}
+  \item{weight}{Optional weight variable. One dimensional object convertible to one-column \code{data.frame} or variable name as character, column number or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset}).}
 
-  \item{income_thres}{Variable (for example equivalized disposable income) used for computation and linearization of poverty threshold. One dimentional object convertable to one-column \code{data.frame} or variable name as character, column number or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset}). Variable specified for \code{inc} is used as \code{income_thres} if \code{income_thres} is  not defined.}
+  \item{income_thres}{Variable (for example equalized disposable income) used for computation and linearization of poverty threshold. One dimensional object convertible to one-column \code{data.frame} or variable name as character, column number or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset}). Variable specified for \code{inc} is used as \code{income_thres} if \code{income_thres} is  not defined.}
 
-  \item{wght_thres}{Weight variable used for computation and linearization of poverty threshold. One dimentional object convertable to one-column \code{data.frame} or variable name as character, column number or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset}). Variable specified for \code{weight} is used as \code{wght_thres} if \code{wght_thres} is not defined.}
+  \item{wght_thres}{Weight variable used for computation and linearization of poverty threshold. One dimensional object convertible to one-column \code{data.frame} or variable name as character, column number or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset}). Variable specified for \code{weight} is used as \code{wght_thres} if \code{wght_thres} is not defined.}
 
-  \item{sort}{Optional variable to be used as tie-breaker for sorting. One dimentional object convertable to one-column \code{data.frame} or variable name as character, column number or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset}).}
+  \item{sort}{Optional variable to be used as tie-breaker for sorting. One dimensional object convertible to one-column \code{data.frame} or variable name as character, column number or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset}).}
 
-  \item{Dom}{Optional variables used to define population domains. If supplied, linearization of the at-risk-of-poverty rate is done for each domain. An object convertable to \code{data.frame} or variable names as character vector, column numbers or logical vector (length of the vector has to be the same as the column count of \code{dataset}).}
+  \item{Dom}{Optional variables used to define population domains. If supplied, linearization of the at-risk-of-poverty rate is done for each domain. An object convertible to \code{data.frame} or variable names as character vector, column numbers or logical vector (length of the vector has to be the same as the column count of \code{dataset}).}
 
-  \item{period}{Optional variable for survey period. If supplied, linearization of the at-risk-of-poverty rate is done for each time period. Object convertable to \code{data.frame} or variable names as character, column numbers or logical vector (length of the vector has to be the same as the column count of \code{dataset}).}
+  \item{period}{Optional variable for survey period. If supplied, linearization of the at-risk-of-poverty rate is done for each time period. Object convertible to \code{data.frame} or variable names as character, column numbers or logical vector (length of the vector has to be the same as the column count of \code{dataset}).}
 
-  \item{dataset}{Optional survey data object convertable to \code{data.frame}.}
+  \item{dataset}{Optional survey data object convertible to \code{data.frame}.}
 
   \item{percentage}{A numeric value in range \eqn{[0,100]} for \eqn{p} in the formula for poverty threshold computation:
   \deqn{\frac{p}{100} \cdot Z_{\frac{\alpha}{100}}.}{p/100 * Z(\alpha/100).}
@@ -80,11 +80,11 @@ Jean-Claude Deville (1999). Variance estimation for complex statistics and estim
 data(eusilc)
 dati=data.frame(1:nrow(eusilc),eusilc)
 colnames(dati)[1] <- "IDd"
-d<-linarpr("eqIncome", id="IDd", weight = "rb050", Dom = NULL,
-         dataset = dati, percentage = 60, order_quant=50, na.rm = FALSE)
+d<-linarpr(inc="eqIncome", id="IDd", weight="rb050", Dom=NULL,
+          dataset=dati, percentage=60, order_quant=50, na.rm=FALSE)
 
-dd<-linarpr("eqIncome", id="IDd", weight = "rb050", Dom = "db040",
-         dataset = dati, percentage = 60, order_quant=50, na.rm = FALSE)
+dd<-linarpr(inc="eqIncome", id="IDd", weight="rb050", Dom="db040",
+           dataset=dati, percentage=60, order_quant=50, na.rm=FALSE)
 
 }
 

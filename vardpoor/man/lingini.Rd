@@ -5,7 +5,7 @@
 \title{Linearization of the GINI coefficient I}
 
 \description{
-  Estimate the Gini coefficient, which is a measure for inequality, and its linerization.
+  Estimate the Gini coefficient, which is a measure for inequality, and its linearization.
 }
 
 \usage{
@@ -17,19 +17,19 @@
 
 \arguments{
 
-  \item{inc}{Study variable (for example equivalized disposable income). One dimentional object convertable to one-column \code{data.frame} or variable name as character, column number or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset}).}
+  \item{inc}{Study variable (for example equalized disposable income). One dimensional object convertible to one-column \code{data.frame} or variable name as character, column number or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset}).}
 
-  \item{id}{Optional variable for unit ID codes. One dimentional object convertable to one-column \code{data.frame} or variable name as character, column number or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset}).}
+  \item{id}{Optional variable for unit ID codes. One dimensional object convertible to one-column \code{data.frame} or variable name as character, column number or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset}).}
 
-  \item{weight}{Optional weight variable. One dimentional object convertable to one-column \code{data.frame} or variable name as character, column number or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset}).}
+  \item{weight}{Optional weight variable. One dimensional object convertible to one-column \code{data.frame} or variable name as character, column number or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset}).}
 
-  \item{sort}{Optional variable to be used as tie-breaker for sorting. One dimentional object convertable to one-column \code{data.frame} or variable name as character, column number or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset}).}
+  \item{sort}{Optional variable to be used as tie-breaker for sorting. One dimensional object convertible to one-column \code{data.frame} or variable name as character, column number or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset}).}
 
-  \item{Dom}{Optional variables used to define population domains. If supplied, linearization of the GINI is done for each domain. An object convertable to \code{data.frame} or variable names as character vector, column numbers or logical vector (length of the vector has to be the same as the column count of \code{dataset}).}
+  \item{Dom}{Optional variables used to define population domains. If supplied, linearization of the GINI is done for each domain. An object convertible to \code{data.frame} or variable names as character vector, column numbers or logical vector (length of the vector has to be the same as the column count of \code{dataset}).}
 
-  \item{period}{Optional variable for survey period. If supplied, linearization of the GINI is done for each time period. Object convertable to \code{data.frame} or variable names as character, column numbers or logical vector (length of the vector has to be the same as the column count of \code{dataset}).}
+  \item{period}{Optional variable for survey period. If supplied, linearization of the GINI is done for each time period. Object convertible to \code{data.frame} or variable names as character, column numbers or logical vector (length of the vector has to be the same as the column count of \code{dataset}).}
 
-  \item{dataset}{Optional survey data object convertable to \code{data.frame}.}
+  \item{dataset}{Optional survey data object convertible to \code{data.frame}.}
 
   \item{na.rm}{A logical value indicating whether missing values in study variable should be removed.}
 
@@ -58,8 +58,8 @@ Jean-Claude Deville (1999). Variance estimation for complex statistics and estim
 data(eusilc)
 dati <- data.frame(1:nrow(eusilc),eusilc)[1:3,]
 colnames(dati)[1] <- "IDd"
-dat1 <- lingini("eqIncome","IDd",weight = "rb050",Dom=c("db040"),dataset=dati)
-dat2 <- lingini("eqIncome","IDd",weight = "rb050",dataset=dati)
+dat1 <- lingini(inc="eqIncome", id="IDd", weight="rb050", Dom=c("db040"), dataset=dati)
+dat2 <- lingini(inc="eqIncome", id="IDd", weight="rb050", dataset=dati)
 dat1$value
 dat2$value
 }

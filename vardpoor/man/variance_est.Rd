@@ -105,7 +105,7 @@ Ys <- matrix(rchisq(10, 3), 10, 1)
 w <- rep(2, 10)
 PSU <- 1:nrow(Ys)
 H <- w
-variance_est(Ys, H, PSU, w)
+variance_est(Y=Ys, H=H, PSU=PSU, w_final=w)
 
 } 
 \seealso{

@@ -7,12 +7,14 @@ residual_est <- function (Y, X, weight, q) {
   m <- ncol(Y)
   if(any(is.na(Y))) print("'Residual_est': 'Ys' has unknown values", call. = FALSE)
  
-
   # X
   X <- as.matrix(X)
   if (nrow(X) != n) stop("'X' and 'Y' must be equal row count")
-  if (is.na(X)) stop("X has unknown values")
-  nX1 <- X1 <- X2 <- NULL
+
+  X1 <- data.table(X, check.names=T)
+  X1 <- X1[,lapply(.SD, function(x) sum(!is.na(x))), .SDcols=names(X1)]
+  if (!all(X1 == n)) stop("X has unknown values")
+  X1 <- NULL
 
   # weight
   weight <- data.frame(weight)
@@ -32,12 +34,13 @@ residual_est <- function (Y, X, weight, q) {
 
   ee <- as.data.frame(matrix(NA, n, m))
   ws <- weight * q
-
+ 
+  kolonnas <- colSums(!is.na(X)) == nrow(X)
   B <- t(X[, kolonnas] * ws)
 
   for (i in 1:ncol(Y)) {
           beta <- ginv(B %*% X[, kolonnas]) %*% B %*% Y[, i]
-          ee[ind, i] <- Y[, i] - X[, kolonnas] %*% beta
+          ee[, i] <- Y[, i] - X[, kolonnas] %*% beta
          }
 
   colnames(ee) <- colnames(Y)

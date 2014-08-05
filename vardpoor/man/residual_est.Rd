@@ -6,7 +6,7 @@
 
 \description{Computes the estimation residuals of calibration.}
 
-\usage{residual_est(Y, X, weight, q, period=NULL, ind_gr)}
+\usage{residual_est(Y, X, weight, q)}
 
 \arguments{
 
@@ -14,13 +14,9 @@
 
 \item{X}{Matrix of the auxiliary variables for the calibration estimator. This is the matrix of the sample calibration variables.} 
 
-\item{weight}{Weight variable. One dimentional object convertable to one-column \code{data.frame}.}
+\item{weight}{Weight variable. One dimensional object convertible to one-column \code{data.frame}.}
 
-\item{q}{Variable of the positive values accounting for heteroscedasticity. One dimentional object convertable to one-column \code{data.frame}.}
-
-\item{period}{Optional variable for survey period. If supplied, residual estimation of calibration is done independently for each time period. One dimentional object convertable to one-column \code{data.frame}.}
-
-\item{ind_gr}{Optional variable by which divided independently auxiliary variables. One dimentional object convertable to one-column \code{data.frame}.}
+\item{q}{Variable of the positive values accounting for heteroscedasticity. One dimensional object convertible to one-column \code{data.frame}.}
 }
 
 \value{

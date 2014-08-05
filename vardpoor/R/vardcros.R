@@ -1,4 +1,5 @@
 
+
 vardcros <- function(Y, H, PSU, w_final, id,
                      Dom = NULL,
                      Z = NULL,
@@ -53,12 +54,12 @@ vardcros <- function(Y, H, PSU, w_final, id,
           aZ <- Z
           if (min(Z %in% names(dataset))!=1) stop("'Z' does not exist in 'dataset'!")
           if (min(Z %in% names(dataset))==1) {
-                                Z <-data.frame(dataset[, aZ],check.names=FALSE, stringsAsFactors=FALSE)
+                                Z <- data.frame(dataset[, aZ], check.names=FALSE, stringsAsFactors=FALSE)
                                 names(Z) <- aZ }}
       if(!is.null(country)) {
           country2 <- country
           if (min(country %in% names(dataset))!=1) stop("'country' does not exist in 'dataset'!")
-          if (min(country %in% names(dataset))==1) country <- data.frame(dataset[, country])
+          if (min(country %in% names(dataset))==1) country <- as.data.frame(dataset[, country], stringsAsFactors=FALSE)
           names(country) <- country2  }
 
       if(!is.null(period)) {
@@ -112,11 +113,10 @@ vardcros <- function(Y, H, PSU, w_final, id,
   
   # country
   country <- data.table(country)
-  country[, (names(country)):=as.character(country)]
   if (any(is.na(country))) stop("'country' has unknown values")
   if (nrow(country) != n) stop("'country' length must be equal with 'Y' row count")
   if (ncol(country) != 1) stop("'country' has more than 1 column")
-  
+
   # period
   if (withperiod) {
       period <- data.table(period)
@@ -169,8 +169,9 @@ vardcros <- function(Y, H, PSU, w_final, id,
  
  if (!is.null(Z)) {
       if (!is.null(Dom)) Z1 <- domain(Z, Dom) else Z1 <- Z               
+      sorts <- unlist(split(Y1[, .I], period_country))
       lin1 <- lapply(split(Y1[, .I], period_country), function(i) lin.ratio(Y1[i], Z1[i], w_final[i], Dom=NULL))
-      Y2 <- rbindlist(lin1)
+      Y2 <- rbindlist(lin1)[sorts]
       if (any(is.na(Y2))) print("Results are calculated, but there are cases where Z = 0")
    } else Y2 <- Y1
  
@@ -191,7 +192,6 @@ vardcros <- function(Y, H, PSU, w_final, id,
  period_country <- ech <- ech1 <- id <- NULL
  country <- H <- PSU <- Y2 <- Y2W <- NULL 
 
-
  DT2 <- DT1[, lapply(.SD, sum, na.rm=TRUE),
                       keyby=namesperc2,
                      .SDcols = c(names_ech1, namesY2w)]
@@ -206,7 +206,9 @@ vardcros <- function(Y, H, PSU, w_final, id,
  DT3 <- DT1[, lapply(.SD, sum, na.rm=TRUE), keyby=c(namesperc2,
               names_H, names_PSU), .SDcols = namesY2w]
  setnames(DT3, namesY2w, namesY2)
- if (netchanges)  DT1 <- DT3 else DT1 <- NULL
+ DT1 <- copy(DT3)
+ DT1[, period_country:=NULL]
+ if (!netchanges) DT1 <- NULL
 
  setkeyv(DT2, namesperc2)
  DT3 <- merge(DT2, DT3, all=T)
@@ -441,7 +443,6 @@ vardcros <- function(Y, H, PSU, w_final, id,
   setnames(sd1, "value", "sampl_siz")
   setkeyv(sd1, nds)
   setkeyv(res, nds)
-  setkeyv(DT2, namesperc)
   res <- merge(res, sd1, all=T)
 
   res[, stderr_nw:=100*sqrt((1-(sample_size/pop_size))/pop_size * sd_nw * sd_nw/sample_size )]

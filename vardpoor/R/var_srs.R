@@ -4,7 +4,8 @@ var_srs <- function(Y, w) {
   ### Checking
   # Y
   Y <- data.table(Y, check.names=TRUE)
-  n <- nrow(Y)
+  n <- nrow(Y)   
+  if (!all(sapply(Y, is.numeric))) stop("'Y' must be numerical")
   if (any(is.na(Y))) print("'Y' has unknown values")
   if (is.null(colnames(Y))) stop("'Y' must be colnames")
     

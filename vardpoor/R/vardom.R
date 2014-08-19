@@ -110,6 +110,7 @@ vardom <- function(Y, H, PSU, w_final,
   n <- nrow(Y)
   m <- ncol(Y)
   if (any(is.na(Y))) stop("'Y' has unknown values")
+  if (!all(sapply(Y, is.numeric))) stop("'Y' must be numeric values")
   if (is.null(names(Y))) stop("'Y' must be colnames")
   
   # H
@@ -186,6 +187,7 @@ vardom <- function(Y, H, PSU, w_final,
     Z <- data.table(Z, check.names = T)
     if (nrow(Z) != n) stop("'Z' and 'Y' must be equal row count")
     if (ncol(Z) != m) stop("'Z' and 'Y' must be equal column count")
+    if (!all(sapply(Z, is.numeric))) stop("'Z' must be numeric values")
     if (any(is.na(Z))) stop("'Z' has unknown values")
     if (is.null(names(Z))) stop("'Z' must be colnames")
   }
@@ -193,6 +195,7 @@ vardom <- function(Y, H, PSU, w_final,
   # X
   if (!is.null(X)) {
     X <- data.table(X, check.names=T)
+    if (!all(sapply(X, is.numeric))) stop("'X' must be numeric values")
     if (nrow(X) != n) stop("'X' and 'Y' have different row count")
   }
 
@@ -252,7 +255,7 @@ vardom <- function(Y, H, PSU, w_final,
   if (!is.null(X)) w_design <- w_final / g else w_design <- w_final
       
   # Ratio of two totals
-  lin_outp <- variableZ <- estim <- deff_sam <- NULL
+  linratio_outp <- variableZ <- estim <- deff_sam <- NULL
   deff_est <- deff <- var_est2 <- se <- rse <- cv <- NULL
   absolute_margin_of_error <- relative_margin_of_error <- NULL
   Z1 <- CI_lower <- CI_upper <- variable <- NULL
@@ -276,7 +279,7 @@ vardom <- function(Y, H, PSU, w_final,
             Y2a <- rbindlist(lin2)[sorts]
         }
     if (any(is.na(Y2))) print("Results are calculated, but there are cases where Z = 0")
-    if (outp_lin) ratio_outp <- data.table(idper, PSU, Y2) 
+    if (outp_lin) linratio_outp <- data.table(idper, PSU, Y2) 
   } else {
           Y2 <- Y1
           Y2a <- Y1
@@ -452,7 +455,7 @@ vardom <- function(Y, H, PSU, w_final,
   setkeyv(all_result, c("nr_names", names(Dom), names(period)))
   all_result <- all_result[, c("variable", names(Dom), names(period), variab), with=F]
 
-  list(lin_out = lin_outp,
+  list(lin_out = linratio_outp,
        res_out = res_outp,
        all_result = all_result)
 }

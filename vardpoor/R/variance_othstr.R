@@ -39,6 +39,7 @@ variance_othstr <- function(Y, H, H2, w_final, N_h=NULL, N_h2, s2g=FALSE, period
   Y <- data.table(Y, check.names=TRUE)
   n <- nrow(Y)
   m <- ncol(Y)
+  if (!all(sapply(Y, is.numeric))) stop("'Y' must be numeric values")
   if (any(is.na(Y))) print("'Y' has unknown values")
   if (is.null(names(Y))) stop("'Y' must be the column names")
   

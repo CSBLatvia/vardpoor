@@ -119,6 +119,7 @@ vardomh <- function(Y, H, PSU, w_final,
   Y <- data.table(Y, check.names=TRUE)
   n <- nrow(Y)
   m <- ncol(Y)
+  if (!all(sapply(Y, is.numeric))) stop("'Y' must be numeric values")
   if (any(is.na(Y))) stop("'Y' has unknown values")
   if (is.null(names(Y))) stop("'Y' must be colnames")
   
@@ -205,6 +206,7 @@ vardomh <- function(Y, H, PSU, w_final,
     Z <- data.table(Z, check.names = T)
     if (nrow(Z) != n) stop("'Z' and 'Y' must be equal row count")
     if (ncol(Z) != m) stop("'Z' and 'Y' must be equal column count")
+    if (!all(sapply(Z, is.numeric))) stop("'Z' must be numeric values")
     if (any(is.na(Z))) stop("'Z' has unknown values")
     if (is.null(names(Z))) stop("'Z' must be colnames")
   }
@@ -326,9 +328,9 @@ vardomh <- function(Y, H, PSU, w_final,
       
   # Ratio of two totals
   
-  Z1 <- persort <- lin_outp <- estim <- NULL
-  var_est2 <- se <- rse <- cv <- NULL
-  absolute_margin_of_error <- NULL
+  Z1 <- persort <- linratio_outp <- NULL 
+  estim <- var_est2 <- se <- rse <- NULL
+  cv <- absolute_margin_of_error <- NULL
   relative_margin_of_error <- CI_lower <- NULL
   CI_upper <- variable <- variableZ <- .SD <- NULL
   deff_sam <- deff_est <- deff <- NULL
@@ -354,7 +356,7 @@ vardomh <- function(Y, H, PSU, w_final,
           Y2a <- rbindlist(lin2)[sorts]
         }
      if (any(is.na(Y2))) print("Results are calculated, but there are cases where Z = 0")
-     if (outp_lin) ratio_outp <- data.table(idper, PSU, Y2) 
+     if (outp_lin) linratio_outp <- data.table(idper, PSU, Y2) 
     } else {
             Y2 <- Y1
             Y2a <- Y1
@@ -396,9 +398,9 @@ vardomh <- function(Y, H, PSU, w_final,
        ind_gr <- D1[, np+2, with=F]
        if (!is.null(period)) ind_gr <- data.table(D1[, names(periodX), with=F], ind_gr)
        ind_period <- do.call("paste", c(as.list(ind_gr), sep="_"))
-       sorts <- unlist(split(Y2[, .I], ind_period))
+       sorts <- unlist(split(Y3[, .I], ind_period))
     
-       lin1 <- lapply(split(Y2[, .I], ind_period), function(i) 
+       lin1 <- lapply(split(Y3[, .I], ind_period), function(i) 
                    residual_est(Y=Y3[i],
                                 X=D1[i,(np+5):ncol(D1),with=F],
                                 weight=w_design2[i],
@@ -469,7 +471,7 @@ vardomh <- function(Y, H, PSU, w_final,
   all_result <- merge(all_result, Y_nov)
   
   if (!is.null(Z1)) {
-         YZnames <- data.table(variable=names(Y_nov), variableDZ=names(Z1))
+         YZnames <- data.table(variable=names(Y1), variableDZ=names(Z1))
          setkeyv(YZnames, "variable")
          setkeyv(all_result, "variable")
          all_result <- merge(all_result, YZnames)
@@ -520,7 +522,8 @@ vardomh <- function(Y, H, PSU, w_final,
   all_result[, CI_upper:= estim + tsad*se]
 
   setnames(all_result, c("variable", "var_est"), c("variableD", "var"))
-  if (!is.null(Z_nov)) { nosrZ <- all_result$variableDZ
+  if (!is.null(all_result$Z_nov)) {
+                         nosrZ <- all_result$variableDZ
                          nosrZ <- nosrZ[!duplicated(nosrZ)]
                          nosrZ1 <- data.table(variableZ=t(data.frame(strsplit(nosrZ, "__")))[,c(1)])
                          nosrZ <- data.table(variableDZ=nosrZ, nosrZ1)
@@ -556,7 +559,7 @@ vardomh <- function(Y, H, PSU, w_final,
   setkeyv(all_result, c("nr_names", names(Dom), names(period)))
   all_result <- all_result[, c("variable", names(Dom), names(period), variab), with=F]
   
-  list(lin_out = lin_outp,
+  list(lin_out = linratio_outp,
        res_out = res_outp,
        all_result = all_result)
 }

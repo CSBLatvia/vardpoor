@@ -287,6 +287,7 @@ varpoord <- function(inc, w_final,
   # X
   if (!is.null(X)) {
     X <- data.table(X, check.names=T)
+    if (!all(sapply(X, is.numeric))) stop("'X' must be numeric values")
     if (nrow(X) != nrow(X_ID_household)) stop("'X' and 'X_ID_household' have different row count")
   }
 
@@ -577,9 +578,9 @@ varpoord <- function(inc, w_final,
        ind_gr <- D1[, np+2, with=F]
        if (!is.null(period)) ind_gr <- data.table(D1[, names(periodX), with=F], ind_gr)
        ind_period <- do.call("paste", c(as.list(ind_gr), sep="_"))
-       sorts <- unlist(split(Y2[, .I], ind_period))
+       sorts <- unlist(split(Y3[, .I], ind_period))
     
-       lin1 <- lapply(split(Y2[, .I], ind_period), function(i) 
+       lin1 <- lapply(split(Y3[, .I], ind_period), function(i) 
                    residual_est(Y=Y3[i],
                                 X=D1[i,(np+5):ncol(D1),with=F],
                                 weight=w_design2[i],
@@ -648,10 +649,11 @@ varpoord <- function(inc, w_final,
   nDom <- names(copy(Dom))
   estim[!is.null(Dom), (paste0(nDom,"@1@")):=lapply(nDom, function(x) paste(x, get(x), sep="."))]
   
-  if (!is.null(Dom)) Dom <- estim[, c("variable", paste0(nDom,"@1@")), with=F]
+  Dom <- estim[, "variable", with=F]
+  if (!is.null(nDom)) Dom <- estim[, c("variable", paste0(nDom,"@1@")), with=F]
 
   estim$variable <- do.call("paste", c(as.list(Dom), sep="__"))
-  estim[!is.null(Dom), (paste0(nDom,"@1@")):=NULL]
+  estim[!is.null(nDom), (paste0(nDom,"@1@")):=NULL]
 
   if (nrow(all_result[var_est < 0])>0) stop("Estimation of variance are negative!")
   
@@ -688,7 +690,9 @@ varpoord <- function(inc, w_final,
   all_result[, CI_lower:= value - tsad*se]
   all_result[, CI_upper:= value + tsad*se]
   
-  variabl <- c("value", "value_eu", "var_est", "se",
+  setnames(all_result, "var_est", "var")
+  
+  variabl <- c("value", "value_eu", "var", "se",
                "rse", "cv", "absolute_margin_of_error",
                "relative_margin_of_error", "CI_lower",  
                "CI_upper", "var_srs_HT", "var_cur_HT", 

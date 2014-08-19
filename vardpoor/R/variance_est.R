@@ -42,6 +42,7 @@ variance_est <- function(Y, H, PSU, w_final, N_h=NULL, fh_zero=FALSE, PSU_level=
   Y <- data.table(Y, check.names=TRUE)
   n <- nrow(Y)
   m <- ncol(Y)
+  if (!all(sapply(Y, is.numeric))) stop("'Y' must be numeric values")
   if (any(is.na(Y))) print("'Y' has unknown values")
   if (is.null(names(Y))) stop("'Y' must be the column names")
   

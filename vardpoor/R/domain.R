@@ -5,7 +5,7 @@ domain <- function(Y, D) {
   
   # Y
   Y <- data.table(Y, check.names = T)
-  if (!all(sapply(Y, is.numeric))) stop(name.Y, " has non-numeric values")
+  if (!all(sapply(Y, is.numeric))) stop(name.Y, " must be numerical")
   if (any(is.na(Y))) stop(name.Y, " has unknown values")
   n <- nrow(Y)
 

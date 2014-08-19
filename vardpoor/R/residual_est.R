@@ -5,11 +5,13 @@ residual_est <- function (Y, X, weight, q) {
   Y <- as.data.frame.matrix(data.table(Y, check.names=TRUE))
   n <- nrow(Y)
   m <- ncol(Y)
+  if (!all(sapply(Y, is.numeric))) stop("'Y' must be numerical")
   if(any(is.na(Y))) print("'Residual_est': 'Ys' has unknown values", call. = FALSE)
  
   # X
   X <- as.matrix(X)
   if (nrow(X) != n) stop("'X' and 'Y' must be equal row count")
+  if (!all(sapply(X, is.numeric))) stop("'X' must be numerical")
 
   X1 <- data.table(X, check.names=T)
   X1 <- X1[,lapply(.SD, function(x) sum(!is.na(x))), .SDcols=names(X1)]

@@ -6,7 +6,8 @@
 
 
 \description{
-The median income of persons below a poverty threshold can be calculated either over the whole population U or over subpopulations. Concerning the poverty threshold, it is calculated as a percentage of an income quantile and is not broken down.
+
+Estimation of the median income below at-risk-of-poverty threshold and computation of linearized variable for variance estimation. The at-risk-of-poverty threshold is estimated for the whole population always. The median income is estimated for the whole population or for each domain.
 }
 
 \usage{

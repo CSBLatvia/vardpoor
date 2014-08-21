@@ -6,7 +6,7 @@
 
 
 \description{
-Estimates gender pay (wage) gap and computes linearized variable for variance estimation.
+Estimation of gender pay (wage) gap and computation of linearized variables for variance estimation.
 }
 
 
@@ -114,6 +114,7 @@ gpgs4 <- lingpg(inc="earningsHour", gender="sex",
                 Dom="education", period = "year",
                 dataset=dati)
 gpgs4$value
+names(gpgs4$lin)
 }
 
 \keyword{Linearization}

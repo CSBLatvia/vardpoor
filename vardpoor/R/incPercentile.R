@@ -18,7 +18,7 @@ checker <- function(variables, datasets, varname) {
  }
 
 incPercentile <- function(inc, weights = NULL, sort = NULL, 
-        Dom = NULL, k = c(20, 80), dataset = NULL, na.rm = FALSE) {
+        Dom = NULL, k = c(20, 80), dataset = NULL) {
    
    ## initializations
    if(!is.numeric(k) || length(k) == 0 || any(k < 0 | k > 100)) {
@@ -49,8 +49,7 @@ incPercentile <- function(inc, weights = NULL, sort = NULL,
    if (ncol(inc) != 1) stop("'inc' must be a vector or 1 column data.frame, matrix, data.table")
    inc <- inc[,1]
    if(!is.numeric(inc)) stop("'inc' must be numerical")
-   if (any(is.na(inc))) warning("'inc' has unknown values")
-   if (all(is.na(inc))) warning("'inc' has unknown all values")
+   if (any(is.na(inc))) stop("'inc' has unknown values")
 
    # weights
    weights <- data.frame(weights)
@@ -59,6 +58,7 @@ incPercentile <- function(inc, weights = NULL, sort = NULL,
    if (ncol(weights) != 1) stop("'weights' must be vector or 1 column data.frame, matrix, data.table")
    weights <- weights[,1]
    if(!is.numeric(weights)) stop("'weights' must be numerical")
+   if (any(is.na(weights))) stop("'weights' has unknown values")
 
    # sort  
    if(!is.null(sort) && !is.vector(sort) && !is.ordered(sort)) {
@@ -88,7 +88,7 @@ incPercentile <- function(inc, weights = NULL, sort = NULL,
                order <- if(is.null(sortind)) order(incind) else order(incind, sortind)
                incind <- incind[order]
                weightsind <- weightsind[order]  # also works if 'weights' is NULL                               
-               percentile <- weightedQuantile(incind, weightsind, probs=k/100, sorted=FALSE, na.rm=na.rm)               
+               percentile <- weightedQuantile(incind, weightsind, probs=k/100, sorted=FALSE, na.rm=FALSE)               
                q <- rbind(q,percentile)   }
        colnames(q) <- k
        rownames(q) <- NULL
@@ -96,7 +96,7 @@ incPercentile <- function(inc, weights = NULL, sort = NULL,
      } else {  order <- if(is.null(sort)) order(inc) else order(inc, sort)
                inc <- inc[order]
                weights <- weights[order]  # also works if 'weights' is NULL
-               q <- weightedQuantile(inc, weights, probs=k/100, sorted=TRUE, na.rm=na.rm)
+               q <- weightedQuantile(inc, weights, probs=k/100, sorted=TRUE, na.rm=FALSE)
                names(q) <- k  # use percentile numbers as names
      }
      ## return results

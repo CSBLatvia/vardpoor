@@ -10,7 +10,7 @@ The function computes the estimates of weighted percentiles.
 
 \usage{
 incPercentile(inc, weights = NULL, sort = NULL,
-  Dom = NULL, k = c(20, 80), dataset = NULL, na.rm = FALSE)
+  Dom = NULL, k = c(20, 80), dataset = NULL)
 }
 
 \arguments{
@@ -27,7 +27,6 @@ incPercentile(inc, weights = NULL, sort = NULL,
   
   \item{dataset}{Optional survey data object convertible to \code{data.frame}.}
 
-  \item{na.rm}{A logical value indicating whether missing values in study variable should be removed.}
 }
 
 \value{

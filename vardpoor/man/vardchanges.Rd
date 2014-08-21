@@ -24,15 +24,15 @@ vardchanges(Y1, H1, PSU1, w_final1, id1,
 
 \item{w_final1}{Weight variable. One dimensional object convertible to one-column \code{data.frame} or variable name as character, column number or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset1}).}
 
-\item{id1}{optional; either 1 column data.frame, matrix, data.table with column names giving the IDs, or (if \code{dataset} is not \code{NULL}) a character string, an integer or a logical vector (length is the same as 'dataset' column count) specifying the corresponding column of \code{dataset1}.}
+\item{id1}{variable for unit ID codes (for household surveys - secondary unit id number). One dimensional object convertible to one-column \code{data.frame} or variable name as character, column number or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset1}).}
 
 \item{Dom1}{Optional variables used to define population domains. If supplied, variables are calculated for each domain. An object convertible to \code{data.frame} or variable names as character vector, column numbers or logical vector (length of the vector has to be the same as the column count of \code{dataset1}).}
 
-\item{Z1}{Optional variables of denominator for ratio estimation. If supplied, the ratio estimation is computed. Object convertible to \code{data.frame} or variable names as character, column numbers or logical vector (length of the vector has to be the same as the column count of \code{dataset1}). This variable is \code{NULL} by default.}
+\item{Z1}{Optional variables of denominator for ratio estimation. If supplied, the ratio estimation is computed. Object convertible to \code{data.frame} or variable names as character, column numbers or logical vector (length of the vector has to be the same as the column count of \code{dataset2}). This variable is \code{NULL} by default.}
 
-\item{country1}{optional; either a data.frame, matrix, data.table with column names giving different countries, or (if \code{dataset} is not \code{NULL}) character strings, integers or a logical vectors (length is the same as 'dataset' column count) specifying the corresponding columns of \code{dataset1} .}
+\item{country1}{Variable for the survey countries. The values for each country are computed independently. Object convertible to \code{data.frame} or variable names as character, column numbers or logical vector (length of the vector has to be the same as the column count of \code{dataset1}).}
 
-\item{period1}{Optional variable for survey period. If supplied, variables are calculated for each time period. One dimensional object convertible to one-column \code{data.frame} or variable name as character, column number or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset1}).}
+\item{period1}{Variable for the survey periods. The values for each period are computed independently. Object convertible to \code{data.frame} or variable names as character, column numbers or logical vector (length of the vector has to be the same as the column count of \code{dataset1}).}
 
 \item{dataset1}{Optional survey data object convertible to \code{data.frame}.}
 
@@ -45,15 +45,15 @@ vardchanges(Y1, H1, PSU1, w_final1, id1,
 
 \item{w_final2}{Weight variable. One dimensional object convertible to one-column \code{data.frame} or variable name as character, column number or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset2}).}
 
-\item{id2}{optional; either 1 column data.frame, matrix, data.table with column names giving the IDs, or (if \code{dataset} is not \code{NULL}) a character string, an integer or a logical vector (length is the same as 'dataset' column count) specifying the corresponding column of \code{dataset2}.}
+\item{id2}{variable for unit ID codes (for household surveys - secondary unit id number). One dimensional object convertible to one-column \code{data.frame} or variable name as character, column number or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset2}).}
 
 \item{Dom2}{Optional variables used to define population domains. If supplied, variables are calculated for each domain. An object convertible to \code{data.frame} or variable names as character vector, column numbers or logical vector (length of the vector has to be the same as the column count of \code{dataset2}).}
 
 \item{Z2}{Optional variables of denominator for ratio estimation. If supplied, the ratio estimation is computed. Object convertible to \code{data.frame} or variable names as character, column numbers or logical vector (length of the vector has to be the same as the column count of \code{dataset2}). This variable is \code{NULL} by default.}
 
-\item{country2}{optional; either a data.frame, matrix, data.table with column names giving different countries, or (if \code{dataset} is not \code{NULL}) character strings, integers or a logical vectors (length is the same as 'dataset' column count) specifying the corresponding columns of \code{dataset2} .}
+\item{country2}{Variable for the survey countries. The values for each country are computed independently. Object convertible to \code{data.frame} or variable names as character, column numbers or logical vector (length of the vector has to be the same as the column count of \code{dataset2}).}
 
-\item{period2}{Optional variable for survey period. If supplied, variables are calculated for each time period. One dimensional object convertible to one-column \code{data.frame} or variable name as character, column number or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset2}).}
+\item{period2}{Variable for the survey periods. The values for each period are computed independently. Object convertible to \code{data.frame} or variable names as character, column numbers or logical vector (length of the vector has to be the same as the column count of \code{dataset2}).}
 
 \item{dataset2}{Optional survey data object convertible to \code{data.frame}.}
 

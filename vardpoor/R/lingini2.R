@@ -14,7 +14,7 @@
 
 lingini2 <- function(inc, id = NULL, weight = NULL, sort = NULL, 
                      Dom = NULL, period=NULL, dataset = NULL,
-                     na.rm = FALSE, var_name="lin_gini2") {
+                     var_name="lin_gini2") {
 
    ## initializations
    if (min(dim(as.data.frame(var_name))==1)!=1) {
@@ -56,7 +56,7 @@ lingini2 <- function(inc, id = NULL, weight = NULL, sort = NULL,
    if (ncol(inc) != 1) stop("'inc' must be a vector or 1 column data.frame, matrix, data.table")
    inc <- inc[,1]
    if(!is.numeric(inc)) stop("'inc' must be a numerical")
-   if (any(is.na(inc))) warning("'inc' has unknown values")
+   if (any(is.na(inc))) stop("'inc' has unknown values")
 
    # id
    if (is.null(id)) id <- 1:n 
@@ -72,7 +72,8 @@ lingini2 <- function(inc, id = NULL, weight = NULL, sort = NULL,
    if (ncol(weight) != 1) stop("'weight' must be vector or 1 column data.frame, matrix, data.table")
    weight <- weight[,1]
    if (!is.numeric(weight)) stop("'weight' must be numerical")
-   
+   if (any(is.na(weight))) stop("'weight' has unknown values")
+
    # sort
    if (!is.null(sort) && !is.vector(sort) && !is.ordered(sort)) {
          stop("'sort' must be a vector or ordered factor") }
@@ -121,7 +122,7 @@ lingini2 <- function(inc, id = NULL, weight = NULL, sort = NULL,
                 breakdown2 <- do.call(paste, as.list(c(g, sep="__")))
                 D <- Dom_agg[i,][rep(1, nrow(Dom1)),]
                 ind <- (rowSums(Dom1 == D) == ncol(Dom1))
-                gini_l <- lingini2Calc(inc[ind], gini_id[ind], weight[ind], sort[ind], na.rm=na.rm)
+                gini_l <- lingini2Calc(inc[ind], gini_id[ind], weight[ind], sort[ind])
                 ginilin <- gini_l$lin
                 setnames(ginilin, names(ginilin), c(names(gini_id), paste(var_name, breakdown2, sep="__")))
                 gini_m <- merge(gini_m, ginilin, by=names(gini_id), all.x=T, sort=FALSE)
@@ -129,7 +130,7 @@ lingini2 <- function(inc, id = NULL, weight = NULL, sort = NULL,
              }
       colnames(Gini) <- c("Gini", "Gini_eu")
       Gini <- data.table(Dom_agg, Gini)
-     } else { gini_l <- lingini2Calc(inc, id, weight, sort, na.rm=na.rm)
+     } else { gini_l <- lingini2Calc(inc, id, weight, sort)
               gini_m <- gini_l$lin
               setnames(gini_m, names(gini_m), c(names(id),var_name))   
               Gini <- data.frame(gini_l$Gini, gini_l$Gini_eu)
@@ -141,17 +142,9 @@ lingini2 <- function(inc, id = NULL, weight = NULL, sort = NULL,
 
 
 # workhorse 
-lingini2Calc <- function(x, ids, weights = NULL, sort = NULL, na.rm = FALSE) { 
+lingini2Calc <- function(x, ids, weights = NULL, sort = NULL) { 
 
-     # initializations 
-    if (isTRUE(na.rm)){ 
-          indices <- !is.na(x) 
-          x <- x[indices] 
-          if(!is.null(weights)) weights <- weights[indices] 
-          if(!is.null(ids)) ids <- ids[indices] 
-          if(!is.null(sort)) sort <- sort[indices] 
-      } else if(any(is.na(x))) return(NA) 
-     # sort values and weights 
+    # sort values and weights 
     order <- if(is.null(sort)) order(x) else order(x, sort) 
     x <- x[order]  # order values 
     ids <- ids[order]  # order values 

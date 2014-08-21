@@ -11,7 +11,7 @@
 \usage{
 linqsr(inc, id=NULL, weight=NULL, sort = NULL,
        Dom = NULL, period=NULL, dataset = NULL,
-       alpha = 20, na.rm = FALSE, var_name="lin_qsr")
+       alpha = 20, var_name="lin_qsr")
 }
 
 \arguments{
@@ -31,8 +31,6 @@ linqsr(inc, id=NULL, weight=NULL, sort = NULL,
   \item{dataset}{Optional survey data object convertible to \code{data.frame}.}
 
   \item{alpha}{a numeric value in range \eqn{[0,100]} for the order of the income quantile share ratio (in percentage).}
-
-  \item{na.rm}{A logical value indicating whether missing values in study variable should be removed.}
 
   \item{var_name}{A character specifying the name of the linearized variable.}
 }
@@ -58,8 +56,8 @@ Jean-Claude Deville (1999). Variance estimation for complex statistics and estim
 data(eusilc)
 dati <- data.frame(1:nrow(eusilc),eusilc)
 colnames(dati)[1] <- "IDd"
-dd<-linqsr(inc="eqIncome", id="IDd", weight="rb050", Dom="db040",
-           dataset= dati, alpha=20, na.rm = FALSE)
+dd <- linqsr(inc="eqIncome", id="IDd", weight="rb050",
+             Dom="db040", dataset= dati, alpha=20)
 dd$value
 }
 

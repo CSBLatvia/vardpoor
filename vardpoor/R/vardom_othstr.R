@@ -154,10 +154,12 @@ vardom_othstr <- function(Y, H, H2, PSU, w_final,
       if (is.null(period)) {
              if (names(H) != names(N_h)[1]) stop("Strata titles for 'H' and 'N_h' is not equal")
              if (any(is.na(merge(unique(H), N_h, by=names(H), all.x = T)))) stop("'N_h' is not defined for all stratas")
+             if (any(duplicated(N_h[, head(names(N_h),-1), with=F]))) stop("Strata values for 'N_h' must be unique")
        } else { pH <- data.frame(period, H)
                 if (any(names(pH) != names(N_h)[c(1:(1+np))])) stop("Strata titles for 'period' with 'H' and 'N_h' is not equal")
                 if (any(is.na(merge(unique(pH), N_h, by=names(pH), all.x = T)))) stop("'N_h' is not defined for all stratas and periods")
-                pH <- NULL 
+                if (any(duplicated(N_h[, head(names(N_h),-1), with=F]))) stop("Strata values for 'N_h' must be unique in all periods")
+               pH <- NULL
      }
     setkeyv(N_h, names(N_h)[c(1:(1+np))])
   } 
@@ -394,9 +396,10 @@ vardom_othstr <- function(Y, H, H2, PSU, w_final,
   all_result[, var_est2:=var_est]
   all_result[xor(is.na(var_est2), var_est2 < 0), var_est2:=NA]
   all_result[, se:=sqrt(var_est2)]
-  all_result[estim!=0, rse:= se/estim]
-  all_result[estim==0, rse:= NA]
+  all_result[(estim!=0) & !is.nan(estim), rse:= se/estim]
+  all_result[estim==0 | is.nan(estim), rse:=NA]
   all_result[, cv:= rse*100]
+
 
   tsad <- qnorm(0.5*(1+confidence))
   all_result[, absolute_margin_of_error:= tsad*se]

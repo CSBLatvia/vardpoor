@@ -26,7 +26,6 @@ varpoord <- function(inc, w_final,
                      confidence = .95,
                      outp_lin = FALSE,
                      outp_res = FALSE,
-                     na.rm=FALSE,
                      several.ok=FALSE,
                      type="lin_rmpg") {
 
@@ -151,7 +150,7 @@ varpoord <- function(inc, w_final,
   if (ncol(inc) != 1) stop("'inc' must have vector or 1 column data.frame, matrix, data.table")
   inc <- inc[,1]
   if (!is.numeric(inc)) stop("'inc' must be numerical")
-  if (any(is.na(inc))) warning("'inc' has unknown values")
+  if (any(is.na(inc))) stop("'inc' has unknown values")
               
   # id
   if (is.null(id)) id <- 1:n
@@ -175,7 +174,8 @@ varpoord <- function(inc, w_final,
   if (ncol(w_final) != 1) stop("'w_final' must have vector or 1 column data.frame, matrix, data.table")
   w_final <- w_final[,1]
   if (!is.numeric(w_final)) stop("'w_final' must be numerical")
-
+  if (any(is.na(w_final))) stop("'w_final' has unknown values") 
+  
   # income_thres
   if (!is.null(income_thres)) {
        income_thres <- data.frame(income_thres)
@@ -183,6 +183,7 @@ varpoord <- function(inc, w_final,
        if (ncol(income_thres) != 1) stop("'income_thres' must have vector or 1 column data.frame, matrix, data.table")
        income_thres <- income_thres[,1]
        if (!is.numeric(income_thres)) stop("'income_thres' must be numerical")
+       if (any(is.na(income_thres))) stop("'income_thres' has unknown values") 
      } else income_thres <- inc
 
   # wght_thres
@@ -208,14 +209,11 @@ varpoord <- function(inc, w_final,
 
   # gender
   if (!is.null(gender)) {
-      if (!is.factor(gender)) stop("'gender' must be a factor.")
-      if (length(levels(gender)) != 2) stop("'gender' must have exactly two levels")
-      if (!all(levels(gender) == c(1, 2))) {
-           gender <- factor(gender, labels=c(1,2))
-           warning("The levels of gender were internally recoded - your first level has to correspond to males")
-          } 
-      if (length(gender) != n) stop("'gender' must have the same length as 'x'")
-    }
+      if (!is.numeric(gender)) stop("'gender' must be numerical")
+      if (length(gender) != n) stop("'gender' must be the same length as 'inc'")
+      if (length(unique(gender)) != 2) stop("'gender' must be exactly two values")
+      if (!all.equal(unique(gender),c(1, 2))) stop("'gender' must be value 1 for male, 2 for females")
+   }
 
   # period     
   if (!is.null(period)) {
@@ -238,10 +236,12 @@ varpoord <- function(inc, w_final,
       if (is.null(period)) {
              if (names(H) != names(N_h)[1]) stop("Strata titles for 'H' and 'N_h' is not equal")
              if (any(is.na(merge(unique(H), N_h, by=names(H), all.x = T)))) stop("'N_h' is not defined for all stratas")
+             if (any(duplicated(N_h[, head(names(N_h),-1), with=F]))) stop("Strata values for 'N_h' must be unique")
        } else { pH <- data.frame(period, H)
                 if (any(names(pH) != names(N_h)[c(1:(1+np))])) stop("Strata titles for 'period' with 'H' and 'N_h' is not equal")
                 if (any(is.na(merge(unique(pH), N_h, by=names(pH), all.x = T)))) stop("'N_h' is not defined for all stratas and periods")
-                pH <- NULL 
+                if (any(duplicated(N_h[, head(names(N_h),-1), with=F]))) stop("Strata values for 'N_h' must be unique in all periods")
+                pH <- NULL
      }
     setkeyv(N_h, names(N_h)[c(1:(1+np))])
   }
@@ -385,14 +385,12 @@ varpoord <- function(inc, w_final,
        varpt <- linarpt(inc=inc, id=id, weight=w_final,
                         sort=sort, Dom=Dom, period=period,
                         dataset=NULL, percentage=percentage,
-                        order_quant=order_quant, na.rm=na.rm,
-                        var_name="lin_arpt")
+                        order_quant=order_quant, var_name="lin_arpt")
 
        varpta <- linarpt(inc=inc, id=id, weight=w_design,
                          sort=sort, Dom=Dom, period=period,
                          dataset=NULL, percentage=percentage,
-                         order_quant=order_quant, na.rm=na.rm,
-                         var_name="lin_arpt")
+                         order_quant=order_quant, var_name="lin_arpt")
 
        Y1 <- merge(Y1, varpt$lin, by=names(idper), all.x=T)
        Y1a <- merge(Y1a, varpta$lin, by=names(idper), all.x=T)
@@ -405,15 +403,19 @@ varpoord <- function(inc, w_final,
      }
   if ("linarpr" %in% type) {
        varpr <- linarpr(inc=inc, id=id, weight=w_final,
-                        income_thres=income_thres, wght_thres=wght_thres,
-                        sort=sort, Dom=Dom, period=period,  
-                        dataset=NULL, percentage=percentage,
-                        order_quant=order_quant, na.rm=na.rm, "lin_arpr")
+                        income_thres=income_thres,
+                        wght_thres=wght_thres, sort=sort, 
+                        Dom=Dom, period=period, dataset=NULL, 
+                        percentage=percentage,
+                        order_quant=order_quant,
+                        var_name="lin_arpr")
        varpra <- linarpr(inc=inc, id=id, weight=w_design,
-                         income_thres=income_thres, wght_thres=wght_thres,
-                         sort=sort, Dom=Dom, period=period, 
-                         dataset=NULL, percentage=percentage,
-                         order_quant=order_quant, na.rm=na.rm, "lin_arpr")
+                         income_thres=income_thres,
+                         wght_thres=wght_thres, sort=sort,
+                         Dom=Dom, period=period, dataset=NULL, 
+                         percentage=percentage,
+                         order_quant=order_quant,
+                         var_name="lin_arpr")
 
        Y1 <- merge(Y1, varpr$lin, by=names(idper), all.x=T)
        Y1a <- merge(Y1a, varpra$lin, by=names(idper), all.x=T)
@@ -428,11 +430,11 @@ varpoord <- function(inc, w_final,
         vgpg <- lingpg(inc=inc, gender=gender, id=id,
                        weight=w_final, sort=sort,
                        Dom=Dom, period=period, dataset=NULL, 
-                       na.rm=na.rm, var_name="lin_gpg")
+                       var_name="lin_gpg")
         vgpga <- lingpg(inc=inc, gender=gender, id=id,
                         weight=w_design, sort=sort,
                         Dom=Dom, period=period, dataset=NULL, 
-                        na.rm=na.rm, var_name="lin_gpg")
+                        var_name="lin_gpg")
 
         Y1 <- merge(Y1, vgpg$lin, by=names(idper), all.x=T)
         Y1a <- merge(Y1a, vgpga$lin, by=names(idper), all.x=T)
@@ -447,13 +449,11 @@ varpoord <- function(inc, w_final,
         vporm <- linpoormed(inc=inc, id=id, weight=w_final,
                             sort=sort, Dom=Dom, period=period, 
                             dataset=NULL, percentage=percentage,
-                            order_quant=order_quant, na.rm=na.rm,
-                            var_name="lin_poormed")
+                            order_quant=order_quant, var_name="lin_poormed")
         vporma <- linpoormed(inc=inc, id=id, weight=w_design,
                              sort=sort, Dom=Dom, period=period, 
                              dataset=NULL, percentage=percentage,
-                             order_quant=order_quant, na.rm=na.rm,
-                             var_name="lin_poormed")
+                             order_quant=order_quant, var_name="lin_poormed")
         Y1 <- merge(Y1, vporm$lin, by=names(idper), all.x=T)
         Y1a <- merge(Y1a, vporma$lin, by=names(idper), all.x=T)
 
@@ -467,14 +467,12 @@ varpoord <- function(inc, w_final,
         vrmpg <- linrmpg(inc=inc, id=id, weight=w_final,
                          sort=sort, Dom=Dom, period=period,
                          dataset=NULL, percentage=percentage,
-                         order_quant=order_quant,
-                         na.rm=na.rm, var_name="lin_rmpg")
+                         order_quant=order_quant, var_name="lin_rmpg")
 
         vrmpga <- linrmpg(inc=inc, id=id, weight=w_design,
                           sort=sort, Dom=Dom, period=period,
                           dataset=NULL, percentage=percentage,
-                          order_quant=order_quant,
-                          na.rm=na.rm, var_name="lin_rmpg")
+                          order_quant=order_quant, var_name="lin_rmpg")
 
         Y1 <- merge(Y1, vrmpg$lin, by=names(idper), all.x=T)
         Y1a <- merge(Y1a, vrmpga$lin, by=names(idper), all.x=T)
@@ -488,12 +486,10 @@ varpoord <- function(inc, w_final,
   if ("linqsr" %in% type) {
        vqsr <- linqsr(inc=inc, id=id, weight=w_final, 
                       sort=sort, Dom=Dom, period=period,
-                      dataset=NULL, alpha=alpha, 
-                      na.rm=na.rm, var_name="lin_qsr") 
+                      dataset=NULL, alpha=alpha, var_name="lin_qsr") 
        vqsra <- linqsr(inc=inc, id=id, weight=w_design,
                       sort=sort, Dom=Dom, period=period,
-                      dataset=NULL, alpha=alpha, 
-                      na.rm=na.rm, var_name="lin_qsr") 
+                      dataset=NULL, alpha=alpha, var_name="lin_qsr") 
 
        Y1 <- merge(Y1, vqsr$lin, by=names(idper), all.x=T)
        Y1a <- merge(Y1a, vqsra$lin, by=names(idper), all.x=T)
@@ -508,10 +504,10 @@ varpoord <- function(inc, w_final,
   if ("lingini" %in% type) {
        vgini <- lingini(inc=inc, id=id, weight=w_final,
                         sort=sort, Dom=Dom, period=period,
-                        dataset=NULL, na.rm=na.rm, var_name="lin_gini")
+                        dataset=NULL, var_name="lin_gini")
        vginia <- lingini(inc=inc, id=id, weight=w_design,
                          sort=sort, Dom=Dom, period=period,
-                         dataset=NULL, na.rm=na.rm, var_name="lin_gini")
+                         dataset=NULL, var_name="lin_gini")
 
        Y1 <- merge(Y1, vgini$lin, by=names(idper), all.x=T)
        Y1a <- merge(Y1a, vginia$lin, by=names(idper), all.x=T)
@@ -525,10 +521,10 @@ varpoord <- function(inc, w_final,
   if ("lingini2" %in% type) {
        vgini2 <- lingini2(inc=inc, id=id, weight=w_final,
                           sort=sort, Dom=Dom, period=period,
-                          dataset=NULL, na.rm=na.rm, var_name="lin_gini2")
+                          dataset=NULL, var_name="lin_gini2")
        vgini2a <- lingini2(inc=inc, id=id, weight=w_design,
                           sort=sort, Dom=Dom, period=period,
-                          dataset=NULL, na.rm=na.rm, var_name="lin_gini2")
+                          dataset=NULL, var_name="lin_gini2")
 
        Y1 <- merge(Y1, vgini2$lin, by=names(idper), all.x=T)
        Y1a <- merge(Y1a, vgini2a$lin, by=names(idper), all.x=T)
@@ -680,9 +676,10 @@ varpoord <- function(inc, w_final,
   all_result[xor(is.na(var_est2), var_est2 < 0), var_est2:=0]
   all_result[, se:=sqrt(var_est2)]
   all_result[xor(is.na(var_est2), var_est2 < 0), se:=NA]
-  all_result[value!=0, rse:= se/value]
-  all_result[value==0, rse:= NA]
+  all_result[(value!=0) & !is.nan(value), rse:= se/estim]
+  all_result[value==0 | is.nan(value), rse:=NA]
   all_result[, cv:= rse*100]
+
 
   tsad <- qnorm(0.5*(1+confidence))
   all_result[, absolute_margin_of_error:= tsad*se]

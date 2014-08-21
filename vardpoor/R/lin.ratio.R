@@ -21,7 +21,7 @@ lin.ratio <- function(Y, Z, weight, Dom=NULL) {
   if (ncol(weight) != 1) stop("'weight' must be a vector or 1 column data frame, data matrix, data table")
   weight <- weight[,1]
   if (!is.numeric(weight)) stop("'weight' must be numerical")
-  if (any(is.na(weight))) stop("'weight' has unknown value")
+  if (any(is.na(weight))) stop("'weight' has unknown values")
  
   Y_est <- colSums(Yd * weight)
   Z_est <- colSums(Zd * weight)

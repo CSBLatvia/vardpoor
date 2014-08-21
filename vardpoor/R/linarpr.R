@@ -12,7 +12,7 @@
 
 linarpr <- function(inc, id, weight=NULL, income_thres=NULL, wght_thres=NULL,
                  sort=NULL, Dom=NULL, period=NULL, dataset = NULL, percentage=60, 
-                 order_quant=50, na.rm=FALSE, var_name="lin_arpr") {
+                 order_quant=50, var_name="lin_arpr") {
  
    ## initializations
    if (min(dim(data.table(var_name))==1)!=1) {
@@ -73,7 +73,7 @@ linarpr <- function(inc, id, weight=NULL, income_thres=NULL, wght_thres=NULL,
    if (ncol(inc) != 1) stop("'inc' must be vector or 1 column data.frame, matrix, data.table")
    inc <- inc[,1]
    if(!is.numeric(inc)) stop("'inc' must be numerical")
-   if (any(is.na(inc))) warning("'inc' has unknown values")
+   if (any(is.na(inc))) stop("'inc' has unknown values")
 
    # id
    if (is.null(id)) id <- 1:n
@@ -91,6 +91,7 @@ linarpr <- function(inc, id, weight=NULL, income_thres=NULL, wght_thres=NULL,
    if (ncol(weight) != 1) stop("'weight' must be vector or 1 column data.frame, matrix, data.table")
    weight <- weight[,1]
    if (!is.numeric(weight)) stop("'weight' must be numerical")
+   if (any(is.na(weight))) stop("'weight' has unknown values")
 
    # income_thres
    if (is.null(income_thres)) income_thres <- inc
@@ -100,6 +101,7 @@ linarpr <- function(inc, id, weight=NULL, income_thres=NULL, wght_thres=NULL,
         if (ncol(income_thres) != 1) stop("'income_thres' must be vector or 1 column data.frame, matrix, data.table")
         income_thres <- income_thres[,1]
         if(!is.numeric(income_thres)) stop("'income_thres' must be numerical")
+        if (any(is.na(income_thres))) stop("'income_thres' has unknown values") 
      } 
 
    # wght_thres
@@ -109,6 +111,7 @@ linarpr <- function(inc, id, weight=NULL, income_thres=NULL, wght_thres=NULL,
    if (ncol(wght_thres) != 1) stop("'wght_thres' must be vector or 1 column data.frame, matrix, data.table")
    wght_thres <- wght_thres[,1]
    if (!is.numeric(wght_thres)) stop("'wght_thres' must be numerical")
+   if (any(is.na(wght_thres))) stop("'wght_thres' has unknown values") 
     
    # sort
    if (!is.null(sort) && !is.vector(sort) && !is.ordered(sort)) {
@@ -144,9 +147,9 @@ linarpr <- function(inc, id, weight=NULL, income_thres=NULL, wght_thres=NULL,
 
     # ARPR by domain (if requested)
 
-    quantiles <- incPercentile(income_thres, wght_thres, sort=sort,Dom=period, order_quant, dataset = NULL, na.rm=na.rm)
+    quantiles <- incPercentile(income_thres, wght_thres, sort=sort,Dom=period, order_quant, dataset = NULL)
     threshold <- data.table(quantiles)
-    threshold[,names(threshold)[ncol(threshold)]:=p/100 * threshold[,ncol(threshold),with=FALSE]]
+    threshold[,names(threshold)[ncol(threshold)]:=p/100 * threshold[, ncol(threshold), with=FALSE]]
     setnames(threshold,names(threshold)[ncol(threshold)],"threshold")
    
     if (!is.null(Dom1)) {
@@ -172,7 +175,7 @@ linarpr <- function(inc, id, weight=NULL, income_thres=NULL, wght_thres=NULL,
               arpr_l <- arprlinCalc(inc1=inc, ids=arpr_id, wght1=weight, indicator=ind,
                                     indic2=ind2, income_thresh=income_thres,
                                     wght_thresh=wght_thres, percent=p,
-                                    order_quants=order_quant, quant_val=quantile, na.rm=na.rm) 
+                                    order_quants=order_quant, quant_val=quantile) 
               arprl <- arpr_l$lin
               setnames(arprl,names(arprl), c(names(arpr_id), paste(var_name, breakdown2, sep="__")))
               arpr_m <- merge(arpr_m, arprl, by=names(arpr_id), all.x=T, sort=FALSE)
@@ -183,7 +186,7 @@ linarpr <- function(inc, id, weight=NULL, income_thres=NULL, wght_thres=NULL,
      } else { arpr_l <- arprlinCalc(inc1=inc, ids=id, wght1=weight, indicator=ind,
                                     indic2=ind, income_thresh=income_thres,
                                     wght_thresh=wght_thres, percent=p,
-                                    order_quants=order_quant, quant_val=quantiles, na.rm=na.rm) 
+                                    order_quants=order_quant, quant_val=quantiles) 
               arpr_m <- arpr_l$lin
               setnames(arpr_m, names(arpr_m), c(names(id), var_name))
               arpr_v <- data.table(arpr_l$rate_val_pr)
@@ -197,18 +200,7 @@ linarpr <- function(inc, id, weight=NULL, income_thres=NULL, wght_thres=NULL,
 
 
 ## workhorse
-arprlinCalc <- function(inc1, ids, wght1, indicator, indic2, income_thresh, wght_thresh, percent, order_quants=NULL, quant_val, na.rm) {
-    indices<-NULL
-    if(isTRUE(na.rm)){
-        indices <- !is.na(inc1)
-        ids <- ids[indices] 
-        inc1 <- inc1[indices]
-        wght1 <- wght1[indices]
-        income_thresh <- income_thresh[indices]
-        wght_thresh <- wght_thresh[indices]
-        indicator <- indicator[indices]
-        indic2 <- indic2[indices]
-    } else if(any(is.na(inc1))) return(NA)
+arprlinCalc <- function(inc1, ids, wght1, indicator, indic2, income_thresh, wght_thresh, percent, order_quants=NULL, quant_val) {
 
     inc2 <- income_thresh * indic2
     wght2 <- wght_thresh * indic2
@@ -239,12 +231,12 @@ arprlinCalc <- function(inc1, ids, wght1, indicator, indic2, income_thresh, wght
     vect_f2 <- exp(-(u2^2)/2)/sqrt(2*pi)
     f_quant2 <- sum(vect_f2*wt)/(N*h)      # Estimate of F'(beta*quantile)
 
-   #****************************************************************************************
-   #                       LINEARIZED VARIABLE OF THE POVERTY RATE (IN %)                  *
-   #****************************************************************************************
-      lin <- 100*((1/N)*indicator*((inc1<=thres_val)-rate_val)+f_quant2*lin_thres)
+ #****************************************************************************************
+ #                       LINEARIZED VARIABLE OF THE POVERTY RATE (IN %)                  *
+ #****************************************************************************************
+    lin <- 100*((1/N)*indicator*((inc1<=thres_val)-rate_val)+f_quant2*lin_thres)
 
-      lin_id <- data.table(ids,lin)
+    lin_id <- data.table(ids,lin)
     return(list(rate_val=rate_val, rate_val_pr=rate_val_pr, lin=lin_id))
 }
 

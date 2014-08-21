@@ -12,7 +12,7 @@
 
 linarpt <- function(inc, id = NULL, weight = NULL, sort = NULL, 
         Dom = NULL, period=NULL, dataset = NULL, percentage = 60,
-        order_quant=50, na.rm = FALSE, var_name="lin_arpt") {
+        order_quant=50, var_name="lin_arpt") {
 
    ## initializations
    if (min(dim(as.data.frame(var_name))==1)!=1) {
@@ -68,7 +68,7 @@ linarpt <- function(inc, id = NULL, weight = NULL, sort = NULL,
    if (ncol(inc) != 1) stop("'inc' must be a vector or 1 column data.frame, matrix, data.table")
    inc <- inc[,1]
    if(!is.numeric(inc)) stop("'inc' must be numerical")
-   if (any(is.na(inc))) warning("'inc' has unknown values")
+   if (any(is.na(inc))) stop("'inc' has unknown values")
 
    # id
    if (is.null(id)) id <- 1:n 
@@ -86,6 +86,7 @@ linarpt <- function(inc, id = NULL, weight = NULL, sort = NULL,
    if (ncol(weight) != 1) stop("'weight' must be vector or 1 column data.frame, matrix, data.table")
    weight <- weight[,1]
    if (!is.numeric(weight)) stop("'weight' must be numerical")
+   if (any(is.na(weight))) stop("'weight' has unknown values")
 
    # sort
    if (!is.null(sort) && !is.vector(sort) && !is.ordered(sort)) {
@@ -122,8 +123,8 @@ linarpt <- function(inc, id = NULL, weight = NULL, sort = NULL,
 
     # ARPT by domain (if requested)  
 
-    quantile <- incPercentile(inc, weights = weight, sort = sort, Dom = Dom1,
-                              k = order_quant, dataset = NULL, na.rm=na.rm)
+    quantile <- incPercentile(inc, weights = weight, sort = sort,
+                              Dom = Dom1, k = order_quant, dataset = NULL)
     threshold <- data.table(quantile)
     threshold[,names(threshold)[ncol(threshold)]:=p/100 * threshold[, ncol(threshold), with=FALSE]]
     setnames(threshold, names(threshold)[ncol(threshold)], "threshold")

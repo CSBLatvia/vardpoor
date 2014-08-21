@@ -13,7 +13,7 @@
                  X_ID_household = NULL, ind_gr = NULL, g = NULL, datasetX = NULL,
                  q, percentage = 60, order_quant = 50, alpha = 20,
                  confidence = 0.95, outp_lin = FALSE, outp_res = FALSE,
-                 na.rm = FALSE, several.ok = FALSE, type = "lin_rmpg") }
+                 several.ok = FALSE, type = "lin_rmpg") }
                      
 
 \arguments{
@@ -46,7 +46,7 @@
 
 \item{period}{Optional variable for survey period. If supplied, variables is calculated for each time period. Object convertable to \code{data.frame} or variable names as character, column numbers or logical vector (length of the vector has to be the same as the column count of \code{dataset}).}
 
-\item{gender}{Factor variable for gender. One dimensional object convertible to one-column \code{data.frame} or variable name as character, column number or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset}).}
+\item{gender}{Numerical variable for gender, where 1 is for males, but 2 is for females. One dimensional object convertible to one-column \code{data.frame} or variable name as character, column number or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset}).}
 
 \item{dataset}{Optional survey data object convertible to \code{data.frame}.}
 
@@ -79,8 +79,6 @@ For example, to compute poverty threshold equal to some percentage of median inc
 \item{outp_lin}{Logical value. if \code{TRUE} linearized values of the ratio estimator will be printed out.}
 
 \item{outp_res}{Logical value. if \code{TRUE} estimated residuals of calibration will be printed out.}
-
-\item{na.rm}{A logical value indicating whether missing values in study variable should be removed.}
 
 \item{several.ok}{logical specifying if \code{type} should be allowed to have more than one.}
 
@@ -165,8 +163,7 @@ aa<-varpoord(inc = "eqIncome", w_final = "rb050",
                         nrow(as.data.frame(H)) else nrow(datasetX)),
              dataset =  dataset, percentage=60, order_quant=50,
              alpha = 20, confidence = .95, outp_lin = TRUE,
-             outp_res = TRUE, na.rm=FALSE,
-             several.ok=FALSE, type="lingini")
+             outp_res = TRUE, several.ok=FALSE, type="lingini")
 aa$lin_out[20:40]
 aa$res_out[20:40]
 } 

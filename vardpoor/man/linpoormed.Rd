@@ -2,19 +2,18 @@
 
 \alias{linpoormed}
 
-\title{Linearization of the median income below the at-risk-of-poverty}
+\title{Linearization of the median income below the at-risk-of-poverty threshold}
+
 
 \description{
-
 The median income of persons below a poverty threshold can be calculated either over the whole population U or over subpopulations. Concerning the poverty threshold, it is calculated as a percentage of an income quantile and is not broken down.
-
 }
 
 \usage{
 linpoormed(inc, id, weight=NULL, sort=NULL,
            Dom=NULL, period=NULL, dataset = NULL,
            percentage=60, order_quant=50,
-           na.rm=FALSE, var_name="lin_poormed")
+           var_name="lin_poormed")
 }
 
 \arguments{
@@ -41,8 +40,6 @@ linpoormed(inc, id, weight=NULL, sort=NULL,
   \deqn{\frac{p}{100} \cdot Z_{\frac{\alpha}{100}}.}{p/100 * Z(\alpha/100).}
   For example, to compute poverty threshold equal to some percentage of median income, \eqn{\alpha} should be set equal to 50.}
 
-  \item{na.rm}{A logical value indicating whether missing values in study variable should be removed.}
-
   \item{var_name}{A character specifying the name of the linearized variable.}
 }
 
@@ -68,15 +65,15 @@ data(eusilc)
 dati=data.frame(1:nrow(eusilc),eusilc)
 colnames(dati)[1] <- "IDd"
 
-d<-linpoormed(inc="eqIncome", id="IDd", weight = "rb050", Dom=NULL,
-              dataset=dati, percentage=60, order_quant=50, na.rm=FALSE)
+d <- linpoormed(inc="eqIncome", id="IDd", weight = "rb050", Dom=NULL,
+                dataset=dati, percentage=60, order_quant=50)
 
-dd<-linpoormed(inc="eqIncome", id="IDd", weight="rb050", Dom="db040",
-               dataset=dati, percentage=60, order_quant=50, na.rm=FALSE)
+dd <- linpoormed(inc="eqIncome", id="IDd", weight="rb050", Dom="db040",
+                dataset=dati, percentage=60, order_quant=50)
 
 }
 
 \seealso{
 \code{\link{linarpt}}, \code{\link{linrmpg}}, \code{\link{varpoord}}}
-\keyword{Linearization}
 
+\keyword{Linearization}

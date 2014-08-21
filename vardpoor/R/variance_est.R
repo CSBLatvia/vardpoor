@@ -89,9 +89,11 @@ variance_est <- function(Y, H, PSU, w_final, N_h=NULL, fh_zero=FALSE, PSU_level=
       if (is.null(period)) {
              if (names(H) != names(N_h)[1]) stop("Strata titles for 'H' and 'N_h' is not equal")
              if (any(is.na(merge(unique(H), N_h, by=names(H), all.x = T)))) stop("'N_h' is not defined for all stratas")
+             if (any(duplicated(N_h[, head(names(N_h),-1), with=F]))) stop("Strata values for 'N_h' must be unique")
        } else { pH <- data.table(period, H)
                 if (any(names(pH) != names(N_h)[c(1:(1+np))])) stop("Strata titles for 'period' with 'H' and 'N_h' is not equal")
                 if (any(is.na(merge(unique(pH), N_h, by=names(pH), all.x = T)))) stop("'N_h' is not defined for all stratas and periods")
+                if (any(duplicated(N_h[, head(names(N_h),-1), with=F]))) stop("Strata values for 'N_h' must be unique in all periods")
                 }
 
     setnames(N_h, names(N_h)[ncol(N_h)], "N_h")

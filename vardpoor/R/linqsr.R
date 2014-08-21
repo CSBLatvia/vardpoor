@@ -12,7 +12,7 @@
 
 linqsr <- function(inc, id=NULL, weight=NULL, sort = NULL,
                    Dom = NULL, period=NULL, dataset = NULL,
-                   alpha = 20, na.rm = FALSE, var_name="lin_qsr") {
+                   alpha = 20, var_name="lin_qsr") {
 
    ## initializations
    if (min(dim(as.data.frame(var_name))==1)!=1) {
@@ -56,8 +56,8 @@ linqsr <- function(inc, id=NULL, weight=NULL, sort = NULL,
    n <- nrow(inc)
    if (ncol(inc) != 1) stop("'inc' must be vector or 1 column data.frame, data matrix, data table")
    inc <- inc[,1]
-   if (!is.numeric(inc)) stop("'inc' must be a numeric vector")               
-   if (any(is.na(inc))) warning("'inc' has unknown values")
+   if (!is.numeric(inc)) stop("'inc' must be a numeric vector")
+   if (any(is.na(inc))) stop("'inc' has unknown values")
 
    # id
    if (is.null(id)) id <- 1:n 
@@ -73,6 +73,7 @@ linqsr <- function(inc, id=NULL, weight=NULL, sort = NULL,
    if (ncol(weight) != 1) stop("'weight' must be vector or 1 column data.frame, matrix, data.table")
    weight <- weight[,1]
    if (!is.numeric(weight)) stop("'weight' must be numerical")
+   if (any(is.na(weight))) stop("'weight' has unknown values")
 
    # sort
    if (!is.null(sort) && !is.vector(sort) && !is.ordered(sort)) {
@@ -126,7 +127,7 @@ linqsr <- function(inc, id=NULL, weight=NULL, sort = NULL,
                    ind2 <- data.frame(ind2)
                   }
               QSR_l <- linQSRCalc(incom=inc, ids=id, weightss=weight, sort=sort,
-                                  ind=ind, ind2=ind2, alpha=alpha, na.rm=na.rm) 
+                                  ind=ind, ind2=ind2, alpha=alpha) 
               QSRl <- QSR_l$lin
               setnames(QSRl,names(QSRl), c(names(id), paste(var_name, breakdown2, sep="__")))
               QSR_m <- merge(QSR_m, QSRl, by=names(id), all.x=T)
@@ -134,8 +135,8 @@ linqsr <- function(inc, id=NULL, weight=NULL, sort = NULL,
       setnames(QSR_v,names(QSR_v), c("QSR", "QSR_eu"))
       QSR_v <- data.table(Dom_agg, QSR_v)
     } else { ind <- data.frame(ind=rep.int(1, n))
-             QSR_l <- linQSRCalc(incom=inc, ids=id, weightss=weight, sort=sort,
-                                 ind=ind, ind2=ind, alpha=alpha, na.rm=na.rm)
+             QSR_l <- linQSRCalc(incom=inc, ids=id, weightss=weight,
+                                 sort=sort,ind=ind, ind2=ind, alpha=alpha)
              QSR_m <- QSR_l$lin
              setnames(QSR_m,names(QSR_m),c(names(id),var_name))
              QSR_v <- data.table(QSR_l$QSR, QSR_l$QSR_eu)
@@ -145,28 +146,17 @@ linqsr <- function(inc, id=NULL, weight=NULL, sort = NULL,
 }
 
 
-linQSRCalc<-function(incom, ids, weightss=NULL, sort=NULL, ind=NULL, ind2=NULL, alpha, na.rm=FALSE) {
+linQSRCalc<-function(incom, ids, weightss=NULL, sort=NULL, ind=NULL, ind2=NULL, alpha) {
 #--------------------------------------------------------------------------------
 #----- COMPUTATION OF ESTIMATED VALUES OF THE NUMERATOR AND THE DENOMINATOR -----
 #--------------------------------------------------------------------------------
    if (is.null(ind)) ind <- data.frame(ind=rep.int(1,length(ids)))
    if (is.null(ind2)) ind2 <- data.frame(ind2=rep.int(1,length(ids)))
-   if (isTRUE(na.rm)){
-         indices <- !is.na(incom)
-         incom <- incom[indices]
-         ids <- ids[indices]
-         ind  <- data.frame(ind[indices,1])
-         colnames(ind)[1]<-"ind"
-         ind2  <- data.frame(ind2[indices,1])
-         colnames(ind2)[1]<-"ind2"
-         if(!is.null(weightss)) weightss <- weightss[indices]
-         if(!is.null(sort)) sort <- sort[indices]
-    } else if(any(is.na(incom))) return(NA)
 
    alpha2 <- 100 - alpha
    income <- incom * ind2
    weights <- weightss * ind2
-   quantile <- incPercentile(income, weightss, sort, Dom=ind, k=c(alpha,alpha2), dataset=NULL, na.rm=na.rm) 
+   quantile <- incPercentile(income, weightss, sort, Dom=ind, k=c(alpha,alpha2), dataset=NULL) 
    quant_inf <- quantile[quantile$ind==1,ncol(ind)+1] 
    quant_sup <- quantile[quantile$ind==1,ncol(ind)+2] 
 

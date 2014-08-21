@@ -19,7 +19,6 @@ linarpt(inc,
   dataset = NULL,
   percentage = 60,
   order_quant=50,
-  na.rm = FALSE,
   var_name="lin_arpt")
 }
 
@@ -57,9 +56,6 @@ For example, to compute poverty threshold equal to 60\% of some income quantile,
 For example, to compute poverty threshold equal to some percentage of median income, \eqn{\alpha} should be set equal to 50.
 }
 
-\item{na.rm}{A logical value indicating whether missing values in study variable should be removed.
-}
-  
 \item{var_name}{A character specifying the name of the linearized variable.
 }
 
@@ -70,6 +66,7 @@ For example, to compute poverty threshold equal to some percentage of median inc
 
 
 \value{
+
 A list with three objects are returned:
 
 \item{quantile}{A \code{data.frame} containing the estimated value of the quintale used for at-risk-of-poverty threshold estimation.
@@ -104,13 +101,18 @@ Jean-Claude Deville (1999). Variance estimation for complex statistics and estim
 
 data(eusilc)
 
-dati <- data.frame(IDd = 1:nrow(eusilc), eusilc)
+dati <- data.table(IDd = 1:nrow(eusilc), eusilc)
 
-d <- linarpt(inc="eqIncome", id="IDd", weight = "rb050", Dom = NULL,
-             dataset = dati, percentage = 60, order_quant=50, na.rm = FALSE)
+# Full population
+d1 <- linarpt(inc="eqIncome", id="IDd", weight = "rb050", Dom = NULL,
+             dataset = dati, percentage = 60, order_quant=50)
+d1$value
 
-dd <- linarpt(inc="eqIncome", id="IDd", weight = "rb050", Dom = "db040",
-              dataset = dati, percentage = 60, order_quant=50, na.rm = FALSE)
+# By domains
+d2 <- linarpt(inc="eqIncome", id="IDd", weight = "rb050", Dom = "db040",
+              dataset = dati, percentage = 60, order_quant=50)
+d2$value
+
 }
 
 

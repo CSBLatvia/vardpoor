@@ -12,7 +12,7 @@
 
 lingpg <- function(inc, gender = NULL, id, weight=NULL, sort = NULL,
                    Dom = NULL, period=NULL, dataset = NULL,
-                   na.rm = FALSE, var_name="lin_gpg") {
+                   var_name="lin_gpg") {
 
    ## initializations
 
@@ -58,16 +58,13 @@ lingpg <- function(inc, gender = NULL, id, weight=NULL, sort = NULL,
    if (ncol(inc) != 1) stop("'inc' must be vector or 1 column data.frame, matrix, data.table")
    inc <- inc[,1]
    if(!is.numeric(inc)) stop("'inc' must be a numeric vector")                   
-   if (any(is.na(inc))) warning("'inc' has unknown values")
+   if (any(is.na(inc))) stop("'inc' has unknown values")
 
    # gender
-   if (!is.factor(gender)) stop("'gender' must be a factor.")
-   if (length(levels(gender)) != 2) stop("'gender' must be exactly two levels")
-   if (!all(levels(gender) == c(1, 2))) {
-        gender <- factor(gender, labels=c(1,2))
-        warning("The levels of gender were internally recoded - your first level has to correspond to males")
-       } 
+   if (!is.numeric(gender)) stop("'gender' must be numerical")
    if (length(gender) != n) stop("'gender' must be the same length as 'inc'")
+   if (length(unique(gender)) != 2) stop("'gender' must be exactly two values")
+   if (!all.equal(unique(gender),c(1, 2))) stop("'gender' must be value 1 for male, 2 for females")
 
    # id
    if (is.null(id)) id <- 1:n 
@@ -83,6 +80,7 @@ lingpg <- function(inc, gender = NULL, id, weight=NULL, sort = NULL,
    if (ncol(weight) != 1) stop("'weight' must be vector or 1 column data.frame, matrix, data.table")
    weight <- weight[,1]
    if (!is.numeric(weight)) stop("'weight' must be a numerical")
+   if (any(is.na(weight))) stop("'weight' has unknown values")
  
    # sort
    if (!is.null(sort) && !is.vector(sort) && !is.ordered(sort)) {
@@ -110,8 +108,7 @@ lingpg <- function(inc, gender = NULL, id, weight=NULL, sort = NULL,
        }
 
 
-
-    ## computations
+   ## computations
    Dom1 <- Dom
    if (!is.null(period)) {
        if (!is.null(Dom1)) { Dom1 <- data.table(period, Dom1)
@@ -132,9 +129,8 @@ lingpg <- function(inc, gender = NULL, id, weight=NULL, sort = NULL,
                breakdown2 <- do.call(paste, as.list(c(g, sep="__")))
                D <- Dom_agg[i,][rep(1,nrow(Dom1)),]
                ind <- (rowSums(Dom1 == D) == ncol(Dom1))
-               gpg_l <- linGapCalc(x=inc[ind], gend=gender[ind],
-                                   ids=gpg_id[ind], weights=weight[ind],
-                                   sort=sort[ind], na.rm=na.rm)
+               gpg_l <- linGapCalc(x=inc[ind], gend=gender[ind], ids=gpg_id[ind],
+                                   weights=weight[ind], sort=sort[ind])
                gpglin <- gpg_l$lin
                setnames(gpglin, names(gpglin), c(names(gpg_id), paste(var_name, breakdown2, sep="__")))
                gpg_m <- merge(gpg_m, gpglin, by=names(gpg_id), all.x=T, sort=FALSE)
@@ -142,37 +138,27 @@ lingpg <- function(inc, gender = NULL, id, weight=NULL, sort = NULL,
         colnames(gpg_pr)[ncol(gpg_pr)] <- "gender_pay_gap"
         gpg_pr <- data.table(Dom_agg, gpg_pr)
       } else { gpg_l <- linGapCalc(x=inc, gend=gender, ids=id,
-                                   weights=weight, sort=sort,
-                                   na.rm=na.rm)
+                                   weights=weight, sort=sort)
                gpg_m <- gpg_l$lin
                setnames(gpg_m, names(gpg_m), c(names(id), var_name))
-               gpg_pr <- gpg_l$gpg_pr 
+               gpg_pr <- data.table(gpg_l$gpg_pr) 
                setnames(gpg_pr, names(gpg_pr)[ncol(gpg_pr)], "gender_pay_gap")
        }
     gpg_m[is.na(gpg_m)] <- 0  
     return(list(value=gpg_pr, lin=gpg_m))
 }
 
+
   ## workhorse
-linGapCalc <- function(x, gend, ids, weights = NULL, sort = NULL, na.rm = FALSE) {
+linGapCalc <- function(x, gend, ids, weights = NULL, sort = NULL) {
     if(is.null(gend)) stop("'gender' must be supplied")
     if (length(gend)!=length(x)) stop("'x' is not the same as 'gend'")
     if (length(gend)!=length(weights)) stop("'weights' is not the same as 'gend'")
-    # initializations
-    if (isTRUE(na.rm)){
-          indices <- !is.na(x)
-          x <- x[indices]
-          ids <- ids[indices]
-          gend <- gend[indices]
-          if (!is.null(weights)) weights <- weights[indices]
-          if (!is.null(id)) id <- id[indices]
-          if (!is.null(sort)) sort <- sort[indices]
-      } else if(any(is.na(x))) return(NA)
-    
+   
     if (is.null(weights)) weights <- rep.int(1, length(x))  # equal weights
 
-    indic_men <- ifelse((gend==1)&(!is.na(x)),1,0)
-    indic_women <- ifelse((gend==2)&(!is.na(x)),1,0)
+    indic_men <- ifelse(gend==1, 1, 0)
+    indic_women <- ifelse(gend==2, 1, 0)
  
     x[is.na(x)] <- 0
    

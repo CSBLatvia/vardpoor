@@ -20,7 +20,6 @@ linarpr(inc, id,
   dataset = NULL,
   percentage = 60,
   order_quant = 50,
-  na.rm = FALSE,
   var_name = "lin_arpr")
 }
 
@@ -61,9 +60,6 @@ For example, to compute poverty threshold equal to 60\% of some income quantile,
 \item{order_quant}{A numeric value in range \eqn{\left[ 0,100 \right]}{[0,100]} for \eqn{\alpha} in the formula for poverty threshold computation:
 \deqn{\frac{p}{100} \cdot Z_{\frac{\alpha}{100}}.}{p/100 * Z(\alpha/100).}
 For example, to compute poverty threshold equal to some percentage of median income, \eqn{\alpha} should be set equal to 50.
-}
-
-\item{na.rm}{A logical value indicating whether missing values in study variable should be removed.
 }
 
 \item{var_name}{A character specifying the name of the linearized variable.
@@ -113,10 +109,10 @@ data(eusilc)
 dati <- data.frame(IDd = 1:nrow(eusilc), eusilc)
 
 d <- linarpr(inc="eqIncome", id="IDd", weight="rb050", Dom=NULL,
-             dataset=dati, percentage=60, order_quant=50, na.rm=FALSE)
+             dataset=dati, percentage=60, order_quant=50)
 
 dd <- linarpr(inc="eqIncome", id="IDd", weight="rb050", Dom="db040",
-              dataset=dati, percentage=60, order_quant=50, na.rm=FALSE)
+              dataset=dati, percentage=60, order_quant=50)
 }
 
 \keyword{Linearization}

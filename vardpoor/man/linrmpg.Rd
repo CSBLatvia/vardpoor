@@ -11,7 +11,7 @@
 \usage{
   linrmpg(inc, id, weight=NULL, sort=NULL, Dom=NULL,
           period=NULL, dataset = NULL, percentage=60,
-          order_quant=50, na.rm=FALSE, var_name="lin_rmpg")
+          order_quant=50, var_name="lin_rmpg")
 
 }
 
@@ -37,8 +37,6 @@
   \item{order_quant}{A numeric value in range \eqn{[0,100]} for \eqn{\alpha} in the formula for poverty threshold computation:
   \deqn{\frac{p}{100} \cdot Z_{\frac{\alpha}{100}}.}{p/100 * Z(\alpha/100).}
   For example, to compute poverty threshold equal to some percentage of median income, \eqn{\alpha} should be set equal to 50.}
-
-  \item{na.rm}{A logical value indicating whether missing values in study variable should be removed.}
 
   \item{var_name}{A character specifying the name of the linearized variable.}
 }
@@ -67,9 +65,9 @@ data(eusilc)
 dati=data.frame(1:nrow(eusilc),eusilc)
 colnames(dati)[1] <- "IDd"
 d<-linrmpg(inc="eqIncome", id="IDd", weight="rb050", Dom=NULL,
-           dataset=dati, percentage=60, order_quant=50, na.rm = FALSE)
+           dataset=dati, percentage=60, order_quant=50)
 dd<-linrmpg(inc="eqIncome", id="IDd", weight = "rb050", Dom="db040",
-            dataset=dati, percentage=60, order_quant=50, na.rm=FALSE)
+            dataset=dati, percentage=60, order_quant=50)
 d$value
 dd$value
 d$threshold

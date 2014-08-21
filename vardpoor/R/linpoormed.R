@@ -10,9 +10,9 @@
 #***********************************************************************************************************************
 #***********************************************************************************************************************
 
-linpoormed <- function(inc, id, weight=NULL, sort=NULL, Dom=NULL, period=NULL, 
-                       dataset = NULL, percentage=60, order_quant=50, na.rm=FALSE,
-                       var_name="lin_poormed") {
+linpoormed <- function(inc, id, weight=NULL, sort=NULL, Dom=NULL,
+                       period=NULL, dataset = NULL, percentage=60,
+                       order_quant=50, var_name="lin_poormed") {
  
    ## initializations
    if (min(dim(as.data.frame(var_name))==1)!=1) {
@@ -66,7 +66,7 @@ linpoormed <- function(inc, id, weight=NULL, sort=NULL, Dom=NULL, period=NULL,
    if (ncol(inc) != 1) stop("'inc' must be vector or 1 column data.frame, matrix, data.table")
    inc <- inc[,1]
    if (!is.numeric(inc)) stop("'inc' must be a numeric vector")
-   if (any(is.na(inc))) warning("'inc' has unknown values")
+   if (any(is.na(inc))) stop("'inc' has unknown values")
 
    # id
    if(is.null(id)) id <- 1:n 
@@ -82,6 +82,7 @@ linpoormed <- function(inc, id, weight=NULL, sort=NULL, Dom=NULL, period=NULL,
    if (ncol(weight) != 1) stop("'weight' must be vector or 1 column data.frame, matrix, data.table")
    weight <- weight[,1]
    if (!is.numeric(weight)) stop("'weight' must be numerical")
+   if (any(is.na(weight))) stop("'weight' has unknown values")
 
    # sort
    if (!is.null(sort) && !is.vector(sort) && !is.ordered(sort)) {
@@ -116,7 +117,7 @@ linpoormed <- function(inc, id, weight=NULL, sort=NULL, Dom=NULL, period=NULL,
  
     # Poor median people by domain (if requested)
 
-    quantiles <- incPercentile(inc, weight, sort, Dom=period, k=order_quant, dataset = NULL, na.rm=na.rm)
+    quantiles <- incPercentile(inc, weight, sort, Dom=period, k=order_quant, dataset = NULL)
     threshold <- data.table(quantiles)
     threshold[,names(threshold)[ncol(threshold)]:=p/100 * threshold[,ncol(threshold),with=FALSE]]
     setnames(threshold,names(threshold)[ncol(threshold)],"threshold")
@@ -143,8 +144,7 @@ linpoormed <- function(inc, id, weight=NULL, sort=NULL, Dom=NULL, period=NULL,
 
               poormed_l <- linpoormedCalc(incom=inc, ids=id, wghts=weight, sort=sort,
                                           ind=ind, ind_year=ind2, percentag=p,
-                                          order_quants=order_quant,
-                                          quant_val=quantile, na.rm=na.rm) 
+                                          order_quants=order_quant, quant_val=quantile) 
               poormedl <- poormed_l$lin
               setnames(poormedl, names(poormedl), c(names(id), paste(var_name, breakdown2, sep="__")))
               poor_med_m <- merge(poor_med_m, poormedl, by=names(id), all.x=T)
@@ -156,7 +156,7 @@ linpoormed <- function(inc, id, weight=NULL, sort=NULL, Dom=NULL, period=NULL,
                poormed_l <- linpoormedCalc(incom=inc, ids=id, wghts=weight, sort=sort,
                                            ind=ind, ind_year=ind, percentag=p,
                                            order_quants=order_quant,
-                                           quant_val=quantiles, na.rm=na.rm)  
+                                           quant_val=quantiles)  
                poor_med_m <- poormed_l$lin
                setnames(poor_med_m, names(poor_med_m), c(names(id),var_name))
                poor_people_median <- data.table(poormed_l$poor_people_median)   
@@ -169,18 +169,9 @@ linpoormed <- function(inc, id, weight=NULL, sort=NULL, Dom=NULL, period=NULL,
 
 
 ## workhorse
-linpoormedCalc <- function(incom, ids, wghts, sort, ind, ind_year, percentag, order_quants, quant_val, na.rm) {
+linpoormedCalc <- function(incom, ids, wghts, sort, ind, ind_year, percentag, order_quants, quant_val) {
     inco <- incom * ind_year
     wght <- wghts * ind_year
-
-    if (isTRUE(na.rm)){
-          indices <- !is.na(inco)
-          ids <- ids[indices]
-          inco <- inco[indices]
-          wght <- wght[indices]
-          ind <- ind[indices]
-          ind_year <- ind_year[indices]
-     } else if(any(is.na(inco))) return(NA)
 
     wt <- ind * wght   
     thres_val <- percentag/100 * quant_val
@@ -194,7 +185,7 @@ linpoormedCalc <- function(incom, ids, wghts, sort, ind, ind_year, percentag, or
     rate_val <- sum(wt*poor)/N  # Estimated poverty rate
     rate_val_pr <- 100*rate_val  # Estimated poverty rate
  
-    poor_people_median <- incPercentile(inc1, wght1, sort=sort1, Dom=NULL, k=order_quants, dataset = NULL, na.rm=na.rm)
+    poor_people_median <- incPercentile(inc1, wght1, sort=sort1, Dom=NULL, k=order_quants, dataset = NULL)
     names(poor_people_median) <-NULL
  #*************************************************************************************
  #**          LINEARIZATION OF THE MEDIAN INCOME BELOW THE POVERTY THRESHOLD         **

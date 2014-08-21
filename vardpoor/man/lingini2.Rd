@@ -12,7 +12,7 @@
 lingini2(inc, id = NULL, weight = NULL,
          sort = NULL, Dom = NULL,
          period=NULL, dataset = NULL,
-         na.rm = FALSE, var_name="lin_gini2")
+         var_name="lin_gini2")
 }
 
 \arguments{
@@ -30,8 +30,6 @@ lingini2(inc, id = NULL, weight = NULL,
   \item{period}{Optional variable for survey period. If supplied, linearization of the GINI is done for each time period. Object convertible to \code{data.frame} or variable names as character, column numbers or logical vector (length of the vector has to be the same as the column count of \code{dataset}).}
 
   \item{dataset}{Optional survey data object convertible to \code{data.frame}.}
-
-  \item{na.rm}{A logical value indicating whether missing values in study variable should be removed.}
 
   \item{var_name}{A character specifying the name of the linearized variable.}
 }

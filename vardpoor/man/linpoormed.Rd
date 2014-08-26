@@ -66,12 +66,16 @@ data(eusilc)
 dati=data.frame(1:nrow(eusilc),eusilc)
 colnames(dati)[1] <- "IDd"
 
+# Full population
 d <- linpoormed(inc="eqIncome", id="IDd", weight = "rb050", Dom=NULL,
                 dataset=dati, percentage=60, order_quant=50)
 
+\dontrun{
+# Domains by location of houshold
 dd <- linpoormed(inc="eqIncome", id="IDd", weight="rb050", Dom="db040",
                 dataset=dati, percentage=60, order_quant=50)
 
+}
 }
 
 \seealso{

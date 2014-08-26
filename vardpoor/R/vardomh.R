@@ -156,10 +156,15 @@ vardomh <- function(Y, H, PSU, w_final,
   if (is.null(id)) id <- 1:n
   id <- data.table(id)
   if (any(is.na(id))) stop("'id' has unknown values")
-  if (nrow(id) != n) stop("'id' length must be equal with 'Y' row count")
   if (ncol(id) != 1) stop("'id' must be 1 column data.frame, matrix, data.table")
+  if (nrow(id) != n) stop("'id' length must be equal with 'Y' row count")
   if (is.null(names(id))||(names(id)=="id")) setnames(id,names(id),"ID")
   if (names(id)==names(ID_household)) setnames(id,names(id),paste(names(id),"_id",sep=""))
+  if (is.null(period)){ if (any(duplicated(id))) stop("'id' are duplicate values") 
+                       } else {
+                          id1 <- data.table(period, id)
+                          if (any(duplicated(id1))) stop("'id' by period are duplicate values")
+                         }
 
   # period     
   if (!is.null(period)) {
@@ -459,6 +464,7 @@ vardomh <- function(Y, H, PSU, w_final,
   var_srs_ca <- transpos(var_srs_ca, is.null(period), "var_srs_ca", names(period))
   all_result <- merge(all_result, var_srs_ca)
   var_srs_HT <-  var_srs_ca <- NULL
+  Y3a <- Y4 <- NULL
 
   # Total estimation
   Y_nov <- Z_nov <- .SD <- NULL

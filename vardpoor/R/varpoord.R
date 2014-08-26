@@ -61,9 +61,7 @@ varpoord <- function(inc, w_final,
          stop("'confidence' must be a numeric value in [0,1]")  }
 
   if(!is.null(dataset)) {
-
       dataset <- data.frame(dataset)
-
       if (min(inc %in% names(dataset))!=1) stop("'inc' does not exist in 'dataset'!")
       if (min(inc %in% names(dataset))==1) inc <- dataset[, inc]
       if(!is.null(w_final)) {
@@ -151,14 +149,30 @@ varpoord <- function(inc, w_final,
   inc <- inc[,1]
   if (!is.numeric(inc)) stop("'inc' must be numerical")
   if (any(is.na(inc))) stop("'inc' has unknown values")
-              
+           
+  # period     
+  if (!is.null(period)) {
+      period <- data.table(period)
+      if (any(duplicated(names(period)))) 
+                stop("'period' are duplicate column names: ", 
+                     paste(names(period)[duplicated(names(period))], collapse = ","))
+      if (nrow(period) != n) stop("'period' must be the same length as 'inc'")
+      if(any(is.na(period))) stop("'period' has unknown values")  
+  } 
+  np <- sum(ncol(period))
+
   # id
   if (is.null(id)) id <- 1:n
   id <- data.table(id)
+  if (any(is.na(id))) stop("'id' has unknown values")
   if (ncol(id) != 1) stop("'id' must be 1 column data.frame, matrix, data.table")
   if (nrow(id) != n) stop("'id' must be the same length as 'inc'")
   if (is.null(names(id))||(names(id)=="id")) setnames(id,names(id),"ID")
-
+  if (is.null(period)){ if (any(duplicated(id))) stop("'id' are duplicate values") 
+                      } else {
+                         id1 <- data.table(period, id)
+                         if (any(duplicated(id1))) stop("'id' by period are duplicate values")
+                      }   
   # ID_household
   if (is.null(ID_household)) stop("'ID_household' must be defined")
   ID_household <- data.table(ID_household)
@@ -169,7 +183,6 @@ varpoord <- function(inc, w_final,
 
   # w_final 
   w_final <- data.frame(w_final)
-  if (is.null(w_final)) w_final <- data.frame(rep.int(1, n))
   if (nrow(w_final) != n) stop("'w_final' must have the same length as 'inc'")
   if (ncol(w_final) != 1) stop("'w_final' must have vector or 1 column data.frame, matrix, data.table")
   w_final <- w_final[,1]
@@ -214,17 +227,6 @@ varpoord <- function(inc, w_final,
       if (length(unique(gender)) != 2) stop("'gender' must be exactly two values")
       if (!all.equal(unique(gender),c(1, 2))) stop("'gender' must be value 1 for male, 2 for females")
    }
-
-  # period     
-  if (!is.null(period)) {
-      period <- data.table(period)
-      if (any(duplicated(names(period)))) 
-                stop("'period' are duplicate column names: ", 
-                     paste(names(period)[duplicated(names(period))], collapse = ","))
-      if (nrow(period) != n) stop("'period' must be the same length as 'inc'")
-      if(any(is.na(period))) stop("'period' has unknown values")  
-  } 
-  np <- sum(ncol(period))
 
   # N_h
   if (!is.null(N_h)) {
@@ -368,17 +370,17 @@ varpoord <- function(inc, w_final,
 
   ### Calculation
 
-  Dom1 <- Dom
-  if (!is.null(period)) {
-       if (!is.null(Dom1)) { Dom1 <- data.table(period, Dom1)
-        } else Dom1 <- period } 
-
   estim <- c()
   aH <- names(H)
-  idper <- id
+  idper <- copy(id)
+  Y1sort <- Y1asort <- NULL
   if (!is.null(period)) idper <- data.table(idper, period)
-  Y1 <- data.table(idper, ID_household, H, PSU, w_final)
-  Y1a <- data.table(idper, ID_household, H, PSU, w_design)
+  Y1 <- data.table(idper, ID_household, H, PSU, w_final, check.names=TRUE)
+  Y1a <- data.table(idper, ID_household, H, PSU, w_design, check.names=TRUE)
+  Y1[, Y1sort:=.I]
+  Y1a[, Y1asort:=.I]
+  setkeyv(Y1, names(idper))
+  setkeyv(Y1a, names(idper))
   value <- NULL
 
   if ("linarpt" %in% type) {
@@ -392,8 +394,8 @@ varpoord <- function(inc, w_final,
                          dataset=NULL, percentage=percentage,
                          order_quant=order_quant, var_name="lin_arpt")
 
-       Y1 <- merge(Y1, varpt$lin, by=names(idper), all.x=T)
-       Y1a <- merge(Y1a, varpta$lin, by=names(idper), all.x=T)
+       Y1 <- merge(Y1, varpt$lin, all.x=T)
+       Y1a <- merge(Y1a, varpta$lin, all.x=T)
 
        esti <- data.table("ARPT", varpt$value, NA)
        setnames(esti, names(esti)[c(1, -1:0+ncol(esti))],
@@ -417,8 +419,8 @@ varpoord <- function(inc, w_final,
                          order_quant=order_quant,
                          var_name="lin_arpr")
 
-       Y1 <- merge(Y1, varpr$lin, by=names(idper), all.x=T)
-       Y1a <- merge(Y1a, varpra$lin, by=names(idper), all.x=T)
+       Y1 <- merge(Y1, varpr$lin, all.x=T)
+       Y1a <- merge(Y1a, varpra$lin, all.x=T)
 
        esti <- data.table("ARPR", varpr$value, NA)  
        setnames(esti, names(esti)[c(1, -1:0+ncol(esti))],
@@ -436,9 +438,9 @@ varpoord <- function(inc, w_final,
                         Dom=Dom, period=period, dataset=NULL, 
                         var_name="lin_gpg")
 
-        Y1 <- merge(Y1, vgpg$lin, by=names(idper), all.x=T)
-        Y1a <- merge(Y1a, vgpga$lin, by=names(idper), all.x=T)
-
+        Y1 <- merge(Y1, vgpg$lin, all.x=T)
+        Y1a <- merge(Y1a, vgpga$lin, all.x=T)
+     
         esti <- data.table("GPG", vgpg$value, NA)  
         setnames(esti, names(esti)[c(1, -1:0+ncol(esti))],
                                   c("type", "value", "value_eu"))
@@ -454,8 +456,8 @@ varpoord <- function(inc, w_final,
                              sort=sort, Dom=Dom, period=period, 
                              dataset=NULL, percentage=percentage,
                              order_quant=order_quant, var_name="lin_poormed")
-        Y1 <- merge(Y1, vporm$lin, by=names(idper), all.x=T)
-        Y1a <- merge(Y1a, vporma$lin, by=names(idper), all.x=T)
+        Y1 <- merge(Y1, vporm$lin, all.x=T)
+        Y1a <- merge(Y1a, vporma$lin, all.x=T)
 
         esti <- data.table("linpoormed", vporm$value, NA)  
         setnames(esti, names(esti)[c(1, -1:0+ncol(esti))],
@@ -474,8 +476,8 @@ varpoord <- function(inc, w_final,
                           dataset=NULL, percentage=percentage,
                           order_quant=order_quant, var_name="lin_rmpg")
 
-        Y1 <- merge(Y1, vrmpg$lin, by=names(idper), all.x=T)
-        Y1a <- merge(Y1a, vrmpga$lin, by=names(idper), all.x=T)
+        Y1 <- merge(Y1, vrmpg$lin, all.x=T)
+        Y1a <- merge(Y1a, vrmpga$lin, all.x=T)
 
         esti <- data.table("RMPG", vrmpg$value, NA)  
         setnames(esti, names(esti)[c(1, -1:0+ncol(esti))],
@@ -491,15 +493,14 @@ varpoord <- function(inc, w_final,
                       sort=sort, Dom=Dom, period=period,
                       dataset=NULL, alpha=alpha, var_name="lin_qsr") 
 
-       Y1 <- merge(Y1, vqsr$lin, by=names(idper), all.x=T)
-       Y1a <- merge(Y1a, vqsra$lin, by=names(idper), all.x=T)
+       Y1 <- merge(Y1, vqsr$lin, all.x=T)
+       Y1a <- merge(Y1a, vqsra$lin, all.x=T)
 
        esti <- data.table("QSR", vqsr$value)  
        setnames(esti, names(esti)[c(1, -1:0+ncol(esti))],
                                   c("type", "value", "value_eu"))
        estim <- rbind(estim, esti)
        vqsr <- vqsra <- esti <- NULL
-
     }
   if ("lingini" %in% type) {
        vgini <- lingini(inc=inc, id=id, weight=w_final,
@@ -509,8 +510,8 @@ varpoord <- function(inc, w_final,
                          sort=sort, Dom=Dom, period=period,
                          dataset=NULL, var_name="lin_gini")
 
-       Y1 <- merge(Y1, vgini$lin, by=names(idper), all.x=T)
-       Y1a <- merge(Y1a, vginia$lin, by=names(idper), all.x=T)
+       Y1 <- merge(Y1, vgini$lin, all.x=T)
+       Y1a <- merge(Y1a, vginia$lin, all.x=T)
 
        esti <- data.table("GINI", vgini$value)  
        setnames(esti, names(esti)[c(1, -1:0+ncol(esti))],
@@ -526,8 +527,8 @@ varpoord <- function(inc, w_final,
                           sort=sort, Dom=Dom, period=period,
                           dataset=NULL, var_name="lin_gini2")
 
-       Y1 <- merge(Y1, vgini2$lin, by=names(idper), all.x=T)
-       Y1a <- merge(Y1a, vgini2a$lin, by=names(idper), all.x=T)
+       Y1 <- merge(Y1, vgini2$lin, all.x=T)
+       Y1a <- merge(Y1a, vgini2a$lin, all.x=T)
 
        esti <- data.table("GINI2", vgini2$value)  
        setnames(esti, names(esti)[c(1, -1:0+ncol(esti))],
@@ -535,8 +536,11 @@ varpoord <- function(inc, w_final,
        estim <- rbind(estim, esti)
        vgini2 <- vgini2a <- esti <- NULL
      }
-  Y1 <- data.table(Y1)
-  Y1a <- data.table(Y1a)
+
+  setkey(Y1, Y1sort)
+  setkey(Y1a, Y1asort)
+  Y1[, Y1sort:=NULL]
+  Y1a[, Y1asort:=NULL]
 
   .SD <- lin_outp <- NULL
   if (outp_lin) lin_outp <- Y1[, c(-(3:5)-np), with=F]
@@ -547,7 +551,7 @@ varpoord <- function(inc, w_final,
   Y3 <- Y2[, c(-(1:(4+np))), with=F]
   Y3a <- Y2a[, c(-(1:(4+np))), with=F]
   
-  period <- NULL
+  idper <- period <- NULL
   if (np>0) period <- Y2[, c(1:np), with=F]
 
   IDh <- Y2[, np+1, with=F]
@@ -596,10 +600,7 @@ varpoord <- function(inc, w_final,
   # Variance of HT estimator under current design
   var_cur_HT <- variance_est(Y=Y3a, H=H, PSU=PSU, w_final=w_design2, 
                              N_h=N_h, fh_zero=fh_zero, PSU_level=PSU_level,
-                             period=period, dataset=NULL)
-
-  dati <- data.table(nv=names(var_est), t(var_est))
-                          
+                             period=period, dataset=NULL)                          
   var_cur_HT <- transpos(var_cur_HT, is.null(period), "var_cur_HT", names(period))
   all_result <- merge(all_result, var_cur_HT)
   var_est <- var_cur_HT <- NULL
@@ -611,10 +612,10 @@ varpoord <- function(inc, w_final,
        } else {
            period_agg <- unique(period)
            lin1 <- lapply(1:nrow(period_agg), function(i) {
-                          per <- period_agg[i,][rep(1, nrow(Y2a)),]
+                          per <- period_agg[i,][rep(1, nrow(Y3a)),]
                           ind <- (rowSums(per == period) == ncol(period))
                           data.table(period_agg[i,], 
-                                     var_srs(Y2a[ind], w = w_design2[ind]))
+                                     var_srs(Y3a[ind], w = w_design2[ind]))
                         })
            var_srs_HT <- rbindlist(lin1)
       }
@@ -623,15 +624,15 @@ varpoord <- function(inc, w_final,
 
 
   # Variance of calibrated estimator under SRS
-  if (is.null(period)) {
+   if (is.null(period)) {
            var_srs_ca <- var_srs(Y4, w = w_final2)
       } else {
            period_agg <- unique(period)
            lin1 <- lapply(1:nrow(period_agg), function(i) {
-                          per <- period_agg[i,][rep(1, nrow(Y2a)),]
+                          per <- period_agg[i,][rep(1, nrow(Y3a)),]
                           ind <- (rowSums(per == period) == ncol(period))
                           data.table(period_agg[i,], 
-                                     var_srs(Y3[ind], w = w_final2[ind]))
+                                     var_srs(Y4[ind], w = w_final2[ind]))
                         })
            var_srs_ca <- rbindlist(lin1)
         }
@@ -653,8 +654,10 @@ varpoord <- function(inc, w_final,
 
   if (nrow(all_result[var_est < 0])>0) stop("Estimation of variance are negative!")
   
-  setkey(estim, "variable")
-  setkey(all_result, "variable")
+  variables <- "variable"
+  if (!is.null(period)) variables <- c(variables, names(period))
+  setkeyv(estim, variables)
+  setkeyv(all_result, variables)
   all_result <- merge(estim, all_result)
   
   all_result[, variable:=NULL]
@@ -676,10 +679,9 @@ varpoord <- function(inc, w_final,
   all_result[xor(is.na(var_est2), var_est2 < 0), var_est2:=0]
   all_result[, se:=sqrt(var_est2)]
   all_result[xor(is.na(var_est2), var_est2 < 0), se:=NA]
-  all_result[(value!=0) & !is.nan(value), rse:= se/estim]
+  all_result[(value!=0) & (!is.nan(value)), rse:= se/value]
   all_result[value==0 | is.nan(value), rse:=NA]
   all_result[, cv:= rse*100]
-
 
   tsad <- qnorm(0.5*(1+confidence))
   all_result[, absolute_margin_of_error:= tsad*se]
@@ -695,8 +697,13 @@ varpoord <- function(inc, w_final,
                "CI_upper", "var_srs_HT", "var_cur_HT", 
                "var_srs_ca", "deff_sam", "deff_est", "deff")
 
+  type <- "type"
+  if (!is.null(period)) type <- c(type, names(period))
   list(lin_out = lin_outp,
        res_out = res_outp,
-       all_result = all_result[, c("type", nDom, variabl), with=F])
+       all_result = all_result[, c(type, nDom, variabl), with=F])
 }
+
+
+
 

@@ -21,12 +21,12 @@ export(varpoord)
 export(vardcros)
 export(vardchanges)
 
-importFrom(laeken)
+import(laeken)
 import(foreach)
 import(plyr)
 import(reshape2)
 import(gdata)
 import(lpSolve)
 import(data.table)
-
+import(MASS)
 

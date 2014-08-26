@@ -150,10 +150,28 @@ Jean-Claude Deville (1999). Variance estimation for complex statistics and estim
 data(eusilc)
 dataset <- data.frame(1:nrow(eusilc),eusilc)
 colnames(dataset)[1] <- "IDd"
+dataset1 <- dataset[1:1000,]
 
 aa<-varpoord(inc = "eqIncome", w_final = "rb050",
              income_thres = NULL, wght_thres = NULL,
-             ID_household = "db030", id = NULL, 
+             ID_household = "db030", id = "IDd", 
+             H = "db040", PSU = "rb030", N_h = NULL,
+             sort = NULL, Dom = "db040",
+             gender = NULL, X = NULL,
+             X_ID_household = NULL, g = NULL,
+             datasetX = NULL,
+             q = rep(1, if (is.null(datasetX)) 
+                        nrow(as.data.frame(H)) else nrow(datasetX)),
+             dataset =  dataset1, percentage=60, order_quant=50,
+             alpha = 20, confidence = .95, outp_lin = FALSE,
+             outp_res = FALSE, several.ok=FALSE, type="linarpt")
+aa
+
+
+\dontrun{
+aa<-varpoord(inc = "eqIncome", w_final = "rb050",
+             income_thres = NULL, wght_thres = NULL,
+             ID_household = "db030", id = "IDd", 
              H = "db040", PSU = "rb030", N_h = NULL,
              sort = NULL, Dom = "db040",
              gender = NULL, X = NULL,
@@ -163,9 +181,12 @@ aa<-varpoord(inc = "eqIncome", w_final = "rb050",
                         nrow(as.data.frame(H)) else nrow(datasetX)),
              dataset =  dataset, percentage=60, order_quant=50,
              alpha = 20, confidence = .95, outp_lin = TRUE,
-             outp_res = TRUE, several.ok=FALSE, type="lingini")
+             outp_res = TRUE, several.ok=FALSE, type="all_choises")
 aa$lin_out[20:40]
 aa$res_out[20:40]
+}
+
+
 } 
 
 \seealso{

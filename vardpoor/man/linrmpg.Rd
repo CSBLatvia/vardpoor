@@ -64,13 +64,18 @@ Jean-Claude Deville (1999). Variance estimation for complex statistics and estim
 data(eusilc)
 dati=data.frame(1:nrow(eusilc),eusilc)
 colnames(dati)[1] <- "IDd"
+
+# Full population
 d<-linrmpg(inc="eqIncome", id="IDd", weight="rb050", Dom=NULL,
            dataset=dati, percentage=60, order_quant=50)
+d$value
+d$threshold
+
+\dontrun{
+# By domains
 dd<-linrmpg(inc="eqIncome", id="IDd", weight = "rb050", Dom="db040",
             dataset=dati, percentage=60, order_quant=50)
-d$value
-dd$value
-d$threshold
+dd$value}
 }
 
 \seealso{

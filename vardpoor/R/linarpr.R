@@ -75,18 +75,8 @@ linarpr <- function(inc, id, weight=NULL, income_thres=NULL, wght_thres=NULL,
    if(!is.numeric(inc)) stop("'inc' must be numerical")
    if (any(is.na(inc))) stop("'inc' has unknown values")
 
-   # id
-   if (is.null(id)) id <- 1:n
-   id <- data.table(id)
-   if (ncol(id) != 1) stop("'id' must be 1 column data.frame, matrix, data.table")
-   if (nrow(id) != n) stop("'id' must be the same length as 'inc'")
-   if (is.null(names(id))||(names(id)=="id")) setnames(id,names(id),"ID")
-   if (any(duplicated(id))) stop("'id' are duplicate values: ",
-                                  paste(id[duplicated(id)], collapse = ",")) 
-
    # weight
    weight <- data.frame(weight)
-   if (is.null(weight)) weight <- data.frame(rep.int(1, n))
    if (nrow(weight) != n) stop("'weight' must be the same length as 'inc'")
    if (ncol(weight) != 1) stop("'weight' must be vector or 1 column data.frame, matrix, data.table")
    weight <- weight[,1]
@@ -128,6 +118,19 @@ linarpr <- function(inc, id, weight=NULL, income_thres=NULL, wght_thres=NULL,
        if(any(is.na(period))) stop("'period' has unknown values")  
    }   
    
+   # id
+   if (is.null(id)) id <- 1:n
+   id <- data.table(id)
+   if (any(is.na(id))) stop("'id' has unknown values")
+   if (ncol(id) != 1) stop("'id' must be 1 column data.frame, matrix, data.table")
+   if (nrow(id) != n) stop("'id' must be the same length as 'inc'")
+   if (is.null(names(id))||(names(id)=="id")) setnames(id,names(id),"ID")
+   if (is.null(period)){ if (any(duplicated(id))) stop("'id' are duplicate values") 
+                       } else {
+                          id1 <- data.table(period, id)
+                          if (any(duplicated(id1))) stop("'id' by period are duplicate values")
+                         }
+
    # Dom     
    if (!is.null(Dom)) {
              Dom <- data.table(Dom)
@@ -139,71 +142,111 @@ linarpr <- function(inc, id, weight=NULL, income_thres=NULL, wght_thres=NULL,
        }
 
     ## computations
-    ind <- rep.int(1,n)
-    Dom1 <- Dom
-    if (!is.null(period)) {
-       if (!is.null(Dom1)) { Dom1 <- data.table(period, Dom1)
-        } else Dom1 <- period } 
+    ind0 <- rep.int(1, n)
+    period_agg <- period1 <- NULL
+    if (!is.null(period)) { period1 <- copy(period)
+                            period_agg <- data.table(unique(period))
+                        } else period1 <- data.table(ind=ind0)
+    period1_agg <- data.table(unique(period1))
 
     # ARPR by domain (if requested)
+    quantile <- incPercentile(inc = income_thres,
+                               weights = wght_thres,
+                               sort = sort, Dom = NULL,
+                               period = period,
+                               k = order_quant,
+                               dataset = NULL)
+    quantile <- data.table(quantile)
+    setnames(quantile, names(quantile)[ncol(quantile)], "quantile")
+    if (ncol(quantile)>1) setkeyv(quantile, head(names(quantile), -1))
+    threshold <- copy(quantile)
+    threshold[, threshold:=p/100 * quantile]
+    threshold[, quantile:=NULL]
 
-    quantiles <- incPercentile(income_thres, wght_thres, sort=sort,Dom=period, order_quant, dataset = NULL)
-    threshold <- data.table(quantiles)
-    threshold[,names(threshold)[ncol(threshold)]:=p/100 * threshold[, ncol(threshold), with=FALSE]]
-    setnames(threshold,names(threshold)[ncol(threshold)],"threshold")
-   
-    if (!is.null(Dom1)) {
-        Dom_agg <- data.table(unique(Dom1))
-        setkeyv(Dom_agg, names(Dom1))
-        if (!is.null(period)) quantil <- merge(Dom_agg, quantiles, by=names(period), sort=F) 
+    arpr_id <- id
+    if (!is.null(period)) arpr_id <- data.table(arpr_id, period)
+
+    if (!is.null(Dom)) {
+        Dom_agg <- data.table(unique(Dom))
+        setkeyv(Dom_agg, names(Dom_agg))
+          
         arpr_v <- c()
-        arpr_id <- id
-        if (!is.null(period)) arpr_id <- data.table(period, arpr_id)
-        if (is.null(period)) ind2 <- rep.int(1, n)
-        arpr_m <- arpr_id
-      
-        for(i in 1:nrow(Dom_agg)) {          
-              g <- paste(names(Dom1), as.matrix(Dom_agg[i,]), sep = ".")
-              breakdown2 <- do.call(paste, as.list(c(g, sep="__")))
-              D <- Dom_agg[i,][rep(1,nrow(Dom1)),]
-              ind <- (rowSums(Dom1 == D) == ncol(Dom1))
-              quantile <- quantiles
-              if (!is.null(period)) {
-                   quantile <- data.frame(quantil)[i,ncol(quantil)]
-                   ind2 <- (rowSums(period == D[,1:ncol(period),with=F]) == ncol(period)) }
+        arpr_m <- copy(arpr_id)
+        for(i in 1:nrow(Dom_agg)) {
+              g <- c(var_name, paste(names(Dom), as.matrix(Dom_agg[i,]), sep = "."))
+              var_nams <- do.call(paste, as.list(c(g, sep="__")))
+              ind <- (rowSums(Dom == Dom_agg[i,][ind0,]) == ncol(Dom))
 
-              arpr_l <- arprlinCalc(inc1=inc, ids=arpr_id, wght1=weight, indicator=ind,
-                                    indic2=ind2, income_thresh=income_thres,
-                                    wght_thresh=wght_thres, percent=p,
-                                    order_quants=order_quant, quant_val=quantile) 
-              arprl <- arpr_l$lin
-              setnames(arprl,names(arprl), c(names(arpr_id), paste(var_name, breakdown2, sep="__")))
-              arpr_m <- merge(arpr_m, arprl, by=names(arpr_id), all.x=T, sort=FALSE)
-              arpr_v <- rbind(arpr_v, arpr_l$rate_val_pr) 
+              arprl <- lapply(1:nrow(period1_agg), function(j) {
+                               if (!is.null(period)) { 
+                                       rown <- cbind(period_agg[j], Dom_agg[i])
+                                       setkeyv(rown, names(rown))
+                                       rown2 <- copy(rown)
+                                       rown <- merge(rown, quantile, all.x=TRUE)
+                                     } else {rown <- quantile
+                                             rown2 <- Dom_agg[i] }
+
+                               indj <- (rowSums(period1 == period1_agg[j,][ind0,]) == ncol(period1))
+      
+                               arpr_l <- arprlinCalc(inc1=inc[indj],
+                                                     ids=arpr_id[indj],
+                                                     wght1=weight[indj],
+                                                     indicator=ind[indj],
+                                                     income_thresh=income_thres[indj],
+                                                     wght_thresh=wght_thres[indj],
+                                                     percent=p,
+                                                     order_quants=order_quant,
+                                                     quant_val=rown[["quantile"]])
+                      list(arpr=data.table(rown2, arpr=arpr_l$rate_val_pr), lin=arpr_l$lin)
+                      })
+                 arprs <- rbindlist(lapply(arprl, function(x) x[[1]]))
+                 arprlin <- rbindlist(lapply(arprl, function(x) x[[2]]))
+
+                 setnames(arprlin, names(arprlin), c(names(arpr_id), var_nams))
+                 setkeyv(arpr_m, names(arpr_id))
+                 setkeyv(arprlin, names(arpr_id))
+                 arpr_m <- merge(arpr_m, arprlin, all.x=T)
+                 arpr_v <- rbind(arpr_v, arprs) 
            }
-       colnames(arpr_v) <- "arpr"
-       arpr_v <- data.table(Dom_agg, arpr_v)
-     } else { arpr_l <- arprlinCalc(inc1=inc, ids=id, wght1=weight, indicator=ind,
-                                    indic2=ind, income_thresh=income_thres,
-                                    wght_thresh=wght_thres, percent=p,
-                                    order_quants=order_quant, quant_val=quantiles) 
-              arpr_m <- arpr_l$lin
-              setnames(arpr_m, names(arpr_m), c(names(id), var_name))
-              arpr_v <- data.table(arpr_l$rate_val_pr)
-              setnames(arpr_v, names(arpr_v), "arpr") } 
+     } else { arprl <- lapply(1:nrow(period1_agg), function(j) {
+                           if (!is.null(period)) { 
+                                         rown <- period_agg[j]
+                                         setkeyv(rown, names(rown))
+                                         rown <- merge(rown, quantile, all.x=TRUE)
+                                       } else rown <- quantile
+                           ind2 <- (rowSums(period1 == period1_agg[j,][ind0,]) == ncol(period1))
+      
+                           arpr_l <- arprlinCalc(inc1=inc[ind2],
+                                                 ids=arpr_id[ind2],
+                                                 wght1=weight[ind2],
+                                                 indicator=ind0[ind2],
+                                                 income_thresh=income_thres[ind2],
+                                                 wght_thresh=wght_thres[ind2],
+                                                 percent=p,
+                                                 order_quants=order_quant,
+                                                 quant_val=rown[["quantile"]]) 
+                          if (!is.null(period)) { 
+                                   arprs <- data.table(period_agg[j], arpr=arpr_l$rate_val_pr)
+                             } else arprs <- data.table(arpr=arpr_l$rate_val_pr)
+                          list(arpr=arprs, lin=arpr_l$lin)
+                       })
+               arpr_v <- rbindlist(lapply(arprl, function(x) x[[1]]))
+               arpr_m <- rbindlist(lapply(arprl, function(x) x[[2]]))
+               setnames(arpr_m, names(arpr_m), c(names(arpr_id), var_name))
+            } 
      arpr_m[is.na(arpr_m)] <- 0
-     quantiles <- data.table(quantiles)
-     setnames(quantiles, names(quantiles)[ncol(quantiles)], "quantiles")
-     return(list(quantile=quantiles, threshold=threshold, value=arpr_v, lin=arpr_m))
+     setkeyv(arpr_m, names(arpr_id))
+     return(list(quantile=quantile, threshold=threshold, value=arpr_v, lin=arpr_m))
 }
 
 
 
-## workhorse
-arprlinCalc <- function(inc1, ids, wght1, indicator, indic2, income_thresh, wght_thresh, percent, order_quants=NULL, quant_val) {
 
-    inc2 <- income_thresh * indic2
-    wght2 <- wght_thresh * indic2
+## workhorse
+arprlinCalc <- function(inc1, ids, wght1, indicator, income_thresh, wght_thresh, percent, order_quants=NULL, quant_val) {
+
+    inc2 <- income_thresh
+    wght2 <- wght_thresh
   
     wt <- indicator * wght1
     thres_val <- percent/100 * quant_val
@@ -223,7 +266,7 @@ arprlinCalc <- function(inc1, ids, wght1, indicator, indic2, income_thresh, wght
     vect_f1 <- exp(-(u1^2)/2)/sqrt(2*pi)
     f_quant1 <- sum(vect_f1*wght2)/(N0*h)   # Estimate of F'(quantile)
 
-    lin_thres <- -(percent/100)*indic2*(1/N0)*((inc2<=quant_val)-order_quants/100)/f_quant1  # Linearized variable
+    lin_thres <- -(percent/100)*(1/N0)*((inc2<=quant_val)-order_quants/100)/f_quant1  # Linearized variable
 
     #---- 2. Linearization of the poverty rate -----
 

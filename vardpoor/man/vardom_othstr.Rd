@@ -107,6 +107,25 @@
 \examples{
 
 data(eusilc)
+
+# Example 1
+eusilc1 <- eusilc[1:1000, ]
+dataset <- data.frame(1:nrow(eusilc1),eusilc1)
+colnames(dataset)[1] <- "IDd"
+Nh <- data.table(db040=eusilc$db040, rb050=eusilc$rb050)
+setkeyv(Nh, names(Nh)[1])
+N_h2 <- Nh[, sum(rb050, na.rm = FALSE), keyby="db040"]
+
+aa<-vardom_othstr(Y="eqIncome", H="db040",H2="db040", PSU="db030", w_final="rb050",
+           id="rb030", Dom = "db040", period=NULL, N_h=NULL, N_h2=N_h2, Z = NULL,
+           X = NULL, g = NULL, dataset = dataset,
+           q = rep(1, if (is.null(dataset)) 
+                       nrow(as.data.frame(H)) else nrow(dataset)),
+           confidence = .95, outp_lin=TRUE, outp_res=TRUE)
+
+
+\dontrun{
+# Example 2
 dataset <- data.frame(1:nrow(eusilc),eusilc)
 colnames(dataset)[1] <- "IDd"
 Nh <- data.table(db040=eusilc$db040, rb050=eusilc$rb050)
@@ -114,11 +133,12 @@ setkeyv(Nh, names(Nh)[1])
 N_h2 <- Nh[, sum(rb050, na.rm = FALSE), keyby="db040"]
 
 aa<-vardom_othstr(Y="eqIncome", H="db040",H2="db040", PSU="db030", w_final="rb050",
-           id="db030", Dom = "db040", period=NULL, N_h=NULL, N_h2=N_h2, Z = NULL,
+           id="rb030", Dom = "db040", period=NULL, N_h=NULL, N_h2=N_h2, Z = NULL,
            X = NULL, g = NULL, dataset = dataset,
            q = rep(1, if (is.null(dataset)) 
                        nrow(as.data.frame(H)) else nrow(dataset)),
            confidence = .95, outp_lin=TRUE, outp_res=TRUE)
+}
 
 }
 \seealso{

@@ -28,6 +28,5 @@ lin.ratio <- function(Y, Z, weight, Dom=NULL) {
   R_est <- Y_est / Z_est
 
   U <- t((1 / Z_est) * t(Yd - t(R_est * t(Zd))))
-  U <- data.table(U)
-  U
+  return(data.table(U))
 }

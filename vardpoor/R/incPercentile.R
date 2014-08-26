@@ -18,7 +18,7 @@ checker <- function(variables, datasets, varname) {
  }
 
 incPercentile <- function(inc, weights = NULL, sort = NULL, 
-        Dom = NULL, k = c(20, 80), dataset = NULL) {
+        Dom = NULL, period=NULL, k = c(20, 80), dataset = NULL) {
    
    ## initializations
    if(!is.numeric(k) || length(k) == 0 || any(k < 0 | k > 100)) {
@@ -26,7 +26,7 @@ incPercentile <- function(inc, weights = NULL, sort = NULL,
     } else k <- round(k)
    
    if(!is.null(dataset)) {
-       dataset <- data.frame(dataset)
+       dataset <- data.frame(dataset, stringsAsFactors=FALSE)
        if (checker(inc, dataset, "inc")) inc <- dataset[, inc] 
 
        if(!is.null(weights)) {
@@ -35,11 +35,18 @@ incPercentile <- function(inc, weights = NULL, sort = NULL,
        if(!is.null(sort)) {
            if (checker(sort, dataset, "sort")) sort <- dataset[, sort] }
 
+       if (!is.null(period)) {
+            aperiod <- period  
+            if (min(period %in% names(dataset))!=1) stop("'period' does not exist in 'dataset'!")
+            if (min(period %in% names(dataset))==1) {
+                                period <- data.frame(dataset[, period], stringsAsFactors=FALSE)
+                                names(period) <- aperiod }}
+
        if (!is.null(Dom)) {
             Dom2 <- Dom
-            if (checker(Dom,dataset,"Dom")) {
-                    Dom <- data.frame(dataset[, Dom]) 
-                    colnames(Dom) <- Dom2     }}
+            if (checker(Dom, dataset, "Dom")) {
+                    Dom <- data.table(dataset[, Dom]) 
+                    setnames(Dom, names(Dom), Dom2)  }}
       }
 
    # check vectors
@@ -53,8 +60,7 @@ incPercentile <- function(inc, weights = NULL, sort = NULL,
 
    # weights
    weights <- data.frame(weights)
-   if(is.null(weights)) weights <- data.frame(rep.int(1, n))
-   if (nrow(weights) != n) stop("'weights' must be the same length as 'x'")
+   if (nrow(weights) != n) stop("'weights' must be the same length as 'inc'")
    if (ncol(weights) != 1) stop("'weights' must be vector or 1 column data.frame, matrix, data.table")
    weights <- weights[,1]
    if(!is.numeric(weights)) stop("'weights' must be numerical")
@@ -65,39 +71,61 @@ incPercentile <- function(inc, weights = NULL, sort = NULL,
          stop("'sort' must be a vector or ordered factor") }
    if(!is.null(sort) && length(sort) != n) stop("'sort' must be the same length as 'x'")
 
+   # period     
+   if (!is.null(period)) {
+       period <- data.table(period)
+       if (any(duplicated(names(period)))) 
+                 stop("'period' are duplicate column names: ", 
+                      paste(names(period)[duplicated(names(period))], collapse = ","))
+       if (nrow(period) != n) stop("'period' must be the same length as 'inc'")
+       if(any(is.na(period))) stop("'period' has unknown values")  
+   }
+
    # Dom
+   namesDom <- NULL
    if(!is.null(Dom)) {
              Dom <- data.table(Dom)
+             namesDom <- names(Dom)
              if (is.null(names(Dom))) stop("'Dom' must be colnames")
              if (nrow(Dom) != n) stop("'Dom' must be the same length as 'inc'")
        }
-  
-    ## computations
+    
+    if (!is.null(period)) {
+       if (!is.null(Dom)) { Dom <- data.table(period, Dom)
+        } else Dom <- period } 
  
     # Percentiles by domain (if requested)
+    
+    N <- NULL
     if(!is.null(Dom)) {
-        Dom_agg <- data.table(unique(Dom))
-        setkeyv(Dom_agg,colnames(Dom))
-        q <- c()
-        for(i in 1:nrow(Dom_agg)) {
-               D <- Dom_agg[i,][rep(1, nrow(Dom)),]
-               index <- rowSums(Dom == D) == ncol(Dom)
-               incind <- inc[index]
-               weightsind <- weights[index]
-               sortind <- sort[index]
+        Dom_app <- do.call("paste", c(as.list(Dom), sep="__"))
+        q1 <- lapply(split(Dom[, .I], Dom_app), function(i) {
+               incind <- inc[i]
+               weightsind <- weights[i]
+               sortind <- sort[i]
                order <- if(is.null(sortind)) order(incind) else order(incind, sortind)
                incind <- incind[order]
                weightsind <- weightsind[order]  # also works if 'weights' is NULL                               
                percentile <- weightedQuantile(incind, weightsind, probs=k/100, sorted=FALSE, na.rm=FALSE)               
-               q <- rbind(q,percentile)   }
-       colnames(q) <- k
-       rownames(q) <- NULL
-       q <- data.frame(Dom_agg, q)
+               q <- data.table(Dom[i][1], t(percentile))})
+        q <- rbindlist(q1)
+        setnames(q, names(q)[ncol(Dom)+1:length(k)], paste0("x",k))
+        if (!is.null(period)&!is.null(namesDom)) {
+              q1 <-  q[,.N, keyby=namesDom][,N:=NULL]
+              q2 <- q[, .N, by=names(period)][,N:=NULL]
+              qrs <- rbindlist(lapply(1:nrow(q2), function(i) {
+                                   data.table(q2[i], q1) }))
+              qrs[, (c(paste0("x", k))):=0]
+              qrs <- rbind(q, qrs)
+              q <- qrs[,lapply(.SD, sum), keyby=names(Dom), .SDcols=paste0("x", k)]              
+            }
+         setkeyv(q, names(Dom))
      } else {  order <- if(is.null(sort)) order(inc) else order(inc, sort)
                inc <- inc[order]
                weights <- weights[order]  # also works if 'weights' is NULL
-               q <- weightedQuantile(inc, weights, probs=k/100, sorted=TRUE, na.rm=FALSE)
-               names(q) <- k  # use percentile numbers as names
+               percentile <- weightedQuantile(inc, weights, probs=k/100, sorted=TRUE, na.rm=FALSE)
+               q <- data.table(t(percentile))
+               setnames(q, names(q)[1:length(k)], paste0("x",k))
      }
      ## return results
     return(q)

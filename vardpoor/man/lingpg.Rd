@@ -92,6 +92,7 @@ gpgs1 <- lingpg(inc="earningsHour", gender="sex",
                 id="ID", weight="weights", dataset=dati)
 gpgs1$value
 
+\dontrun{
 # Domains by education
 gpgs2 <- lingpg(inc="earningsHour", gender="sex",
                 id="ID", weight="weights",
@@ -115,6 +116,7 @@ gpgs4 <- lingpg(inc="earningsHour", gender="sex",
                 dataset=dati)
 gpgs4$value
 names(gpgs4$lin)
+}
 }
 
 \keyword{Linearization}

@@ -134,26 +134,26 @@ dataset <- data.frame(1:nrow(eusilc),eusilc)
 colnames(dataset)[1] <- "IDd"
 
 aa<-vardomh(Y="eqIncome", H="db040", PSU="db030", w_final="rb050",
-           ID_household="db030", id="db030", Dom = "db040",
+           ID_household="db030", id="rb030", Dom = "db040",
            period = NULL, N_h = NULL, Z = NULL, dataset = dataset, X = NULL,
            X_ID_household = NULL, g = NULL, datasetX = NULL,
            q = rep(1, if (is.null(datasetX)) 
                        nrow(as.data.frame(H)) else nrow(datasetX)),
            confidence = .95, outp_lin=TRUE, outp_res=TRUE)
 
-
+\dontrun{
 dataset2 <- copy(dataset)
 dataset$period=1
 dataset2$period=2
 dataset <-data.frame(rbind(dataset, dataset2))
 aa2<-vardomh(Y="eqIncome", H="db040", PSU="db030", w_final="rb050",
-           ID_household="db030", id="db030", Dom = "db040",
+           ID_household="db030", id="rb030", Dom = "db040",
            period = "period", N_h = NULL, Z = NULL, dataset = dataset,
            X = NULL, X_ID_household = NULL, 
            g = NULL, datasetX = NULL,
            q = rep(1, if (is.null(datasetX)) 
                        nrow(as.data.frame(H)) else nrow(datasetX)),
-           confidence = .95, outp_lin=TRUE, outp_res=TRUE)
+           confidence = .95, outp_lin=TRUE, outp_res=TRUE)}
 }
 
 \seealso{

@@ -156,10 +156,15 @@ vardomh <- function(Y, H, PSU, w_final,
   if (is.null(id)) id <- 1:n
   id <- data.table(id)
   if (any(is.na(id))) stop("'id' has unknown values")
-  if (nrow(id) != n) stop("'id' length must be equal with 'Y' row count")
   if (ncol(id) != 1) stop("'id' must be 1 column data.frame, matrix, data.table")
+  if (nrow(id) != n) stop("'id' length must be equal with 'Y' row count")
   if (is.null(names(id))||(names(id)=="id")) setnames(id,names(id),"ID")
   if (names(id)==names(ID_household)) setnames(id,names(id),paste(names(id),"_id",sep=""))
+  if (is.null(period)){ if (any(duplicated(id))) stop("'id' are duplicate values") 
+                       } else {
+                          id1 <- data.table(period, id)
+                          if (any(duplicated(id1))) stop("'id' by period are duplicate values")
+                         }
 
   # period     
   if (!is.null(period)) {
@@ -200,6 +205,7 @@ vardomh <- function(Y, H, PSU, w_final,
     if (nrow(Dom) != n) stop("'Dom' and 'Y' must be equal row count")
     if (any(is.na(Dom))) stop("'Dom' has unknown values")
     if (is.null(names(Dom))) stop("'Dom' must be colnames")
+    Dom <- Dom[, lapply(.SD, as.character), .SDcols = names(Dom)]
   }
   
   # Z
@@ -260,7 +266,6 @@ vardomh <- function(Y, H, PSU, w_final,
   }
 
 
-
   # ind_gr
   if (!is.null(X)) {
      if(is.null(ind_gr)) ind_gr <- rep.int(1, nrow(X)) 
@@ -314,6 +319,22 @@ vardomh <- function(Y, H, PSU, w_final,
   # Domains
 
   if (!is.null(Dom)) Y1 <- domain(Y, Dom) else Y1 <- Y
+  n_nonzero <- Y1[, lapply(.SD, function(x) as.integer(abs(x) > .Machine$double.eps)), .SDcols = names(Y1)]
+  if (!is.null(period)){ n_nonzero <- data.table(period, n_nonzero) 
+                         n_nonzero <- n_nonzero[, lapply(.SD, sum), keyby=names(period), .SDcols=names(Y1)]
+                  } else n_nonzero <- n_nonzero[, lapply(.SD, sum), .SDcols=names(Y1)]
+
+  sample_size <- pop_size <- NULL
+  if (!is.null(Dom)) { if (!is.null(period)) {nhs <- data.table(Dom, period, sample_size=1, pop_size=w_final)
+                                              nhs <-  nhs[, lapply(.SD, sum, na.rm=T),
+                                                                    keyby=c(names(Dom), names(period)),
+                                                                   .SDcols=c("sample_size", "pop_size")]
+                                     } else { nhs <- data.table(Dom, sample_size=1, pop_size=w_final)
+                                              nhs <-  nhs[, lapply(.SD, sum, na.rm=T),
+                                                                    keyby=names(Dom),
+                                                                   .SDcols=c("sample_size", "pop_size")]
+                                  }
+                           } else nhs <- data.table(sample_size=nrow(Y1), pop_size=sum(w_final)) 
 
   # Design weights
   if (!is.null(X)) {
@@ -411,6 +432,8 @@ vardomh <- function(Y, H, PSU, w_final,
    } else Y4 <- Y3
   Y3 <- NULL
                                 
+  if (is.null(N_h)) print("N_h is null")
+
   var_est <- variance_est(Y=Y4, H=H, PSU=PSU,
                           w_final=w_final2, N_h=N_h, 
                           fh_zero=fh_zero, PSU_level=PSU_level,
@@ -418,13 +441,16 @@ vardomh <- function(Y, H, PSU, w_final,
   var_est <- transpos(var_est, is.null(period), "var_est", names(period))
   all_result <- var_est
 
+  n_nonzero <- transpos(n_nonzero, is.null(period), "n_nonzero", names(period))
+  all_result <- merge(all_result, n_nonzero, all=T)
+ 
   # Variance of HT estimator under current design
   var_cur_HT <- variance_est(Y=Y3a, H=H, PSU=PSU, w_final=w_design2,
                              N_h=N_h, fh_zero=fh_zero, PSU_level=PSU_level,
                              period=period, dataset=NULL)
   var_cur_HT <- transpos(var_cur_HT, is.null(period), "var_cur_HT", names(period))
   all_result <- merge(all_result, var_cur_HT)
-  var_est <-  var_cur_HT <- NULL
+  n_nonzero <- var_est <-  var_cur_HT <- NULL
   H <- PSU <- N_h <- NULL
 
   # Variance of HT estimator under SRS
@@ -459,6 +485,7 @@ vardomh <- function(Y, H, PSU, w_final,
   var_srs_ca <- transpos(var_srs_ca, is.null(period), "var_srs_ca", names(period))
   all_result <- merge(all_result, var_srs_ca)
   var_srs_HT <-  var_srs_ca <- NULL
+  Y3a <- Y4 <- NULL
 
   # Total estimation
   Y_nov <- Z_nov <- .SD <- NULL
@@ -496,14 +523,14 @@ vardomh <- function(Y, H, PSU, w_final,
   Z_nov <- hY <- hZ <- YZnames <- dati <- NULL
  
   all_result[, estim:=Y_nov]   
-  all_result[!is.null(Z_nov), estim:=Y_nov/Z_nov]
+  if (!is.null(Z_nov)) {all_result[, estim:=Y_nov/Z_nov]}
 
   if (nrow(all_result[var_est < 0])>0) stop("Estimation of variance are negative!")
  
-  # Effect of sample design
+  # Design effect of sample design
   all_result[, deff_sam:=var_cur_HT / var_srs_HT]
   
-  # Effect of estimator
+  # Design effect of estimator
   all_result[, deff_est:= var_est / var_cur_HT]
   
   # Overall effect of sample design and estimator
@@ -543,20 +570,28 @@ vardomh <- function(Y, H, PSU, w_final,
   if (!is.null(Dom)) {
        setnames(nosr, names(nosr)[3:ncol(nosr)], names(Dom))
        nosr1 <- nosr[, lapply(names(Dom), function(x) {substring(get(x), nchar(x)+2, nchar(get(x)))})] 
+       nosr1 <- nosr1[, lapply(names(nosr1), function(x) str_replace_all(get(x), "[.]", " "))]
        setnames(nosr1, names(nosr1), names(Dom))
        setnames(nosr, names(Dom), paste0(names(Dom),"old"))
        nosr <- data.table(nosr, nosr1)
     }
+
   setkeyv(nosr, "variableD")
   setkeyv(all_result, "variableD")
   all_result <- merge(nosr, all_result)
   nosr <- nosr1 <- NULL
 
-  all_result[!is.null(Z_nov), variable:=paste("R", get("variable"), sep="__", get("variableZ"))] 
+  if (!is.null(Z_nov)) { all_result[, variable:=paste("R", get("variable"), sep="__", get("variableZ"))] }
+  setkeyv(all_result, c(names(Dom), names(period)))
 
-  variab <- c("estim", "var", "se", "rse", "cv", "absolute_margin_of_error",
-              "relative_margin_of_error", "CI_lower", "CI_upper", "var_srs_HT",
-              "var_cur_HT", "var_srs_ca", "deff_sam", "deff_est", "deff")
+  if (!is.null(Dom)) { all_result <- merge(all_result, nhs, all=T)
+                           } else { all_result[, sample_size:=nhs$sample_size]
+                                       all_result[, pop_size:=nhs$pop_size]} 
+  
+  variab <- c("sample_size", "n_nonzero", "pop_size", "estim", "var", "se", 
+              "rse", "cv", "absolute_margin_of_error", "relative_margin_of_error",
+              "CI_lower", "CI_upper", "var_srs_HT",  "var_cur_HT", 
+              "var_srs_ca", "deff_sam", "deff_est", "deff")
 
   setkeyv(all_result, c("nr_names", names(Dom), names(period)))
   all_result <- all_result[, c("variable", names(Dom), names(period), variab), with=F]

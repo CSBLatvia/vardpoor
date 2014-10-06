@@ -108,11 +108,15 @@ data(eusilc)
 
 dati <- data.frame(IDd = 1:nrow(eusilc), eusilc)
 
+# Full population
 d <- linarpr(inc="eqIncome", id="IDd", weight="rb050", Dom=NULL,
              dataset=dati, percentage=60, order_quant=50)
+d$value
 
+\dontrun{
+# By domains
 dd <- linarpr(inc="eqIncome", id="IDd", weight="rb050", Dom="db040",
-              dataset=dati, percentage=60, order_quant=50)
+              dataset=dati, percentage=60, order_quant=50)}
 }
 
 \keyword{Linearization}

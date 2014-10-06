@@ -67,13 +67,6 @@ linpoormed <- function(inc, id, weight=NULL, sort=NULL, Dom=NULL,
    inc <- inc[,1]
    if (!is.numeric(inc)) stop("'inc' must be a numeric vector")
    if (any(is.na(inc))) stop("'inc' has unknown values")
-
-   # id
-   if(is.null(id)) id <- 1:n 
-   id <- data.table(id)
-   if (nrow(id) != n) stop("'id' must be the same length as 'inc'")
-   if (ncol(id) != 1) stop("'id' must be 1 column data.frame, matrix, data.table")
-   if (is.null(names(id))||(names(id)=="id")) names(id) <- "ID"
  
    # weight
    weight <- data.frame(weight)
@@ -99,8 +92,21 @@ linpoormed <- function(inc, id, weight=NULL, sort=NULL, Dom=NULL,
        if(any(is.na(period))) stop("'period' has unknown values")  
        }
    
-   # Dom     
-   if (!is.null(Dom)) {
+   # id
+   if (is.null(id)) id <- 1:n
+   id <- data.table(id)
+   if (any(is.na(id))) stop("'id' has unknown values")
+   if (ncol(id) != 1) stop("'id' must be 1 column data.frame, matrix, data.table")
+   if (nrow(id) != n) stop("'id' must be the same length as 'inc'")
+   if (is.null(names(id))||(names(id)=="id")) setnames(id,names(id),"ID")
+   if (is.null(period)){ if (any(duplicated(id))) stop("'id' are duplicate values") 
+                       } else {
+                          id1 <- data.table(period, id)
+                          if (any(duplicated(id1))) stop("'id' by period are duplicate values")
+                         }
+
+    # Dom     
+    if (!is.null(Dom)) {
              Dom <- data.table(Dom)
              if (any(duplicated(names(Dom)))) 
                  stop("'Dom' are duplicate column names: ", 
@@ -109,70 +115,105 @@ linpoormed <- function(inc, id, weight=NULL, sort=NULL, Dom=NULL,
              if (nrow(Dom) != n) stop("'Dom' must be the same length as 'inc'")
        }
  
-   ## computations
-   Dom1 <- Dom
-   if (!is.null(period)) {
-       if (!is.null(Dom1)) { Dom1 <- data.table(period, Dom1)
-        } else Dom1 <- period } 
+    ## computations
+    ind0 <- rep.int(1, n)
+    period_agg <- period1 <- NULL
+    if (!is.null(period)) { period1 <- copy(period)
+                            period_agg <- data.table(unique(period))
+                        } else period1 <- data.table(ind=ind0)
+    period1_agg <- data.table(unique(period1))
  
     # Poor median people by domain (if requested)
 
-    quantiles <- incPercentile(inc, weight, sort, Dom=period, k=order_quant, dataset = NULL)
-    threshold <- data.table(quantiles)
-    threshold[,names(threshold)[ncol(threshold)]:=p/100 * threshold[,ncol(threshold),with=FALSE]]
-    setnames(threshold,names(threshold)[ncol(threshold)],"threshold")
-  
-    if(!is.null(Dom1)) {
-        Dom_agg <- data.table(unique(Dom1))
-        setkeyv(Dom_agg, names(Dom1)) 
-        if (!is.null(period)) quantil <- merge(Dom_agg, quantiles, by=names(period), sort=F) 
-        poor_people_median <- c()
-        poor_med_id <- id
-        if (!is.null(period))  poor_med_id <- data.table(period,  poor_med_id)
-        if (is.null(period)) { ind2 <- rep.int(1, n)
-                               quantile <- quantiles }
-        poor_med_m <- poor_med_id
+    quantile <- incPercentile(inc = inc, weights = weight,
+                              sort = sort, Dom = NULL,
+                              period = period,
+                              k = order_quant,
+                              dataset = NULL)
+    quantile <- data.table(quantile)
+    setnames(quantile, names(quantile)[ncol(quantile)], "quantile")
+    if (ncol(quantile)>1) setkeyv(quantile, head(names(quantile), -1))
+    threshold <- copy(quantile)
+    threshold[, threshold:=p/100 * quantile]
+    threshold[, quantile:=NULL]
+
+    poor_med_id <- id
+    if (!is.null(period))  poor_med_id <- data.table(poor_med_id, period)
+    if(!is.null(Dom)) {
+        Dom_agg <- data.table(unique(Dom))
+        setkeyv(Dom_agg, names(Dom)) 
+
+        poor_med_v <- c()
+        poor_med_m <- copy(poor_med_id)
         for(i in 1:nrow(Dom_agg)) {
-              g <- paste(names(Dom1), as.matrix(Dom_agg[i,]), sep = ".")
-              breakdown2 <- do.call(paste, as.list(c(g, sep="__")))
-              D <- Dom_agg[i,][rep(1, nrow(Dom1)),]
-              ind <- (rowSums(Dom1 == D) == ncol(Dom1))
+              g <- c(var_name, paste(names(Dom), as.matrix(Dom_agg[i,]), sep = "."))
+              var_nams <- do.call(paste, as.list(c(g, sep="__")))
+              ind <- (rowSums(Dom == Dom_agg[i,][ind0,]) == ncol(Dom))
 
-              if (!is.null(period)) {
-                   quantile <- data.frame(quantil)[i,ncol(quantil)]
-                   ind2 <- (rowSums(period == D[,1:ncol(period),with=F]) == ncol(period)) }
+              poor_medl <- lapply(1:nrow(period1_agg), function(j) {
+                      if (!is.null(period)) { 
+                               rown <- cbind(period_agg[j], Dom_agg[i])
+                               setkeyv(rown, names(rown))
+                               rown2 <- copy(rown)
+                               rown <- merge(rown, quantile, all.x=TRUE)
+                          } else { rown <- quantile
+                                   rown2 <- Dom_agg[i] }
 
-              poormed_l <- linpoormedCalc(incom=inc, ids=id, wghts=weight, sort=sort,
-                                          ind=ind, ind_year=ind2, percentag=p,
-                                          order_quants=order_quant, quant_val=quantile) 
-              poormedl <- poormed_l$lin
-              setnames(poormedl, names(poormedl), c(names(id), paste(var_name, breakdown2, sep="__")))
-              poor_med_m <- merge(poor_med_m, poormedl, by=names(id), all.x=T)
-              poor_people_median <- rbind(poor_people_median, poormed_l$poor_people_median)
+                       indj <- (rowSums(period1 == period1_agg[j,][ind0,]) == ncol(period1))
+
+                       poormed_l <- linpoormedCalc(inco=inc[indj],
+                                                   ids=poor_med_id[indj],
+                                                   wght=weight[indj], sort=sort[indj],
+                                                   ind=ind[indj], percentag=p,  
+                                                   order_quants=order_quant,
+                                                   quant_val=rown[["quantile"]])
+                      list(poor_people_median=data.table(rown2, poor_people_median=poormed_l$poor_people_median),
+                           lin=poormed_l$lin)
+                 })
+               
+              poor_people_med <- rbindlist(lapply(poor_medl, function(x) x[[1]]))
+              poor_people_medlin <- rbindlist(lapply(poor_medl, function(x) x[[2]]))
+
+              setnames(poor_people_medlin, names(poor_people_medlin), c(names(poor_med_id), var_nams))
+              setkeyv(poor_people_medlin, names(poor_med_id))
+              setkeyv(poor_med_m, names(poor_med_id))
+              poor_med_m <- merge(poor_med_m, poor_people_medlin, all.x=T)
+              poor_med_v <- rbind(poor_med_v, poor_people_med) 
            }
-        colnames(poor_people_median) <- "poor_people_median"
-        poor_people_median <- data.table(Dom_agg, poor_people_median)
-      } else { ind <- rep.int(1,n)
-               poormed_l <- linpoormedCalc(incom=inc, ids=id, wghts=weight, sort=sort,
-                                           ind=ind, ind_year=ind, percentag=p,
-                                           order_quants=order_quant,
-                                           quant_val=quantiles)  
-               poor_med_m <- poormed_l$lin
-               setnames(poor_med_m, names(poor_med_m), c(names(id),var_name))
-               poor_people_median <- data.table(poormed_l$poor_people_median)   
-               setnames(poor_people_median, names(poor_people_median), "poor_people_median")    }           
+ 
+     } else { poormed_l <- lapply(1:nrow(period1_agg), function(j) {
+                           if (!is.null(period)) { 
+                                         rown <- period_agg[j]
+                                         setkeyv(rown, names(rown))
+                                         rown <- merge(rown, quantile, all.x=TRUE)
+                                       } else rown <- quantile
+                           indj <- (rowSums(period1 == period1_agg[j,][ind0,]) == ncol(period1))
+      
+                           poor_medl <- linpoormedCalc(inco=inc[indj],
+                                                       ids=poor_med_id[indj],
+                                                       wght=weight[indj],
+                                                       sort=sort[indj],
+                                                       ind=ind0[indj],
+                                                       percentag=p,
+                                                       order_quants=order_quant,
+                                                       quant_val=rown[["quantile"]])  
+                           if (!is.null(period)) {
+                               poor_med_v <- data.table(period_agg[j], poor_people_median=poor_medl$poor_people_median)
+                             } else poor_med_v <- data.table(poor_people_median=poor_medl$poor_people_median)
+                          list(poor_med_v=poor_med_v, lin=poor_medl$lin)
+                       })
+               poor_med_v <- rbindlist(lapply(poormed_l, function(x) x[[1]]))
+               poor_med_m <- rbindlist(lapply(poormed_l, function(x) x[[2]]))
+               setnames(poor_med_m, names(poor_med_m), c(names(poor_med_id), var_name))
+            }
   poor_med_m[is.na(poor_med_m)] <- 0
-  quantile <- data.table(quantiles)
-  setnames(quantile, names(quantile)[ncol(quantile)], "quantile")
-  return(list(quantile=quantile, threshold=threshold, value=poor_people_median, lin=poor_med_m)) 
+  setkeyv(poor_med_m, names(poor_med_id))
+  return(list(quantile=quantile, threshold=threshold, value=poor_med_v, lin=poor_med_m)) 
 }
 
 
 ## workhorse
-linpoormedCalc <- function(incom, ids, wghts, sort, ind, ind_year, percentag, order_quants, quant_val) {
-    inco <- incom * ind_year
-    wght <- wghts * ind_year
-
+linpoormedCalc <- function(inco, ids, wght, sort, ind, percentag, order_quants, quant_val) {
     wt <- ind * wght   
     thres_val <- percentag/100 * quant_val
     N0 <- sum(wght)             # Estimated whole population size
@@ -185,8 +226,12 @@ linpoormedCalc <- function(incom, ids, wghts, sort, ind, ind_year, percentag, or
     rate_val <- sum(wt*poor)/N  # Estimated poverty rate
     rate_val_pr <- 100*rate_val  # Estimated poverty rate
  
-    poor_people_median <- incPercentile(inc1, wght1, sort=sort1, Dom=NULL, k=order_quants, dataset = NULL)
-    names(poor_people_median) <-NULL
+    poor_people_median <- incPercentile(inc=inc1, weights=wght1,
+                                        sort=sort1, Dom=NULL,
+                                        period=NULL, k=order_quants,
+                                        dataset=NULL)
+    poor_people_median <- poor_people_median[[paste0("x", order_quants)]]
+
  #*************************************************************************************
  #**          LINEARIZATION OF THE MEDIAN INCOME BELOW THE POVERTY THRESHOLD         **
  #*************************************************************************************
@@ -200,7 +245,7 @@ linpoormedCalc <- function(incom, ids, wghts, sort, ind, ind_year, percentag, or
     vect_f1 <- exp(-(u1^2)/2)/sqrt(2*pi)
     f_quant1 <- sum(vect_f1*wght)/(N0*h) 
 
-    lin_thres <- -(percentag/100)*ind_year*(1/N0)*((inco<=quant_val)-order_quants/100)/f_quant1
+    lin_thres <- -(percentag/100)*(1/N0)*((inco<=quant_val)-order_quants/100)/f_quant1
  # ---------------------------------------------
  # ----- LINEARIZATION OF THE POVERTY RATE -----
  # ---------------------------------------------
@@ -209,6 +254,7 @@ linpoormedCalc <- function(incom, ids, wghts, sort, ind, ind_year, percentag, or
     f_quant2 <- sum(vect_f2*wt)/(N*h) 
 
     lin_rate <- (1/N)*ind*((inco<=thres_val)-rate_val)+f_quant2*lin_thres
+
  # --------------------------------------------------------
  # ----- LINEARIZATION OF POOR PEOPLE'S MEDIAN INCOME -----
  # --------------------------------------------------------
@@ -218,8 +264,7 @@ linpoormedCalc <- function(incom, ids, wghts, sort, ind, ind_year, percentag, or
 
      lin_median <- (0.5*lin_rate-(1/N)*ind*((inco<=poor_people_median)-0.5*rate_val))/f_quant3
 
-     lin_id <- data.table(ids,lin_median)
+     lin_id <- data.table(ids, lin_median)
 
      return(list(poor_people_median=poor_people_median, lin=lin_id))
 }
-

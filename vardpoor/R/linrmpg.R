@@ -68,13 +68,6 @@ linrmpg <- function(inc, id, weight=NULL, sort=NULL, Dom=NULL,
    inc <- inc[,1]
    if (!is.numeric(inc)) stop("'inc' must be numerical")
    if (any(is.na(inc))) stop("'inc' has unknown values")
-
-   # id
-   if (is.null(id)) id <- 1:n 
-   id <- data.table(id)
-   if (nrow(id) != n) stop("'id' must be the same length as 'inc'")
-   if (ncol(id) != 1) stop("'id' must be 1 column data.frame, matrix, data.table")
-   if (is.null(names(id))||(names(id)=="id")) names(id) <- "ID"
  
    # weight
    weight <- data.frame(weight)
@@ -100,6 +93,19 @@ linrmpg <- function(inc, id, weight=NULL, sort=NULL, Dom=NULL,
        if(any(is.na(period))) stop("'period' has unknown values")  
    }   
 
+   # id
+   if (is.null(id)) id <- 1:n
+   id <- data.table(id)
+   if (any(is.na(id))) stop("'id' has unknown values")
+   if (ncol(id) != 1) stop("'id' must be 1 column data.frame, matrix, data.table")
+   if (nrow(id) != n) stop("'id' must be the same length as 'inc'")
+   if (is.null(names(id))||(names(id)=="id")) setnames(id,names(id),"ID")
+   if (is.null(period)){ if (any(duplicated(id))) stop("'id' are duplicate values") 
+                       } else {
+                          id1 <- data.table(period, id)
+                          if (any(duplicated(id1))) stop("'id' by period are duplicate values")
+                         }
+
    # Dom     
    if (!is.null(Dom)) {
              Dom <- data.table(Dom)
@@ -111,70 +117,105 @@ linrmpg <- function(inc, id, weight=NULL, sort=NULL, Dom=NULL,
        }
 
     ## computations
-    ind <- rep.int(1,n)
-    Dom1 <- Dom
-    if (!is.null(period)) {
-       if (!is.null(Dom1)) { Dom1 <- data.table(period, Dom1)
-        } else Dom1 <- period } 
+    ind0 <- rep.int(1, n)
+    period_agg <- period1 <- NULL
+    if (!is.null(period)) { period1 <- copy(period)
+                            period_agg <- data.table(unique(period))
+                        } else period1 <- data.table(ind=ind0)
+    period1_agg <- data.table(unique(period1))
 
     # Relative median at-risk-of-poverty gap by domain (if requested)
 
-    quantiles <- incPercentile(inc, weight, sort=sort,Dom=period, k=order_quant, dataset=NULL)
-    threshold <- data.table(quantiles)
-    threshold[,names(threshold)[ncol(threshold)]:=p/100 * threshold[,ncol(threshold),with=FALSE]]
-    setnames(threshold,names(threshold)[ncol(threshold)],"threshold")
+    quantile <- incPercentile(inc = inc, weights = weight,
+                              sort = sort, Dom = NULL,
+                              period = period,
+                              k = order_quant,
+                              dataset = NULL)
+    quantile <- data.table(quantile)
+    setnames(quantile, names(quantile)[ncol(quantile)], "quantile")
+    if (ncol(quantile)>1) setkeyv(quantile, head(names(quantile), -1))
+    threshold <- copy(quantile)
+    threshold[, threshold:=p/100 * quantile]
+    threshold[, quantile:=NULL]
    
-    if (!is.null(Dom1)) {
-         Dom_agg <- data.table(unique(Dom1))
-         setkeyv(Dom_agg,colnames(Dom1))
-         if (!is.null(period)) quantil <- merge(Dom_agg, quantiles, by=names(period), sort=F) 
-         rmpgap_v <- c()
-         rmpgap_id <- id
-         if (!is.null(period)) rmpgap_id <- data.table(period, rmpgap_id)
-         if (is.null(period)) { ind2 <- rep.int(1, n)
-                                quantile <- quantiles } 
-         rmpgap_m <- rmpgap_id
-         for(i in 1:nrow(Dom_agg)) {
-                 g <- paste(names(Dom1), as.matrix(Dom_agg[i,]), sep = ".")
-                 breakdown2 <- do.call(paste, as.list(c(g, sep="__")))
-                 D <- Dom_agg[i,][rep(1, nrow(Dom1)),]
-                 ind <- (rowSums(Dom1 == D) == ncol(Dom1))
-                 if (!is.null(period)) {
-                      quantile <- data.frame(quantil)[i,ncol(quantil)]
-                      ind2 <- (rowSums(period == D[,1:ncol(period),with=F]) == ncol(period)) }
+    rmpgap_id <- id
+    if (!is.null(period)) rmpgap_id <- data.table(period, rmpgap_id)
 
-                 rmpgap_l <- linrmpgCalc(incom=inc, ids=id, wghts=weight, sort=sort,
-                                         ind=ind, ind2=ind2, percentag=p,
-                                         order_quants=order_quant,
-                                         quant_val=quantile) 
-                 rmpgapl <- rmpgap_l$lin
-                 setnames(rmpgapl, names(rmpgapl), c(names(id),
-                          paste(var_name, breakdown2, sep="__")))
-                 rmpgap_m <- merge(rmpgap_m, rmpgapl, by=names(id), all.x=T)
-                 rmpgap_v <- rbind(rmpgap_v, rmpgap_l$rmpgap)
+    if (!is.null(Dom)) {
+         Dom_agg <- data.table(unique(Dom))
+         setkeyv(Dom_agg, names(Dom)) 
+
+         rmpgap_v <- c()
+         rmpgap_m <- copy(rmpgap_id)
+ 
+         for(i in 1:nrow(Dom_agg)) {
+                 g <- c(var_name, paste(names(Dom), as.matrix(Dom_agg[i,]), sep = "."))
+                 var_nams <- do.call(paste, as.list(c(g, sep="__")))
+                 ind <- (rowSums(Dom == Dom_agg[i,][ind0,]) == ncol(Dom))
+                 
+
+                 rmpgapl <- lapply(1:nrow(period1_agg), function(j) {
+                      if (!is.null(period)) { 
+                               rown <- cbind(period_agg[j], Dom_agg[i])
+                               setkeyv(rown, names(rown))
+                               rown2 <- copy(rown)
+                               rown <- merge(rown, quantile, all.x=TRUE)
+                          } else { rown <- quantile
+                                   rown2 <- Dom_agg[i] }
+
+                       indj <- (rowSums(period1 == period1_agg[j,][ind0,]) == ncol(period1))
+
+                       rmpgap_l <- linrmpgCalc(inco=inc[indj],
+                                               ids=rmpgap_id[indj],
+                                               wght=weight[indj],
+                                               sort=sort[indj],
+                                               ind=ind[indj],
+                                               percentag=p,
+                                               order_quants=order_quant,
+                                               quant_val=rown[["quantile"]]) 
+
+                      list(rmpgap=data.table(rown2, rmpgap=rmpgap_l$rmpgap),
+                           lin=rmpgap_l$lin)
+                 })
+
+              rmpgaps <- rbindlist(lapply(rmpgapl, function(x) x[[1]]))
+              rmpgaplin <- rbindlist(lapply(rmpgapl, function(x) x[[2]]))
+
+              setnames(rmpgaplin, names(rmpgaplin), c(names(rmpgap_id), var_nams))
+              setkeyv(rmpgap_m, names(rmpgap_id))
+              setkeyv(rmpgaplin, names(rmpgap_id))
+              rmpgap_m <- merge(rmpgap_m, rmpgaplin, all.x=T)
+              rmpgap_v <- rbind(rmpgap_v, rmpgaps) 
            }
-         colnames(rmpgap_v) <- "rmpg"
-         rmpgap_v <- data.table(Dom_agg,rmpgap_v)
-       } else { ind <- rep.int(1,n)
-                rmpgap_l <- linrmpgCalc(incom=inc, ids=id, wghts=weight, sort=sort,
-                                        ind=ind, ind2=ind, percentag=p,
-                                        order_quants=order_quant,
-                                        quant_val=quantiles)  
-                rmpgap_m <- rmpgap_l$lin
-                setnames(rmpgap_m, names(rmpgap_m), c(names(id), var_name))
-                rmpgap_v <- data.table(rmpgap_l$rmpgap)
-                setnames(rmpgap_v, names(rmpgap_v), "rmpg")   }
-        rmpgap_m[is.na(rmpgap_m)] <- 0
-        quantile <- data.table(quantile)
-        setnames(quantile,names(quantile)[ncol(quantile)],"quantile")      
-        return(list(quantile=quantile, threshold=threshold, value=rmpgap_v, lin=rmpgap_m)) 
+ } else {rmpgap_l <- lapply(1:nrow(period1_agg), function(j) {
+                           if (!is.null(period)) { 
+                                         rown <- period_agg[j]
+                                         setkeyv(rown, names(rown))
+                                         rown <- merge(rown, quantile, all.x=TRUE)
+                                       } else rown <- quantile
+                           indj <- (rowSums(period1 == period1_agg[j,][ind0,]) == ncol(period1))
+      
+                           rmpgapl <- linrmpgCalc(inco=inc[indj], ids=rmpgap_id[indj],
+                                                  wght=weight[indj], sort=sort[indj],
+                                                  ind=ind0[indj], percentag=p,
+                                                  order_quants=order_quant,
+                                                  quant_val=rown[["quantile"]])  
+                           if (!is.null(period)) {
+                               rmpgap_v <- data.table(period_agg[j], rmpgap=rmpgapl$rmpgap)
+                             } else rmpgap_v <- data.table(rmpgap=rmpgapl$rmpgap)
+                          list(rmpgap_v=rmpgap_v, lin=rmpgapl$lin)
+                       })
+               rmpgap_v <- rbindlist(lapply(rmpgap_l, function(x) x[[1]]))
+               rmpgap_m <- rbindlist(lapply(rmpgap_l, function(x) x[[2]]))
+               setnames(rmpgap_m, names(rmpgap_m), c(names(rmpgap_id), var_name))
+         }
+   rmpgap_m[is.na(rmpgap_m)] <- 0
+   setkeyv(rmpgap_m, names(rmpgap_id))
+   return(list(quantile=quantile, threshold=threshold, value=rmpgap_v, lin=rmpgap_m)) 
 }
 
 ## workhorse
-linrmpgCalc <- function(incom, ids, wghts, sort, ind, ind2, percentag, order_quants, quant_val) {
-    inco <- incom * ind2
-    wght <- wghts * ind2
-
+linrmpgCalc <- function(inco, ids, wght, sort, ind, percentag, order_quants, quant_val) {
     wt <- ind*wght   
     thres_val <- percentag/100 * quant_val
     N0 <- sum(wght)                # Estimated whole population size
@@ -188,9 +229,12 @@ linrmpgCalc <- function(incom, ids, wghts, sort, ind, ind2, percentag, order_qua
     rate_val <- sum(wt*poor)/N  # Estimated poverty rate
     rate_val_pr <- 100*rate_val  # Estimated poverty rate
  
-    poor_people_median <- incPercentile(inc1, wght1, sort=sort1, Dom=NULL, k=order_quants, dataset=NULL)
-    names(poor_people_median) <- NULL
- #*************************************************************************************
+    poor_people_median <- incPercentile(inc=inc1, weights=wght1,
+                                        sort=sort1, Dom=NULL,
+                                        period=NULL, k=order_quants,
+                                        dataset=NULL)
+    poor_people_median <- poor_people_median[[paste0("x", order_quants)]]
+#*************************************************************************************
  #**          LINEARIZATION OF THE MEDIAN INCOME BELOW THE POVERTY THRESHOLD         **
  #*************************************************************************************
     h <- sqrt((sum(wght*inco*inco)-sum(wght*inco)*sum(wght*inco)/sum(wght))/sum(wght))/exp(0.2*log(sum(wght))) 
@@ -203,7 +247,7 @@ linrmpgCalc <- function(incom, ids, wghts, sort, ind, ind2, percentag, order_qua
     vect_f1 <- exp(-(u1^2)/2)/sqrt(2*pi)
     f_quant1 <- sum(vect_f1*wght)/(N0*h) 
 
-    lin_thres <- -(percentag/100)*ind2*(1/N0)*((inco<=quant_val)-order_quants/100)/f_quant1
+    lin_thres <- -(percentag/100)*(1/N0)*((inco<=quant_val)-order_quants/100)/f_quant1
  # ---------------------------------------------
  # ----- LINEARIZATION OF THE POVERTY RATE -----
  # ---------------------------------------------
@@ -228,7 +272,7 @@ linrmpgCalc <- function(incom, ids, wghts, sort, ind, ind2, percentag, order_qua
      
      rmpgap <- 100 - 100*poor_people_median/thres_val
 
-     lin_id <- data.table(ids,lin_median)
+     lin_id <- data.table(ids, lin_gap)
 
      return(list(rmpgap=rmpgap, lin=lin_id))
 }

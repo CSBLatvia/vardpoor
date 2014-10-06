@@ -98,6 +98,47 @@ data("eusilc")
 
 set.seed(1)
 
+data("eusilc")
+eusilc1 <- eusilc[1:40,]
+
+set.seed(1)
+data <- data.table(rbind(eusilc1, eusilc1),
+                   year=c(rep(2010, nrow(eusilc1)),
+                          rep(2011, nrow(eusilc1))),
+                   country=c(rep("AT", nrow(eusilc1)),
+                             rep("AT", nrow(eusilc1))))
+data[age<0, age:=0]
+PSU <- data[,.N, keyby="db030"]
+PSU[, N:=NULL]
+PSU[, PSU:=trunc(runif(nrow(PSU), 0, 5))]
+setkeyv(PSU, "db030")
+setkeyv(data, "db030")
+data <- merge(data, PSU, all=TRUE)
+PSU <- eusilc <- NULL
+data[, strata:=c("XXXX")]
+data[, strata:=as.character(strata)]
+
+data[, t_pov:=trunc(runif(nrow(data), 0, 2))]
+data[, exp:= 1]
+
+# At-risk-of-poverty (AROP)
+data[, pov:= ifelse (t_pov == 1, 1, 0)]
+ 
+dataset1 <- data[year==2010]
+dataset2 <- data[year==2011]
+
+result <- vardchanges(Y1="pov",
+                   H1="strata", PSU1="PSU", w_final1="rb050",
+                   id1="db030", Dom1=NULL, Z1=NULL,
+                   country1="country", period1="year",
+                   dataset1=dataset1,
+                   Y2="pov",
+                   H2="strata", PSU2="PSU", w_final2="rb050",
+                   id2="db030", Dom2=NULL, Z2=NULL,
+                   country2="country", period2="year",
+                   dataset2=dataset2) 
+
+\dontrun{
 data <- data.table(rbind(eusilc, eusilc),
                    year=c(rep(2010, nrow(eusilc)),
                           rep(2011, nrow(eusilc))),
@@ -144,8 +185,9 @@ result <- vardchanges(Y1=c("pov", "dep", "lwi", "arope"),
                    H2="strata", PSU2="PSU", w_final2="rb050",
                    id2="db030", Dom2="rb090", Z2=NULL,
                    country2="country", period2="year",
-                   dataset2=dataset2) 
+                   dataset2=dataset2)}
 }
+
 
 \seealso{
 \code{\link{domain}},   \code{\link{vardcros}}}

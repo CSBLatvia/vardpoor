@@ -58,13 +58,6 @@ linqsr <- function(inc, id=NULL, weight=NULL, sort = NULL,
    inc <- inc[,1]
    if (!is.numeric(inc)) stop("'inc' must be a numeric vector")
    if (any(is.na(inc))) stop("'inc' has unknown values")
-
-   # id
-   if (is.null(id)) id <- 1:n 
-   id <- data.table(id)
-   if (nrow(id) != n) stop("'id' must be the same length as 'inc'")
-   if (ncol(id) != 1) stop("'id' must be 1 column data.frame, matrix, data.table")
-   if (is.null(names(id))||(names(id)=="id")) names(id) <- "ID"
  
    # weight
    weight <- data.frame(weight)
@@ -90,7 +83,20 @@ linqsr <- function(inc, id=NULL, weight=NULL, sort = NULL,
        if(any(is.na(period))) stop("'period' has unknown values")  
    }   
 
-   # Dom     
+   # id
+   if (is.null(id)) id <- 1:n
+   id <- data.table(id)
+   if (any(is.na(id))) stop("'id' has unknown values")
+   if (ncol(id) != 1) stop("'id' must be 1 column data.frame, matrix, data.table")
+   if (nrow(id) != n) stop("'id' must be the same length as 'inc'")
+   if (is.null(names(id))||(names(id)=="id")) setnames(id,names(id),"ID")
+   if (is.null(period)){ if (any(duplicated(id))) stop("'id' are duplicate values") 
+                       } else {
+                          id1 <- data.table(period, id)
+                          if (any(duplicated(id1))) stop("'id' by period are duplicate values")
+                         }
+
+   # Dom
    if (!is.null(Dom)) {
              Dom <- data.table(Dom)
              if (any(duplicated(names(Dom)))) 
@@ -100,67 +106,88 @@ linqsr <- function(inc, id=NULL, weight=NULL, sort = NULL,
              if (nrow(Dom) != n) stop("'Dom' must be the same length as 'inc'")
        }
 
-    ## computations
-    ind <- data.frame(ind=rep.int(1, n))
-    Dom1 <- Dom
-    if (!is.null(period)) {
-       if (!is.null(Dom1)) { Dom1 <- data.table(period, Dom1)
-        } else Dom1 <- period } 
+   ## computations
+   ind0 <- rep.int(1, n)
+   period_agg <- period1 <- NULL
+   if (!is.null(period)) { period1 <- copy(period)
+                           period_agg <- data.table(unique(period))
+                        } else period1 <- data.table(ind=ind0)
+   period1_agg <- data.table(unique(period1))
 
-    # QSR by domain (if requested)  
+   # QSR by domain (if requested)  
+
+   QSR_id <- id
+   if (!is.null(period)) QSR_id <- data.table(QSR_id, period)
     
-   if (!is.null(Dom1)) {
-        Dom_agg <- data.table(unique(Dom1))
-        setkeyv(Dom_agg,colnames(Dom1))
+   if (!is.null(Dom)) {
+        Dom_agg <- data.table(unique(Dom))
+        setkeyv(Dom_agg, names(Dom_agg))
+
         QSR_v <- c()
-        QSR_id <- id
-        if (!is.null(period)) QSR_id <- data.table(period, QSR_id)
-        if (is.null(period)) ind2 <- ind
-        QSR_m <- QSR_id
+        QSR_m <- copy(QSR_id)
+
         for(i in 1:nrow(Dom_agg)) {
-              g <- paste(names(Dom1), as.matrix(Dom_agg[i,]), sep = ".")
-              breakdown2 <- do.call(paste, as.list(c(g, sep="__")))
-              D <- Dom_agg[i,][rep(1, nrow(Dom1)),]
-              ind <- data.frame(ind=(rowSums(Dom1 == D) == ncol(Dom1)))
-              if (!is.null(period)) {
-                   ind2 <- (rowSums(period == D[,1:ncol(period),with=F]) == ncol(period)) 
-                   ind2 <- data.frame(ind2)
-                  }
-              QSR_l <- linQSRCalc(incom=inc, ids=id, weightss=weight, sort=sort,
-                                  ind=ind, ind2=ind2, alpha=alpha) 
-              QSRl <- QSR_l$lin
-              setnames(QSRl,names(QSRl), c(names(id), paste(var_name, breakdown2, sep="__")))
-              QSR_m <- merge(QSR_m, QSRl, by=names(id), all.x=T)
-              QSR_v <- rbind(QSR_v, data.table(QSR_l$QSR, QSR_l$QSR_eu))   }
-      setnames(QSR_v,names(QSR_v), c("QSR", "QSR_eu"))
-      QSR_v <- data.table(Dom_agg, QSR_v)
-    } else { ind <- data.frame(ind=rep.int(1, n))
-             QSR_l <- linQSRCalc(incom=inc, ids=id, weightss=weight,
-                                 sort=sort,ind=ind, ind2=ind, alpha=alpha)
-             QSR_m <- QSR_l$lin
-             setnames(QSR_m,names(QSR_m),c(names(id),var_name))
-             QSR_v <- data.table(QSR_l$QSR, QSR_l$QSR_eu)
-             setnames(QSR_v,names(QSR_v),c("QSR","QSR_eu"))       }
-     QSR_m[is.na(QSR_m)] <- 0               
-  return(list(value=QSR_v,lin=QSR_m))
+              g <- c(var_name, paste(names(Dom), as.matrix(Dom_agg[i,]), sep = "."))
+              var_nams <- do.call(paste, as.list(c(g, sep="__")))
+
+              ind <- (rowSums(Dom == Dom_agg[i,][ind0,]) == ncol(Dom))
+
+              QSR_l <- lapply(1:nrow(period1_agg), function(j) {
+                               indj <- (rowSums(period1 == period1_agg[j,][ind0,]) == ncol(period1))
+
+                               QSR_l <- linQSRCalc(income=inc[indj],
+                                                   ids=QSR_id[indj],
+                                                   weights=weight[indj],
+                                                   sort=sort[indj],
+                                                   ind=ind[indj],
+                                                   alpha=alpha) 
+                                if (!is.null(period)) { 
+                                       list(QSR=data.table(period_agg[j], Dom_agg[i], QSR_l$QSR), lin=QSR_l$lin)
+                                  } else list(QSR=data.table(Dom_agg[i], QSR_l$QSR), lin=QSR_l$lin)                               
+                         })
+                 QSRs <- rbindlist(lapply(QSR_l, function(x) x[[1]]))
+                 QSRlin <- rbindlist(lapply(QSR_l, function(x) x[[2]]))
+
+                 setnames(QSRlin, names(QSRlin), c(names(QSR_id), var_nams))
+                 setkeyv(QSR_m, names(QSR_id))
+                 setkeyv(QSRlin, names(QSR_id))
+                 QSR_m <- merge(QSR_m, QSRlin, all.x=T)
+                 QSR_v <- rbind(QSR_v, QSRs)
+           }
+    } else { QSRl <- lapply(1:nrow(period1_agg), function(j) {
+                           indj <- (rowSums(period1 == period1_agg[j,][ind0,]) == ncol(period1))
+      
+                           QSR_l <- linQSRCalc(income=inc[indj], ids=QSR_id[indj],
+                                               weights=weight[indj], sort=sort[indj],
+                                               ind=ind0[indj], alpha=alpha)
+                           if (!is.null(period)) { 
+                                       list(QSR=data.table(period_agg[j], QSR_l$QSR), lin=QSR_l$lin)
+                                  } else list(QSR=data.table(QSR_l$QSR), lin=QSR_l$lin)
+                       })
+             QSR_v <- rbindlist(lapply(QSRl, function(x) x[[1]]))
+             QSR_m <- rbindlist(lapply(QSRl, function(x) x[[2]]))
+
+             setnames(QSR_m, names(QSR_m), c(names(QSR_id), var_name))
+           }
+  QSR_m[is.na(QSR_m)] <- 0               
+  setkeyv(QSR_m, names(QSR_id))
+  return(list(value=QSR_v, lin=QSR_m))
 }
 
 
-linQSRCalc<-function(incom, ids, weightss=NULL, sort=NULL, ind=NULL, ind2=NULL, alpha) {
+linQSRCalc<-function(income, ids, weights=NULL, sort=NULL, ind=NULL, alpha) {
 #--------------------------------------------------------------------------------
 #----- COMPUTATION OF ESTIMATED VALUES OF THE NUMERATOR AND THE DENOMINATOR -----
 #--------------------------------------------------------------------------------
    if (is.null(ind)) ind <- data.frame(ind=rep.int(1,length(ids)))
-   if (is.null(ind2)) ind2 <- data.frame(ind2=rep.int(1,length(ids)))
 
    alpha2 <- 100 - alpha
-   income <- incom * ind2
-   weights <- weightss * ind2
-   quantile <- incPercentile(income, weightss, sort, Dom=ind, k=c(alpha,alpha2), dataset=NULL) 
-   quant_inf <- quantile[quantile$ind==1,ncol(ind)+1] 
-   quant_sup <- quantile[quantile$ind==1,ncol(ind)+2] 
-
-   if (is.data.frame(ind)) ind <- ind[,1]
+   quantile <- incPercentile(inc=income, weights=weights,
+                             sort=sort, Dom=data.table(ind),
+                             period=NULL, k=c(alpha,alpha2),
+                             dataset=NULL) 
+   quant_inf <- quantile[ind==TRUE][[paste0("x", alpha)]] 
+   quant_sup <- quantile[ind==TRUE][[paste0("x", alpha2)]] 
 
    wt <- weights * ind
    v <- weights * income * ind
@@ -195,7 +222,7 @@ linQSRCalc<-function(incom, ids, weightss=NULL, sort=NULL, ind=NULL, ind2=NULL, 
    vect_f1 <- exp(-(u1^2)/2)/sqrt(2*pi)
    f_quant1 <- sum(vect_f1*wt)/(N*h) 
 
-   lin_inf <- -(1/N)*ind2*((income<=quant_inf)-alpha/100)/f_quant1
+   lin_inf <- -(1/N)*((income<=quant_inf)-alpha/100)/f_quant1
 
    # 2. Linearization of the top quantile 
  
@@ -203,7 +230,7 @@ linQSRCalc<-function(incom, ids, weightss=NULL, sort=NULL, ind=NULL, ind2=NULL, 
    vect_f2 <- exp(-(u2^2)/2)/sqrt(2*pi)
    f_quant2 <- sum(vect_f2*wt)/(N*h)
 
-   lin_sup <- -(1/N)*ind2*((income<=quant_sup)-alpha2/100)/f_quant2 
+   lin_sup <- -(1/N)*((income<=quant_sup)-alpha2/100)/f_quant2 
 
 #------------------------------------------------------------
 #----- LINEARIZATION OF THE INCOME QUANTILE SHARE RATIO -----
@@ -212,7 +239,7 @@ linQSRCalc<-function(incom, ids, weightss=NULL, sort=NULL, ind=NULL, ind2=NULL, 
    # 1. Linearization of the numerator 
   
    u3 <- (quant_sup-income)/h
-   vect_f3 <- exp(-(u3^2)/2)/sqrt(2*3.1415926536)
+   vect_f3 <- exp(-(u3^2)/2)/sqrt(2*pi)
    f_quant3 <- sum(vect_f3*v)/h
  
    lin_num <- income-income*(income<=quant_sup)-f_quant3*lin_sup
@@ -220,7 +247,7 @@ linQSRCalc<-function(incom, ids, weightss=NULL, sort=NULL, ind=NULL, ind2=NULL, 
    # 2. Linearization of the denominator 
   
    u4 <- (quant_inf-income)/h
-   vect_f4 <- exp(-(u4^2)/2)/sqrt(2*3.1415926536)
+   vect_f4 <- exp(-(u4^2)/2)/sqrt(2*pi)
    f_quant4 <- sum(vect_f4*v)/h
  
    lin_den <- income*(income<=quant_inf)+f_quant4*lin_inf
@@ -232,6 +259,7 @@ linQSRCalc<-function(incom, ids, weightss=NULL, sort=NULL, ind=NULL, ind2=NULL, 
    lin <- (den*lin_num-num*lin_den)/(den*den)
 
    lin_id <- data.table(ids, lin)
-  return(list(QSR=QSR, QSR_eu=QSR_eu, lin=lin_id))
+   QSR <- data.table(QSR=QSR, QSR_eu=QSR_eu)
+  return(list(QSR=QSR, lin=lin_id))
 }
 

@@ -269,7 +269,6 @@ vardcros <- function(Y, H, PSU, w_final, id,
                                 DT3 <- cbind(DT3, DT3H)
                                 DT3H <- names(DT3H) }
  
-
  fit <-lapply(1:length(namesY1), function(i) {
            fits <- lapply(split(DT3, DT3$period_country), function(d) {
                   	y <- namesY1[i]
@@ -280,14 +279,14 @@ vardcros <- function(Y, H, PSU, w_final, id,
                         ncolr <- ncol(res1)
                         setnames(res1, names(res1)[1], "num") 
                         res1[, namesY1:=y]
-                        res1[ncolr>1, namesZ1:=names(res1)[2]]
+                        if (ncolr>1) { res1[, namesZ1:=names(res1)[2]] }
 
                         if (!is.null(namesZ1) & !linratio) setnames(res1, names(res1)[2], "den")
                         res1 <- data.table(res1, d)
                         res1[, nhcor:=ifelse(n_h==1, 1, n_h/(n_h-1))]
                         res1[, num1:=nhcor*num*num]
-                        res1[ncolr>1, den1:=nhcor*den*den]
-                        res1[ncolr>1, num_den1:=nhcor*num*den]
+                        if (ncolr>1) { res1[, den1:=nhcor*den*den]
+                                             res1[, num_den1:=nhcor*num*den] }
                         namep <- c("namesY1", "namesZ1")
                         namep <- namep[namep %in% names(res1)]
                         varsp <- c("num1", "den1", "num_den1")
@@ -363,7 +362,7 @@ vardcros <- function(Y, H, PSU, w_final, id,
  }
 	
  res[, namess:=namesY1]
- res[!is.null(namesZ1), namess:=paste0(namesY1, "___", namesZ1)]
+ if (!is.null(namesZ1)) { res[, namess:=paste0(namesY1, "___", namesZ1)] }
 
  if (!is.null(namesZ1) & !linratio) {
              main <- melt(DT2[,c(paste0("g1__", namesY1,"___", namesZ1), "period_country"), with=F], id="period_country")
@@ -385,19 +384,18 @@ vardcros <- function(Y, H, PSU, w_final, id,
  }
  rm(DT2, DT3, DTp)
  res[, var:=num1]
- res[!is.null(namesZ1) & !linratio, var:=(grad1*grad1*num1)+
-                                          (grad2*grad2*den1)+
-                                        2*(grad1*grad2*num_den1)]
+if (!is.null(namesZ1) & !linratio) { res[, var:=(grad1*grad1*num1)+
+                                                                       (grad2*grad2*den1)+
+                                                                   2*(grad1*grad2*num_den1)] }
  res[, estim:=totalY]
- res[!is.null(totalZ), estim:=totalY/totalZ]
+ if (!is.null(totalZ)) {  res[, estim:=totalY/totalZ] }
 
- res[!is.null(namesZ1), namesZ:=namesZ1]
+ if (!is.null(namesZ1)) res[, namesZ:=namesZ1]
  res[, namesY:=paste0(namesY1, "__")] 
  res[, namesY:=substr(namesY, 1, regexpr("__", namesY)-1)]
 
- res[!is.null(namesZ1), namesZ:=paste0(namesZ1, "__")]
- res[!is.null(namesZ1), namesZ:=substr(namesZ, 1, regexpr("__", namesZ)-1)]
-
+ if (!is.null(namesZ1)) { res[, namesZ:=paste0(namesZ1, "__")]
+                                      res[, namesZ:=substr(namesZ, 1, regexpr("__", namesZ)-1)] }
   
  dom <- NULL
  main <- namesperc
@@ -520,7 +518,7 @@ vardcros <- function(Y, H, PSU, w_final, id,
 
 
  res[, namesY1:=NULL]
- res[!is.null(namesZ1), namesZ1:=NULL]
+ if (!is.null(namesZ1)) { res[, namesZ1:=NULL]}
  res[, N:=NULL]
  res[, se:=sqrt(var)]
  res[, rse:=se/estim]

@@ -35,5 +35,6 @@ domain <- function(Y, D) {
   
   if (!is.data.table(domen)) domen <- data.table(domen)
   setnames(domen, namesD(Y, D))
+  domen <- data.table(domen, check.names=TRUE)
   return(domen)
 }

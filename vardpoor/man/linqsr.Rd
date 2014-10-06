@@ -56,10 +56,19 @@ Jean-Claude Deville (1999). Variance estimation for complex statistics and estim
 data(eusilc)
 dati <- data.frame(1:nrow(eusilc),eusilc)
 colnames(dati)[1] <- "IDd"
+
+# Full population
+dd <- linqsr(inc="eqIncome", id="IDd", weight="rb050",
+             Dom=NULL, dataset= dati, alpha=20)
+dd$value
+
+\dontrun{
+# By domains
 dd <- linqsr(inc="eqIncome", id="IDd", weight="rb050",
              Dom="db040", dataset= dati, alpha=20)
-dd$value
+dd$value}
 }
+
 
 \seealso{
 \code{\link{incPercentile}}, \code{\link{varpoord}}}

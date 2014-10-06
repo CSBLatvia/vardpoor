@@ -23,7 +23,7 @@ Yves G. Berger, Tim Goedeme, Guillame Osier (2013). Handbook on standard error e
 
 \examples{
 Ys <- matrix(rchisq(10, 3), 10, 1)
-ws <- rep(2, 10)
+ws <- c(rep(2, 5), rep(3, 5))
 var_srs(Ys, ws)
 } 
 

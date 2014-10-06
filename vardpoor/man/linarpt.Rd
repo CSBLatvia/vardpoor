@@ -108,10 +108,12 @@ d1 <- linarpt(inc="eqIncome", id="IDd", weight = "rb050", Dom = NULL,
              dataset = dati, percentage = 60, order_quant=50)
 d1$value
 
+\dontrun{
 # By domains
 d2 <- linarpt(inc="eqIncome", id="IDd", weight = "rb050", Dom = "db040",
               dataset = dati, percentage = 60, order_quant=50)
 d2$value
+} 
 
 }
 

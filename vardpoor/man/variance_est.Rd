@@ -101,10 +101,10 @@ the first wave of EU-SILC: what could be done from the second onwards? 2012
 }
 
 \examples{
-Ys <- matrix(rchisq(10, 3), 10, 1)
+Ys <- rchisq(10, 3)
 w <- rep(2, 10)
-PSU <- 1:nrow(Ys)
-H <- w
+PSU <- 1:length(Ys)
+H <- rep("Strata_1", 10)
 variance_est(Y=Ys, H=H, PSU=PSU, w_final=w)
 
 } 

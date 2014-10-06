@@ -55,13 +55,16 @@ Jean-Claude Deville (1999). Variance estimation for complex statistics and estim
 data(eusilc)
 dati <- data.frame(1:nrow(eusilc),eusilc)
 colnames(dati)[1] <- "IDd"
-dat1 <- lingini2(inc="eqIncome", id="IDd", weight = "rb050", Dom=c("db040"), dataset=dati)
-dat2 <- lingini2(inc="eqIncome", id="IDd", weight = "rb050",  dataset=dati)
 
+# Full population
+dat1 <- lingini2(inc="eqIncome", id="IDd", weight = "rb050",  dataset=dati)
 dat1$value
-dat2$value
-}
 
+\dontrun{
+# By domains
+dat2 <- lingini2(inc="eqIncome", id="IDd", weight = "rb050", Dom=c("db040"), dataset=dati)
+dat2$value}
+}
 
 \seealso{
 \code{\link{lingini}}, \code{\link{varpoord}}, \code{\link{linqsr}}}

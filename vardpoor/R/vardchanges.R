@@ -325,8 +325,8 @@ vardchanges <- function(Y1, H1, PSU1, w_final1, id1,
   var_grad2 <- data2$var_grad
   var_grad1[, (names(period1)):=NULL]
   var_grad2[, (names(period2)):=NULL]
-  var_grad1[!is.null(grad1), grad1:=-grad1]
-  var_grad1[!is.null(grad1), grad2:=-grad2]
+  if (!is.null(grad1)) { var_grad1[, grad1:=-grad1]
+                         var_grad1[, grad2:=-grad2] }
 
   setnames(var_grad1, names(var_grad1)[-c(1:np)], paste0(names(var_grad1)[-c(1:np)], "_1"))
   setnames(var_grad2, names(var_grad2)[-c(1:np)], paste0(names(var_grad2)[-c(1:np)], "_2"))
@@ -392,17 +392,19 @@ vardchanges <- function(Y1, H1, PSU1, w_final1, id1,
                          setnames(res, names(res), c("num1", "den1", "num2", "den2"))
                        } else setnames(res, names(res), c("num1", "num2"))
                    res[, namesY:=period[i]]
-                   res[!is.null(var_grad$namesZ), namesZ:=period[i + nrowv]]
+                   if (!is.null(var_grad$namesZ)) res[, namesZ:=period[i + nrowv]]
                    res[, num1num1:=num1 * num1]
-                   res[!is.null(den1), den1den1:=den1 * den1]
                    res[, num2num2:=num2 * num2]
-                   res[!is.null(den2), den2den2:=den2 * den2]
-                   res[!is.null(den1), num1den1:=num1 * den1]
                    res[, num1num2:=num1 * num2]
-                   res[!is.null(den2), num1den2:=num1 * den2]
-                   res[!is.null(den1), den1num2:=den1 * num2]
-                   res[!is.null(den2), den1den2:=den1 * den2]
-                   res[!is.null(den2), num2den2:=num2 * den2] 
+ 
+                   if (!is.null(var_grad$namesZ)) {
+                           res[, den1den1:=den1 * den1]
+                           res[, den2den2:=den2 * den2]
+                           res[, num1den1:=num1 * den1]
+                           res[, num1den2:=num1 * den2]
+                           res[, den1num2:=den1 * num2]
+                           res[, den1den2:=den1 * den2]
+                           res[, num2den2:=num2 * den2] }
 
                    res <- data.table(res, d)
                    varsp <- c("num1num1", "den1den1", "num2num2", "den2den2", "num1den1",
@@ -424,38 +426,37 @@ vardchanges <- function(Y1, H1, PSU1, w_final1, id1,
    var_grad[, namesYs:=Reduce(function(x, y)
                               paste(x, y, sep = "__"), .SD),
                               .SDcols=c("namesY", Dom)]
-   var_grad[!is.null(namesZ), namesZs:=Reduce(function(x, y)
-                                       paste(x, y, sep = "__"), .SD),
-                                      .SDcols=c("namesZ", Dom)]
-
+   if (!is.null(namesZ)) { var_grad[, namesZs:=Reduce(function(x, y)
+                                                     paste(x, y, sep = "__"), .SD),
+                                                    .SDcols=c("namesZ", Dom)] }
    setkeyv(res, c("country", paste0(namesYZ, "s")))
    setkeyv(var_grad, c("country", paste0(namesYZ, "s")))
    data <- merge(res, var_grad, all=T)
    res <- fit <- var_gr <- NULL
    data[, namesYs:=NULL]
-   data[!is.null(namesZ), namesZs:=NULL]
-
-
-   data[!is.null(namesZ), C12:=sqrt(num1_1)*sqrt(den1_1)*num1den1/(sqrt(num1num1)*sqrt(den1den1))]
-   data[, C13:=sqrt(num1_1)*sqrt(num1_2)*num1num2/(sqrt(num1num1)*sqrt(num2num2))]
-   data[!is.null(namesZ), C14:=sqrt(num1_1)*sqrt(den1_2)*num1den2/(sqrt(num1num1)*sqrt(den2den2))]
-   data[!is.null(namesZ), C23:=sqrt(den1_1)*sqrt(num1_2)*den1num2/(sqrt(den1den1)*sqrt(num2num2))]
-   data[!is.null(namesZ), C24:=sqrt(den1_1)*sqrt(den1_2)*den1num2/(sqrt(den1den1)*sqrt(den2den2))]
-   data[!is.null(namesZ), C34:=sqrt(num1_2)*sqrt(den1_2)*num2den2/(sqrt(num2num2)*sqrt(den2den2))]
-
+   
+   if (!is.null(namesZ))  {
+          data[, namesZs:=NULL]   
+          data[, C12:=sqrt(num1_1)*sqrt(den1_1)*num1den1/(sqrt(num1num1)*sqrt(den1den1))]
+          data[, C13:=sqrt(num1_1)*sqrt(num1_2)*num1num2/(sqrt(num1num1)*sqrt(num2num2))]
+          data[, C14:=sqrt(num1_1)*sqrt(den1_2)*num1den2/(sqrt(num1num1)*sqrt(den2den2))]
+          data[, C23:=sqrt(den1_1)*sqrt(num1_2)*den1num2/(sqrt(den1den1)*sqrt(num2num2))]
+          data[, C24:=sqrt(den1_1)*sqrt(den1_2)*den1num2/(sqrt(den1den1)*sqrt(den2den2))]
+          data[, C34:=sqrt(num1_2)*sqrt(den1_2)*num2den2/(sqrt(num2num2)*sqrt(den2den2))]
+        }
    data[, estim:=estim_1 - estim_2]
-   data[!is.null(namesZ), var:= (grad1_1 * grad1_1 * num1_1) +  
-                (grad1_2 * grad1_2 * den1_1) + 
-                (grad2_1 * grad2_1 * num1_2) + 
-                (grad2_2 * grad2_2 * den1_2) + 
-             2*((grad1_1 * grad1_2 * C12) +
-                (grad1_1 * grad2_1 * C13) +
-                (grad1_1 * grad2_2 * C14) +
-                (grad1_2 * grad2_1 * C23) +
-                (grad1_2 * grad2_2 * C24) +
-                (grad2_1 * grad2_2 * C34))]
-
-   data[is.null(namesZ), var:= num1_1 + num1_2]
+   if (!is.null(namesZ)) {
+         data[, var:= (grad1_1 * grad1_1 * num1_1) +  
+                      (grad1_2 * grad1_2 * den1_1) + 
+                      (grad2_1 * grad2_1 * num1_2) + 
+                      (grad2_2 * grad2_2 * den1_2) + 
+                   2*((grad1_1 * grad1_2 * C12) +
+                      (grad1_1 * grad2_1 * C13) +
+                      (grad1_1 * grad2_2 * C14) +
+                      (grad1_2 * grad2_1 * C23) +
+                      (grad1_2 * grad2_2 * C24) +
+                      (grad2_1 * grad2_2 * C34))]
+       } else data[, var:=num1_1+num1_2-2*sqrt(num1_1*num1_2)*num1num2*sqrt(num1num1*num2num2)]
 
    data[, se:=sqrt(var)]
    data[, rse:=se/estim]

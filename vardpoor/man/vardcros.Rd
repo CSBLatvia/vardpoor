@@ -90,6 +90,48 @@ URL \url{http://www.cros-portal.eu/content/handbook-standard-error-estimation-an
 # Example 1
 data(eusilc)
 set.seed(1)
+data <- data.table(eusilc,
+                   year=rep(2010, nrow(eusilc)),
+                   country=rep("AT", nrow(eusilc)))
+data[age<0, age:=0]
+PSU <- data[,.N, keyby="db030"]
+PSU[, N:=NULL]
+PSU[, PSU:=trunc(runif(nrow(PSU), 0, 100))]
+data <- merge(data, PSU, by="db030", all=TRUE)
+PSU <- eusilc <- 0
+
+data[, strata:="XXXX"]
+data[, t_pov:=trunc(runif(nrow(data), 0, 2))]
+data[, t_dep:=trunc(runif(nrow(data), 0, 2))]
+data[, t_lwi:=trunc(runif(nrow(data), 0, 2))]
+data[, exp:= 1]
+data[, exp2:= 1 * (age < 60)]
+
+# At-risk-of-poverty (AROP)
+data[, pov:= ifelse (t_pov == 1, 1, 0)]
+
+# Severe material deprivation (DEP)
+data[, dep:= ifelse (t_dep == 1, 1, 0)]
+
+# Low work intensity (LWI)
+data[, lwi:= ifelse (t_lwi == 1 & exp2 == 1, 1, 0)]
+
+# At-risk-of-poverty or social exclusion (AROPE)
+data[, arope:= ifelse (pov == 1 | dep == 1 | lwi == 1, 1, 0)]
+
+result11 <- vardcros(Y="arope",
+                    H="strata", PSU="PSU", w_final="rb050",
+                    id="db030", Dom="rb090", Z=NULL,
+                    country="country", period="year",
+                    dataset=data,
+                    linratio=FALSE, 
+                    withperiod=TRUE,
+                    netchanges=TRUE,
+                    confidence = .95)
+\dontrun{
+# Example 2
+data(eusilc)
+set.seed(1)
 data <- data.table(rbind(eusilc, eusilc),
                       year=c(rep(2010, nrow(eusilc)),
                              rep(2011, nrow(eusilc))),
@@ -238,8 +280,7 @@ result20 <- vardcros(Y="ppr", H="strata", PSU="PSU",
                     linratio=FALSE, 
                     withperiod=FALSE,
                     netchanges=FALSE,
-                    confidence = .95)
-
+                    confidence = .95)}
 }
 
 

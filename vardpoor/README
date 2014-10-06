@@ -1,4 +1,4 @@
-﻿## English ##
+## English ##
 
 The precision estimation is done by the ultimate cluster method (Hansen, 
 Hurwitz and Madow, 1953) with linearization for nonlinear statistics and 
@@ -20,4 +20,4 @@ install.packages("vardpoor")
 
 # Development version from github
 library(devtools)
-install_github("djhurio/vardpoor/vardpoor")
+install_github("CSBLatvia/vardpoor/vardpoor")

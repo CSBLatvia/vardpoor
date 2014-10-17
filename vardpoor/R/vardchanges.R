@@ -325,8 +325,8 @@ vardchanges <- function(Y1, H1, PSU1, w_final1, id1,
   var_grad2 <- data2$var_grad
   var_grad1[, (names(period1)):=NULL]
   var_grad2[, (names(period2)):=NULL]
-  if (!is.null(grad1)) { var_grad1[, grad1:=-grad1]
-                         var_grad1[, grad2:=-grad2] }
+  if (!is.null(var_grad1$grad1))  { var_grad1[, grad1:=-grad1]
+                                                     var_grad1[, grad2:=-grad2] }
 
   setnames(var_grad1, names(var_grad1)[-c(1:np)], paste0(names(var_grad1)[-c(1:np)], "_1"))
   setnames(var_grad2, names(var_grad2)[-c(1:np)], paste0(names(var_grad2)[-c(1:np)], "_2"))
@@ -341,7 +341,6 @@ vardchanges <- function(Y1, H1, PSU1, w_final1, id1,
   data2 <- data2$data_net_changes
   data1[, (names(period1)):=NULL]
   data2[, (names(period2)):=NULL]
-  main <- ifelse(!is.null(var_grad$namesZ), "namesY", c("namesY", Dom))
   nrowv <- nrow(var_grad)
   if ((!linratio)&(4+nrowv<ncol(data1))) namesZ <- names(data1)[(4+nrowv):ncol(data1)] 
   period <- names(data1)[4:ncol(data1)]
@@ -374,7 +373,7 @@ vardchanges <- function(Y1, H1, PSU1, w_final1, id1,
            fits <- lapply(split(data, data$country), function(d) {
                    y1 <- paste0(period[i], "_1")
                    y2 <- paste0(period[i], "_2")
-                   if (!is.null(var_grad$namesZ)) { 
+                   if (!is.null(namesZ)) { 
                                     z1 <- paste0(",", toString(period[i + nrowv]), "_1") 
 	                              z2 <- paste0(",", toString(period[i + nrowv]), "_2")
                                } else z1 <- z2 <- ""
@@ -388,16 +387,16 @@ vardchanges <- function(Y1, H1, PSU1, w_final1, id1,
                                                                         "rot01*rot02*", toString(x))))),
                                                                         collapse= "+"))) 
                    res <- data.table(lm(funkc, data=d)$res)
-                   if (!is.null(var_grad$namesZ)) { 
+                   if (!is.null(namesZ)) { 
                          setnames(res, names(res), c("num1", "den1", "num2", "den2"))
                        } else setnames(res, names(res), c("num1", "num2"))
                    res[, namesY:=period[i]]
-                   if (!is.null(var_grad$namesZ)) res[, namesZ:=period[i + nrowv]]
+                   if (!is.null(namesZ)) res[, namesZ:=period[i + nrowv]]
                    res[, num1num1:=num1 * num1]
                    res[, num2num2:=num2 * num2]
                    res[, num1num2:=num1 * num2]
  
-                   if (!is.null(var_grad$namesZ)) {
+                   if (!is.null(namesZ)) {
                            res[, den1den1:=den1 * den1]
                            res[, den2den2:=den2 * den2]
                            res[, num1den1:=num1 * den1]
@@ -427,8 +426,8 @@ vardchanges <- function(Y1, H1, PSU1, w_final1, id1,
                               paste(x, y, sep = "__"), .SD),
                               .SDcols=c("namesY", Dom)]
    if (!is.null(namesZ)) { var_grad[, namesZs:=Reduce(function(x, y)
-                                                     paste(x, y, sep = "__"), .SD),
-                                                    .SDcols=c("namesZ", Dom)] }
+                                                        paste(x, y, sep = "__"), .SD),
+                                                        .SDcols=c("namesZ", Dom)] }
    setkeyv(res, c("country", paste0(namesYZ, "s")))
    setkeyv(var_grad, c("country", paste0(namesYZ, "s")))
    data <- merge(res, var_grad, all=T)

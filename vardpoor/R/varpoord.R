@@ -371,22 +371,15 @@ varpoord <- function(inc, w_final,
 
   ### Calculation
   sample_size <- pop_size <- n_nonzero <- NULL
-
-  if (!is.null(Dom)) { if (!is.null(period)) {nhs <- data.table(Dom, period, sample_size=1, pop_size=w_final,                      
-                                                                                           n_nonzero=as.integer(abs(inc) > .Machine$double.eps))
-                                              nhs <-  nhs[, lapply(.SD, sum, na.rm=T),
-                                                                    keyby=c(names(Dom), names(period)),
-                                                                   .SDcols=c("sample_size", "pop_size", "n_nonzero")]
-                                     } else { nhs <- data.table(Dom, sample_size=1, pop_size=w_final, 
-                                                                              n_nonzero=as.numeric(inc!=0))
-                                              nhs <-  nhs[, lapply(.SD, sum, na.rm=T),
-                                                                    keyby=names(Dom),
-                                                                   .SDcols=c("sample_size", "pop_size", "n_nonzero")]
-                                  }
-                           } else nhs <- data.table(sample_size=nrow(Y1), 
-                                                                  pop_size=sum(w_final),
-                                                                  n_nonzero=sum(as.numeric(inc!=0))) 
-
+  nhs <- data.table(sample_size=1, pop_size=w_final, 
+                               n_nonzero=as.integer(abs(inc)> .Machine$double.eps))
+  if (!is.null(period)) nhs <- data.table(period, nhs)
+  if (!is.null(Dom)) nhs <- data.table(Dom, nhs)
+  if (!is.null(c(Dom, period))) {nhs <- nhs[, lapply(.SD, sum, na.rm=T),
+                                                       keyby=eval(names(nhs)[0:2-ncol(nhs)]),
+                                                      .SDcols=c("sample_size", "pop_size", "n_nonzero")]
+                          } else nhs <- nhs[, lapply(.SD, sum, na.rm=T),
+                                                     .SDcols=c("sample_size", "pop_size", "n_nonzero")]
 
   estim <- c()
   aH <- names(H)
@@ -711,10 +704,10 @@ varpoord <- function(inc, w_final,
   
   setkeyv(all_result, c(nDom, names(period)))
 
-  if (!is.null(nDom)) { all_result <- merge(all_result, nhs, all=T)
-                           } else { all_result[, sample_size:=nhs$sample_size]
-                                       all_result[, pop_size:=nhs$pop_size]
-                                       all_result[, n_nonzero:=nhs$n_nonzero]} 
+  if (!is.null(c(Dom, period))) { all_result <- merge(all_result, nhs, all=T)
+                         } else { all_result[, sample_size:=nhs$sample_size]
+                                  all_result[, pop_size:=nhs$pop_size]
+                                  all_result[, n_nonzero:=nhs$n_nonzero]} 
 
   variabl <- c("sample_size", "n_nonzero", "pop_size", 
                       "value", "value_eu", "var", "se", "rse",

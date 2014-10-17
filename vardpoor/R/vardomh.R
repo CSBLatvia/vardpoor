@@ -319,22 +319,26 @@ vardomh <- function(Y, H, PSU, w_final,
   # Domains
 
   if (!is.null(Dom)) Y1 <- domain(Y, Dom) else Y1 <- Y
-  n_nonzero <- Y1[, lapply(.SD, function(x) as.integer(abs(x) > .Machine$double.eps)), .SDcols = names(Y1)]
+  
+  n_nonzero <- copy(Y1)
   if (!is.null(period)){ n_nonzero <- data.table(period, n_nonzero) 
-                         n_nonzero <- n_nonzero[, lapply(.SD, sum), keyby=names(period), .SDcols=names(Y1)]
-                  } else n_nonzero <- n_nonzero[, lapply(.SD, sum), .SDcols=names(Y1)]
+                         n_nonzero <- n_nonzero[, lapply(.SD, function(x) 
+                                                         sum(as.integer(abs(x)> .Machine$double.eps))),
+                                                         keyby=names(period),
+                                                         .SDcols = names(Y1)]
+                  } else n_nonzero <- n_nonzero[, lapply(.SD, function(x) 
+                                                         sum(as.integer(abs(x)> .Machine$double.eps))),
+                                                         .SDcols = names(Y1)]
 
   sample_size <- pop_size <- NULL
-  if (!is.null(Dom)) { if (!is.null(period)) {nhs <- data.table(Dom, period, sample_size=1, pop_size=w_final)
-                                              nhs <-  nhs[, lapply(.SD, sum, na.rm=T),
-                                                                    keyby=c(names(Dom), names(period)),
-                                                                   .SDcols=c("sample_size", "pop_size")]
-                                     } else { nhs <- data.table(Dom, sample_size=1, pop_size=w_final)
-                                              nhs <-  nhs[, lapply(.SD, sum, na.rm=T),
-                                                                    keyby=names(Dom),
-                                                                   .SDcols=c("sample_size", "pop_size")]
-                                  }
-                           } else nhs <- data.table(sample_size=nrow(Y1), pop_size=sum(w_final)) 
+  nhs <- data.table(sample_size=1, pop_size=w_final)
+  if (!is.null(period)) nhs <- data.table(period, nhs)
+  if (!is.null(Dom)) nhs <- data.table(Dom, nhs)
+  if (!is.null(c(Dom, period))) {nhs <- nhs[, lapply(.SD, sum, na.rm=T),
+                                                       keyby=eval(names(nhs)[0:1-ncol(nhs)]),
+                                                      .SDcols=c("sample_size", "pop_size")]
+                          } else nhs <- nhs[, lapply(.SD, sum, na.rm=T),
+                                                     .SDcols=c("sample_size", "pop_size")]
 
   # Design weights
   if (!is.null(X)) {
@@ -432,8 +436,6 @@ vardomh <- function(Y, H, PSU, w_final,
    } else Y4 <- Y3
   Y3 <- NULL
                                 
-  if (is.null(N_h)) print("N_h is null")
-
   var_est <- variance_est(Y=Y4, H=H, PSU=PSU,
                           w_final=w_final2, N_h=N_h, 
                           fh_zero=fh_zero, PSU_level=PSU_level,
@@ -523,7 +525,7 @@ vardomh <- function(Y, H, PSU, w_final,
   Z_nov <- hY <- hZ <- YZnames <- dati <- NULL
  
   all_result[, estim:=Y_nov]   
-  if (!is.null(Z_nov)) {all_result[, estim:=Y_nov/Z_nov]}
+  if (!is.null(all_result$Z_nov)) all_result[, estim:=Y_nov/Z_nov]
 
   if (nrow(all_result[var_est < 0])>0) stop("Estimation of variance are negative!")
  
@@ -581,12 +583,12 @@ vardomh <- function(Y, H, PSU, w_final,
   all_result <- merge(nosr, all_result)
   nosr <- nosr1 <- NULL
 
-  if (!is.null(Z_nov)) { all_result[, variable:=paste("R", get("variable"), sep="__", get("variableZ"))] }
+  if (!is.null(all_result$Z_nov)) all_result[, variable:=paste("R", get("variable"), sep="__", get("variableZ"))]
   setkeyv(all_result, c(names(Dom), names(period)))
 
   if (!is.null(Dom)) { all_result <- merge(all_result, nhs, all=T)
-                           } else { all_result[, sample_size:=nhs$sample_size]
-                                       all_result[, pop_size:=nhs$pop_size]} 
+              } else { all_result[, sample_size:=nhs$sample_size]
+                       all_result[, pop_size:=nhs$pop_size]} 
   
   variab <- c("sample_size", "n_nonzero", "pop_size", "estim", "var", "se", 
               "rse", "cv", "absolute_margin_of_error", "relative_margin_of_error",

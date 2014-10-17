@@ -201,7 +201,7 @@ vardcros <- function(Y, H, PSU, w_final, id,
  DTp <- data.table(period_country, w_final*Y1)
  if (!is.null(Z)) DTp <- data.table(DTp, w_final*Z1)
 
- DTp <- DTp[,lapply(.SD, sum, na.rm=T), keyby="period_country", .SDcols=namesYZ]
+ DTp <- DTp[, lapply(.SD, sum, na.rm=T), keyby="period_country", .SDcols=namesYZ]
  setnames(DTp, namesYZ, paste0(namesYZ, "_sum"))
 
  DT1 <- copy(DT)
@@ -301,7 +301,7 @@ vardcros <- function(Y, H, PSU, w_final, id,
 
   res <- data.table(do.call("rbind", fit))
   a0 <- unlist(lapply(res$namesY1, function(d) regexpr("__", d)[1]))+2
-  res[!is.null(namesDom), Dom:=substr(res$namesY1, a0, nchar(res$namesY1))]
+  if (!is.null(namesDom)) res[, Dom:=substr(res$namesY1, a0, nchar(res$namesY1))]
   a0 <- fit <- DT3H <- NULL
 
   sd1 <- paste0(c(names_size1, namesY2w), "s")
@@ -362,7 +362,7 @@ vardcros <- function(Y, H, PSU, w_final, id,
  }
 	
  res[, namess:=namesY1]
- if (!is.null(namesZ1)) { res[, namess:=paste0(namesY1, "___", namesZ1)] }
+ if (!is.null(namesZ1))  res[, namess:=paste0(namesY1, "___", namesZ1)] 
 
  if (!is.null(namesZ1) & !linratio) {
              main <- melt(DT2[,c(paste0("g1__", namesY1,"___", namesZ1), "period_country"), with=F], id="period_country")
@@ -374,7 +374,7 @@ vardcros <- function(Y, H, PSU, w_final, id,
        	 setkeyv(res, c("period_country", "namess"))
 	 	 res <- merge(res, main, all=T)	 
 
-		 main <- melt(DT2[,c(paste0("g2__", namesY1,"___", namesZ1), "period_country"), with=F], id="period_country")
+		 main <- melt(DT2[, c(paste0("g2__", namesY1,"___", namesZ1), "period_country"), with=F], id="period_country")
              main[, variable:=trim(as.character(variable))]
 	 	 main[, namess:=substr(variable, 5, nchar(variable))] 
 	 	 main[, variable:=NULL]
@@ -384,18 +384,17 @@ vardcros <- function(Y, H, PSU, w_final, id,
  }
  rm(DT2, DT3, DTp)
  res[, var:=num1]
-if (!is.null(namesZ1) & !linratio) { res[, var:=(grad1*grad1*num1)+
-                                                                       (grad2*grad2*den1)+
-                                                                   2*(grad1*grad2*num_den1)] }
+ if (!is.null(namesZ1) & !linratio) res[, var:=(grad1*grad1*num1)+
+                                               (grad2*grad2*den1)+
+                                             2*(grad1*grad2*num_den1)] 
  res[, estim:=totalY]
- if (!is.null(totalZ)) {  res[, estim:=totalY/totalZ] }
-
- if (!is.null(namesZ1)) res[, namesZ:=namesZ1]
+ if (!is.null(res$totalZ)) {res[, estim:=totalY/totalZ] 
+                            res[, namesZ:=namesZ1] }
  res[, namesY:=paste0(namesY1, "__")] 
  res[, namesY:=substr(namesY, 1, regexpr("__", namesY)-1)]
 
  if (!is.null(namesZ1)) { res[, namesZ:=paste0(namesZ1, "__")]
-                                      res[, namesZ:=substr(namesZ, 1, regexpr("__", namesZ)-1)] }
+                          res[, namesZ:=substr(namesZ, 1, regexpr("__", namesZ)-1)] }
   
  dom <- NULL
  main <- namesperc
@@ -495,16 +494,16 @@ if (!is.null(namesZ1) & !linratio) { res[, var:=(grad1*grad1*num1)+
  res <- merge(res, main, all=T)
 
  main <- melt(DTx[, c(namesperc, paste0("pop_", names_size1)), with=F],  id=namesperc)
- main[!is.null(namesDom), Dom:=substr(variable, 11, nchar(trim(as.character(variable))))] 
+ if (!is.null(namesDom)) main[, Dom:=substr(variable, 11, nchar(trim(as.character(variable))))] 
  main[, variable:=NULL]
  setnames(main, "value", "pop")
  if (is.null(namesDom)) nds <- namesperc else nds <- c(namesperc, "Dom")
  setkeyv(main, nds)
  setkeyv(res, nds)
- res <- merge(res, main, all=T)
+ res <- merge(res, main, all.x=T)
 
  main <- melt(DTx[, c(namesperc, paste0("samp_", names_size1)), with=F],  id=namesperc)
- main[!is.null(namesDom), Dom:=substr(variable, 12, nchar(trim(as.character(variable))))] 
+ if (!is.null(namesDom)) main[, Dom:=substr(variable, 12, nchar(trim(as.character(variable))))] 
  main[, variable:=NULL]
  setnames(main, "value", "sampl_siz")
  setkeyv(main, nds)
@@ -518,7 +517,7 @@ if (!is.null(namesZ1) & !linratio) { res[, var:=(grad1*grad1*num1)+
 
 
  res[, namesY1:=NULL]
- if (!is.null(namesZ1)) { res[, namesZ1:=NULL]}
+ if (!is.null(namesZ1)) res[, namesZ1:=NULL]
  res[, N:=NULL]
  res[, se:=sqrt(var)]
  res[, rse:=se/estim]

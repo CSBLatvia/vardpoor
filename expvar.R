@@ -2,16 +2,16 @@
 library("data.table")
 library("reshape2")
 
-H <- data.table(H=1:3)
-Yh <- data.table(Yh=10*1:3, Yh=10*4:6)
-S2h <- data.table(S2h=10*runif(3), S2h2=10*runif(3))
-nh <- data.table(nh=4*1:3)
-Nh <- data.table(Nh=8*1:3)
-Rh <- data.table(Rh=rep(1,3))
-deffh <- data.table(deffh=rep(2,3), deffh2=rep(3,3))
-Dom <- data.table(dd=c(1,1,1))
-dataset <- NULL
-confidence = .95
+#H <- data.table(H=1:3)
+#Yh <- data.table(Yh=10*1:3, Yh=10*4:6)
+#S2h <- data.table(S2h=10*runif(3), S2h2=10*runif(3))
+#nh <- data.table(nh=4*1:3)
+#Nh <- data.table(Nh=8*1:3)
+#Rh <- data.table(Rh=rep(1,3))
+#deffh <- data.table(deffh=rep(2,3), deffh2=rep(3,3))
+#Dom <- data.table(dd=c(1,1,1))
+#dataset <- NULL
+#confidence = .95
 
 #n - izlases apjoms
 #N - populâcijas apjoms
@@ -22,7 +22,7 @@ confidence = .95
 #
 #expvar(Yh, H, S2h, nh, Nh, Rh, deffh, Dom=NULL, dataset = NULL, confidence = .95)
 
-expvar <- function(Yh, H, S2h, nh, Nh, Rh=NULL, deffh=NULL,
+expvar <- function(Yh, H, S2h, nh, Nh, Rh=NULL, deffh=NULL, Dom=NULL,
                    dataset = NULL, confidence = .95) {
  
   ### Checking

@@ -10,7 +10,7 @@ vardpoor.Rcheck
 *.pdf
 *.docx
 *.doc
-*.tar.gz
+*.tar
 *.gz
 *.zip
 *.7z

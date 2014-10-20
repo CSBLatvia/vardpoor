@@ -84,6 +84,7 @@ vardomh <- function(Y, H, PSU, w_final,
     }
 
   if(!is.null(datasetX)) {
+       datasetX <- data.frame(datasetX)
        if (!is.null(periodX)) {
             aperiodX <- periodX  
             if (min(periodX %in% names(datasetX))!=1) stop("'periodX' does not exist in 'datasetX'!")
@@ -99,7 +100,7 @@ vardomh <- function(Y, H, PSU, w_final,
 
       if(!is.null(X)) {
           if (min(X %in% names(datasetX))!=1) stop("'X' does not exist in 'datasetX'!")
-          if (min(X %in% names(datasetX))==1) X <- datasetX[, X] }
+          if (min(X %in% names(datasetX))==1) X <- as.data.frame(datasetX[, X]) }
 
       if(!is.null(ind_gr)) {
           if (min(ind_gr %in% names(datasetX))!=1) stop("'ind_gr' does not exist in 'datasetX'!")
@@ -114,6 +115,7 @@ vardomh <- function(Y, H, PSU, w_final,
               if (length(q)!=nrow(datasetX))  stop("'q' does not exist in 'datasetX'!") }
           if (min(q %in% names(datasetX))==1) q <- datasetX[, q] } 
      }
+  dataset <- datasetX <- NULL
 
   # Y
   Y <- data.table(Y, check.names=TRUE)
@@ -161,10 +163,7 @@ vardomh <- function(Y, H, PSU, w_final,
   if (is.null(names(id))||(names(id)=="id")) setnames(id,names(id),"ID")
   if (names(id)==names(ID_household)) setnames(id,names(id),paste(names(id),"_id",sep=""))
   if (is.null(period)){ if (any(duplicated(id))) stop("'id' are duplicate values") 
-                       } else {
-                          id1 <- data.table(period, id)
-                          if (any(duplicated(id1))) stop("'id' by period are duplicate values")
-                         }
+                       } else if (any(duplicated(data.table(period, id)))) stop("'id' by period are duplicate values")
 
   # period     
   if (!is.null(period)) {
@@ -258,13 +257,11 @@ vardomh <- function(Y, H, PSU, w_final,
         if (any(IDh != X_ID_household)) stop("'X_ID_household' and 'unique(ID_household)' records have different")
     }}
 
-
   # X
   if (!is.null(X)) {
     X <- data.table(X, check.names=T)
     if (nrow(X) != nrow(X_ID_household)) stop("'X' and 'X_ID_household' have different row count")
   }
-
 
   # ind_gr
   if (!is.null(X)) {
@@ -312,14 +309,11 @@ vardomh <- function(Y, H, PSU, w_final,
     if (any(is.na(q))) stop("'q' has unknown values")
     if (any(is.infinite(q))) stop("'q' value can not be infinite")
   }
-
-
-  ### Calculation
-      
+  
+  ### Calculation 
   # Domains
 
   if (!is.null(Dom)) Y1 <- domain(Y, Dom) else Y1 <- Y
-  
   n_nonzero <- copy(Y1)
   if (!is.null(period)){ n_nonzero <- data.table(period, n_nonzero) 
                          n_nonzero <- n_nonzero[, lapply(.SD, function(x) 
@@ -348,12 +342,10 @@ vardomh <- function(Y, H, PSU, w_final,
              setnames(idhx, names(idhx)[c(1:(ncol(idhx)-1))], names(idh))
              idg <- merge(idh, idhx, by=names(idh))
              w_design <- w_final / idg[[ncol(idg)]]
-             idhx <- idh <- NULL
+             idg <- idhx <- idh <- NULL
       } else w_design <- w_final
-
       
   # Ratio of two totals
-  
   Z1 <- persort <- linratio_outp <- NULL 
   estim <- var_est2 <- se <- rse <- NULL
   cv <- absolute_margin_of_error <- NULL
@@ -367,7 +359,6 @@ vardomh <- function(Y, H, PSU, w_final,
 
   if (!is.null(Z)) {
      if (!is.null(Dom)) Z1 <- domain(Z, Dom) else Z1 <- Z
-            
      if (is.null(period)) {
           Y2 <- lin.ratio(Y1, Z1, w_final, Dom=NULL)
           Y2a <- lin.ratio(Y1, Z1, w_design, Dom=NULL)
@@ -574,7 +565,7 @@ vardomh <- function(Y, H, PSU, w_final,
        nosr1 <- nosr[, lapply(names(Dom), function(x) {substring(get(x), nchar(x)+2, nchar(get(x)))})] 
        nosr1 <- nosr1[, lapply(names(nosr1), function(x) str_replace_all(get(x), "[.]", " "))]
        setnames(nosr1, names(nosr1), names(Dom))
-       setnames(nosr, names(Dom), paste0(names(Dom),"old"))
+       setnames(nosr, names(Dom), paste0(names(Dom), "old"))
        nosr <- data.table(nosr, nosr1)
     }
 
@@ -586,9 +577,9 @@ vardomh <- function(Y, H, PSU, w_final,
   if (!is.null(all_result$Z_nov)) all_result[, variable:=paste("R", get("variable"), sep="__", get("variableZ"))]
   setkeyv(all_result, c(names(Dom), names(period)))
 
-  if (!is.null(Dom)) { all_result <- merge(all_result, nhs, all=T)
-              } else { all_result[, sample_size:=nhs$sample_size]
-                       all_result[, pop_size:=nhs$pop_size]} 
+  if (!is.null(c(Dom, period))) { all_result <- merge(all_result, nhs, all=T)
+                         } else { all_result[, sample_size:=nhs$sample_size]
+                                  all_result[, pop_size:=nhs$pop_size]} 
   
   variab <- c("sample_size", "n_nonzero", "pop_size", "estim", "var", "se", 
               "rse", "cv", "absolute_margin_of_error", "relative_margin_of_error",

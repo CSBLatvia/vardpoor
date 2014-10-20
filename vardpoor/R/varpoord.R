@@ -116,6 +116,7 @@ varpoord <- function(inc, w_final,
       }
 
   if(!is.null(datasetX)) {
+      dataset <- data.frame(datasetX)
        if (!is.null(periodX)) {
             aperiodX <- periodX  
             if (min(periodX %in% names(datasetX))!=1) stop("'periodX' does not exist in 'datasetX'!")
@@ -169,10 +170,8 @@ varpoord <- function(inc, w_final,
   if (nrow(id) != n) stop("'id' must be the same length as 'inc'")
   if (is.null(names(id))||(names(id)=="id")) setnames(id,names(id),"ID")
   if (is.null(period)){ if (any(duplicated(id))) stop("'id' are duplicate values") 
-                      } else {
-                         id1 <- data.table(period, id)
-                         if (any(duplicated(id1))) stop("'id' by period are duplicate values")
-                      }   
+                       } else if (any(duplicated(data.table(period, id)))) stop("'id' by period are duplicate values")
+ 
   # ID_household
   if (is.null(ID_household)) stop("'ID_household' must be defined")
   ID_household <- data.table(ID_household)
@@ -285,7 +284,6 @@ varpoord <- function(inc, w_final,
         if (nrow(IDh) != nrow(X_ID_household)) stop("'X_ID_household' and 'unique(ID_household)' have different row count")
         if (any(IDh != X_ID_household)) stop("'X_ID_household' and 'unique(ID_household)' records have different")
     }}
-
 
   # X
   if (!is.null(X)) {

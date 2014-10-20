@@ -154,10 +154,7 @@ vardom <- function(Y, H, PSU, w_final,
   if (nrow(id) != n) stop("'id' length must be equal with 'Y' row count")
   if (is.null(names(id))||(names(id)=="id")) setnames(id,names(id),"ID")
   if (is.null(period)){ if (any(duplicated(id))) stop("'id' are duplicate values") 
-                      } else {
-                         id1 <- data.table(period, id)
-                         if (any(duplicated(id1))) stop("'id' by period are duplicate values")
-                        }
+                       } else if (any(duplicated(data.table(period, id)))) stop("'id' by period are duplicate values")
 
   # N_h
   if (!is.null(N_h)) {

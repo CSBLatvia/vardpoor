@@ -1,10 +1,11 @@
  
-vardom_othstr <- function(Y, H, H2, PSU, w_final,
+vardom_othstr2 <- function(Y, H, H2, PSU, w_final,
                    id = NULL,  
                    Dom = NULL,
                    period = NULL,
                    N_h = NULL,
                    N_h2 = NULL,
+                   s2g = FALSE,
                    Z = NULL,
                    X = NULL,
                    g = NULL,
@@ -315,7 +316,6 @@ vardom_othstr <- function(Y, H, H2, PSU, w_final,
   # Calibration
   res_outp <- NULL
   if (!is.null(X)) {
-        ind_gr <- data.table(nsk=rep(1, nrow(X)))
         if (!is.null(period)) ind_gr <- data.table(ind_gr, period)
         ind_gr <- do.call("paste", c(as.list(ind_gr), sep="_"))
         sortcal <- unlist(split(Y1[, .I], ind_gr))
@@ -327,11 +327,10 @@ vardom_othstr <- function(Y, H, H2, PSU, w_final,
   } else Y3 <- Y2
   Y2 <- NULL
 
-  var_est <- variance_othstr(Y=Y3, H=H, H2=H2,  
+  var_est <- variance_othstr2(Y=Y3, H=H, H2=H2,  
                              w_final=w_final, N_h=N_h,
-                             N_h2=N_h2, period=period, dataset=NULL)
-  s2g <- var_est$s2g
-  var_est <- var_est$var_est
+                             N_h2=N_h2, s2g=s2g,
+                             period=period, dataset=NULL)
   var_est <- transpos(var_est, is.null(period), "var_est", names(period))
   all_result <- var_est
 
@@ -339,10 +338,10 @@ vardom_othstr <- function(Y, H, H2, PSU, w_final,
   all_result <- merge(all_result, n_nonzero, all=T)
 
   # Variance of HT estimator under current design
-  var_cur_HT <- variance_othstr(Y=Y2a, H=H, H2=H2, 
+  var_cur_HT <- variance_othstr2(Y=Y2a, H=H, H2=H2, 
                                 w_final=w_design, N_h=N_h,
-                                N_h2=N_h2, period=period, dataset=NULL)
-  var_cur_HT <- var_cur_HT$var_est
+                                N_h2=N_h2, s2g=s2g, 
+                                period=period, dataset=NULL)
   var_cur_HT <- transpos(var_cur_HT, is.null(period), "var_cur_HT", names(period))
   all_result <- merge(all_result, var_cur_HT)
   n_nonzero <- var_est <- var_cur_HT <- NULL
@@ -495,6 +494,5 @@ vardom_othstr <- function(Y, H, H2, PSU, w_final,
 
   list(lin_out = linratio_outp,
        res_out = res_outp,
-       s2g = s2g,
        all_result = all_result)
 }

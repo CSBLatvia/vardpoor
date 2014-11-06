@@ -7,7 +7,7 @@
 
 \usage{vardom_othstr(Y, H, H2, PSU, w_final, id=NULL,
        Dom = NULL, period=NULL, N_h = NULL,
-       N_h2, s2g=FALSE, Z = NULL,
+       N_h2, Z = NULL,
        X = NULL, g = NULL, dataset = NULL, 
        q = rep(1, if (is.null(dataset)) nrow(data.frame(X)) else nrow(dataset)),
        confidence = .95, outp_lin=FALSE, outp_res=FALSE)}
@@ -34,8 +34,6 @@
 
 \item{N_h2}{optional; either a \code{data.frame} giving the first column - new stratum, but the second column - the total of the population in each new stratum.}
 
-\item{s2g}{by default is FALSE; calculate variance, but if s2g is TRUE, then variance estimation is taken as S^2g value.}
-
 \item{Z}{optional variables of denominator for ratio estimation. Object convertible to \code{data.frame} or variable names as character, column numbers or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset}).}
 
 \item{X}{Optional matrix of the auxiliary variables for the calibration estimator. Object convertible to \code{data.frame} or variable names as character, column numbers or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset}).}
@@ -61,6 +59,8 @@
   \item{lin_out}{A \code{data.table} containing the linearized values of the ratio estimator with id and PSU.}
 
   \item{res_out}{A \code{data.table} containing the estimated residuals of calibration with id and PSU.}
+
+  \item{s2g}{A \code{data.table} containing the s^2g value.}
 
   \item{all_result}{A \code{data.table}, which containing variables:
 

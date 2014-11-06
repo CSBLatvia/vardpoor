@@ -200,7 +200,8 @@ expvar <- function(Yh, H, S2h, nh, Nh, Rh=NULL, deffh=NULL, Dom=NULL,
   resulth[, nrh:=round(nh * Rh)]
   resulth[nrh < 1, nrh:=1]
   resulth[, var:=Nh^2 * (1-nrh/Nh)/ nrh * S2h  * deffh]
-  resulth[, se:=sqrt(var)]
+  resulth[!is.nan(var), se:=sqrt(var)]
+  resulth[is.nan(var) | is.na(var), se:=NA]
   resulth[, cv:=100*se/estim]
   
   domH <- "variable"

@@ -4,9 +4,9 @@
 
 \title{Variance estimation for sample surveys by the new stratification}
 
-\description{Computes the variance estimation by the new stratification.}
+\description{Computes s2g and the variance estimation by the new stratification.}
 
-\usage{variance_othstr(Y, H, H2, w_final, N_h=NULL, N_h2, s2g=FALSE, period=NULL, dataset=NULL)}
+\usage{variance_othstr(Y, H, H2, w_final, N_h=NULL, N_h2, period=NULL, dataset=NULL)}
 
 \arguments{
 
@@ -22,15 +22,19 @@
 
 \item{N_h2}{optional; either a \code{data.frame} giving the first column - new stratum, but the second column - the total of the population in each new stratum.}
 
-\item{s2g}{by default is FALSE; calculate variance, but if s2g is TRUE, then variance estimation is taken as S^2g value.}
-
 \item{period}{Optional variable for the survey periods. If supplied, the values for each period are computed independently. One dimensional object convertible to one-column \code{data.frame} or variable name as character, column number or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset}).}
 
 \item{dataset}{Optional survey data object convertible to \code{data.frame}.}
 
 }
 
-\value{A \code{data.table} containing the values of the variance estimation.
+\value{
+
+  A list with objects are returned by the function:
+
+  \item{s2g}{A \code{data.table} containing the s^2g value.}
+
+  \item{var_est}{A \code{data.table} containing the values of the variance estimation.}
 
 }
 
@@ -82,8 +86,8 @@ period=NULL
 dataset=NULL
 Y <- data.table(matrix(runif(50)*5, ncol=5))
 
-H <- data.table(H=trunc(5*runif(10)))
-H2 <- data.table(H2=trunc(3*runif(10)))
+H <- data.table(H=as.integer(trunc(5*runif(10))))
+H2 <- data.table(H2=as.integer(trunc(3*runif(10))))
 
 N_h <- data.table(matrix(0:4,5,1))
 setnames(N_h, names(N_h), "H")

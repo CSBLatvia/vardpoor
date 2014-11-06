@@ -2,6 +2,8 @@ Changes in vardpoor version 0.2.0.14
 
     + corrected somes mistakes
 
+    + add sample size, population size, variable count with nonzero values for functions vardom, vardpoor, vardomh
+
 Changes in vardpoor version 0.2.0.13
 
     + add sample size for functions vardom, vardomh, vardpoor

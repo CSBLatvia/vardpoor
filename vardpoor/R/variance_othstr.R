@@ -1,6 +1,6 @@
 
 
-variance_othstr <- function(Y, H, H2, w_final, N_h=NULL, N_h2, s2g=FALSE, period=NULL, dataset=NULL) {
+variance_othstr <- function(Y, H, H2, w_final, N_h=NULL, N_h2, period=NULL, dataset=NULL) {
 
   ### Checking
     if(!is.null(dataset)) {
@@ -83,12 +83,17 @@ variance_othstr <- function(Y, H, H2, w_final, N_h=NULL, N_h2, s2g=FALSE, period
       if (!is.numeric(N_h[[ncol(N_h)]])) stop("The last column of 'N_h' should be numerical")
       if (any(is.na(N_h))) stop("'N_h' has unknown values") 
       if (is.null(names(N_h))) stop("'N_h' must be colnames")
+      namesH <- names(H)
+      if (H[, class(get(namesH))]!=N_h[, class(get(namesH))]) 
+                                      stop("Strata class for 'H' and 'N_h' is not equal ")
 
       if (is.null(period)) {
              if (names(H) != names(N_h)[1]) stop("Strata titles for 'H' and 'N_h' is not equal")
              if (any(is.na(merge(unique(H), N_h, by=names(H), all.x = T)))) stop("'N_h' is not defined for all stratas")
        } else { pH <- data.table(period, H)
                 if (any(names(pH) != names(N_h)[c(1:(1+np))])) stop("Strata titles for 'period' with 'H' and 'N_h' is not equal")
+                nperH <- names(period)
+                if (pH[, class(get(nperH))]!=N_h[, class(get(nperH))])  stop("Period class for 'period' and 'N_h2' is not equal ")
                 if (any(is.na(merge(unique(pH), N_h, by=names(pH), all.x = T)))) stop("'N_h' is not defined for all stratas and periods")
                 } 
      setkeyv(N_h, names(N_h)[c(1:(1+np))])
@@ -106,12 +111,16 @@ variance_othstr <- function(Y, H, H2, w_final, N_h=NULL, N_h2, s2g=FALSE, period
       if (!is.numeric(N_h2[[ncol(N_h2)]])) stop("The last column of 'N_h2' should be numerical")
       if (any(is.na(N_h2))) stop("'N_h2' has unknown values") 
       if (is.null(names(N_h2))) stop("'N_h2' must be colnames")
-
+      namesH2 <- names(H2)
+      if (H2[, class(get(namesH2))]!=N_h2[, class(get(namesH2))]) 
+                                                             stop("Strata class for 'H2' and 'N_h2' is not equal ")
       if (is.null(period)) {
-             if (names(H2) != names(N_h2)[1]) stop("Strata titles for 'H' and 'N_h' is not equal")
+             if (names(H2) != names(N_h2)[1]) stop("Strata titles for 'H2' and 'N_h2' is not equal")
              if (any(is.na(merge(unique(H2), N_h2, by=names(H2), all.x = T)))) stop("'N_h2' is not defined for all stratas")
        } else { pH2 <- data.table(period, H2)
                 if (any(names(pH2) != names(N_h2)[c(1:(1+np))])) stop("Strata titles for 'period' with 'H2' and 'N_h2' is not equal")
+                nperH <- names(period)
+                if (pH2[, class(get(nperH))]!=N_h[, class(get(nperH))]) stop("Period class for 'period' and 'N_h2' is not equal ")
                 if (any(is.na(merge(unique(pH2), N_h2, by=names(pH2), all.x = T)))) stop("'N_h2' is not defined for all stratas and periods")
                 } 
     setkeyv(N_h2, names(N_h2)[c(1:(1+np))])
@@ -153,7 +162,8 @@ variance_othstr <- function(Y, H, H2, w_final, N_h=NULL, N_h2, s2g=FALSE, period
   # n_h2
   n_h2 <- data.table(H2)
   if (!is.null(period)) n_h2 <- data.table(period, n_h2)
-  n_h2 <- n_h2[,.N, keyby=names(n_h2)]
+  nn_h2 <- names(n_h2)
+  n_h2 <- n_h2[,.N, keyby=nn_h2]
   setnames(n_h2,"N","n_h2")
 
   if (any(n_h2$n_h2 == 1)) {
@@ -217,7 +227,10 @@ variance_othstr <- function(Y, H, H2, w_final, N_h=NULL, N_h2, s2g=FALSE, period
   # var_g 
   s2_g <- data.table(s2_g)
   setnames(s2_g, names(s2_g), names(Y))
-  if (!s2g) s2_g <- pop2^2*(1/nh2-1/pop2) * s2_g
+
+  s2g <- data.table(zh2[, nn_h2, with=F], s2_g)
+
+  s2_g <- pop2^2*(1/nh2-1/pop2) * s2_g
 
   if (np>0) s2_g <- data.table(zh2[, names(period), with=F], s2_g)
 
@@ -226,8 +239,6 @@ variance_othstr <- function(Y, H, H2, w_final, N_h=NULL, N_h2, s2g=FALSE, period
            } else var_est <- s2_g[, lapply(.SD, sum, na.rm=T), 
                                        keyby = c(names(s2_g)[c(1:np)]),
                                       .SDcols = names(Y)]
-
-  return(var_est)
+  list(s2g=s2g,
+       var_est=var_est)
 }
-
-

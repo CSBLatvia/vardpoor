@@ -1,5 +1,6 @@
 
 
+S2h <- data[, lapply(.SD[,YY, with=F], function(x) S2est(x, svars_k)), keyby=Hn]
 
 
 rm(list = ls())

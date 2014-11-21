@@ -15,8 +15,8 @@
                ind_gr = NULL, g = NULL, datasetX = NULL,
                q = rep(1, if (is.null(datasetX)) 
                            nrow(data.frame(X)) else nrow(datasetX)),
-               confidence = .95, outp_lin = FALSE,
-               outp_res = FALSE)}
+              confidence = .95,  outp_lin = FALSE,
+              outp_res = FALSE)}
 
 \arguments{
 
@@ -62,9 +62,9 @@
 
 \item{confidence}{Optional positive value for confidence interval. This variable by default is 0.95.}
 
-\item{outp_lin}{Logical value. if \code{TRUE} linearized values of the ratio estimator will be printed out.}
+\item{outp_lin}{Logical value. If \code{TRUE} linearized values of the ratio estimator will be printed out.}
 
-\item{outp_res}{Logical value. if \code{TRUE} estimated residuals of calibration will be printed out.}
+\item{outp_res}{Logical value. If \code{TRUE} estimated residuals of calibration will be printed out.}
 
 }
 

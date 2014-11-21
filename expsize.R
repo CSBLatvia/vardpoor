@@ -5,25 +5,22 @@ library("reshape2")
 #H <- data.table(H=1:3)
 #Yh <- data.table(Yh=10*1:3, Yh=10*4:6)
 #S2h <- data.table(S2h=10*runif(3), S2h2=10*runif(3))
-#nh <- data.table(nh=4*1:3)
-#poph <- data.table(Nh=8*1:3)
+#CVh <- data.table(nh=rep(4.9, 3))
+#Nh <- data.table(Nh=8*1:3)
 #Rh <- data.table(Rh=rep(1,3))
 #deffh <- data.table(deffh=rep(2,3), deffh2=rep(3,3))
-#Dom <- data.table(dd=c(1,1,1))
 #dataset <- NULL
-#confidence = .95
 
-#n - sample size
-#pop - population size
+#N - population size
+#CV - planned coeficient of variation in %
 #s2 - S^2 estimation
 #RR - respondence level
 #deff - design effect
 
 #
-#expvar(Yh, H, S2g, nh, poph, Rh, deffh, Dom=NULL, dataset = NULL, confidence = .95)
+#expsize(Yh, H, S2g, Nh, Rh, deffh,  CVh, dataset = NULL)
 
-expvar <- function(Yh, H, S2h, nh, poph, Rh=NULL, deffh=NULL, Dom=NULL,
-                   dataset = NULL, confidence = .95) {
+expsize <- function(Yh, H, S2h, Nh, Rh=NULL, deffh=NULL, CVh,  dataset = NULL) {
  
   ### Checking
   if(!is.numeric(confidence) || length(confidence) != 1 || confidence[1] < 0 || confidence[1] > 1) {
@@ -53,17 +50,17 @@ expvar <- function(Yh, H, S2h, nh, poph, Rh=NULL, deffh=NULL, Dom=NULL,
                                 names(S2h) <- aS2h }
       }
       if(!is.null(nh)) {
-          anh <- nh  
-          if (min(nh %in% names(dataset))!=1) stop("'nh' does not exist in 'dataset'!")
+          anh <- CVh  
+          if (min(CVh %in% names(dataset))!=1) stop("'CVh' does not exist in 'dataset'!")
           if (min(nh %in% names(dataset))==1) {
                                 nh <- as.data.frame(dataset[, anh], stringsAsFactors=FALSE)
                                 names(nh) <- anh }}
-      if(!is.null(poph)) {
-          apoph<- poph  
-          if (min(poph %in% names(dataset))!=1) stop("'poph' does not exist in 'dataset'!")
-          if (min(poph %in% names(dataset))==1) {
-                                poph <- as.data.frame(dataset[, apoph], stringsAsFactors=FALSE)
-                                names(poph) <- apoph }}
+      if(!is.null(Nh)) {
+          aNh<- Nh  
+          if (min(Nh %in% names(dataset))!=1) stop("'Nh' does not exist in 'dataset'!")
+          if (min(Nh %in% names(dataset))==1) {
+                                Nh <- as.data.frame(dataset[, aNh], stringsAsFactors=FALSE)
+                                names(Nh) <- aNh }}
 
       if(!is.null(Rh)) {
           aNh<- Rh  
@@ -110,21 +107,21 @@ expvar <- function(Yh, H, S2h, nh, poph, Rh=NULL, deffh=NULL, Dom=NULL,
   if (any(is.na(H))) stop("'H' has unknown values")
   if (is.null(names(H))) stop("'H' must be colnames")
 
-  # nh 
-  nh <- data.frame(nh)
-  if (nrow(nh) != n) stop("'nh' must be equal with 'Yh' row count")
-  if (ncol(nh) != 1) stop("'nh' must be vector or 1 column data.frame, matrix, data.table")
-  nh <- nh[,1]
-  if (!is.numeric(nh)) stop("'nh' must be numerical")
-  if (any(is.na(nh))) stop("'nh' has unknown values") 
+  # CVh 
+  CVh <- data.frame(CVh)
+  if (nrow(nh) != n) stop("'CVh' must be equal with 'Yh' row count")
+  if (ncol(nh) != 1) stop("'CVh' must be vector or 1 column data.frame, matrix, data.table")
+ CVh <- CVh[,1]
+  if (!is.numeric(nh)) stop("'CVh' must be numerical")
+  if (any(is.na(nh))) stop("'CVh' has unknown values") 
 
-  # poph 
-  poph <- data.frame(poph)
-  if (nrow(Nh) != n) stop("'poph' must be equal with 'Yh' row count")
-  if (ncol(Nh) != 1) stop("'poph' must be vector or 1 column data.frame, matrix, data.table")
-  poph <- poph[,1]
-  if (!is.numeric(Nh)) stop("'poph' must be numerical")
-  if (any(is.na(poph))) stop("'poph' has unknown values") 
+  # Nh 
+  Nh <- data.frame(Nh)
+  if (nrow(Nh) != n) stop("'Nh' must be equal with 'Yh' row count")
+  if (ncol(Nh) != 1) stop("'Nh' must be vector or 1 column data.frame, matrix, data.table")
+  Nh <- Nh[,1]
+  if (!is.numeric(Nh)) stop("'Nh' must be numerical")
+  if (any(is.na(Nh))) stop("'Nh' has unknown values") 
 
   # Rh 
   if (is.null(Rh)) Rh <- rep(1, n)
@@ -156,23 +153,23 @@ expvar <- function(Yh, H, S2h, nh, poph, Rh=NULL, deffh=NULL, Dom=NULL,
     Dom <- Dom[, lapply(.SD, as.character), .SDcols = names(Dom)]
   }
 
-  nh <- melt(data.table(H, nh), id=c(names(H)))
-  nh[, variable:=NULL]
-  setnames(nh, "value", "nh")
-  setkeyv(nh, names(H))
+  CVh <- melt(data.table(H, CVh), id=c(names(H)))
+  CVh[, variable:=NULL]
+  setnames(CVh, "value", "CVh")
+  setkeyv(CVh, names(H))
 
   Rh <- melt(data.table(H, Rh), id=c(names(H)))
   Rh[, variable:=NULL]
   setnames(Rh, "value", "Rh")
   setkeyv(Rh, names(H))
-  resulth <- merge(nh, Rh, all=T)
+  resulth <- merge(CVh, Rh, all=T)
 
-  poph <- melt(data.table(H, poph), id=c(names(H)))
-  poph[, variable:=NULL]
-  setnames(poph, "value", "poph")
-  setkeyv(poph, names(H))
+  Nh <- melt(data.table(H, Nh), id=c(names(H)))
+  Nh[, variable:=NULL]
+  setnames(Nh, "value", "Nh")
+  setkeyv(Nh, names(H))
 
-  resulth <- merge(resulth, poph, all=T)
+  resulth <- merge(resulth, Nh, all=T)
 
   setnames(S2h, names(S2h), names(Yh))
   S2h <- melt(data.table(H, S2h), id=c(names(H)))
@@ -196,21 +193,7 @@ expvar <- function(Yh, H, S2h, nh, poph, Rh=NULL, deffh=NULL, Dom=NULL,
   setkeyv(Yh, c(names(H), "variable"))
   resulth <- merge(Yh, resulth, all=T)
 
-  tsad <- qnorm(0.5*(1+confidence))
-  resulth[, nrh:=round(nh * Rh)]
-  resulth[nrh < 1, nrh:=1]
-  resulth[, var:=poph^2 * (1-nrh/poph)/ nrh * S2h  * deffh]
-  resulth[!is.nan(var), se:=sqrt(var)]
-  resulth[is.nan(var) | is.na(var), se:=NA]
-  resulth[, cv:=100*se/estim]
-  
-  domH <- "variable"
-  if (!is.null(Dom)) domH <- c(names(Dom), domH)
-  result <- resulth[,lapply(.SD, sum,na.rm=TRUE), keyby=domH, .SDcols=c("estim", "var")]
-  result[, se:=sqrt(var)]
-  result[, cv:=100*se/estim]
-
-  list(resultH = resulth,
-       result = result)
+  resulth[, n:=Nh^2 * S2h*deffh/(R(estim*CV/100)^2+Nh*S2h  * deffh))]
+  list(resultH = resulth)
 }
 

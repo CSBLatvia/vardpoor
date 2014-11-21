@@ -567,12 +567,14 @@ vardomh <- function(Y, H, PSU, w_final,
   setnames(nosr, names(nosr)[2], "variable")
 
   if (!is.null(Dom)) {
-       setnames(nosr, names(nosr)[3:ncol(nosr)], names(Dom))
-       nosr1 <- nosr[, lapply(names(Dom), function(x) {substring(get(x), nchar(x)+2, nchar(get(x)))})] 
+       namesDom <- names(Dom) 
+       setnames(nosr, names(nosr)[3:ncol(nosr)], namesDom)
+       nosr1 <- nosr[, lapply(namesDom, function(x) {substring(get(x), nchar(x)+2, nchar(get(x)))})] 
        nosr1 <- nosr1[, lapply(names(nosr1), function(x) str_replace_all(get(x), "[.]", " "))]
-       setnames(nosr1, names(nosr1), names(Dom))
-       setnames(nosr, names(Dom), paste0(names(Dom), "old"))
+       setnames(nosr1, names(nosr1), namesDom)
+       setnames(nosr, namesDom, paste0(namesDom, "old"))
        nosr <- data.table(nosr, nosr1)
+       namesDom <- nosr1 <- NULL
     }
 
   setkeyv(nosr, "variableD")

@@ -76,11 +76,11 @@ For example, to compute poverty threshold equal to some percentage of median inc
 
 \item{confidence}{Optional positive value for confidence interval. This variable by default is 0.95.}
 
-\item{outp_lin}{Logical value. if \code{TRUE} linearized values of the ratio estimator will be printed out.}
+\item{outp_lin}{Logical value. If \code{TRUE} linearized values of the ratio estimator will be printed out.}
 
-\item{outp_res}{Logical value. if \code{TRUE} estimated residuals of calibration will be printed out.}
+\item{outp_res}{Logical value. If \code{TRUE} estimated residuals of calibration will be printed out.}
 
-\item{several.ok}{logical specifying if \code{type} should be allowed to have more than one.}
+\item{several.ok}{Logical value. If \code{type} should be allowed to have more than one.}
 
 \item{type}{a character vector (of length one unless several.ok is TRUE), example "linarpr","linarpt", "lingpg", "linpoormed", "linrmpg",
    "lingini", "lingini2", "linqsr", "all_choises".}

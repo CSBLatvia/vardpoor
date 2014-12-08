@@ -4,13 +4,13 @@ domain <- function(Y, D) {
   name.D <- substitute(D)
   
   # Y
-  Y <- data.table(Y, check.names = T)
+  Y <- data.table(Y, check.names = TRUE)
   if (!all(sapply(Y, is.numeric))) stop(name.Y, " must be numerical")
   if (any(is.na(Y))) stop(name.Y, " has unknown values")
   n <- nrow(Y)
 
   # D
-  D <- data.table(D, check.names = F)
+  D <- data.table(D, check.names = FALSE)
   if (any(duplicated(names(D))))
     stop(name.D, " has duplicate column names: ",
          paste(names(D)[duplicated(names(D))], collapse = ", "))

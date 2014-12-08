@@ -30,8 +30,8 @@ Generation of domain variables,
 \details{
 \tabular{ll}{
 Package: \tab vardpoor\cr
-Version: \tab 0.2.0.14\cr
-Date: \tab 2014-11-03\cr
+Version: \tab 0.2.0.15\cr
+Date: \tab 2014-12-05\cr
 Depends: \tab R (>= 3.0.0), data.table (>= 1.9.4), laeken, stringr\cr
 Imports: \tab reshape, foreach, plyr, gdata, MASS\cr
 License: \tab GPL (>= 2)\cr

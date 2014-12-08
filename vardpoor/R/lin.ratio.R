@@ -1,14 +1,14 @@
 
 lin.ratio <- function(Y, Z, weight, Dom=NULL) {
   # Y
-  Y <- data.table(Y) 
+  Y <- data.table(Y, check.names = TRUE) 
   if (!all(sapply(Y, is.numeric))) stop("'Y' must be numerical")
 
   if (any(is.na(Y))) stop("'Y' has unknown values")
   if (!is.null(Dom)) Yd <- domain(Y, Dom) else Yd <- Y
 
   # Z
-  Z <- data.table(Z)
+  Z <- data.table(Z, check.names = TRUE)
   if (nrow(Z)!= nrow(Y)) stop("'Y' and 'Z' have different row count")
   if (ncol(Z)!= ncol(Y)) stop("'Y' and 'Z' have different column count") 
   if (!all(sapply(Z, is.numeric))) stop("'Z' must be numerical")

@@ -6,7 +6,7 @@ library("reshape2")
 #Yh <- data.table(Yh=10*1:3, Yh=10*4:6)
 #S2h <- data.table(S2h=10*runif(3), S2h2=10*runif(3))
 #nh <- data.table(nh=4*1:3)
-#poph <- data.table(Nh=8*1:3)
+#poph <- data.table(poph=8*1:3)
 #Rh <- data.table(Rh=rep(1,3))
 #deffh <- data.table(deffh=rep(2,3), deffh2=rep(3,3))
 #Dom <- data.table(dd=c(1,1,1))
@@ -66,7 +66,7 @@ expvar <- function(Yh, H, S2h, nh, poph, Rh=NULL, deffh=NULL, Dom=NULL,
                                 names(poph) <- apoph }}
 
       if(!is.null(Rh)) {
-          aNh<- Rh  
+          aRh<- Rh  
           if (min(Rh %in% names(dataset))!=1) stop("'Rh' does not exist in 'dataset'!")
           if (min(Rh %in% names(dataset))==1) {
                                 Rh <- as.data.frame(dataset[, aRh], stringsAsFactors=FALSE)
@@ -120,10 +120,10 @@ expvar <- function(Yh, H, S2h, nh, poph, Rh=NULL, deffh=NULL, Dom=NULL,
 
   # poph 
   poph <- data.frame(poph)
-  if (nrow(Nh) != n) stop("'poph' must be equal with 'Yh' row count")
-  if (ncol(Nh) != 1) stop("'poph' must be vector or 1 column data.frame, matrix, data.table")
+  if (nrow(poph) != n) stop("'poph' must be equal with 'Yh' row count")
+  if (ncol(poph) != 1) stop("'poph' must be vector or 1 column data.frame, matrix, data.table")
   poph <- poph[,1]
-  if (!is.numeric(Nh)) stop("'poph' must be numerical")
+  if (!is.numeric(poph)) stop("'poph' must be numerical")
   if (any(is.na(poph))) stop("'poph' has unknown values") 
 
   # Rh 
@@ -156,18 +156,18 @@ expvar <- function(Yh, H, S2h, nh, poph, Rh=NULL, deffh=NULL, Dom=NULL,
     Dom <- Dom[, lapply(.SD, as.character), .SDcols = names(Dom)]
   }
 
-  nh <- melt(data.table(H, nh), id=c(names(H)))
+  nh <- data.table(melt(data.table(H, nh), id=c(names(H))))
   nh[, variable:=NULL]
   setnames(nh, "value", "nh")
   setkeyv(nh, names(H))
 
-  Rh <- melt(data.table(H, Rh), id=c(names(H)))
+  Rh <- data.table(melt(data.table(H, Rh), id=c(names(H))))
   Rh[, variable:=NULL]
   setnames(Rh, "value", "Rh")
   setkeyv(Rh, names(H))
   resulth <- merge(nh, Rh, all=T)
 
-  poph <- melt(data.table(H, poph), id=c(names(H)))
+  poph <- data.table(melt(data.table(H, poph), id=c(names(H))))
   poph[, variable:=NULL]
   setnames(poph, "value", "poph")
   setkeyv(poph, names(H))
@@ -175,7 +175,7 @@ expvar <- function(Yh, H, S2h, nh, poph, Rh=NULL, deffh=NULL, Dom=NULL,
   resulth <- merge(resulth, poph, all=T)
 
   setnames(S2h, names(S2h), names(Yh))
-  S2h <- melt(data.table(H, S2h), id=c(names(H)))
+  S2h <- data.table(melt(data.table(H, S2h), id=c(names(H))))
   setnames(S2h, "value", "S2h")
   setkeyv(S2h, c(names(H), "variable"))
   resulth <- merge(S2h, resulth, all=T)
@@ -183,7 +183,7 @@ expvar <- function(Yh, H, S2h, nh, poph, Rh=NULL, deffh=NULL, Dom=NULL,
 
   if (!is.null(deffh)) { 
       setnames(deffh, names(deffh), names(Yh))
-      deffh <- melt(data.table(H, deffh), id=c(names(H)))
+      deffh <- data.table(melt(data.table(H, deffh), id=c(names(H))))
       setnames(deffh, "value", "deffh")
       setkeyv(deffh, c(names(H), "variable"))
       resulth <- merge(deffh, resulth, all=T)
@@ -191,7 +191,7 @@ expvar <- function(Yh, H, S2h, nh, poph, Rh=NULL, deffh=NULL, Dom=NULL,
   if (is.null(deffh)) resulth[, deffh:=1]
   domH <- H
   if (!is.null(Dom)) domH <- data.table(Dom, domH)
-  Yh <- melt(data.table(domH, Yh), id=c(names(domH)))
+  Yh <- data.table(melt(data.table(domH, Yh), id=c(names(domH))))
   setnames(Yh, "value", "estim")
   setkeyv(Yh, c(names(H), "variable"))
   resulth <- merge(Yh, resulth, all=T)

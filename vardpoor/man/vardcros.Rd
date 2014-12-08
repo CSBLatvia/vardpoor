@@ -93,6 +93,7 @@ set.seed(1)
 data <- data.table(eusilc,
                    year=rep(2010, nrow(eusilc)),
                    country=rep("AT", nrow(eusilc)))
+data[, country:=as.character(country)]
 data[age<0, age:=0]
 PSU <- data[,.N, keyby="db030"]
 PSU[, N:=NULL]
@@ -197,6 +198,8 @@ data <- data.table(rbind(eusilc, eusilc, eusilc, eusilc),
                            rep("AT", nrow(eusilc)),
                            rep("AT", nrow(eusilc)),
                            rep("AT", nrow(eusilc))))
+data[, rb020:=as.character(rb020)]
+
 data[, u:=1]
 data[age<0, age:=0]
 data[, strata:="XXXX"]
@@ -204,7 +207,7 @@ PSU <- data[,.N, keyby="db030"]
 PSU[, N:=NULL]
 PSU[, PSU:=trunc(runif(nrow(PSU), 0, 100))]
 data <- merge(data, PSU, by="db030", all=TRUE)
-thres <- data.table(rb020=rep("AT",4),
+thres <- data.table(rb020=as.character(rep("AT",4)),
                     thres= c(11406, 11931, 12371, 12791),
                     rb010=2008:2011)
 setnames(thres, names(thres), tolower(names(thres)))

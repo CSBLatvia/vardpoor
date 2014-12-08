@@ -21,6 +21,7 @@ export(varpoord)
 export(vardcros)
 export(vardchanges)
 
+import(stringr)
 import(laeken)
 import(foreach)
 import(plyr)
@@ -28,5 +29,4 @@ import(reshape2)
 import(gdata)
 import(data.table)
 import(MASS)
-import(stringr)
 

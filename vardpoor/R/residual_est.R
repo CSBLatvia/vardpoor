@@ -13,7 +13,7 @@ residual_est <- function (Y, X, weight, q) {
   if (nrow(X) != n) stop("'X' and 'Y' must be equal row count")
   if (!all(sapply(X, is.numeric))) stop("'X' must be numerical")
 
-  X1 <- data.table(X, check.names=T)
+  X1 <- data.table(X, check.names=TRUE)
   X1 <- X1[,lapply(.SD, function(x) sum(!is.na(x))), .SDcols=names(X1)]
   if (!all(X1 == n)) stop("X has unknown values")
   X1 <- NULL

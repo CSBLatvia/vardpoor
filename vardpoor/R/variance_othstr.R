@@ -8,7 +8,7 @@ variance_othstr <- function(Y, H, H2, w_final, N_h=NULL, N_h2, period=NULL, data
       aY <- Y
       if (min(Y %in% names(dataset))!=1) stop("'Y' does not exist in 'dataset'!")
       if (min(Y %in% names(dataset))==1) {
-                                Y <- data.frame(dataset[, Y],check.names=FALSE)
+                                Y <- data.frame(dataset[, Y], check.names=FALSE)
                                 names(Y) <- aY }
       if(!is.null(H)) {
           aH <- H  
@@ -101,7 +101,7 @@ variance_othstr <- function(Y, H, H2, w_final, N_h=NULL, N_h2, period=NULL, data
     Nh <- data.table(H, w_final)
     if (!is.null(period)) Nh <- data.table(period, Nh)
     setkeyv(Nh, names(Nh)[c(1:(1+np))])
-    N_h <- Nh[, list(N_h = sum(w_final, na.rm = F)), Nh[, c(1:(1+np)), with=F]]
+    N_h <- Nh[, list(N_h = sum(w_final, na.rm = F)), Nh[, c(1:(1+np)), with=FALSE]]
   }
 
   # N_h2
@@ -174,7 +174,7 @@ variance_othstr <- function(Y, H, H2, w_final, N_h=NULL, N_h2, period=NULL, data
     print(data.frame(n_h2)[nh2,])
   }
 
-  z_h_h2 <- Ys[, lapply(.SD, sum, na.rm = F), keyby = c(names(Ys)[1:(2+np)]),
+  z_h_h2 <- Ys[, lapply(.SD, sum, na.rm=TRUE), keyby = c(names(Ys)[1:(2+np)]),
                       .SDcols = names(Ys)[-(0:(ncol(Y)+2+np))]]
 
   setkeyv(z_h_h2, names(z_h_h2)[c(1:(1+np))]) 
@@ -199,7 +199,7 @@ variance_othstr <- function(Y, H, H2, w_final, N_h=NULL, N_h2, period=NULL, data
   nameszh2 <- names(H2)
   if (!is.null(period)) nameszh2 <- c(names(period), nameszh2)
   
-  zh2 <- z_h_h2[, lapply(.SD, sum, na.rm = T), keyby = nameszh2,
+  zh2 <- z_h_h2[, lapply(.SD, sum, na.rm=TRUE), keyby = nameszh2,
                       .SDcols = names(z_h_h2)[-(1:(2+np))]] 
 
   F_h2 <- merge(N_h2, n_h2)
@@ -219,24 +219,24 @@ variance_othstr <- function(Y, H, H2, w_final, N_h=NULL, N_h2, period=NULL, data
 
   # s2
   s2_g <- zh2[,mapply(function(sa, sb, sc, sd) sa/(pop2-1)-pop2/(pop2-1)*((sb/pop2)^2-(sc-sd)/pop2^2),
-              zh2[, paste0(names(Y),"_sa"), with=F], 
-              zh2[, paste0(names(Y),"_sb"), with=F],
-              zh2[, paste0(names(Y),"_sc"), with=F],
-              zh2[, paste0(names(Y),"_sd"), with=F])]
+              zh2[, paste0(names(Y),"_sa"), with=FALSE], 
+              zh2[, paste0(names(Y),"_sb"), with=FALSE],
+              zh2[, paste0(names(Y),"_sc"), with=FALSE],
+              zh2[, paste0(names(Y),"_sd"), with=FALSE])]
 
   # var_g 
   s2_g <- data.table(s2_g)
   setnames(s2_g, names(s2_g), names(Y))
 
-  s2g <- data.table(zh2[, nn_h2, with=F], s2_g)
+  s2g <- data.table(zh2[, nn_h2, with=FALSE], s2_g)
 
   s2_g <- pop2^2*(1/nh2-1/pop2) * s2_g
 
-  if (np>0) s2_g <- data.table(zh2[, names(period), with=F], s2_g)
+  if (np>0) s2_g <- data.table(zh2[, names(period), with=FALSE], s2_g)
 
   # Variance_est
-  if (np==0) {var_est <- data.table(t(colSums(s2_g, na.rm=T)))
-           } else var_est <- s2_g[, lapply(.SD, sum, na.rm=T), 
+  if (np==0) {var_est <- data.table(t(colSums(s2_g, na.rm=TRUE)))
+           } else var_est <- s2_g[, lapply(.SD, sum, na.rm=TRUE), 
                                        keyby = c(names(s2_g)[c(1:np)]),
                                       .SDcols = names(Y)]
   list(s2g=s2g,

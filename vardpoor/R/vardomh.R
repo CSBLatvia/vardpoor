@@ -202,6 +202,7 @@ vardomh <- function(Y, H, PSU, w_final,
   }
 
   # Dom
+  namesDom <- NULL  
   if (!is.null(Dom)) {
     Dom <- data.table(Dom)
     if (any(duplicated(names(Dom)))) 
@@ -211,6 +212,7 @@ vardomh <- function(Y, H, PSU, w_final,
     if (any(is.na(Dom))) stop("'Dom' has unknown values")
     if (is.null(names(Dom))) stop("'Dom' must be colnames")
     Dom <- Dom[, lapply(.SD, as.character), .SDcols = names(Dom)]
+    namesDom <- names(Dom)
   }
   
   # Z
@@ -566,29 +568,28 @@ vardomh <- function(Y, H, PSU, w_final,
   nosr <- nosr[, lapply(nosr, as.character)]
   setnames(nosr, names(nosr)[2], "variable")
 
+
+ namesDom1 <- namesDom
   if (!is.null(Dom)) {
-       namesDom <- names(Dom) 
-       setnames(nosr, names(nosr)[3:ncol(nosr)], namesDom)
-       nosr1 <- nosr[, lapply(namesDom, function(x) {substring(get(x), nchar(x)+2, nchar(get(x)))})] 
-       nosr1 <- nosr1[, lapply(names(nosr1), function(x) str_replace_all(get(x), "[.]", " "))]
-       setnames(nosr1, names(nosr1), namesDom)
-       setnames(nosr, namesDom, paste0(namesDom, "old"))
-       nosr <- data.table(nosr, nosr1)
-       namesDom <- nosr1 <- NULL
+       setnames(nosr, names(nosr)[3:ncol(nosr)], paste0(namesDom, "_new"))
+       nhs[, (paste0(namesDom, "_new")):=lapply(namesDom, function(x) make.names(paste0(x,".", get(x))))]
+       namesDom1 <- paste0(namesDom, "_new")
     }
 
   setkeyv(nosr, "variableD")
   setkeyv(all_result, "variableD")
   all_result <- merge(nosr, all_result)
-  nosr <- nosr1 <- NULL
-
-  if (!is.null(all_result$Z_nov)) all_result[, variable:=paste("R", get("variable"), sep="__", get("variableZ"))]
-  setkeyv(all_result, c(names(Dom), names(period)))
+  namesDom <- nosr <- NULL
+  
+  if (!is.null(all_result$Z_nov)) { 
+       all_result[, variable:=paste("R", get("variable"), sep="__", get("variableDZ"))] }
+  setkeyv(all_result, c(namesDom1, names(period)))
+  setkeyv(nhs, c(namesDom1, names(period)))
 
   if (!is.null(c(Dom, period))) { all_result <- merge(all_result, nhs, all=T)
                          } else { all_result[, sample_size:=nhs$sample_size]
                                   all_result[, pop_size:=nhs$pop_size]} 
-  
+
   variab <- c("sample_size", "n_nonzero", "pop_size", "estim", "var", "se", 
               "rse", "cv", "absolute_margin_of_error", "relative_margin_of_error",
               "CI_lower", "CI_upper", "var_srs_HT",  "var_cur_HT", 

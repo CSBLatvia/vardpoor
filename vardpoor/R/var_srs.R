@@ -13,7 +13,7 @@ var_srs <- function(Y, w) {
   w <- data.frame(w)
   if (nrow(w) != n) stop("'w' must be equal with 'Y' row count")
   if (ncol(w) != 1) stop("'w' must be vector or 1 column data.frame, matrix, data.table")
-  w <- w[,1]
+  w <- w[, 1]
   if (!is.numeric(w)) stop("'w' must be numerical")
   if (any(is.na(w))) stop("'w' has unknown values")
     
@@ -21,7 +21,6 @@ var_srs <- function(Y, w) {
 
   # N
   Nn <- sum(w)
-  .SD <- NULL
   
   konst <- Nn^2 * (1 - n/Nn) / n
 

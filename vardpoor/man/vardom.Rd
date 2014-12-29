@@ -70,39 +70,25 @@ vardom(Y, H, PSU, w_final, id=NULL,
 
   \item{all_result}{A \code{data.table}, which containing variables:
 
-       \code{sample_size} - the sample size,
-
-       \code{pop_size} - the estimated size of population,
-
-       \code{estim} - the estimated value,
-
-       \code{var} - the estimated variance,
-
-       \code{se} - the estimated standard error,
-
-       \code{rse} - the estimated relative standard error (coefficient of variation),
-
-       \code{cv} - the estimated relative standard error (coefficient of variation) in percentage,
-
-       \code{absolute_margin_of_error} - the estimated absolute margin of error,
-
-       \code{relative_margin_of_error} - the estimated relative margin of error,
-
-       \code{CI_lower} - the estimated confidence interval lower bound,
- 
-       \code{CI_upper} - the estimated confidence interval upper bound,
-
-       \code{var_srs_HT} - the estimated variance of the HT estimator under SRS,
-
-       \code{var_cur_HT} - the estimated variance of the HT estimator under current design,
-
-       \code{var_srs_ca} - the estimated variance of the calibrated estimator under SRS,
-  
-       \code{deff_sam} - the estimated design effect of sample design,
-
-       \code{deff_est} - the estimated design effect of estimator,
-
-       \code{deff} - the overall estimated design effect of sample design and estimator.}
+       \code{respondent_count} - the count of respondents, \cr
+       \code{pop_size} - the estimated size of population, \cr
+       \code{n_nonzero} - the count of respondents, who answers are larger than zero, \cr
+       \code{estim} - the estimated value, \cr
+       \code{var} - the estimated variance, \cr
+       \code{se} - the estimated standard error, \cr
+       \code{rse} - the estimated relative standard error (coefficient of variation), \cr
+       \code{cv} - the estimated relative standard error (coefficient of variation) in percentage, \cr
+       \code{absolute_margin_of_error} - the estimated absolute margin of error, \cr
+       \code{relative_margin_of_error} - the estimated relative margin of error, \cr
+       \code{CI_lower} - the estimated confidence interval lower bound, \cr
+       \code{CI_upper} - the estimated confidence interval upper bound, \cr
+       \code{var_srs_HT} - the estimated variance of the HT estimator under SRS, \cr
+       \code{var_cur_HT} - the estimated variance of the HT estimator under current design, \cr
+       \code{var_srs_ca} - the estimated variance of the calibrated estimator under SRS, \cr
+       \code{deff_sam} - the estimated design effect of sample design, \cr
+       \code{deff_est} - the estimated design effect of estimator, \cr
+       \code{deff} - the overall estimated design effect of sample design and estimator, \cr
+       \code{n_eff} - the effective sample size.}
 }
 
 \details{
@@ -114,7 +100,9 @@ Morris H. Hansen, William N. Hurwitz, William G. Madow, (1953), Sample survey me
 
 Guillaume Osier and Emilio Di Meglio. The linearisation approach implemented by Eurostat for the first wave of EU-SILC: what could be done from the second wave onwards? 2012 \cr
 
-Eurostat Methodologies and Working papers, Standard error estimation for the EU-SILC indicators of poverty and social exclusion, 2013, URL \url{http://epp.eurostat.ec.europa.eu/cache/ITY_OFFPUB/KS-RA-13-024/EN/KS-RA-13-024-EN.PDF}. \cr
+Guillaume Osier,  Yves Berger,  Tim Goedeme, (2013), Standard error estimation for the EU-SILC indicators of poverty and social exclusion,  Eurostat Methodologies and Working papers, URL \url{http://ec.europa.eu/eurostat/documents/3859598/5927001/KS-RA-13-024-EN.PDF}. \cr
+
+Eurostat Methodologies and Working papers, Handbook on precision requirements and variance estimation for ESS household surveys, 2013, URL \url{http://ec.europa.eu/eurostat/documents/3859598/5927001/KS-RA-13-029-EN.PDF}. \cr
 
 Yves G. Berger, Tim Goedeme, Guillame Osier (2013). Handbook on standard error estimation and other related sampling issues in EU-SILC, URL \url{http://www.cros-portal.eu/content/handbook-standard-error-estimation-and-other-related-sampling-issues-ver-29072013}    \cr
 

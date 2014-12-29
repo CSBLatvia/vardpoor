@@ -1,4 +1,6 @@
-﻿
+##################
+##################
+##################
 library("data.table")
 library("reshape2")
 
@@ -27,9 +29,6 @@ opt_var <- function(H, S2h, n, poph, Rh=NULL, deffh=NULL, dataset = NULL) {
   ### Checking
   if(abs(n - round(n)) >= .Machine$double.eps || n < 0 ) stop("'n' must be a integer value greater than 0")  
 
-  if(!is.numeric(confidence) || length(confidence) != 1 || confidence[1] < 0 || confidence[1] > 1) {
-          stop("'confidence' must be a numeric value in [0,1]")  }
-
   if(!is.null(dataset)) {
       dataset <- data.frame(dataset)
       if(!is.null(H)) {
@@ -54,7 +53,7 @@ opt_var <- function(H, S2h, n, poph, Rh=NULL, deffh=NULL, dataset = NULL) {
                                 names(poph) <- apoph }}
 
       if(!is.null(Rh)) {
-          aNh<- Rh  
+          aRh<- Rh  
           if (min(Rh %in% names(dataset))!=1) stop("'Rh' does not exist in 'dataset'!")
           if (min(Rh %in% names(dataset))==1) {
                                 Rh <- as.data.frame(dataset[, aRh], stringsAsFactors=FALSE)

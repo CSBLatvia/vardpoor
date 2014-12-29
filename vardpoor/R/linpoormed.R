@@ -10,7 +10,7 @@
 #***********************************************************************************************************************
 #***********************************************************************************************************************
 
-linpoormed <- function(inc, id, weight=NULL, sort=NULL, Dom=NULL,
+linpoormed <- function(Y, id, weight=NULL, sort=NULL, Dom=NULL,
                        period=NULL, dataset = NULL, percentage=60,
                        order_quant=50, var_name="lin_poormed") {
  
@@ -33,7 +33,7 @@ linpoormed <- function(inc, id, weight=NULL, sort=NULL, Dom=NULL,
 
    if(!is.null(dataset)) {
        dataset <- data.frame(dataset)
-       if (checker(inc, dataset, "inc")) inc <- dataset[, inc] 
+       if (checker(Y, dataset, "Y")) Y <- dataset[, Y] 
 
        if(!is.null(id)) {
           id2 <- id
@@ -60,18 +60,18 @@ linpoormed <- function(inc, id, weight=NULL, sort=NULL, Dom=NULL,
                     names(Dom) <- Dom2 }    }
       }
    # check vectors
-   # inc
-   inc <- data.frame(inc)
-   n <- nrow(inc)
-   if (ncol(inc) != 1) stop("'inc' must be vector or 1 column data.frame, matrix, data.table")
-   inc <- inc[,1]
-   if (!is.numeric(inc)) stop("'inc' must be a numeric vector")
-   if (any(is.na(inc))) stop("'inc' has unknown values")
+   # Y
+   Y <- data.frame(Y)
+   n <- nrow(Y)
+   if (ncol(Y) != 1) stop("'Y' must be vector or 1 column data.frame, matrix, data.table")
+   Y <- Y[,1]
+   if (!is.numeric(Y)) stop("'Y' must be a numeric vector")
+   if (any(is.na(Y))) stop("'Y' has unknown values")
  
    # weight
    weight <- data.frame(weight)
    if (is.null(weight)) weight <- data.frame(rep.int(1, n))
-   if (nrow(weight) != n) stop("'weight' must be the same length as 'inc'")
+   if (nrow(weight) != n) stop("'weight' must be the same length as 'Y'")
    if (ncol(weight) != 1) stop("'weight' must be vector or 1 column data.frame, matrix, data.table")
    weight <- weight[,1]
    if (!is.numeric(weight)) stop("'weight' must be numerical")
@@ -80,7 +80,7 @@ linpoormed <- function(inc, id, weight=NULL, sort=NULL, Dom=NULL,
    # sort
    if (!is.null(sort) && !is.vector(sort) && !is.ordered(sort)) {
          stop("'sort' must be a vector or ordered factor") }
-   if (!is.null(sort) && length(sort) != n) stop("'sort' must be the same length as 'inc'")
+   if (!is.null(sort) && length(sort) != n) stop("'sort' must be the same length as 'Y'")
 
    # period     
    if (!is.null(period)) {
@@ -88,7 +88,7 @@ linpoormed <- function(inc, id, weight=NULL, sort=NULL, Dom=NULL,
        if (any(duplicated(names(period)))) 
                  stop("'period' are duplicate column names: ", 
                       paste(names(period)[duplicated(names(period))], collapse = ","))
-       if (nrow(period) != n) stop("'period' must be the same length as 'inc'")
+       if (nrow(period) != n) stop("'period' must be the same length as 'Y'")
        if(any(is.na(period))) stop("'period' has unknown values")  
        }
    
@@ -97,7 +97,7 @@ linpoormed <- function(inc, id, weight=NULL, sort=NULL, Dom=NULL,
    id <- data.table(id)
    if (any(is.na(id))) stop("'id' has unknown values")
    if (ncol(id) != 1) stop("'id' must be 1 column data.frame, matrix, data.table")
-   if (nrow(id) != n) stop("'id' must be the same length as 'inc'")
+   if (nrow(id) != n) stop("'id' must be the same length as 'Y'")
    if (is.null(names(id))||(names(id)=="id")) setnames(id,names(id),"ID")
    if (is.null(period)){ if (any(duplicated(id))) stop("'id' are duplicate values") 
                        } else {
@@ -112,8 +112,12 @@ linpoormed <- function(inc, id, weight=NULL, sort=NULL, Dom=NULL,
                  stop("'Dom' are duplicate column names: ", 
                       paste(names(Dom)[duplicated(names(Dom))], collapse = ","))
              if (is.null(names(Dom))) stop("'Dom' must be colnames")
-             if (nrow(Dom) != n) stop("'Dom' must be the same length as 'inc'")
-       }
+             if (nrow(Dom) != n) stop("'Dom' must be the same length as 'Y'")
+              if (nrow(Domfact)>0) {
+                    set(Dom, j = names(Domfact),
+                              value = lapply(Dom[, names(Domfact), with = FALSE], as.character)) }
+             Domfact <- NULL
+      }
  
     ## computations
     ind0 <- rep.int(1, n)
@@ -125,7 +129,7 @@ linpoormed <- function(inc, id, weight=NULL, sort=NULL, Dom=NULL,
  
     # Poor median people by domain (if requested)
 
-    quantile <- incPercentile(inc = inc, weights = weight,
+    quantile <- incPercentile(Y = Y, weights = weight,
                               sort = sort, Dom = NULL,
                               period = period,
                               k = order_quant,
@@ -148,7 +152,7 @@ linpoormed <- function(inc, id, weight=NULL, sort=NULL, Dom=NULL,
         for(i in 1:nrow(Dom_agg)) {
               g <- c(var_name, paste(names(Dom), as.matrix(Dom_agg[i,]), sep = "."))
               var_nams <- do.call(paste, as.list(c(g, sep="__")))
-              ind <- (rowSums(Dom == Dom_agg[i,][ind0,]) == ncol(Dom))
+              ind <- as.integer(rowSums(Dom == Dom_agg[i,][ind0,]) == ncol(Dom))
 
               poor_medl <- lapply(1:nrow(period1_agg), function(j) {
                       if (!is.null(period)) { 
@@ -161,7 +165,7 @@ linpoormed <- function(inc, id, weight=NULL, sort=NULL, Dom=NULL,
 
                        indj <- (rowSums(period1 == period1_agg[j,][ind0,]) == ncol(period1))
 
-                       poormed_l <- linpoormedCalc(inco=inc[indj],
+                       poormed_l <- linpoormedCalc(inco=Y[indj],
                                                    ids=poor_med_id[indj],
                                                    wght=weight[indj], sort=sort[indj],
                                                    ind=ind[indj], percentag=p,  
@@ -189,7 +193,7 @@ linpoormed <- function(inc, id, weight=NULL, sort=NULL, Dom=NULL,
                                        } else rown <- quantile
                            indj <- (rowSums(period1 == period1_agg[j,][ind0,]) == ncol(period1))
       
-                           poor_medl <- linpoormedCalc(inco=inc[indj],
+                           poor_medl <- linpoormedCalc(inco=Y[indj],
                                                        ids=poor_med_id[indj],
                                                        wght=weight[indj],
                                                        sort=sort[indj],
@@ -226,7 +230,7 @@ linpoormedCalc <- function(inco, ids, wght, sort, ind, percentag, order_quants, 
     rate_val <- sum(wt*poor)/N  # Estimated poverty rate
     rate_val_pr <- 100*rate_val  # Estimated poverty rate
  
-    poor_people_median <- incPercentile(inc=inc1, weights=wght1,
+    poor_people_median <- incPercentile(Y=inc1, weights=wght1,
                                         sort=sort1, Dom=NULL,
                                         period=NULL, k=order_quants,
                                         dataset=NULL)

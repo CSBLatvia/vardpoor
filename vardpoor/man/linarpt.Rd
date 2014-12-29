@@ -10,7 +10,7 @@ Estimates at-risk-of-poverty threshold (defined as percentage (usualy 60\%) of e
 
 
 \usage{
-linarpt(inc,
+linarpt(Y,
   id = NULL,
   weight = NULL,
   sort = NULL,
@@ -25,7 +25,7 @@ linarpt(inc,
 
 \arguments{
 
-\item{inc}{Study variable (for example equalised disposable income after social transfers). One dimensional object convertible to one-column \code{data.frame} or variable name as character, column number or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset}).
+\item{Y}{Study variable (for example equalised disposable income after social transfers). One dimensional object convertible to one-column \code{data.frame} or variable name as character, column number or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset}).
 }
 
 \item{id}{Optional variable for unit ID codes. One dimensional object convertible to one-column \code{data.frame} or variable name as character, column number or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset}).
@@ -104,13 +104,13 @@ data(eusilc)
 dati <- data.table(IDd = 1:nrow(eusilc), eusilc)
 
 # Full population
-d1 <- linarpt(inc="eqIncome", id="IDd", weight = "rb050", Dom = NULL,
+d1 <- linarpt(Y="eqIncome", id="IDd", weight = "rb050", Dom = NULL,
              dataset = dati, percentage = 60, order_quant=50)
 d1$value
 
 \dontrun{
 # By domains
-d2 <- linarpt(inc="eqIncome", id="IDd", weight = "rb050", Dom = "db040",
+d2 <- linarpt(Y="eqIncome", id="IDd", weight = "rb050", Dom = "db040",
               dataset = dati, percentage = 60, order_quant=50)
 d2$value
 } 

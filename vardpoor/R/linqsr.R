@@ -10,7 +10,7 @@
 #**********************************************************************************************
 #**********************************************************************************************
 
-linqsr <- function(inc, id=NULL, weight=NULL, sort = NULL,
+linqsr <- function(Y, id=NULL, weight=NULL, sort = NULL,
                    Dom = NULL, period=NULL, dataset = NULL,
                    alpha = 20, var_name="lin_qsr") {
 
@@ -23,7 +23,7 @@ linqsr <- function(inc, id=NULL, weight=NULL, sort = NULL,
 
    if(!is.null(dataset)) {
        dataset <- data.frame(dataset) 
-       if (checker(inc, dataset, "inc")) inc <- dataset[, inc] 
+       if (checker(Y, dataset, "Y")) Y <- dataset[, Y] 
 
        if(!is.null(id)) {
           id2 <- id
@@ -51,18 +51,18 @@ linqsr <- function(inc, id=NULL, weight=NULL, sort = NULL,
       }
 
    # check vectors
-   # inc
-   inc <- data.frame(inc)
-   n <- nrow(inc)
-   if (ncol(inc) != 1) stop("'inc' must be vector or 1 column data.frame, data matrix, data table")
-   inc <- inc[,1]
-   if (!is.numeric(inc)) stop("'inc' must be a numeric vector")
-   if (any(is.na(inc))) stop("'inc' has unknown values")
+   # Y
+   Y <- data.frame(Y)
+   n <- nrow(Y)
+   if (ncol(Y) != 1) stop("'Y' must be vector or 1 column data.frame, data matrix, data table")
+   Y <- Y[,1]
+   if (!is.numeric(Y)) stop("'Y' must be a numeric vector")
+   if (any(is.na(Y))) stop("'Y' has unknown values")
  
    # weight
    weight <- data.frame(weight)
    if (is.null(weight)) weight <- data.frame(rep.int(1, n))
-   if (nrow(weight) != n) stop("'weight' must be the same length as 'inc'")
+   if (nrow(weight) != n) stop("'weight' must be the same length as 'Y'")
    if (ncol(weight) != 1) stop("'weight' must be vector or 1 column data.frame, matrix, data.table")
    weight <- weight[,1]
    if (!is.numeric(weight)) stop("'weight' must be numerical")
@@ -71,7 +71,7 @@ linqsr <- function(inc, id=NULL, weight=NULL, sort = NULL,
    # sort
    if (!is.null(sort) && !is.vector(sort) && !is.ordered(sort)) {
          stop("'sort' must be a vector or ordered factor") }
-   if (!is.null(sort) && length(sort) != n) stop("'sort' must have the same length as 'inc'")     
+   if (!is.null(sort) && length(sort) != n) stop("'sort' must have the same length as 'Y'")     
    
    # period     
    if (!is.null(period)) {
@@ -79,7 +79,7 @@ linqsr <- function(inc, id=NULL, weight=NULL, sort = NULL,
        if (any(duplicated(names(period)))) 
                  stop("'period' are duplicate column names: ", 
                       paste(names(period)[duplicated(names(period))], collapse = ","))
-       if (nrow(period) != n) stop("'period' must be the same length as 'inc'")
+       if (nrow(period) != n) stop("'period' must be the same length as 'Y'")
        if(any(is.na(period))) stop("'period' has unknown values")  
    }   
 
@@ -88,7 +88,7 @@ linqsr <- function(inc, id=NULL, weight=NULL, sort = NULL,
    id <- data.table(id)
    if (any(is.na(id))) stop("'id' has unknown values")
    if (ncol(id) != 1) stop("'id' must be 1 column data.frame, matrix, data.table")
-   if (nrow(id) != n) stop("'id' must be the same length as 'inc'")
+   if (nrow(id) != n) stop("'id' must be the same length as 'Y'")
    if (is.null(names(id))||(names(id)=="id")) setnames(id,names(id),"ID")
    if (is.null(period)){ if (any(duplicated(id))) stop("'id' are duplicate values") 
                        } else {
@@ -103,7 +103,7 @@ linqsr <- function(inc, id=NULL, weight=NULL, sort = NULL,
                  stop("'Dom' are duplicate column names: ", 
                       paste(names(Dom)[duplicated(names(Dom))], collapse = ","))
              if (is.null(names(Dom))) stop("'Dom' must be colnames")
-             if (nrow(Dom) != n) stop("'Dom' must be the same length as 'inc'")
+             if (nrow(Dom) != n) stop("'Dom' must be the same length as 'Y'")
        }
 
    ## computations
@@ -130,12 +130,12 @@ linqsr <- function(inc, id=NULL, weight=NULL, sort = NULL,
               g <- c(var_name, paste(names(Dom), as.matrix(Dom_agg[i,]), sep = "."))
               var_nams <- do.call(paste, as.list(c(g, sep="__")))
 
-              ind <- (rowSums(Dom == Dom_agg[i,][ind0,]) == ncol(Dom))
+              ind <- as.integer(rowSums(Dom == Dom_agg[i,][ind0,]) == ncol(Dom))
 
               QSR_l <- lapply(1:nrow(period1_agg), function(j) {
                                indj <- (rowSums(period1 == period1_agg[j,][ind0,]) == ncol(period1))
 
-                               QSR_l <- linQSRCalc(income=inc[indj],
+                               QSR_l <- linQSRCalc(income=Y[indj],
                                                    ids=QSR_id[indj],
                                                    weights=weight[indj],
                                                    sort=sort[indj],
@@ -155,9 +155,10 @@ linqsr <- function(inc, id=NULL, weight=NULL, sort = NULL,
                  QSR_v <- rbind(QSR_v, QSRs)
            }
     } else { QSRl <- lapply(1:nrow(period1_agg), function(j) {
+                            
                            indj <- (rowSums(period1 == period1_agg[j,][ind0,]) == ncol(period1))
-      
-                           QSR_l <- linQSRCalc(income=inc[indj], ids=QSR_id[indj],
+
+                           QSR_l <- linQSRCalc(income=Y[indj], ids=QSR_id[indj],
                                                weights=weight[indj], sort=sort[indj],
                                                ind=ind0[indj], alpha=alpha)
                            if (!is.null(period)) { 
@@ -182,12 +183,12 @@ linQSRCalc<-function(income, ids, weights=NULL, sort=NULL, ind=NULL, alpha) {
    if (is.null(ind)) ind <- data.frame(ind=rep.int(1,length(ids)))
 
    alpha2 <- 100 - alpha
-   quantile <- incPercentile(inc=income, weights=weights,
+   quantile <- incPercentile(Y=income, weights=weights,
                              sort=sort, Dom=data.table(ind),
                              period=NULL, k=c(alpha,alpha2),
                              dataset=NULL) 
-   quant_inf <- quantile[ind==TRUE][[paste0("x", alpha)]] 
-   quant_sup <- quantile[ind==TRUE][[paste0("x", alpha2)]] 
+   quant_inf <- quantile[ind==1][[paste0("x", alpha)]] 
+   quant_sup <- quantile[ind==1][[paste0("x", alpha2)]] 
 
    wt <- weights * ind
    v <- weights * income * ind

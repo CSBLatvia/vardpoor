@@ -10,9 +10,9 @@ Estimates at-risk-of-poverty rate (defined as the proportion of persons with equ
 
 
 \usage{
-linarpr(inc, id,
+linarpr(Y, id,
   weight = NULL,
-  income_thres = NULL,
+  Y_thres = NULL,
   wght_thres = NULL,
   sort = NULL,
   Dom = NULL,
@@ -25,7 +25,7 @@ linarpr(inc, id,
 
 
 \arguments{
-\item{inc}{Study variable (for example equalized disposable income). One dimensional object convertible to one-column \code{data.frame} or variable name as character, column number or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset}).
+\item{Y}{Study variable (for example equalized disposable income). One dimensional object convertible to one-column \code{data.frame} or variable name as character, column number or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset}).
 }
 
 \item{id}{Optional variable for unit ID codes. One dimensional object convertible to one-column \code{data.frame} or variable name as character, column number or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset}).
@@ -34,7 +34,7 @@ linarpr(inc, id,
 \item{weight}{Optional weight variable. One dimensional object convertible to one-column \code{data.frame} or variable name as character, column number or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset}).
 }
 
-\item{income_thres}{Variable (for example equalized disposable income) used for computation and linearization of poverty threshold. One dimensional object convertible to one-column \code{data.frame} or variable name as character, column number or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset}). Variable specified for \code{inc} is used as \code{income_thres} if \code{income_thres} is not defined.
+\item{Y_thres}{Variable (for example equalized disposable income) used for computation and linearization of poverty threshold. One dimensional object convertible to one-column \code{data.frame} or variable name as character, column number or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset}). Variable specified for \code{inc} is used as \code{income_thres} if \code{income_thres} is not defined.
 }
 
 \item{wght_thres}{Weight variable used for computation and linearization of poverty threshold. One dimensional object convertible to one-column \code{data.frame} or variable name as character, column number or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset}). Variable specified for \code{weight} is used as \code{wght_thres} if \code{wght_thres} is not defined.
@@ -109,13 +109,13 @@ data(eusilc)
 dati <- data.frame(IDd = 1:nrow(eusilc), eusilc)
 
 # Full population
-d <- linarpr(inc="eqIncome", id="IDd", weight="rb050", Dom=NULL,
+d <- linarpr(Y="eqIncome", id="IDd", weight="rb050", Dom=NULL,
              dataset=dati, percentage=60, order_quant=50)
 d$value
 
 \dontrun{
 # By domains
-dd <- linarpr(inc="eqIncome", id="IDd", weight="rb050", Dom="db040",
+dd <- linarpr(Y="eqIncome", id="IDd", weight="rb050", Dom="db040",
               dataset=dati, percentage=60, order_quant=50)}
 }
 

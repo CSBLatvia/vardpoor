@@ -10,7 +10,7 @@
 #******************************************************************************************
 #******************************************************************************************
 
-linarpr <- function(inc, id, weight=NULL, income_thres=NULL, wght_thres=NULL,
+linarpr <- function(Y, id, weight=NULL, Y_thres=NULL, wght_thres=NULL,
                  sort=NULL, Dom=NULL, period=NULL, dataset = NULL, percentage=60, 
                  order_quant=50, var_name="lin_arpr") {
  
@@ -33,7 +33,7 @@ linarpr <- function(inc, id, weight=NULL, income_thres=NULL, wght_thres=NULL,
 
    if(!is.null(dataset)) {
        dataset <- data.frame(dataset)
-       if (checker(inc, dataset, "inc")) inc <- dataset[, inc] 
+       if (checker(Y, dataset, "Y"))  Y <- dataset[, Y] 
 
        if(!is.null(id)) {
           id2 <- id
@@ -43,8 +43,8 @@ linarpr <- function(inc, id, weight=NULL, income_thres=NULL, wght_thres=NULL,
        if(!is.null(weight)) {
            if (checker(weight, dataset, "weight")) weight <- dataset[, weight] }
 
-       if(!is.null(income_thres)) {
-           if (checker(income_thres, dataset, "income_thres")) income_thres <- dataset[, income_thres] }
+       if(!is.null(Y_thres)) {
+           if (checker(Y_thres, dataset, "Y_thres")) Y_thres <- dataset[, Y_thres] }
      
        if(!is.null(wght_thres)) {
            if (checker(wght_thres, dataset, "wght_thres")) wght_thres <- dataset[, wght_thres] }
@@ -67,13 +67,13 @@ linarpr <- function(inc, id, weight=NULL, income_thres=NULL, wght_thres=NULL,
       }
 
    # check vectors
-   # inc
-   inc <- data.frame(inc)
-   n <- nrow(inc)
-   if (ncol(inc) != 1) stop("'inc' must be vector or 1 column data.frame, matrix, data.table")
-   inc <- inc[,1]
-   if(!is.numeric(inc)) stop("'inc' must be numerical")
-   if (any(is.na(inc))) stop("'inc' has unknown values")
+   # Y
+   Y <- data.frame(Y)
+   n <- nrow(Y)
+   if (ncol(Y) != 1) stop("'Y' must be vector or 1 column data.frame, matrix, data.table")
+   Y <- Y[,1]
+   if(!is.numeric(Y)) stop("'Y' must be numerical")
+   if (any(is.na(Y))) stop("'Y' has unknown values")
 
    # weight
    weight <- data.frame(weight)
@@ -83,21 +83,21 @@ linarpr <- function(inc, id, weight=NULL, income_thres=NULL, wght_thres=NULL,
    if (!is.numeric(weight)) stop("'weight' must be numerical")
    if (any(is.na(weight))) stop("'weight' has unknown values")
 
-   # income_thres
-   if (is.null(income_thres)) income_thres <- inc
-   income_thres <- data.frame(income_thres)
-   if (!is.null(income_thres)) {
-        if(nrow(income_thres) != n) stop("'income_thres' must be the same length as 'inc'")
-        if (ncol(income_thres) != 1) stop("'income_thres' must be vector or 1 column data.frame, matrix, data.table")
-        income_thres <- income_thres[,1]
-        if(!is.numeric(income_thres)) stop("'income_thres' must be numerical")
-        if (any(is.na(income_thres))) stop("'income_thres' has unknown values") 
+   # Y_thres
+   if (is.null(Y_thres)) Y_thres <- Y
+   Y_thres <- data.frame(Y_thres)
+   if (!is.null(Y_thres)) {
+        if (nrow(Y_thres) != n) stop("'Y_thres' must be the same length as 'Y'")
+        if (ncol(Y_thres) != 1) stop("'Y_thres' must be vector or 1 column data.frame, matrix, data.table")
+        Y_thres <- Y_thres[,1]
+        if(!is.numeric(Y_thres)) stop("'Y_thres' must be numerical")
+        if (any(is.na(Y_thres))) stop("'Y_thres' has unknown values") 
      } 
 
    # wght_thres
    if (is.null(wght_thres)) wght_thres <- weight
    wght_thres <- data.frame(wght_thres)
-   if (nrow(wght_thres) != n) stop("'wght_thres' must be the same length as 'inc'")
+   if (nrow(wght_thres) != n) stop("'wght_thres' must be the same length as 'Y'")
    if (ncol(wght_thres) != 1) stop("'wght_thres' must be vector or 1 column data.frame, matrix, data.table")
    wght_thres <- wght_thres[,1]
    if (!is.numeric(wght_thres)) stop("'wght_thres' must be numerical")
@@ -106,7 +106,7 @@ linarpr <- function(inc, id, weight=NULL, income_thres=NULL, wght_thres=NULL,
    # sort
    if (!is.null(sort) && !is.vector(sort) && !is.ordered(sort)) {
          stop("'sort' must be a vector or ordered factor") }
-   if (!is.null(sort) && length(sort) != n) stop("'sort' must be the same length as 'inc'")  
+   if (!is.null(sort) && length(sort) != n) stop("'sort' must be the same length as 'Y'")  
 
    # period     
    if (!is.null(period)) {
@@ -114,7 +114,7 @@ linarpr <- function(inc, id, weight=NULL, income_thres=NULL, wght_thres=NULL,
        if (any(duplicated(names(period)))) 
                  stop("'period' are duplicate column names: ", 
                       paste(names(period)[duplicated(names(period))], collapse = ","))
-       if (nrow(period) != n) stop("'period' must be the same length as 'inc'")
+       if (nrow(period) != n) stop("'period' must be the same length as 'Y'")
        if(any(is.na(period))) stop("'period' has unknown values")  
    }   
    
@@ -123,7 +123,7 @@ linarpr <- function(inc, id, weight=NULL, income_thres=NULL, wght_thres=NULL,
    id <- data.table(id)
    if (any(is.na(id))) stop("'id' has unknown values")
    if (ncol(id) != 1) stop("'id' must be 1 column data.frame, matrix, data.table")
-   if (nrow(id) != n) stop("'id' must be the same length as 'inc'")
+   if (nrow(id) != n) stop("'id' must be the same length as 'Y'")
    if (is.null(names(id))||(names(id)=="id")) setnames(id,names(id),"ID")
    if (is.null(period)){ if (any(duplicated(id))) stop("'id' are duplicate values") 
                        } else {
@@ -138,7 +138,8 @@ linarpr <- function(inc, id, weight=NULL, income_thres=NULL, wght_thres=NULL,
                  stop("'Dom' are duplicate column names: ", 
                       paste(names(Dom)[duplicated(names(Dom))], collapse = ","))
              if (is.null(names(Dom))) stop("'Dom' must be colnames")
-             if (nrow(Dom) != n) stop("'Dom' must be the same length as 'inc'")
+             if (nrow(Dom) != n) stop("'Dom' must be the same length as 'Y'")
+             Dom <- Dom[, lapply(.SD, as.character), .SDcols = names(Dom)]
        }
 
     ## computations
@@ -150,7 +151,7 @@ linarpr <- function(inc, id, weight=NULL, income_thres=NULL, wght_thres=NULL,
     period1_agg <- data.table(unique(period1))
 
     # ARPR by domain (if requested)
-    quantile <- incPercentile(inc = income_thres,
+    quantile <- incPercentile(Y = Y_thres,
                                weights = wght_thres,
                                sort = sort, Dom = NULL,
                                period = period,
@@ -175,7 +176,7 @@ linarpr <- function(inc, id, weight=NULL, income_thres=NULL, wght_thres=NULL,
         for(i in 1:nrow(Dom_agg)) {
               g <- c(var_name, paste(names(Dom), as.matrix(Dom_agg[i,]), sep = "."))
               var_nams <- do.call(paste, as.list(c(g, sep="__")))
-              ind <- (rowSums(Dom == Dom_agg[i,][ind0,]) == ncol(Dom))
+              ind <- as.integer(rowSums(Dom == Dom_agg[i,][ind0,]) == ncol(Dom))
 
               arprl <- lapply(1:nrow(period1_agg), function(j) {
                                if (!is.null(period)) { 
@@ -188,11 +189,11 @@ linarpr <- function(inc, id, weight=NULL, income_thres=NULL, wght_thres=NULL,
 
                                indj <- (rowSums(period1 == period1_agg[j,][ind0,]) == ncol(period1))
       
-                               arpr_l <- arprlinCalc(inc1=inc[indj],
+                               arpr_l <- arprlinCalc(Y1=Y[indj],
                                                      ids=arpr_id[indj],
                                                      wght1=weight[indj],
                                                      indicator=ind[indj],
-                                                     income_thresh=income_thres[indj],
+                                                     Y_thresh=Y_thres[indj],
                                                      wght_thresh=wght_thres[indj],
                                                      percent=p,
                                                      order_quants=order_quant,
@@ -205,7 +206,7 @@ linarpr <- function(inc, id, weight=NULL, income_thres=NULL, wght_thres=NULL,
                  setnames(arprlin, names(arprlin), c(names(arpr_id), var_nams))
                  setkeyv(arpr_m, names(arpr_id))
                  setkeyv(arprlin, names(arpr_id))
-                 arpr_m <- merge(arpr_m, arprlin, all.x=T)
+                 arpr_m <- merge(arpr_m, arprlin, all.x=TRUE)
                  arpr_v <- rbind(arpr_v, arprs) 
            }
      } else { arprl <- lapply(1:nrow(period1_agg), function(j) {
@@ -216,11 +217,11 @@ linarpr <- function(inc, id, weight=NULL, income_thres=NULL, wght_thres=NULL,
                                        } else rown <- quantile
                            ind2 <- (rowSums(period1 == period1_agg[j,][ind0,]) == ncol(period1))
       
-                           arpr_l <- arprlinCalc(inc1=inc[ind2],
+                           arpr_l <- arprlinCalc(Y1=Y[ind2],
                                                  ids=arpr_id[ind2],
                                                  wght1=weight[ind2],
                                                  indicator=ind0[ind2],
-                                                 income_thresh=income_thres[ind2],
+                                                 Y_thresh=Y_thres[ind2],
                                                  wght_thresh=wght_thres[ind2],
                                                  percent=p,
                                                  order_quants=order_quant,
@@ -243,9 +244,9 @@ linarpr <- function(inc, id, weight=NULL, income_thres=NULL, wght_thres=NULL,
 
 
 ## workhorse
-arprlinCalc <- function(inc1, ids, wght1, indicator, income_thresh, wght_thresh, percent, order_quants=NULL, quant_val) {
+arprlinCalc <- function(Y1, ids, wght1, indicator, Y_thresh, wght_thresh, percent, order_quants=NULL, quant_val) {
 
-    inc2 <- income_thresh
+    inc2 <- Y_thresh
     wght2 <- wght_thresh
   
     wt <- indicator * wght1
@@ -253,7 +254,7 @@ arprlinCalc <- function(inc1, ids, wght1, indicator, income_thresh, wght_thresh,
     N0 <- sum(wght2)   # Estimated whole population size 
     N <- sum(wt)       # Estimated (sub)population size
 
-    poor <- (inc1<=thres_val)
+    poor <- (Y1<=thres_val)
     rate_val <- sum(wt*poor)/N  # Estimated poverty rate */
     rate_val_pr <- 100*rate_val
 
@@ -270,14 +271,14 @@ arprlinCalc <- function(inc1, ids, wght1, indicator, income_thresh, wght_thresh,
 
     #---- 2. Linearization of the poverty rate -----
 
-    u2 <-   (thres_val-inc1)/h
+    u2 <-   (thres_val-Y1)/h
     vect_f2 <- exp(-(u2^2)/2)/sqrt(2*pi)
     f_quant2 <- sum(vect_f2*wt)/(N*h)      # Estimate of F'(beta*quantile)
 
  #****************************************************************************************
  #                       LINEARIZED VARIABLE OF THE POVERTY RATE (IN %)                  *
  #****************************************************************************************
-    lin <- 100*((1/N)*indicator*((inc1<=thres_val)-rate_val)+f_quant2*lin_thres)
+    lin <- 100*((1/N)*indicator*((Y1<=thres_val)-rate_val)+f_quant2*lin_thres)
 
     lin_id <- data.table(ids,lin)
     return(list(rate_val=rate_val, rate_val_pr=rate_val_pr, lin=lin_id))

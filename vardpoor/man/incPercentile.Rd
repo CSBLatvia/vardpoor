@@ -9,14 +9,14 @@ The function computes the estimates of weighted percentiles.
 }
 
 \usage{
-incPercentile(inc, weights = NULL, sort = NULL,
+incPercentile(Y, weights = NULL, sort = NULL,
               Dom = NULL,  period=NULL,
               k = c(20, 80), dataset = NULL)
 }
 
 \arguments{
   
-  \item{inc}{Study variable (for example equalized disposable income). One dimensional object convertible to one-column \code{data.frame} or variable name as character, column number or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset}).}
+  \item{Y}{Study variable (for example equalized disposable income). One dimensional object convertible to one-column \code{data.frame} or variable name as character, column number or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset}).}
   
   \item{weights}{Optional weight variable. One dimensional object convert to one-column \code{data.frame} or variable name as character, column number or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset}).}
   
@@ -42,7 +42,7 @@ Working group on Statistics on Income and Living Conditions (2004) Common cross-
 
 \examples{
 data(eusilc)
-incPercentile(inc="eqIncome", weights = "rb050", Dom="db040", data=eusilc)
+incPercentile(Y="eqIncome", weights = "rb050", Dom="db040", data=eusilc)
 }
 
 \seealso{

@@ -6,7 +6,7 @@
 
 \description{Computes the estimation of the variance for indicators on social exclusion and poverty.}
 
-\usage{ varpoord(inc, w_final, income_thres = NULL, wght_thres = NULL,
+\usage{ varpoord(Y, w_final, Y_thres = NULL, wght_thres = NULL,
                  ID_household, id = NULL, H, PSU, N_h, fh_zero = FALSE,
                  PSU_level=TRUE, sort = NULL, Dom = NULL, period = NULL,
                  gender = NULL, dataset = NULL, X = NULL, periodX = NULL,
@@ -18,11 +18,11 @@
 
 \arguments{
 
-\item{inc}{Study variable (for example equalized disposable income). One dimensional object convertible to one-column \code{data.frame} or variable name as character, column number or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset}).}
+\item{Y}{Study variable (for example equalized disposable income). One dimensional object convertible to one-column \code{data.frame} or variable name as character, column number or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset}).}
 
 \item{w_final}{Weight variable. One dimensional object convertible to one-column \code{data.frame} or variable name as character, column number or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset}).}
 
-\item{income_thres}{Variable (for example equalized disposable income) used for computation and linearization of poverty threshold. One dimensional object convertible to one-column \code{data.frame} or variable name as character, column number or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset}). Variable specified for \code{inc} is used as \code{income_thres} if \code{income_thres} is  not defined.}
+\item{Y_thres}{Variable (for example equalized disposable income) used for computation and linearization of poverty threshold. One dimensional object convertible to one-column \code{data.frame} or variable name as character, column number or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset}). Variable specified for \code{inc} is used as \code{income_thres} if \code{income_thres} is  not defined.}
 
 \item{wght_thres}{Weight variable used for computation and linearization of poverty threshold. One dimensional object convertible to one-column \code{data.frame} or variable name as character, column number or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset}). Variable specified for \code{weight} is used as \code{wght_thres} if \code{wght_thres} is not defined.}
 
@@ -97,35 +97,25 @@ For example, to compute poverty threshold equal to some percentage of median inc
 
   \item{all_result}{A \code{data.table}, which containing variables:
 
-       \code{estim} - the estimated value,
-
-       \code{var} - the estimated variance,
-
-       \code{se} - the estimated standard error,
-
-       \code{rse} - the estimated relative standard error (coefficient of variation),
-
-       \code{cv} - the estimated relative standard error (coefficient of variation) in percentage,
-
-       \code{absolute_margin_of_error} - the estimated absolute margin of error,
-
-       \code{relative_margin_of_error} - the estimated relative margin of error,
-
-       \code{CI_lower} - the estimated confidence interval lower bound,
- 
-       \code{CI_upper} - the estimated confidence interval upper bound,
-
-       \code{var_srs_HT} - the estimated variance of the HT estimator under SRS,
-
-       \code{var_cur_HT} - the estimated variance of the HT estimator under current design,
-
-       \code{var_srs_ca} - the estimated variance of the calibrated estimator under SRS,
-  
-       \code{deff_sam} - the estimated design effect of sample design,
-
-       \code{deff_est} - the estimated design effect of estimator,
-
-       \code{deff} - the overall estimated design effect of sample design and estimator.}
+       \code{respondent_count} - the count of respondents, \cr
+       \code{pop_size} - the estimated size of population, \cr
+       \code{n_nonzero} - the count of respondents, who answers are larger than zero, \cr
+       \code{estim} - the estimated value, \cr
+       \code{var} - the estimated variance, \cr
+       \code{se} - the estimated standard error, \cr
+       \code{rse} - the estimated relative standard error (coefficient of variation), \cr
+       \code{cv} - the estimated relative standard error (coefficient of variation) in percentage, \cr
+       \code{absolute_margin_of_error} - the estimated absolute margin of error, \cr
+       \code{relative_margin_of_error} - the estimated relative margin of error, \cr
+       \code{CI_lower} - the estimated confidence interval lower bound, \cr
+       \code{CI_upper} - the estimated confidence interval upper bound, \cr
+       \code{var_srs_HT} - the estimated variance of the HT estimator under SRS, \cr
+       \code{var_cur_HT} - the estimated variance of the HT estimator under current design, \cr
+       \code{var_srs_ca} - the estimated variance of the calibrated estimator under SRS, \cr
+       \code{deff_sam} - the estimated design effect of sample design, \cr
+       \code{deff_est} - the estimated design effect of estimator, \cr
+       \code{deff} - the overall estimated design effect of sample design and estimator, \cr
+       \code{n_eff} - the effective sample size.}
 }
 
 \references{ 
@@ -133,7 +123,7 @@ Morris H. Hansen, William N. Hurwitz, William G. Madow, (1953), Sample survey me
 
 Guillaume Osier and Emilio Di Meglio. The linearisation approach implemented by Eurostat for the first wave of EU-SILC: what could be done from the second wave onwards? 2012 \cr
 
-Eurostat Methodologies and Working papers, Standard error estimation for the EU-SILC indicators of poverty and social exclusion, 2013, URL \url{http://epp.eurostat.ec.europa.eu/cache/ITY_OFFPUB/KS-RA-13-024/EN/KS-RA-13-024-EN.PDF}. \cr
+Eurostat Methodologies and Working papers, Standard error estimation for the EU-SILC indicators of poverty and social exclusion, 2013, URL \url{http://ec.europa.eu/eurostat/documents/3859598/5927001/KS-RA-13-029-EN.PDF}. \cr
 
 Yves G. Berger, Tim Goedeme, Guillame Osier (2013). Handbook on standard error estimation and other related sampling issues in EU-SILC, URL \url{http://www.cros-portal.eu/content/handbook-standard-error-estimation-and-other-related-sampling-issues-ver-29072013}    \cr
 
@@ -152,8 +142,8 @@ dataset <- data.frame(1:nrow(eusilc),eusilc)
 colnames(dataset)[1] <- "IDd"
 dataset1 <- dataset[1:1000,]
 
-aa<-varpoord(inc = "eqIncome", w_final = "rb050",
-             income_thres = NULL, wght_thres = NULL,
+aa<-varpoord(Y = "eqIncome", w_final = "rb050",
+             Y_thres = NULL, wght_thres = NULL,
              ID_household = "db030", id = "IDd", 
              H = "db040", PSU = "rb030", N_h = NULL,
              sort = NULL, Dom = "db040",
@@ -169,8 +159,8 @@ aa
 
 
 \dontrun{
-aa<-varpoord(inc = "eqIncome", w_final = "rb050",
-             income_thres = NULL, wght_thres = NULL,
+aa<-varpoord(Y = "eqIncome", w_final = "rb050",
+             Y_thres = NULL, wght_thres = NULL,
              ID_household = "db030", id = "IDd", 
              H = "db040", PSU = "rb030", N_h = NULL,
              sort = NULL, Dom = "db040",

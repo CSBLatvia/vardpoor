@@ -9,14 +9,14 @@
 }
 
 \usage{
-  linrmpg(inc, id, weight=NULL, sort=NULL, Dom=NULL,
+  linrmpg(Y, id, weight=NULL, sort=NULL, Dom=NULL,
           period=NULL, dataset = NULL, percentage=60,
           order_quant=50, var_name="lin_rmpg")
 
 }
 
 \arguments{
-  \item{inc}{Study variable (for example equalized disposable income). One dimensional object convertible to one-column \code{data.frame} or variable name as character, column number or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset}).}
+  \item{Y}{Study variable (for example equalized disposable income). One dimensional object convertible to one-column \code{data.frame} or variable name as character, column number or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset}).}
 
   \item{id}{Optional variable for unit ID codes. One dimensional object convertible to one-column \code{data.frame} or variable name as character, column number or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset}).}
 
@@ -66,14 +66,14 @@ dati=data.frame(1:nrow(eusilc),eusilc)
 colnames(dati)[1] <- "IDd"
 
 # Full population
-d<-linrmpg(inc="eqIncome", id="IDd", weight="rb050", Dom=NULL,
+d<-linrmpg(Y="eqIncome", id="IDd", weight="rb050", Dom=NULL,
            dataset=dati, percentage=60, order_quant=50)
 d$value
 d$threshold
 
 \dontrun{
 # By domains
-dd<-linrmpg(inc="eqIncome", id="IDd", weight = "rb050", Dom="db040",
+dd<-linrmpg(Y="eqIncome", id="IDd", weight = "rb050", Dom="db040",
             dataset=dati, percentage=60, order_quant=50)
 dd$value}
 }

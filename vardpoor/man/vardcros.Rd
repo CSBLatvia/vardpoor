@@ -8,8 +8,9 @@
 
 \usage{
 vardcros(Y, H, PSU, w_final, id, Dom = NULL,
-         Z = NULL, country, period,
+         Z = NULL, country, periods,
          dataset = NULL, linratio=FALSE,
+         use.estVar = FALSE,
          household_level_max=TRUE,
          withperiod=TRUE, netchanges=TRUE,
          confidence = .95)}
@@ -32,13 +33,15 @@ vardcros(Y, H, PSU, w_final, id, Dom = NULL,
 
 \item{country}{Variable for the survey countries. The values for each country are computed independently. Object convertible to \code{data.frame} or variable names as character, column numbers or logical vector (length of the vector has to be the same as the column count of \code{dataset}).}
 
-\item{period}{Variable for the survey periods. The values for each period are computed independently. Object convertible to \code{data.frame} or variable names as character, column numbers or logical vector (length of the vector has to be the same as the column count of \code{dataset}).}
+\item{periods}{Variable for the survey periods. The values for each period are computed independently. Object convertible to \code{data.frame} or variable names as character, column numbers or logical vector (length of the vector has to be the same as the column count of \code{dataset}).}
 
 \item{dataset}{Optional survey data object convertible to \code{data.frame}.}
 
-\item{linratio}{Logical value. If value is \code{TRUE}, then the linearized variables for the ratio estimator is used for variance estimation. If value is \code{FALSE}, then the gradients is used for variance , but if f variables of interest.}
+\item{linratio}{Logical value. If value is \code{TRUE}, then the linearized variables for the ratio estimator is used for variance estimation. If value is \code{FALSE}, then the gradients is used for variance estimation.}
 
-\item{household_level_max}{Logical value.}
+\item{use.estVar}{Logical value. If value is \code{TRUE}, then \code{R} function \code{estVar} is used for the  estimation of covariance matrix of the residuals. If value is \code{FALSE}, then \code{R} function \code{estVar} is not used for the estimation of covariance matrix of the residuals.}
+ 
+\item{household_level_max}{Logical value. If value is \code{TRUE}, then the size of sample for variance under simple random sampling is taken as maximum value of size in household . If value is \code{FALSE}, then the size of sample for variance under simple random sampling is taken as count of persons in household.}
 
 \item{withperiod}{Logical value. If \code{TRUE} is value, the results is with period, if \code{FALSE}, without period.}
 
@@ -78,10 +81,12 @@ vardcros(Y, H, PSU, w_final, id, Dom = NULL,
 } 
 
 \references{
-Eurostat Methodologies and Working papers, Standard error estimation for the EU-SILC indicators of poverty and social exclusion, 2013, URL \url{http://epp.eurostat.ec.europa.eu/cache/ITY_OFFPUB/KS-RA-13-024/EN/KS-RA-13-024-EN.PDF}. \cr
+Guillaume Osier,  Yves Berger,  Tim Goedeme, (2013), Standard error estimation for the EU-SILC indicators of poverty and social exclusion,  Eurostat Methodologies and Working papers, URL \url{http://ec.europa.eu/eurostat/documents/3859598/5927001/KS-RA-13-024-EN.PDF}. \cr
 
 Yves G. Berger, Tim Goedeme, Guillame Osier (2013). Handbook on standard error estimation and other related sampling issues in EU-SILC,
 URL \url{http://www.cros-portal.eu/content/handbook-standard-error-estimation-and-other-related-sampling-issues-ver-29072013} \cr
+
+Eurostat Methodologies and Working papers, Handbook on precision requirements and variance estimation for ESS household surveys, 2013, URL \url{http://ec.europa.eu/eurostat/documents/3859598/5927001/KS-RA-13-029-EN.PDF}. \cr
 }
 
 
@@ -123,12 +128,14 @@ data[, arope:= ifelse (pov == 1 | dep == 1 | lwi == 1, 1, 0)]
 result11 <- vardcros(Y="arope",
                     H="strata", PSU="PSU", w_final="rb050",
                     id="db030", Dom="rb090", Z=NULL,
-                    country="country", period="year",
+                    country="country", periods="year",
                     dataset=data,
-                    linratio=FALSE, 
+                    linratio=FALSE,  
+                    use.estVar=FALSE,
                     withperiod=TRUE,
                     netchanges=TRUE,
                     confidence = .95)
+
 \dontrun{
 # Example 2
 data(eusilc)
@@ -170,6 +177,7 @@ result11 <- vardcros(Y=c("pov", "dep", "arope"),
                     country="country", period="year",
                     dataset=data,
                     linratio=FALSE, 
+                    use.estVar=FALSE,
                     withperiod=TRUE,
                     netchanges=TRUE,
                     confidence = .95)
@@ -181,6 +189,7 @@ result12 <- vardcros(Y=c("lwi"),
                     country="country", period="year",
                     dataset=data2,
                     linratio=FALSE, 
+                    use.estVar=FALSE,
                     withperiod=TRUE,
                     netchanges=TRUE,
                     confidence = .95)
@@ -278,9 +287,10 @@ pov3==0)|(pov1==1&pov2==0&pov3==1)|(pov1==0&pov2==1&pov3==1))),1,0)]
 result20 <- vardcros(Y="ppr", H="strata", PSU="PSU",
                     w_final="w4", id="rb030",
                     Dom = NULL, Z=NULL,
-                    country="rb020", period=NULL,
+                    country="rb020", periods=NULL,
                     dataset=apv,
                     linratio=FALSE, 
+                    use.estVar=FALSE,
                     withperiod=FALSE,
                     netchanges=FALSE,
                     confidence = .95)}

@@ -10,7 +10,7 @@
 # ************************************************************************
 # ************************************************************************
 
-lingini <- function(inc, id = NULL, weight = NULL, sort = NULL, 
+lingini <- function(Y, id = NULL, weight = NULL, sort = NULL, 
                     Dom = NULL, period=NULL, dataset = NULL,
                     var_name="lin_gini") {
 
@@ -20,7 +20,7 @@ lingini <- function(inc, id = NULL, weight = NULL, sort = NULL,
 
    if (!is.null(dataset)) {
        dataset <- data.frame(dataset) 
-       if (checker(inc, dataset, "inc")) inc <- dataset[, inc] 
+       if (checker(Y, dataset, "Y")) Y <- dataset[, Y] 
 
        if (!is.null(id)) {
             id2 <- id
@@ -49,18 +49,18 @@ lingini <- function(inc, id = NULL, weight = NULL, sort = NULL,
      } 
 
    # check vectors
-   # inc
-   inc <- data.frame(inc)
-   n <- nrow(inc)
-   if (ncol(inc) != 1) stop("'inc' must be vector or 1 column data.frame, matrix, data.table")
-   inc <- inc[,1]
-   if(!is.numeric(inc)) stop("'inc' must be numerical")
-   if (any(is.na(inc))) stop("'inc' has unknown values")
+   # Y
+   Y <- data.frame(Y)
+   n <- nrow(Y)
+   if (ncol(Y) != 1) stop("'Y' must be vector or 1 column data.frame, matrix, data.table")
+   Y <- Y[,1]
+   if(!is.numeric(Y)) stop("'Y' must be numerical")
+   if (any(is.na(Y))) stop("'Y' has unknown values")
 
    # weight
    weight <- data.frame(weight)
    if (is.null(weight)) weight <- data.frame(rep.int(1, n))
-   if (nrow(weight) != n) stop("'weight' must be the same length as 'inc'")
+   if (nrow(weight) != n) stop("'weight' must be the same length as 'Y'")
    if (ncol(weight) != 1) stop("'weight' must be vector or 1 column data.frame, matrix, data.table")
    weight <- weight[,1]
    if (!is.numeric(weight)) stop("'weight' must be numerical")
@@ -69,7 +69,7 @@ lingini <- function(inc, id = NULL, weight = NULL, sort = NULL,
    # sort
    if (!is.null(sort) && !is.vector(sort) && !is.ordered(sort)) {
          stop("'sort' must be a vector or ordered factor") }
-   if (!is.null(sort) && length(sort) != n) stop("'sort' must be the same length as 'inc'")     
+   if (!is.null(sort) && length(sort) != n) stop("'sort' must be the same length as 'Y'")     
    
    # period     
    if (!is.null(period)) {
@@ -77,7 +77,7 @@ lingini <- function(inc, id = NULL, weight = NULL, sort = NULL,
        if (any(duplicated(names(period)))) 
                  stop("'period' are duplicate column names: ", 
                       paste(names(period)[duplicated(names(period))], collapse = ","))
-       if (nrow(period) != n) stop("'period' must be the same length as 'inc'")
+       if (nrow(period) != n) stop("'period' must be the same length as 'Y'")
        if(any(is.na(period))) stop("'period' has unknown values")  
    }   
 
@@ -86,7 +86,7 @@ lingini <- function(inc, id = NULL, weight = NULL, sort = NULL,
    id <- data.table(id)
    if (any(is.na(id))) stop("'id' has unknown values")
    if (ncol(id) != 1) stop("'id' must be 1 column data.frame, matrix, data.table")
-   if (nrow(id) != n) stop("'id' must be the same length as 'inc'")
+   if (nrow(id) != n) stop("'id' must be the same length as 'Y'")
    if (is.null(names(id))||(names(id)=="id")) setnames(id,names(id),"ID")
    if (is.null(period)){ if (any(duplicated(id))) stop("'id' are duplicate values") 
                        } else {
@@ -101,7 +101,8 @@ lingini <- function(inc, id = NULL, weight = NULL, sort = NULL,
                  stop("'Dom' are duplicate column names: ", 
                       paste(names(Dom)[duplicated(names(Dom))], collapse = ","))
              if (is.null(names(Dom))) stop("'Dom' must be colnames")
-             if (nrow(Dom) != n) stop("'Dom' must be the same length as 'inc'")
+             if (nrow(Dom) != n) stop("'Dom' must be the same length as 'Y'")
+             Dom <- Dom[, lapply(.SD, as.character), .SDcols = names(Dom)]
        }
 
    ## computations
@@ -132,7 +133,7 @@ lingini <- function(inc, id = NULL, weight = NULL, sort = NULL,
                if (!is.null(period)) { rown <- cbind(period_agg[j], Dom_agg[i])
                                      } else rown <- Dom_agg[i] 
                if (!all(indj)) {
-                    ginil <- linginiCalc(inc[indj], gini_id[indj], weight[indj], sort[indj])
+                    ginil <- linginiCalc(Y[indj], gini_id[indj], weight[indj], sort[indj])
                     list(data.table(rown, ginil$Gini), ginil$lin)
                    }  else list(data.table(rown, Gini=0, Gini_eu=0),                                            
                                 lin=data.table(lin=gini_id[indi], lin=0))
@@ -143,12 +144,12 @@ lingini <- function(inc, id = NULL, weight = NULL, sort = NULL,
             setnames(ginilin, names(ginilin), c(names(gini_id), var_nams))
             setkeyv(ginilin, names(gini_id))
             setkeyv(gini_m, names(gini_id))
-            gini_m <- merge(gini_m, ginilin, all=T)
+            gini_m <- merge(gini_m, ginilin, all=TRUE)
             Gini <- rbind(Gini, giniv)
          }
      } else { gini_l <- lapply(1:nrow(period1_agg), function(j) {
                            indj <- (rowSums(period1 == period1_agg[j,][ind0,]) == ncol(period1))
-                           ginil <- linginiCalc(inc[indj], gini_id[indj], weight[indj], sort[indj])                                                 
+                           ginil <- linginiCalc(Y[indj], gini_id[indj], weight[indj], sort[indj])                                                 
                            if (!is.null(period)) {
                                   list(data.table(period_agg[j], ginil$Gini), ginil$lin)
                                 }  else ginil

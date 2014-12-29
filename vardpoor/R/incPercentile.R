@@ -17,7 +17,7 @@ checker <- function(variables, datasets, varname) {
       return(ifelse(vars >= 100, TRUE, FALSE))
  }
 
-incPercentile <- function(inc, weights = NULL, sort = NULL, 
+incPercentile <- function(Y, weights = NULL, sort = NULL, 
         Dom = NULL, period=NULL, k = c(20, 80), dataset = NULL) {
    
    ## initializations
@@ -27,7 +27,7 @@ incPercentile <- function(inc, weights = NULL, sort = NULL,
    
    if(!is.null(dataset)) {
        dataset <- data.frame(dataset, stringsAsFactors=FALSE)
-       if (checker(inc, dataset, "inc")) inc <- dataset[, inc] 
+       if (checker(Y, dataset, "Y")) Y <- dataset[, Y] 
 
        if(!is.null(weights)) {
            if (checker(weights, dataset, "weights")) weights <- dataset[, weights] }
@@ -50,17 +50,17 @@ incPercentile <- function(inc, weights = NULL, sort = NULL,
       }
 
    # check vectors
-   # inc
-   inc <- data.frame(inc)
-   n <- nrow(inc)
-   if (ncol(inc) != 1) stop("'inc' must be a vector or 1 column data.frame, matrix, data.table")
-   inc <- inc[,1]
-   if(!is.numeric(inc)) stop("'inc' must be numerical")
-   if (any(is.na(inc))) stop("'inc' has unknown values")
+   # Y
+   Y <- data.frame(Y)
+   n <- nrow(Y)
+   if (ncol(Y) != 1) stop("'Y' must be a vector or 1 column data.frame, matrix, data.table")
+   Y <- Y[,1]
+   if(!is.numeric(Y)) stop("'Y' must be numerical")
+   if (any(is.na(Y))) stop("'Y' has unknown values")
 
    # weights
    weights <- data.frame(weights)
-   if (nrow(weights) != n) stop("'weights' must be the same length as 'inc'")
+   if (nrow(weights) != n) stop("'weights' must be the same length as 'Y'")
    if (ncol(weights) != 1) stop("'weights' must be vector or 1 column data.frame, matrix, data.table")
    weights <- weights[,1]
    if(!is.numeric(weights)) stop("'weights' must be numerical")
@@ -69,7 +69,7 @@ incPercentile <- function(inc, weights = NULL, sort = NULL,
    # sort  
    if(!is.null(sort) && !is.vector(sort) && !is.ordered(sort)) {
          stop("'sort' must be a vector or ordered factor") }
-   if(!is.null(sort) && length(sort) != n) stop("'sort' must be the same length as 'x'")
+   if(!is.null(sort) && length(sort) != n) stop("'sort' must be the same length as 'Y'")
 
    # period     
    if (!is.null(period)) {
@@ -77,7 +77,7 @@ incPercentile <- function(inc, weights = NULL, sort = NULL,
        if (any(duplicated(names(period)))) 
                  stop("'period' are duplicate column names: ", 
                       paste(names(period)[duplicated(names(period))], collapse = ","))
-       if (nrow(period) != n) stop("'period' must be the same length as 'inc'")
+       if (nrow(period) != n) stop("'period' must be the same length as 'Y'")
        if(any(is.na(period))) stop("'period' has unknown values")  
    }
 
@@ -87,7 +87,8 @@ incPercentile <- function(inc, weights = NULL, sort = NULL,
              Dom <- data.table(Dom)
              namesDom <- names(Dom)
              if (is.null(names(Dom))) stop("'Dom' must be colnames")
-             if (nrow(Dom) != n) stop("'Dom' must be the same length as 'inc'")
+             if (nrow(Dom) != n) stop("'Dom' must be the same length as 'Y'")
+             Dom <- Dom[, lapply(.SD, as.character), .SDcols = names(Dom)]
        }
     
     if (!is.null(period)) {
@@ -100,13 +101,13 @@ incPercentile <- function(inc, weights = NULL, sort = NULL,
     if(!is.null(Dom)) {
         Dom_app <- do.call("paste", c(as.list(Dom), sep="__"))
         q1 <- lapply(split(Dom[, .I], Dom_app), function(i) {
-               incind <- inc[i]
+               Yind <- Y[i]
                weightsind <- weights[i]
                sortind <- sort[i]
-               order <- if(is.null(sortind)) order(incind) else order(incind, sortind)
-               incind <- incind[order]
+               order <- if(is.null(sortind)) order(Yind) else order(Yind, sortind)
+               Yind <- Yind[order]
                weightsind <- weightsind[order]  # also works if 'weights' is NULL                               
-               percentile <- weightedQuantile(incind, weightsind, probs=k/100, sorted=FALSE, na.rm=FALSE)               
+               percentile <- weightedQuantile(Yind, weightsind, probs=k/100, sorted=FALSE, na.rm=FALSE)               
                q <- data.table(Dom[i][1], t(percentile))})
         q <- rbindlist(q1)
         setnames(q, names(q)[ncol(Dom)+1:length(k)], paste0("x",k))
@@ -120,10 +121,10 @@ incPercentile <- function(inc, weights = NULL, sort = NULL,
               q <- qrs[,lapply(.SD, sum), keyby=names(Dom), .SDcols=paste0("x", k)]              
             }
          setkeyv(q, names(Dom))
-     } else {  order <- if(is.null(sort)) order(inc) else order(inc, sort)
-               inc <- inc[order]
+     } else {  order <- if(is.null(sort)) order(Y) else order(Y, sort)
+               Y <- Y[order]
                weights <- weights[order]  # also works if 'weights' is NULL
-               percentile <- weightedQuantile(inc, weights, probs=k/100, sorted=TRUE, na.rm=FALSE)
+               percentile <- weightedQuantile(Y, weights, probs=k/100, sorted=TRUE, na.rm=FALSE)
                q <- data.table(t(percentile))
                setnames(q, names(q)[1:length(k)], paste0("x",k))
      }

@@ -11,7 +11,7 @@ Estimation of gender pay (wage) gap and computation of linearized variables for 
 
 
 \usage{
-lingpg(inc, gender = NULL, id, 
+lingpg(Y, gender = NULL, id, 
   weight = NULL,
   sort = NULL,
   Dom = NULL,
@@ -23,7 +23,7 @@ lingpg(inc, gender = NULL, id,
 
 \arguments{
 
-\item{inc}{Study variable (for example equalized disposable income). One dimensional object convertible to one-column \code{data.frame} or variable name as character, column number or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset}).
+\item{Y}{Study variable (for example equalized disposable income). One dimensional object convertible to one-column \code{data.frame} or variable name as character, column number or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset}).
 }
 
 \item{gender}{Numerical variable for gender, where 1 is for males, but 2 is for females. One dimensional object convertible to one-column \code{data.frame} or variable name as character, column number or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset}).
@@ -88,19 +88,19 @@ dati[sexf=="female", sex:=2]
 
 
 # Full population
-gpgs1 <- lingpg(inc="earningsHour", gender="sex",
+gpgs1 <- lingpg(Y="earningsHour", gender="sex",
                 id="ID", weight="weights", dataset=dati)
 gpgs1$value
 
 \dontrun{
 # Domains by education
-gpgs2 <- lingpg(inc="earningsHour", gender="sex",
+gpgs2 <- lingpg(Y="earningsHour", gender="sex",
                 id="ID", weight="weights",
                 Dom="education", dataset=dati)
 gpgs2$value
 
 # Sort variable
-gpgs3 <- lingpg(inc="earningsHour", gender="sex",
+gpgs3 <- lingpg(Y="earningsHour", gender="sex",
                 id="ID", weight="weights", sort = "ID",
                 Dom="education", dataset=dati)
 gpgs3$value
@@ -110,7 +110,7 @@ dati[, year := 2010]
 dati2 <- copy(dati)
 dati2[, year := 2011]
 dati <- rbind(dati, dati2)
-gpgs4 <- lingpg(inc="earningsHour", gender="sex",
+gpgs4 <- lingpg(Y="earningsHour", gender="sex",
                 id="ID", weight="weights", sort = "ID",
                 Dom="education", period = "year",
                 dataset=dati)

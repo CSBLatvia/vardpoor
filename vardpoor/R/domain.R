@@ -15,7 +15,8 @@ domain <- function(Y, D) {
     stop(name.D, " has duplicate column names: ",
          paste(names(D)[duplicated(names(D))], collapse = ", "))
   if (nrow(D) != n) stop(name.Y, " and ", name.D ," have different row count")
-  
+  D <- D[, lapply(.SD, as.character), .SDcols = names(D)]
+
   Dom_agg <- unique(D)
   setkeyv(Dom_agg, names(Dom_agg))
   

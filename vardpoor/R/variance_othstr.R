@@ -225,6 +225,7 @@ variance_othstr <- function(Y, H, H2, w_final, N_h=NULL, N_h2, period=NULL, data
               zh2[, paste0(names(Y),"_sd"), with=FALSE])]
 
   # var_g 
+  if (nrow(s2_g)==1) s2_g <- t(s2_g)
   s2_g <- data.table(s2_g)
   setnames(s2_g, names(s2_g), names(Y))
 

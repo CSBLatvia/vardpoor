@@ -9,7 +9,7 @@
 }
 
 \usage{
-lingini2(inc, id = NULL, weight = NULL,
+lingini2(Y, id = NULL, weight = NULL,
          sort = NULL, Dom = NULL,
          period=NULL, dataset = NULL,
          var_name="lin_gini2")
@@ -17,7 +17,7 @@ lingini2(inc, id = NULL, weight = NULL,
 
 \arguments{
 
-  \item{inc}{Study variable (for example equalized disposable income). One dimensional object convertible to one-column \code{data.frame} or variable name as character, column number or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset}).}
+  \item{Y}{Study variable (for example equalized disposable income). One dimensional object convertible to one-column \code{data.frame} or variable name as character, column number or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset}).}
 
   \item{id}{Optional variable for unit ID codes. One dimensional object convertible to one-column \code{data.frame} or variable name as character, column number or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset}).}
 
@@ -57,12 +57,12 @@ dati <- data.frame(1:nrow(eusilc),eusilc)
 colnames(dati)[1] <- "IDd"
 
 # Full population
-dat1 <- lingini2(inc="eqIncome", id="IDd", weight = "rb050",  dataset=dati)
+dat1 <- lingini2(Y="eqIncome", id="IDd", weight = "rb050",  dataset=dati)
 dat1$value
 
 \dontrun{
 # By domains
-dat2 <- lingini2(inc="eqIncome", id="IDd", weight = "rb050", Dom=c("db040"), dataset=dati)
+dat2 <- lingini2(Y="eqIncome", id="IDd", weight = "rb050", Dom=c("db040"), dataset=dati)
 dat2$value}
 }
 

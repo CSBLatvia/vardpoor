@@ -3,11 +3,11 @@ citHeader("To cite the vardpoor package in publications please use:")
 citEntry(
     entry="misc",
     author="Juris Breidaks, Martins Liberts, Santa Ivanova",
-    year=2014,
+    year=2015,
     title="vardpoor: Estimation of indicators on social exclusion and poverty and its linearization, variance estimation",
-    note="R package version 0.2.2",
+    note="R package version 0.2.4",
     organization="CSB",
     address="Riga, Latvia",
-    textVersion="J. Breidaks, M. Liberts, S. Ivanova (2014) \"Estimation of indicators on social exclusion and poverty and its linearization, variance estimation\". R package version 0.2.2, CSB, Latvia."
+    textVersion="J. Breidaks, M. Liberts, S. Ivanova (2015) \"Estimation of indicators on social exclusion and poverty and its linearization, variance estimation\". R package version 0.2.4, CSB, Latvia."
     )
 

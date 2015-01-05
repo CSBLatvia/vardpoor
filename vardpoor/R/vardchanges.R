@@ -247,7 +247,7 @@ vardchanges <- function(Y, H, PSU, w_final, id,
   den1 <- den2 <- NULL
 
   fit <- lapply(1:nrowv, function(i) {
-             fits <- lapply(split(data, data[[country]]), function(DT3c) {
+            fits <- lapply(split(data, data[[country]]), function(DT3c) {
                       y1 <- paste0(period[i], "_1")
                       y2 <- paste0(period[i], "_2")
                       if (!is.null(namesZ)) { 
@@ -264,7 +264,7 @@ vardchanges <- function(Y, H, PSU, w_final, id,
                                                                             "rot01*rot02*", toString(x))))),
                                                                              collapse= "+"))) 
                       res <- lm(funkc, data=DT3c)
-
+                      
                       if (use.estVar) { res <- data.table(estVar(res))
                                   } else res <- data.table(lm(funkc, data=DT3c)$res)
                       if (!is.null(namesZ)) { 
@@ -285,12 +285,12 @@ vardchanges <- function(Y, H, PSU, w_final, id,
                                  res[, num1den1:=res[["num1"]][1+Zvn]]
                                  res[, num1den2:=res[["num1"]][3+Zvn]]
 
-                                 res[, den1num2:=res[["den1"]][1+Zvn]]
+                                 res[, den1num2:=res[["den1"]][2+Zvn]]
                                  res[, den1den2:=res[["den1"]][3+Zvn]]
                                  res[, num2den2:=res[["num2"]][3+Zvn]] }
                            res <- data.table(res[1], DT3c[1])
                         } else {
-                            res[, num1num1:=num1 * num2]
+                            res[, num1num1:=num1 * num1]
                             res[, num2num2:=num2 * num2]
                             res[, num1num2:=num1 * num2]
                             if (!is.null(namesZ)) {
@@ -318,7 +318,7 @@ vardchanges <- function(Y, H, PSU, w_final, id,
         })
    res <- rbindlist(fit)
 
-   res[, country:=as.character(country)]
+   set(res, j=country, value=as.character(res[[country]]))
    namesYZ <- c("namesY", "namesZ")
    namesYZ <- namesYZ[namesYZ %in% names(res)]
    setnames(res, namesYZ,  paste0(namesYZ, "s"))
@@ -344,6 +344,7 @@ vardchanges <- function(Y, H, PSU, w_final, id,
    data[, C11:=num1_1]
    data[, C33:=num1_2]
    data[, C13:=sqrt(num1_1*num1_2/(num1num1*num2num2))*num1num2]
+
    if (!is.null(namesZ)) {
           data[, namesZs:=NULL]   
           data[, C22:=den1_1]
@@ -377,11 +378,11 @@ vardchanges <- function(Y, H, PSU, w_final, id,
    data[, relative_margin_of_error:= tsad * cv]
    data[, CI_lower:=estim - tsad*se]
    data[, CI_upper:=estim + tsad*se]
-   changes_results <- data[, c("country", Dom, namesYZ, "estim",
-                                                "var", "se", "rse", "cv",
-                                                "absolute_margin_of_error",
-                                                "relative_margin_of_error",
-                                                "CI_lower", "CI_upper"), with=FALSE]
+   changes_results <- data[, c(country, Dom, namesYZ, "estim",
+                               "var", "se", "rse", "cv",
+                               "absolute_margin_of_error",
+                               "relative_margin_of_error",
+                               "CI_lower", "CI_upper"), with=FALSE]
 
  list(crossectional_results=crossectional_results, changes_results=changes_results)
 }   

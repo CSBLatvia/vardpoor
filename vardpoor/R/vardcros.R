@@ -268,7 +268,7 @@ vardcros <- function(Y, H, PSU, w_final, id,
 
  #--------------------------------------------------------------------------*
  # MULTIVARIATE REGRESSION APPROACH USING STRATUM DUMMIES AS REGRESSORS AND |
- # STANDARD ERROR ESTIMATION 								    |
+ # STANDARD ERROR ESTIMATION 						      |
  #--------------------------------------------------------------------------*
 
  DT3H <- DT3[[names_H]]

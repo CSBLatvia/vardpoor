@@ -269,34 +269,6 @@ varpoord <- function(Y, w_final,
     Dom <- Dom[, lapply(.SD, as.character), .SDcols = names(Dom)]
   }
 
- # X_ID_household
-  if (!is.null(X)) {
-    X_ID_household <- data.table(X_ID_household)
-    if (ncol(X_ID_household) != 1) stop("'X_ID_household' must be 1 column data.frame, matrix, data.table")
-    if (any(is.na(X_ID_household))) stop("'X_ID_household' has unknown values")
-
-    IDh <- data.table(unique(ID_household))
-    if (!is.null(period)) {X_ID_household <- data.table(periodX, X_ID_household)
-                           IDh <- data.table(unique(data.table(period, ID_household)))}
-    if (any(duplicated(X_ID_household))) stop("'X_ID_household' have duplicates")
-    setkeyv(X_ID_household, names(X_ID_household))
-    setkeyv(IDh, names(IDh))
-
-    if (!is.null(period)) {
-        if (nrow(IDh) != nrow(X_ID_household)) stop("'period' with 'X_ID_household' and 'unique(period, ID_household)' have different row count")
-        if (any(IDh != X_ID_household)) stop("'period' with 'X_ID_household' and 'unique(period, ID_household)' records have different")
-      } else {
-        if (nrow(IDh) != nrow(X_ID_household)) stop("'X_ID_household' and 'unique(ID_household)' have different row count")
-        if (any(IDh != X_ID_household)) stop("'X_ID_household' and 'unique(ID_household)' records have different")
-    }}
-
-  # X
-  if (!is.null(X)) {
-    X <- data.table(X, check.names=TRUE)
-    if (!all(sapply(X, is.numeric))) stop("'X' must be numeric values")
-    if (nrow(X) != nrow(X_ID_household)) stop("'X' and 'X_ID_household' have different row count")
-  }
-
   # periodX
   if (!is.null(X)) {
      if(!is.null(periodX)) {
@@ -310,9 +282,43 @@ varpoord <- function(Y, w_final,
                          paste(names(periodX)[duplicated(names(periodX))], collapse = ","))
         if (nrow(periodX) != nrow(X)) stop("'periodX' length must be equal with 'X' row count")
         if (any(is.na(periodX))) stop("'periodX' has unknown values")
+        if (names(period) != names(periodX)) stop("'periodX' names and 'period' names must be equal ")
         if (any(peri != periX)) stop("'unique(period)' and 'unique(periodX)' records have different")
+        if (peri[, class(get(names(peri)))]!=periX[, class(get(names(periX)))])  stop("Class for 'periodX' and class for 'period' must be equal")
       }
    }
+
+ # X_ID_household
+  if (!is.null(X)) {
+    X_ID_household <- data.table(X_ID_household)
+    if (ncol(X_ID_household) != 1) stop("'X_ID_household' must be 1 column data.frame, matrix, data.table")
+    if (any(is.na(X_ID_household))) stop("'X_ID_household' has unknown values")
+
+    IDh <- data.table(unique(ID_household))
+    if (!is.null(period)) {X_ID_household <- data.table(periodX, X_ID_household)
+                           IDh <- data.table(unique(data.table(period, ID_household)))}
+    if (any(duplicated(X_ID_household))) stop("'X_ID_household' have duplicates")
+    setkeyv(X_ID_household, names(X_ID_household))
+    setkeyv(IDh, names(IDh))
+
+    nperIDh <- names(IDh)
+    if (nperIDh != names(X_ID_household)) stop("'X_ID_household' and 'ID_household' must be equal names")
+    if (IDh[, class(get(nperIDh))]!=X_ID_household[, class(get(nperIDh))])  stop("Class for 'X_ID_household' and class for 'ID_household' must be equal ")
+
+    if (!is.null(period)) {
+        if (nrow(IDh) != nrow(X_ID_household)) stop("'periodX' with 'X_ID_household' and 'unique(period, ID_household)' have different row count")
+        if (any(IDh != X_ID_household)) stop("'periodX' with 'X_ID_household' and 'unique(period, ID_household)' records have different")
+      } else {
+        if (nrow(IDh) != nrow(X_ID_household)) stop("'X_ID_household' and 'unique(ID_household)' have different row count")
+        if (any(IDh != X_ID_household)) stop("'X_ID_household' and 'unique(ID_household)' records have different")
+    }}
+
+  # X
+  if (!is.null(X)) {
+    X <- data.table(X, check.names=TRUE)
+    if (!all(sapply(X, is.numeric))) stop("'X' must be numeric values")
+    if (nrow(X) != nrow(X_ID_household)) stop("'X' and 'X_ID_household' have different row count")
+  }
 
   # ind_gr
   if (!is.null(X)) {

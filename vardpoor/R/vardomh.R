@@ -189,10 +189,10 @@ vardomh <- function(Y, H, PSU, w_final,
       if (is.null(period)) {
              if (names(H) != names(N_h)[1]) stop("Strata titles for 'H' and 'N_h' is not equal")
              if (any(is.na(merge(unique(H), N_h, by=names(H), all.x = T)))) stop("'N_h' is not defined for all stratas")
-       } else { pH <- data.frame(period, H)
+       } else { pH <- data.table(period, H)
                 if (any(names(pH) != names(N_h)[c(1:(1+np))])) stop("Strata titles for 'period' with 'H' and 'N_h' is not equal")
                 nperH <- names(period)
-                if (H[, class(get(nperH))]!=N_h[, class(get(nperH))]) 
+                if (pH[, class(get(nperH))]!=N_h[, class(get(nperH))]) 
                                                        stop("Period class for 'period' and 'N_h' is not equal ")
                 if (any(is.na(merge(unique(pH), N_h, by=names(pH), all.x = T)))) stop("'N_h' is not defined for all stratas and periods")
                 if (any(duplicated(N_h[, head(names(N_h),-1), with=F]))) stop("Strata values for 'N_h' must be unique in all periods")
@@ -240,7 +240,9 @@ vardomh <- function(Y, H, PSU, w_final,
         if (ncol(periodX) != ncol(period)) stop("'periodX' length must be equal with 'period' column count")
         if (names(periodX) != names(period)) stop("'periodX' must be equal with 'period' names")
         if (any(is.na(periodX))) stop("'periodX' has unknown values")
+        if (names(period) != names(periodX)) stop("'periodX' names and 'period' names must be equal ")
         if (any(peri != periX)) stop("'unique(period)' and 'unique(periodX)' records have different")
+        if (peri[, class(get(names(peri)))]!=periX[, class(get(names(periX)))])  stop("Class for 'periodX' and class for 'period' must be equal")
       }
    }
 
@@ -257,9 +259,13 @@ vardomh <- function(Y, H, PSU, w_final,
     if (any(duplicated(X_ID_household))) stop("'X_ID_household' have duplicates")
     setkeyv(X_ID_household, names(X_ID_household))
     setkeyv(IDh, names(IDh))
+    nperIDh <- names(IDh)
+    if (nperIDh != names(X_ID_household)) stop("'X_ID_household' and 'ID_household' must be equal  names")
+    if (IDh[, class(get(nperIDh))]!=X_ID_household[, class(get(nperIDh))])  stop("Class for 'X_ID_household' and class for 'ID_household' must be equal ")
+
     if (!is.null(period)) {
-        if (nrow(IDh) != nrow(X_ID_household)) stop("'period' with 'X_ID_household' and 'unique(period, ID_household)' have different row count")
-        if (any(IDh != X_ID_household)) stop("'period' with 'X_ID_household' and 'unique(period, ID_household)' records have different")
+        if (nrow(IDh) != nrow(X_ID_household)) stop("'periodX' with 'X_ID_household' and 'unique(period, ID_household)' have different row count")
+        if (any(IDh != X_ID_household)) stop("'periodX' with 'X_ID_household' and 'unique(period, ID_household)' records have different")
       } else {
         if (nrow(IDh) != nrow(X_ID_household)) stop("'X_ID_household' and 'unique(ID_household)' have different row count")
         if (any(IDh != X_ID_household)) stop("'X_ID_household' and 'unique(ID_household)' records have different")

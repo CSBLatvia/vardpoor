@@ -415,7 +415,7 @@ vardom <- function(Y, H, PSU, w_final,
                               }
          Z_nov <- transpos(Z_nov, is.null(period), "Z_nov", names(period), "variableDZ")
          setkeyv(all_result, c(names(period), "variableDZ"))
-         all_result <- merge(all_result, Z_nov, all=TRUE)                                            
+         all_result <- merge(all_result, Z_nov, all=TRUE)
       }
 
   vars <- data.table(variable=names(Y1), nr_names=1:ncol(Y1))

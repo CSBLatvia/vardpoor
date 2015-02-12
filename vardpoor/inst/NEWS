@@ -1,7 +1,11 @@
+Changes in vardpoor version 0.2.6
+
+    + Corrected mistake in function vardomh when Z is not NULL and period is not NULL.
+
 Changes in vardpoor version 0.2.5
 
     + Corrected mistake in function vardomh and vardom when period is not NULL show allways
-      error message that  H is not equal wih period.
+      error message that  H is not equal with period.
 
 Changes in vardpoor version 0.2.4
 

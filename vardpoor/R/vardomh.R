@@ -260,7 +260,7 @@ vardomh <- function(Y, H, PSU, w_final,
     setkeyv(X_ID_household, names(X_ID_household))
     setkeyv(IDh, names(IDh))
     nperIDh <- names(IDh)
-    if (nperIDh != names(X_ID_household)) stop("'X_ID_household' and 'ID_household' must be equal  names")
+    if (any(nperIDh != names(X_ID_household))) stop("'X_ID_household' and 'ID_household' must be equal  names")
     if (IDh[, class(get(nperIDh))]!=X_ID_household[, class(get(nperIDh))])  stop("Class for 'X_ID_household' and class for 'ID_household' must be equal ")
 
     if (!is.null(period)) {
@@ -517,8 +517,8 @@ vardomh <- function(Y, H, PSU, w_final,
                                 Z_nov <- hZ[, lapply(.SD, sum, na.rm=TRUE), keyby=names(period), .SDcols = names(Z1)]
                               }
          Z_nov <- transpos(Z_nov, is.null(period), "Z_nov", names(period), "variableDZ")
-         setkeyv(all_result, "variableDZ")
-         all_result <- merge(all_result, Z_nov)                                            
+         setkeyv(all_result, c(names(period), "variableDZ"))
+         all_result <- merge(all_result, Z_nov, all=TRUE)                                            
       }
 
   vars <- data.table(variable=names(Y1), nr_names=1:ncol(Y1))

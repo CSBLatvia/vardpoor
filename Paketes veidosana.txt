@@ -1,7 +1,7 @@
 ﻿# PowerShell
 
 # Atver celu T:\!Vadiba\MatNodrD\R\vardpoor
-cd "T:\!Vadiba\MatNodrD\R\vardpoor"
+cd "\\cspdom.lv\Dati1\SMKD\MND\R\vardpoor"
 
 # 1. Izpilda komandu - parbauda kļūdas
 Rcmd.exe check vardpoor

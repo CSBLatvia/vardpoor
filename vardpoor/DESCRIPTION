@@ -2,15 +2,15 @@ Package: vardpoor
 Type: Package
 Title: Variance Estimation for Sample Surveys by the Ultimate Cluster
         Method
-Version: 0.2.5
-Date: 2015-01-19
+Version: 0.2.6
+Date: 2015-02-09
 Depends: R (>= 3.0.0), data.table (>= 1.9.4), laeken, stringr
 Imports: reshape2, foreach, plyr, gdata, MASS
 Authors@R: c(person("Juris", "Breidaks", email = "Juris.Breidaks@csb.gov.lv",
         role = c("aut", "cre")), person("Martins", "Liberts", role = "aut"), person("Santa", "Ivanova", role = "aut"))
 Author: Juris Breidaks [aut, cre], Martins Liberts [aut], Santa Ivanova [aut]
 Maintainer: Juris Breidaks <Juris.Breidaks@csb.gov.lv>
-Description: Generation of domain variables, linearisation of several nonlinear population statistics (the ratio of two totals, weighted income percentile, at-risk-of-poverty rate, at-risk-of-poverty threshold, Gini coefficient, gender pay gap, median income below at-risk-of-poverty gap, income quintile share ratio, relative median at-risk-of-poverty gap), computation of regression residuals in case of weight calibration, variance estimation of sample surveys by the ultimate cluster method (Hansen, Hurwitz and Madow, 1953), variance estimation for longitudinal, crossectional measures and measures of change for single and multistage stage cluster sampling designs (Berger, Y.G.). Several other precision measures are derived - standard error, the coefficient of variation, the margin of error, confidence interval, design effect.
+Description: Generation of domain variables, linearisation of several nonlinear population statistics (the ratio of two totals, weighted income percentile, at-risk-of-poverty rate, at-risk-of-poverty threshold, Gini coefficient, gender pay gap, median income below at-risk-of-poverty gap, income quintile share ratio, relative median at-risk-of-poverty gap), computation of regression residuals in case of weight calibration, variance estimation of sample surveys by the ultimate cluster method (Hansen, Hurwitz and Madow, 1953), variance estimation for longitudinal, cross-sectional measures and measures of change for single and multistage stage cluster sampling designs (Berger, Y.G.). Several other precision measures are derived - standard error, the coefficient of variation, the margin of error, confidence interval, design effect.
 License: GPL (>= 2)
 Repository: CRAN
 URL: https://github.com/CSBLatvia/vardpoor/

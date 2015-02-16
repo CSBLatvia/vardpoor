@@ -121,7 +121,7 @@ varpoord <- function(Y, w_final,
             aperiodX <- periodX  
             if (min(periodX %in% names(datasetX))!=1) stop("'periodX' does not exist in 'datasetX'!")
             if (min(periodX %in% names(datasetX))==1) {
-                                periodX <- as.data.frame(dataset[, periodX])
+                                periodX <- as.data.frame(datasetX[, periodX])
                                 names(periodX) <- aperiodX }}     
       if(!is.null(X_ID_household)) {
           X_ID_household2 <- X_ID_household
@@ -230,7 +230,7 @@ varpoord <- function(Y, w_final,
   # N_h
   if (!is.null(N_h)) {
       N_h <- data.table(N_h)
-      if (ncol(N_h) != np+2) stop(paste0("'N_h' should be ",toString(np+2)," columns"))
+      if (ncol(N_h) != np+2) stop(paste0("'N_h' should be ", np+2, " columns"))
       if (!is.numeric(N_h[[ncol(N_h)]])) stop("The last column of 'N_h' should be numerical")
       if (any(is.na(N_h))) stop("'N_h' has unknown values") 
       if (is.null(names(N_h))) stop("'N_h' must be colnames")
@@ -269,6 +269,12 @@ varpoord <- function(Y, w_final,
     Dom <- Dom[, lapply(.SD, as.character), .SDcols = names(Dom)]
   }
 
+  # X
+  if (!is.null(X)) {
+    X <- data.table(X, check.names=TRUE)
+    if (!all(sapply(X, is.numeric))) stop("'X' must be numeric values")
+  }
+
   # periodX
   if (!is.null(X)) {
      if(!is.null(periodX)) {
@@ -281,16 +287,18 @@ varpoord <- function(Y, w_final,
                     stop("'periodX' are duplicate column names: ", 
                          paste(names(periodX)[duplicated(names(periodX))], collapse = ","))
         if (nrow(periodX) != nrow(X)) stop("'periodX' length must be equal with 'X' row count")
+        if (ncol(periodX) != ncol(period)) stop("'periodX' length must be equal with 'period' column count")
+        if (names(periodX) != names(period)) stop("'periodX' must be equal with 'period' names")
         if (any(is.na(periodX))) stop("'periodX' has unknown values")
-        if (names(period) != names(periodX)) stop("'periodX' names and 'period' names must be equal ")
         if (any(peri != periX)) stop("'unique(period)' and 'unique(periodX)' records have different")
         if (peri[, class(get(names(peri)))]!=periX[, class(get(names(periX)))])  stop("Class for 'periodX' and class for 'period' must be equal")
-      }
-   }
+      } else if (!is.null(period)) stop("'periodX' must be defined")
+   } 
 
  # X_ID_household
   if (!is.null(X)) {
     X_ID_household <- data.table(X_ID_household)
+    if (nrow(X) != nrow(X_ID_household)) stop("'X' and 'X_ID_household' have different row count")
     if (ncol(X_ID_household) != 1) stop("'X_ID_household' must be 1 column data.frame, matrix, data.table")
     if (any(is.na(X_ID_household))) stop("'X_ID_household' has unknown values")
 
@@ -313,13 +321,6 @@ varpoord <- function(Y, w_final,
         if (any(IDh != X_ID_household)) stop("'X_ID_household' and 'unique(ID_household)' records have different")
     }}
 
-  # X
-  if (!is.null(X)) {
-    X <- data.table(X, check.names=TRUE)
-    if (!all(sapply(X, is.numeric))) stop("'X' must be numeric values")
-    if (nrow(X) != nrow(X_ID_household)) stop("'X' and 'X_ID_household' have different row count")
-  }
-
   # ind_gr
   if (!is.null(X)) {
      if(is.null(ind_gr)) ind_gr <- rep.int(1, nrow(X)) 
@@ -338,7 +339,7 @@ varpoord <- function(Y, w_final,
        X2 <- data.table(ind_gr1, X1)
        X1 <- X2[, .N, keyby=names(ind_gr1)][[ncol(ind_gr1)+1]]
        X2 <- X2[,lapply(.SD, function(x) sum(!is.na(x))), keyby=names(ind_gr1), .SDcols=nX1]
-       X2 <- X2[, !(names(X2) %in% names(ind_gr)), with=F]
+       X2 <- X2[, !(names(X2) %in% names(ind_gr)), with=FALSE]
        if (!all(X2==0 | X1==X2)) stop("X has unknown values")
        ind_gr1 <- nX1 <- X1 <- X2 <- NULL
     }
@@ -602,7 +603,7 @@ varpoord <- function(Y, w_final,
     
        lin1 <- lapply(split(Y3[, .I], ind_period), function(i) 
                    residual_est(Y=Y3[i],
-                                X=D1[i,(np+5):ncol(D1),with=F],
+                                X=D1[i,(np+5):ncol(D1),with=FALSE],
                                 weight=w_design2[i],
                                 q=D1[i, np+3, with=FALSE]))
 

@@ -89,7 +89,7 @@ vardomh <- function(Y, H, PSU, w_final,
             aperiodX <- periodX  
             if (min(periodX %in% names(datasetX))!=1) stop("'periodX' does not exist in 'datasetX'!")
             if (min(periodX %in% names(datasetX))==1) {
-                                periodX <- as.data.frame(dataset[, periodX], stringsAsFactors=FALSE)
+                                periodX <- as.data.frame(datasetX[, periodX], stringsAsFactors=FALSE)
                                 names(periodX) <- aperiodX }}
 
       if(!is.null(X_ID_household)) {
@@ -225,6 +225,11 @@ vardomh <- function(Y, H, PSU, w_final,
     if (is.null(names(Z))) stop("'Z' must be colnames")
   }
  
+  if (!is.null(X)) {
+    X <- data.table(X, check.names=TRUE)
+    if (!all(sapply(X, is.numeric))) stop("'X' must be numeric values")
+  }
+
   # periodX
   if (!is.null(X)) {
      if(!is.null(periodX)) {
@@ -240,15 +245,15 @@ vardomh <- function(Y, H, PSU, w_final,
         if (ncol(periodX) != ncol(period)) stop("'periodX' length must be equal with 'period' column count")
         if (names(periodX) != names(period)) stop("'periodX' must be equal with 'period' names")
         if (any(is.na(periodX))) stop("'periodX' has unknown values")
-        if (names(period) != names(periodX)) stop("'periodX' names and 'period' names must be equal ")
         if (any(peri != periX)) stop("'unique(period)' and 'unique(periodX)' records have different")
         if (peri[, class(get(names(peri)))]!=periX[, class(get(names(periX)))])  stop("Class for 'periodX' and class for 'period' must be equal")
-      }
-   }
+      } else if (!is.null(period)) stop("'periodX' must be defined")
+   } 
 
  # X_ID_household
   if (!is.null(X)) {
     X_ID_household <- data.table(X_ID_household)
+    if (nrow(X) != nrow(X_ID_household)) stop("'X' and 'X_ID_household' have different row count")
     if (ncol(X_ID_household) != 1) stop("'X_ID_household' must be 1 column data.frame, matrix, data.table")
     if (any(is.na(X_ID_household))) stop("'X_ID_household' has unknown values")
 
@@ -271,11 +276,6 @@ vardomh <- function(Y, H, PSU, w_final,
         if (any(IDh != X_ID_household)) stop("'X_ID_household' and 'unique(ID_household)' records have different")
     }}
 
-  # X
-  if (!is.null(X)) {
-    X <- data.table(X, check.names=TRUE)
-    if (nrow(X) != nrow(X_ID_household)) stop("'X' and 'X_ID_household' have different row count")
-  }
 
   # ind_gr
   if (!is.null(X)) {
@@ -295,9 +295,10 @@ vardomh <- function(Y, H, PSU, w_final,
        X2 <- data.table(ind_gr1, X1)
        X1 <- X2[, .N, keyby=names(ind_gr1)][[ncol(ind_gr1)+1]]
        X2 <- X2[,lapply(.SD, function(x) sum(!is.na(x))), keyby=names(ind_gr1), .SDcols=nX1]
-       X2 <- X2[, !(names(X2) %in% names(ind_gr1)), with=F]
+       X2 <- X2[, !(names(X2) %in% names(ind_gr1)), with=FALSE]
+
        if (!all(X2==0 | X1==X2)) stop("X has unknown values")
-       ind_gr1 <- nX1 <- X1 <- X2 <- NULL
+       ind_gr1 <- nX1 <- nX2 <- X1 <- X2 <- NULL
     }
 
   # g
@@ -369,6 +370,7 @@ vardomh <- function(Y, H, PSU, w_final,
   
   aH <- names(H)
   idper <- id
+  period0 <- copy(period)
   if (!is.null(period)) idper <- data.table(idper, period)
 
   if (!is.null(Z)) {
@@ -426,16 +428,16 @@ vardomh <- function(Y, H, PSU, w_final,
        X0 <- data.table(X_ID_household, ind_gr, q, g, X)
        D1 <- data.table(merge(IDh, X0, by=names(IDh)))
 
-       ind_gr <- D1[, np+2, with=F]
-       if (!is.null(period)) ind_gr <- data.table(D1[, names(periodX), with=F], ind_gr)
+       ind_gr <- D1[, np+2, with=FALSE]
+       if (!is.null(period)) ind_gr <- data.table(D1[, names(periodX), with=FALSE], ind_gr)
        ind_period <- do.call("paste", c(as.list(ind_gr), sep="_"))
        sorts <- unlist(split(Y3[, .I], ind_period))
     
        lin1 <- lapply(split(Y3[, .I], ind_period), function(i) 
                    residual_est(Y=Y3[i],
-                                X=D1[i,(np+5):ncol(D1),with=F],
+                                X=D1[i,(np+5):ncol(D1), with=FALSE],
                                 weight=w_design2[i],
-                                q=D1[i, np+3, with=F]))
+                                q=D1[i, np+3, with=FALSE]))
        Y4 <- rbindlist(lin1)[sorts]
        if (outp_res) res_outp <- data.table(IDh, PSU, w_final2, Y4)
    } else Y4 <- Y3
@@ -499,7 +501,7 @@ vardomh <- function(Y, H, PSU, w_final,
 
   hY <- data.table(Y1*w_final)
   if (is.null(period)) { Y_nov <- hY[, lapply(.SD, sum, na.rm=TRUE), .SDcols = names(Y1)]
-                } else { hY <- data.table(period, hY)
+                } else { hY <- data.table(period0, hY)
                          Y_nov <- hY[, lapply(.SD, sum, na.rm=TRUE), keyby=names(period), .SDcols = names(Y1)]
                        }
   Y_nov <- transpos(Y_nov, is.null(period), "Y_nov", names(period))
@@ -513,7 +515,7 @@ vardomh <- function(Y, H, PSU, w_final,
          
          hZ <- data.table(Z1*w_final)
          if (is.null(period)) { Z_nov <- hZ[, lapply(.SD, sum, na.rm=TRUE), .SDcols = names(Z1)]
-                       } else { hZ <- data.table(period, hZ)
+                       } else { hZ <- data.table(period0, hZ)
                                 Z_nov <- hZ[, lapply(.SD, sum, na.rm=TRUE), keyby=names(period), .SDcols = names(Z1)]
                               }
          Z_nov <- transpos(Z_nov, is.null(period), "Z_nov", names(period), "variableDZ")
@@ -527,8 +529,9 @@ vardomh <- function(Y, H, PSU, w_final,
   all_result <- merge(vars, all_result)
                         
   vars <- idper <- Y1 <- Z1 <- Y_nov <- NULL
-  Z_nov <- hY <- hZ <- YZnames <- dati <- NULL
- 
+  Z_nov <- period0 <- hY <- hZ <- NULL
+  YZnames <- dati <- NULL
+
   all_result[, estim:=Y_nov]   
   if (!is.null(all_result$Z_nov)) all_result[, estim:=Y_nov/Z_nov]
 

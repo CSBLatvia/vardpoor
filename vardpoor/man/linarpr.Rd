@@ -5,7 +5,7 @@
 \title{Linearization of at-risk-of-poverty rate}
 
 \description{
-Estimates at-risk-of-poverty rate (defined as the proportion of persons with equalized disposable income below at-risk-of-poverty threshold) and computes linearized variable for variance estimation.
+Estimates the at-risk-of-poverty rate (defined as the proportion of persons with equalized disposable income below at-risk-of-poverty threshold) and computes linearized variable for variance estimation.
 }
 
 
@@ -52,14 +52,14 @@ linarpr(Y, id,
 \item{dataset}{Optional survey data object convertible to \code{data.frame}.
 }
 
-\item{percentage}{A numeric value in range \eqn{\left[ 0,100 \right]}{[0,100]} for \eqn{p} in the formula for poverty threshold computation:
+\item{percentage}{A numeric value in range \eqn{\left[ 0,100 \right]}{[0,100]} for \eqn{p} in the formula for at-risk-of-poverty threshold computation:
 \deqn{\frac{p}{100} \cdot Z_{\frac{\alpha}{100}}.}{p/100 * Z(\alpha/100).}
-For example, to compute poverty threshold equal to 60\% of some income quantile, \eqn{p} should be set equal to 60.
+For example, to compute at-risk-of-poverty threshold equal to 60\% of some income quantile, \eqn{p} should be set equal to 60.
 }
   
-\item{order_quant}{A numeric value in range \eqn{\left[ 0,100 \right]}{[0,100]} for \eqn{\alpha} in the formula for poverty threshold computation:
+\item{order_quant}{A numeric value in range \eqn{\left[ 0,100 \right]}{[0,100]} for \eqn{\alpha} in the formula for at-risk-of-poverty threshold computation:
 \deqn{\frac{p}{100} \cdot Z_{\frac{\alpha}{100}}.}{p/100 * Z(\alpha/100).}
-For example, to compute poverty threshold equal to some percentage of median income, \eqn{\alpha} should be set equal to 50.
+For example, to compute at-risk-of-poverty threshold equal to some percentage of median income, \eqn{\alpha} should be set equal to 50.
 }
 
 \item{var_name}{A character specifying the name of the linearized variable.
@@ -74,16 +74,16 @@ For example, to compute poverty threshold equal to some percentage of median inc
 \value{
 A list with four objects are returned:
   
-\item{quantile}{A \code{data.frame} containing the estimated value of the quintale used for at-risk-of-poverty threshold estimation.
+\item{quantile}{A \code{data.table} containing the estimated value of the quintile used for at-risk-of-poverty threshold estimation.
 }
   
-\item{threshold}{A \code{data.frame} containing the estimated at-risk-of-poverty threshold.
+\item{threshold}{A \code{data.table} containing the estimated at-risk-of-poverty threshold.
 }
   
-\item{value}{A \code{data.frame} containing the estimated at-risk-of-poverty rate (in percentage).
+\item{value}{A \code{data.table} containing the estimated at-risk-of-poverty rate (in percentage).
 }
   
-\item{lin}{A \code{data.frame} containing the linearized variables of the poverty rate (in percentage).
+\item{lin}{A \code{data.table} containing the linearized variables of the at-risk-of-poverty rate (in percentage).
 }
 
 }

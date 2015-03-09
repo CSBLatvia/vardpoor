@@ -2,12 +2,12 @@
 
 \alias{linpoormed}
 
-\title{Linearization of the median income below the at-risk-of-poverty threshold}
+\title{Linearization of the median income of individuals below the At Risk of Poverty Threshold}
 
 
 \description{
 
-Estimation of the median income below at-risk-of-poverty threshold and computation of linearized variable for variance estimation. The at-risk-of-poverty threshold is estimated for the whole population always. The median income is estimated for the whole population or for each domain.
+Estimation of the median income of individuals below At Risk of Poverty Threshold and computation of linearized variable for variance estimation. The At Risk of Poverty Threshold is estimated for the whole population always. The median income is estimated for the whole population or for each domain.
 }
 
 \usage{
@@ -47,9 +47,9 @@ linpoormed(Y, id, weight=NULL, sort=NULL,
 \value{
   A list with two objects are returned by the function:
 
-  \item{value}{A \code{data.frame} containing the estimated median income below the at-risk-of-poverty gap.}
+  \item{value}{A \code{data.table} containing the estimated median income of individuals below the At Risk of Poverty Threshold.}
   
-  \item{lin}{A \code{data.frame} containing the linearized variables of the median income below the at-risk-of-poverty gap.}
+  \item{lin}{A \code{data.table} containing the linearized variables of the median income below the At Risk of Poverty Threshold.}
 }
 
 \references{

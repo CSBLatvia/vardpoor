@@ -5,7 +5,7 @@
 \title{Linearization of the relative median at-risk-of-poverty gap}
 
 \description{
-  Estimate the relative median at-risk-of-poverty gap, which is defined as the relative difference between the median equalized disposable income of persons below the at-risk-of-poverty threshold and the at-risk-of-poverty threshold itself (expressed as a percentage of the at-risk-of-poverty threshold) and its linearization.
+  Estimate the relative median at-risk-of-poverty gap, which is defined as the relative difference between the median equalized disposable income of persons below the At Risk of Poverty Threshold and the At Risk of Poverty Threshold itself (expressed as a percentage of the at-risk-of-poverty threshold) and its linearization.
 }
 
 \usage{
@@ -46,9 +46,9 @@
 
 A list with two objects are returned by the function:
 
-\item{value}{A \code{data.frame} containing the estimated relative median at-risk-of-poverty gap (in percentage).}
+\item{value}{A \code{data.table} containing the estimated relative median at-risk-of-poverty gap (in percentage).}
   
-\item{lin}{A \code{data.frame} containing the linearized variables of the relative median at-risk-of-poverty gap (in precentage).}
+\item{lin}{A \code{data.table} containing the linearized variables of the relative median at-risk-of-poverty gap (in precentage).}
 }
 
 

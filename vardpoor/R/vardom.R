@@ -491,7 +491,7 @@ vardom <- function(Y, H, PSU, w_final,
                          } else { all_result[, respondent_count:=nhs$respondent_count]
                                   all_result[, pop_size:=nhs$pop_size]} 
 
-  all_result[, n_eff:=deff/respondent_count]
+  all_result[, n_eff:=ifelse(is.na(deff) | deff==0, NA, respondent_count/deff)]
   variab <- c("respondent_count", "n_nonzero", "pop_size", "estim", "var", "se", 
               "rse", "cv", "absolute_margin_of_error", "relative_margin_of_error",
               "CI_lower", "CI_upper", "var_srs_HT",  "var_cur_HT", 

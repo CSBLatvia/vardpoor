@@ -1,3 +1,7 @@
+Changes in vardpoor version 0.2.8
+
+    + Update function descriptions
+
 Changes in vardpoor version 0.2.6
 
     + Corrected mistake in function vardomh when Z is not NULL and period is not NULL.

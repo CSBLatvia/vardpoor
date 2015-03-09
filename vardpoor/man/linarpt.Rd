@@ -5,7 +5,7 @@
 \title{Linearization of at-risk-of-poverty threshold}
 
 \description{
-Estimates at-risk-of-poverty threshold (defined as percentage (usualy 60\%) of equalised disposable income after social transfers quantile (usualy median)) and computes linearized variable for variance estimation.
+Estimates the at-risk-of-poverty threshold (defined as percentage (usualy 60\%) of equalised disposable income after social transfers quantile (usualy median)) and computes linearized variable for variance estimation.
 }
 
 
@@ -46,12 +46,12 @@ linarpt(Y,
 \item{dataset}{Optional survey data object convertable to \code{data.frame}.
 }
 
-\item{percentage}{A numeric value in range \eqn{\left[ 0,100 \right]}{[0,100]} for \eqn{p} in the formula for poverty threshold computation:
+\item{percentage}{A numeric value in range \eqn{\left[ 0,100 \right]}{[0,100]} for \eqn{p} in the formula for at-risk-of-poverty threshold computation:
 \deqn{\frac{p}{100} \cdot Z_{\frac{\alpha}{100}}.}{p/100 * Z(\alpha/100).}
 For example, to compute poverty threshold equal to 60\% of some income quantile, \eqn{p} should be set equal to 60.
 }
   
-\item{order_quant}{A numeric value in range \eqn{\left[ 0,100 \right]}{[0,100]} for \eqn{\alpha} in the formula for poverty threshold computation:
+\item{order_quant}{A numeric value in range \eqn{\left[ 0,100 \right]}{[0,100]} for \eqn{\alpha} in the formula for at-risk-of-poverty threshold computation:
 \deqn{\frac{p}{100} \cdot Z_{\frac{\alpha}{100}}.}{p/100 * Z(\alpha/100).}
 For example, to compute poverty threshold equal to some percentage of median income, \eqn{\alpha} should be set equal to 50.
 }
@@ -69,13 +69,13 @@ For example, to compute poverty threshold equal to some percentage of median inc
 
 A list with three objects are returned:
 
-\item{quantile}{A \code{data.frame} containing the estimated value of the quintale used for at-risk-of-poverty threshold estimation.
+\item{quantile}{A \code{data.table} containing the estimated value of the quintile used for at-risk-of-poverty threshold estimation.
 }
   
-\item{value}{A \code{data.frame} containing the estimated at-risk-of-poverty threshold (in percentage).
+\item{value}{A \code{data.table} containing the estimated at-risk-of-poverty threshold (in percentage).
 }
   
-\item{lin}{A \code{data.frame} containing the linearized variables of the poverty threshold (in percentage).
+\item{lin}{A \code{data.table} containing the linearized variables of the at-risk-of-poverty threshold (in percentage).
 }
 
 }

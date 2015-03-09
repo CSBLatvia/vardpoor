@@ -56,10 +56,10 @@ lingpg(Y, gender = NULL, id,
 
 \value{A list with two objects are returned:
   
-\item{value}{\code{data.frame} containing the estimated gender pay (wage) gap (in percentage).
+\item{value}{\code{data.table} containing the estimated gender pay (wage) gap (in percentage).
 }
   
-\item{lin}{\code{data.frame} containing the linearized variables of the gender pay (wage) gap (in percentage) for variance estimation.
+\item{lin}{\code{data.table} containing the linearized variables of the gender pay (wage) gap (in percentage) for variance estimation.
 }
 
 }

@@ -37,9 +37,9 @@
 
   A list with two objects are returned by the function:
 
-  \item{value}{A \code{data.frame} containing the estimated GINI coefficients (in percentage) by G. Osier and Eurostat papers.}
+  \item{value}{A \code{data.table} containing the estimated Gini coefficients (in percentage) by G. Osier and Eurostat.}
   
-  \item{lin}{A \code{data.frame} containing the linearized variables of the GINI coefficients (in percentage) by G. Osier paper.}
+  \item{lin}{A \code{data.table} containing the linearized variables of the Gini coefficients (in percentage) by G. Osier.}
 
 }
 

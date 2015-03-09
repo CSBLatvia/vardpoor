@@ -2,10 +2,10 @@
 
 \alias{linqsr}
 
-\title{Linearization of the income quintile share ratio}
+\title{Linearization of the Quintile Share Ratio}
 
 \description{
-  Estimate the quintile share ratio, which is defined as the ratio of the sum of equalized disposable income received by the top 20\% to the sum of equalized disposable income received by the bottom 20\%, and its linearization.
+  Estimate the Quintile Share Ratio, which is defined as the ratio of the sum of equalized disposable income received by the top 20\% to the sum of equalized disposable income received by the bottom 20\%, and its linearization.
 }
 
 \usage{
@@ -30,7 +30,7 @@ linqsr(Y, id=NULL, weight=NULL, sort = NULL,
 
   \item{dataset}{Optional survey data object convertible to \code{data.frame}.}
 
-  \item{alpha}{a numeric value in range \eqn{[0,100]} for the order of the income quantile share ratio (in percentage).}
+  \item{alpha}{a numeric value in range \eqn{[0,100]} for the order of the Quintile Share Ratio.}
 
   \item{var_name}{A character specifying the name of the linearized variable.}
 }
@@ -39,9 +39,9 @@ linqsr(Y, id=NULL, weight=NULL, sort = NULL,
 \value{
   A list with two objects are returned by the function:
   
-  \item{value}{A \code{data.frame} containing the estimated income quintile share ratio (in percentage).}
+  \item{value}{A \code{data.table} containing the estimated Quintile Share Ratio by G. Osier and Eurostat papers.}
   
-  \item{lin}{A \code{data.frame} containing the linearized variables of the income quintile share ratio (in percentage).}
+  \item{lin}{A \code{data.table} containing the linearized variables of the Quintile Share Ratio by G. Osier paper.}
 }
 
 \references{

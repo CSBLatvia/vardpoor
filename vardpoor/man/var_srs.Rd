@@ -13,7 +13,7 @@
 \item{w}{Weight variable. One dimensional object convertible to one-column \code{data.frame}.}
 }
 
-\value{\code{data.frame} containing the values of the variance estimation of the simple random sampling.
+\value{\code{data.table} containing the values of the variance estimation of the simple random sampling.
 }
 
 

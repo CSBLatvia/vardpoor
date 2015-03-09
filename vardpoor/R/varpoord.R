@@ -36,10 +36,10 @@ varpoord <- function(Y, w_final,
 
   all_choices <- c("linarpr","linarpt","lingpg","linpoormed",
                    "linrmpg","lingini","lingini2","linqsr")
-  choices <- c("all_choises",all_choices)
+  choices <- c("all_choices", all_choices)
   type <- tolower(type)
-  type <- match.arg(type,choices, several.ok)
-  if (any(type == "all_choises")) type <- all_choices
+  type <- match.arg(type, choices, several.ok)
+  if (any(type == "all_choices")) type <- all_choices
 
   # check 'p'
   p <- percentage
@@ -719,7 +719,7 @@ varpoord <- function(Y, w_final,
                                   all_result[, pop_size:=nhs$pop_size]
                                   all_result[, n_nonzero:=nhs$n_nonzero]} 
 
-  all_result[, n_eff:=deff/respondent_count]
+  all_result[, n_eff:=ifelse(is.na(deff) | deff==0, NA, respondent_count/deff)]
   variabl <- c("respondent_count", "n_nonzero", "pop_size", 
                       "value", "value_eu", "var", "se", "rse",
                       "cv", "absolute_margin_of_error",

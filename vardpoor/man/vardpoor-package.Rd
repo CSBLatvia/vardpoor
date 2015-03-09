@@ -10,17 +10,17 @@ Generation of domain variables,
   linearization of several nonlinear population statistics
   (the ratio of two totals,
     weighted income percentile,
-    at-risk-of-poverty rate,
-    at-risk-of-poverty threshold,
+    at risk of poverty rate,
+    at risk of poverty threshold,
     Gini coefficient,
     gender pay gap,
-    median income below at-risk-of-poverty gap,
+    median income of individuals below at risk of poverty gap,
     income quintile share ratio,
-    relative median at-risk-of-poverty gap),
+    relative median at risk of poverty gap),
   computation of regression residuals in case of weight calibration,
   variance estimation of sample surveys by the ultimate cluster method
     (Hansen, Hurwitz and Madow, 1953),
-  variance estimation for longitudinal, cross - sectional measures and measures of change for single and multistage stage cluster sampling designs (Berger, Y.G.).
+  variance estimation for longitudinal, cross - sectional measures and measures of change for single and multistage stage cluster sampling designs (Berger, Y. G.).
   Several other precision measures are derived - standard error,
     the coefficient of variation,
     the margin of error,
@@ -30,8 +30,8 @@ Generation of domain variables,
 \details{
 \tabular{ll}{
 Package: \tab vardpoor\cr
-Version: \tab 0.2.7\cr
-Date: \tab 2015-02-16\cr
+Version: \tab 0.2.8\cr
+Date: \tab 2015-03-06\cr
 Depends: \tab R (>= 3.0.0), data.table (>= 1.9.4), laeken, stringr\cr
 Imports: \tab reshape, foreach, plyr, gdata, MASS\cr
 License: \tab GPL (>= 2)\cr

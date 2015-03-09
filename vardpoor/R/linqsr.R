@@ -190,14 +190,14 @@ linQSRCalc<-function(income, ids, weights=NULL, sort=NULL, ind=NULL, alpha) {
    quant_inf <- quantile[ind==1][[paste0("x", alpha)]] 
    quant_sup <- quantile[ind==1][[paste0("x", alpha2)]] 
 
-   wt <- weights * ind
+   wght <- weights * ind
    v <- weights * income * ind
 
    indinf <- (income <= quant_inf)
    indsup <- (income > quant_sup)
 
-   num_eu <- sum(v*indsup)/sum(wt[indsup]) # Numerator 
-   den_eu <- sum(v*indinf)/sum(wt[indinf]) # Denominator 
+   num_eu <- sum(v*indsup)/sum(wght[indsup]) # Numerator 
+   den_eu <- sum(v*indinf)/sum(wght[indinf]) # Denominator 
 
    num <- sum(v*indsup) # Numerator 
    den <- sum(v*indinf) # Denominator 
@@ -213,31 +213,29 @@ linQSRCalc<-function(income, ids, weights=NULL, sort=NULL, ind=NULL, alpha) {
 #----- LINEARIZATION OF THE TWO QUANTILES -----
 #----------------------------------------------
 
-   N <- sum(wt) # Estimated (sub)population size  
-   h <- sqrt((sum(weights*income*income)-sum(weights*income)*sum(weights*income)/sum(weights))/sum(weights))/exp(0.2*log(sum(weights))) 
+   N <- sum(wght) # Estimated (sub)population size  
+   h <- sqrt((sum(wght*income*income)-sum(wght*income)*sum(wght*income)/sum(wght))/sum(wght))/exp(0.2*log(sum(wght))) 
    # h=S/N^(1/5) 
 
    # 1. Linearization of the bottom quantile 
  
    u1 <- (quant_inf-income)/h;
    vect_f1 <- exp(-(u1^2)/2)/sqrt(2*pi)
-   f_quant1 <- sum(vect_f1*wt)/(N*h) 
+   f_quant1 <- sum(vect_f1*wght)/(N*h) 
 
    lin_inf <- -(1/N)*((income<=quant_inf)-alpha/100)/f_quant1
+
 
    # 2. Linearization of the top quantile 
  
    u2 <- (quant_sup-income)/h
    vect_f2 <- exp(-(u2^2)/2)/sqrt(2*pi)
-   f_quant2 <- sum(vect_f2*wt)/(N*h)
+   f_quant2 <- sum(vect_f2*wght)/(N*h)
 
    lin_sup <- -(1/N)*((income<=quant_sup)-alpha2/100)/f_quant2 
 
-#------------------------------------------------------------
-#----- LINEARIZATION OF THE INCOME QUANTILE SHARE RATIO -----
-#------------------------------------------------------------
- 
-   # 1. Linearization of the numerator 
+
+   # 3. Linearization of the total income for the top quintile
   
    u3 <- (quant_sup-income)/h
    vect_f3 <- exp(-(u3^2)/2)/sqrt(2*pi)
@@ -245,7 +243,8 @@ linQSRCalc<-function(income, ids, weights=NULL, sort=NULL, ind=NULL, alpha) {
  
    lin_num <- income-income*(income<=quant_sup)-f_quant3*lin_sup
  
-   # 2. Linearization of the denominator 
+
+   # 4. Linearization of the total income for the bottom quintile 
   
    u4 <- (quant_inf-income)/h
    vect_f4 <- exp(-(u4^2)/2)/sqrt(2*pi)
@@ -254,7 +253,7 @@ linQSRCalc<-function(income, ids, weights=NULL, sort=NULL, ind=NULL, alpha) {
    lin_den <- income*(income<=quant_inf)+f_quant4*lin_inf
 
  #****************************************************************************
- #                 LINEARIZED VARIABLE OF THE IQ SHARE RATIO                  
+ #                 LINEARIZED VARIABLE OF THE QUANTILE SHARE RATIO                  
  #****************************************************************************
 
    lin <- (den*lin_num-num*lin_den)/(den*den)

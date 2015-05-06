@@ -5,9 +5,9 @@ citEntry(
     author="Juris Breidaks, Martins Liberts, Santa Ivanova",
     year=2015,
     title="vardpoor: Estimation of indicators on social exclusion and poverty and its linearization, variance estimation",
-    note="R package version 0.2.8",
+    note="R package version 0.3.0",
     organization="CSB",
     address="Riga, Latvia",
-    textVersion="J. Breidaks, M. Liberts, S. Ivanova (2015) \"Estimation of indicators on social exclusion and poverty and its linearization, variance estimation\". R package version 0.2.8, CSB, Latvia."
+    textVersion="J. Breidaks, M. Liberts, S. Ivanova (2015) \"Estimation of indicators on social exclusion and poverty and its linearization, variance estimation\". R package version 0.3.0, CSB, Latvia."
     )
 

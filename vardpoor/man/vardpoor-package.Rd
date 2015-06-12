@@ -30,8 +30,8 @@ Generation of domain variables,
 \details{
 \tabular{ll}{
 Package: \tab vardpoor\cr
-Version: \tab 0.3.0\cr
-Date: \tab 2015-05-05\cr
+Version: \tab 0.3.2\cr
+Date: \tab 2015-06-10\cr
 Depends: \tab R (>= 3.0.0), data.table (>= 1.9.4), laeken, stringr\cr
 Imports: \tab reshape, foreach, plyr, gdata, MASS\cr
 License: \tab GPL (>= 2)\cr
@@ -61,9 +61,16 @@ var_srs                 The estimation of the simple random sampling.
 vardchanges             Variance estimation for measures of change for
                         single and multistage stage cluster sampling
                         designs
+
+vardchangespoor        Variance estimation for measures of change for sample
+                                   surveys for indicators on social exclusion and poverty
+
 vardcros                Variance estimation for cross-sectional and
                         longitudinal measures for single and multistage
                         stage cluster sampling designs
+
+vardcrospoor	Variance estimation for cross-sectional, longitudinal measures for indicators on social exclusion and poverty
+
 vardom                  Estimation of the variance in domain by the ultimate
                         cluster method
 vardom_othstr           Variance estimation for sample surveys in domain 

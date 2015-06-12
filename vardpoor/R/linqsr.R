@@ -104,6 +104,7 @@ linqsr <- function(Y, id=NULL, weight=NULL, sort = NULL,
                       paste(names(Dom)[duplicated(names(Dom))], collapse = ","))
              if (is.null(names(Dom))) stop("'Dom' must be colnames")
              if (nrow(Dom) != n) stop("'Dom' must be the same length as 'Y'")
+             Dom <- Dom[, lapply(.SD, as.character), .SDcols = names(Dom)]
        }
 
    ## computations

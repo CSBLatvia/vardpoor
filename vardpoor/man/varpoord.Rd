@@ -13,7 +13,7 @@
                  X_ID_household = NULL, ind_gr = NULL, g = NULL, datasetX = NULL,
                  q, percentage = 60, order_quant = 50, alpha = 20,
                  confidence = 0.95, outp_lin = FALSE, outp_res = FALSE,
-                 several.ok = FALSE, type = "lin_rmpg") }
+                 several.ok = FALSE, type = "linrmpg") }
                      
 
 \arguments{
@@ -100,7 +100,7 @@ For example, to compute poverty threshold equal to some percentage of median inc
        \code{respondent_count} - the count of respondents, \cr
        \code{pop_size} - the estimated size of population, \cr
        \code{n_nonzero} - the count of respondents, who answers are larger than zero, \cr
-       \code{estim} - the estimated value, \cr
+       \code{value} - the estimated value, \cr
        \code{var} - the estimated variance, \cr
        \code{se} - the estimated standard error, \cr
        \code{rse} - the estimated relative standard error (coefficient of variation), \cr

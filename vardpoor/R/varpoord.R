@@ -27,7 +27,7 @@ varpoord <- function(Y, w_final,
                      outp_lin = FALSE,
                      outp_res = FALSE,
                      several.ok=FALSE,
-                     type="lin_rmpg") {
+                     type="linrmpg") {
 
   ### Checking
 
@@ -38,8 +38,9 @@ varpoord <- function(Y, w_final,
                    "linrmpg","lingini","lingini2","linqsr")
   choices <- c("all_choices", all_choices)
   type <- tolower(type)
-  type <- match.arg(type, choices, several.ok)
-  if (any(type == "all_choices")) type <- all_choices
+  type <- match.arg(type, choices, several.ok) 
+  if (any(type == "all_choices")) {type <- all_choices
+                                   several.ok <- TRUE } 
 
   # check 'p'
   p <- percentage
@@ -480,7 +481,7 @@ varpoord <- function(Y, w_final,
         Y1 <- merge(Y1, vporm$lin, all.x=TRUE)
         Y1a <- merge(Y1a, vporma$lin, all.x=TRUE)
 
-        esti <- data.table("linpoormed", vporm$value, NA)  
+        esti <- data.table("POORMED", vporm$value, NA)  
         setnames(esti, names(esti)[c(1, -1:0+ncol(esti))],
                                   c("type", "value", "value_eu"))
         estim <- rbind(estim, esti)

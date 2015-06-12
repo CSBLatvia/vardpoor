@@ -195,7 +195,7 @@ result12 <- vardcros(Y=c("lwi"),
                     netchanges=TRUE,
                     confidence = .95)
 
-### Example 2
+### Example 3
 data(eusilc)
 set.seed(1)
 year <- 2011

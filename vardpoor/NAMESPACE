@@ -20,6 +20,9 @@ export("variance_othstr")
 export("varpoord")
 export("vardcros")
 export("vardchanges")
+export("vardcrospoor")
+export("vardchangespoor")
+
 
 import("stringr")
 import("laeken")

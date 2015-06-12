@@ -114,10 +114,7 @@ linrmpg <- function(Y, id, weight=NULL, sort=NULL, Dom=NULL,
                       paste(names(Dom)[duplicated(names(Dom))], collapse = ","))
              if (is.null(names(Dom))) stop("'Dom' must be colnames")
              if (nrow(Dom) != n) stop("'Dom' must be the same length as 'Y'")
-             if (nrow(Domfact)>0) {
-                    set(Dom, j = names(Domfact),
-                              value = lapply(Dom[, names(Domfact), with = FALSE], as.character)) }
-             Domfact <- NULL
+            Dom <- Dom[, lapply(.SD, as.character), .SDcols = names(Dom)]
        }
 
     ## computations

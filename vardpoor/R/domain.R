@@ -1,3 +1,4 @@
+ 
 domain <- function(Y, D) {
   
   name.Y <- substitute(Y)
@@ -24,7 +25,8 @@ domain <- function(Y, D) {
   domen <- foreach(i = 1:ncol(Y), .combine = data.table) %:%
     foreach(k = 1:nrow(Dom_agg), .combine = data.table) %do%
       ifelse(rowSums(D == Dom_agg[k, ][rep(1, n), ]) == ncol(D), Y[[i]], 0)
-
+  
+  if (!is.data.table(domen)) domen <- data.table(domen)
   namesD <- function(Y, D) {
     h <- vector(mode = "character", length = nrow(Dom_agg))
     for (i in 1:nrow(Dom_agg)) {
@@ -33,8 +35,6 @@ domain <- function(Y, D) {
     }
     foreach(i = 1:ncol(Y), .combine = c) %do% paste(names(Y)[i], h, sep="__")
   }
-  
-  if (!is.data.table(domen)) domen <- data.table(domen)
   setnames(domen, namesD(Y, D))
   domen <- data.table(domen, check.names=TRUE)
   return(domen)

@@ -123,7 +123,7 @@ vardcros <- function(Y, H, PSU, w_final, id,
 
   # periods
   if (withperiod) {
-        period <- data.table(periods)
+        periods <- data.table(periods)
         if (any(is.na(periods))) stop("'periods' has unknown values")
         if (nrow(periods) != n) stop("'periods' length must be equal with 'Y' row count")
     } else if (!is.null(periods)) stop("'periods' must be NULL for those data")
@@ -160,13 +160,12 @@ vardcros <- function(Y, H, PSU, w_final, id,
  # Calculation
       
  # Domains
- n_h <- stratasf <- name1 <- name2 <- nhcor <- n_h <- num1 <- num <- NULL
- den1 <- den <- num_den1 <- dom <- name2 <- variable <- name1 <- NULL
- namess <- num1 <- grad1 <- grad2 <- den1 <- num_den1 <- estim <- NULL
- total <- pop_size <- N <- stderr_nw <- sample_size <- sd_nw <- NULL
- stderr_w <- sd_w <- se <- rse <- cv <- absolute_margin_of_error <- NULL
- relative_margin_of_error <- CI_lower <- CI_upper <- nams <- NULL
- totalZ <- Z1 <- namesY <- namesZ <- namesZ1 <- H_sk <- NULL
+ n_h <- stratasf <- name1 <- name2 <- nhcor <- n_h <- num1 <- num <- den1 <- NULL
+ den <- num_den1 <- dom <- name2 <- variable <- name1 <- namess <- NULL
+ grad1 <- grad2 <- estim <- total <- pop_size <- N <- stderr_nw <- sample_size <- NULL
+ sd_nw <-  stderr_w <- sd_w <- se <- rse <- cv <- absolute_margin_of_error <- NULL
+ relative_margin_of_error <- CI_lower <- CI_upper <- nams <- totalZ <- NULL
+ Z1 <- namesY <- namesZ <- namesZ1 <- H_sk <- NULL
 
  if (!is.null(Dom)) Y1 <- domain(Y, Dom) else Y1 <- Y
 

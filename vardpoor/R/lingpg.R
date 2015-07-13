@@ -162,11 +162,6 @@ lingpg <- function(Y, gender = NULL, id, weight=NULL, sort = NULL,
             gpg_v <- rbind(gpg_v, gpgs) 
           }
       } else { gpg_l <- lapply(1:nrow(period1_agg), function(j) {
-                           if (!is.null(period)) { 
-                                         rown <- period_agg[j]
-                                         setkeyv(rown, names(rown))
-                                         rown <- merge(rown, quantile, all.x=TRUE)
-                                       } else rown <- quantile
                            indj <- (rowSums(period1 == period1_agg[j,][ind0,]) == ncol(period1))
       
                            gpg_l <- linGapCalc(x=Y[indj], gend=gender[indj],

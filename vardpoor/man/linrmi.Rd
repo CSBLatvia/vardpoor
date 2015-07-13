@@ -1,26 +1,23 @@
-\name{linarpr}
+\name{linrmi}
 
-\alias{linarpr}
+\alias{linrmi}
 
-\title{Linearization of at-risk-of-poverty rate}
+\title{Linearization of the relative median income ratio}
 
 \description{
-Estimates the at-risk-of-poverty rate (defined as the proportion of persons with equalized disposable income below at-risk-of-poverty threshold) and computes linearized variable for variance estimation.
+Estimates the arelative median income ratio (defined as the ratio of the median equivalised disposable income of people aged above 65 to the median equivalised disposable income of those aged below 65) and computes linearized variable for variance estimation.
 }
 
 
 \usage{
-linarpr(Y, id,
+linrmi(Y, id, age,
   weight = NULL,
-  Y_thres = NULL,
-  wght_thres = NULL,
   sort = NULL,
   Dom = NULL,
   period = NULL,
   dataset = NULL,
-  percentage = 60,
   order_quant = 50,
-  var_name = "lin_arpr")
+  var_name = "lin_rmi")
 }
 
 
@@ -34,10 +31,7 @@ linarpr(Y, id,
 \item{weight}{Optional weight variable. One dimensional object convertible to one-column \code{data.frame} or variable name as character, column number or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset}).
 }
 
-\item{Y_thres}{Variable (for example equalized disposable income) used for computation and linearization of poverty threshold. One dimensional object convertible to one-column \code{data.frame} or variable name as character, column number or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset}). Variable specified for \code{inc} is used as \code{income_thres} if \code{income_thres} is not defined.
-}
-
-\item{wght_thres}{Weight variable used for computation and linearization of poverty threshold. One dimensional object convertible to one-column \code{data.frame} or variable name as character, column number or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset}). Variable specified for \code{weight} is used as \code{wght_thres} if \code{wght_thres} is not defined.
+\item{age}{Age variable. One dimensional object convertible to one-column \code{data.frame} or variable name as character, column number or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset}).
 }
 
 \item{sort}{Optional variable to be used as tie-breaker for sorting. One dimensional object convertible to one-column \code{data.frame} or variable name as character, column number or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset}).
@@ -51,12 +45,7 @@ linarpr(Y, id,
 
 \item{dataset}{Optional survey data object convertible to \code{data.frame}.
 }
-
-\item{percentage}{A numeric value in range \eqn{\left[ 0,100 \right]}{[0,100]} for \eqn{p} in the formula for at-risk-of-poverty threshold computation:
-\deqn{\frac{p}{100} \cdot Z_{\frac{\alpha}{100}}.}{p/100 * Z(\alpha/100).}
-For example, to compute at-risk-of-poverty threshold equal to 60\% of some income quantile, \eqn{p} should be set equal to 60.
-}
-  
+ 
 \item{order_quant}{A numeric value in range \eqn{\left[ 0,100 \right]}{[0,100]} for \eqn{\alpha} in the formula for at-risk-of-poverty threshold computation:
 \deqn{\frac{p}{100} \cdot Z_{\frac{\alpha}{100}}.}{p/100 * Z(\alpha/100).}
 For example, to compute at-risk-of-poverty threshold equal to some percentage of median income, \eqn{\alpha} should be set equal to 50.
@@ -73,34 +62,24 @@ For example, to compute at-risk-of-poverty threshold equal to some percentage of
 
 \value{
 A list with four objects are returned:
-  
-\item{quantile}{A \code{data.table} containing the estimated value of the quintile used for at-risk-of-poverty threshold estimation.
+    
+\item{value}{A \code{data.table} containing the estimated relative median income ratio.
 }
   
-\item{threshold}{A \code{data.table} containing the estimated at-risk-of-poverty threshold.
-}
-  
-\item{value}{A \code{data.table} containing the estimated at-risk-of-poverty rate (in percentage).
-}
-  
-\item{lin}{A \code{data.table} containing the linearized variables of the at-risk-of-poverty rate (in percentage).
+\item{lin}{A \code{data.table} containing the linearized variables of the relative median income ratio.
 }
 
 }
 
 
 \references{
-Working group on Statistics on Income and Living Conditions (2004) Common cross-sectional EU indicators based on EU-SILC; the gender pay gap. \emph{EU-SILC 131-rev/04}, Eurostat. \cr
+Working group on Statistics on Income and Living Conditions (2015) Task 5 - Improvement and optimization of calculation of net change. \emph{LC- 139/15/EN}, Eurostat. \cr
   
-Guillaume Osier (2009). Variance estimation for complex indicators of poverty and inequality. \emph{Journal of the European Survey Research Association}, Vol.3, No.3, pp. 167-195, ISSN 1864-3361, URL \url{http://ojs.ub.uni-konstanz.de/srm/article/view/369}. \cr
-
 Jean-Claude Deville (1999). Variance estimation for complex statistics and estimators: linearization and residual techniques. Survey Methodology, 25, 193-203, URL \url{http://www5.statcan.gc.ca/bsolc/olc-cel/olc-cel?lang=eng&catno=12-001-X19990024882}. \cr
 }
 
-
 \seealso{
-\code{\link{linarpt}}, \code{\link{varpoord}} , \code{\link{vardcrospoor}}, \code{\link{vardchangespoor}}
-}
+\code{\link{varpoord}} , \code{\link{vardcrospoor}}, \code{\link{vardchangespoor}}}
 
 
 \examples{
@@ -109,14 +88,17 @@ data(eusilc)
 dati <- data.frame(IDd = 1:nrow(eusilc), eusilc)
 
 # Full population
-d <- linarpr(Y="eqIncome", id="IDd", weight="rb050", Dom=NULL,
-             dataset=dati, percentage=60, order_quant=50)
+d <- linrmi(Y="eqIncome", id="IDd",  age="age", weight="rb050", 
+                  Dom=NULL, dataset=dati, order_quant=50)
 d$value
 
 \dontrun{
 # By domains
-dd <- linarpr(Y="eqIncome", id="IDd", weight="rb050", Dom="db040",
-              dataset=dati, percentage=60, order_quant=50)}
+dd <- linrmi(Y="eqIncome", id="IDd", age="age", weight="rb050", 
+                     Dom="db040", dataset=dati, percentage=60, order_quant=50)
+
+dd}
 }
+
 
 \keyword{Linearization}

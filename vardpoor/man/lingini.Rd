@@ -66,7 +66,9 @@ dat2 <- lingini(Y="eqIncome", id="IDd", weight="rb050", Dom=c("db040"), dataset=
 dat2$value}
 }
 
+
 \seealso{
-\code{\link{lingini2}}, \code{\link{linqsr}}, \code{\link{varpoord}}}
+\code{\link{lingini2}}, \code{\link{linqsr}},  \code{\link{varpoord}} , \code{\link{vardcrospoor}}, \code{\link{vardchangespoor}}}
+
 \keyword{Linearization}
 

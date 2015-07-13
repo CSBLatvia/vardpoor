@@ -79,6 +79,6 @@ dd <- linpoormed(Y="eqIncome", id="IDd", weight="rb050", Dom="db040",
 }
 
 \seealso{
-\code{\link{linarpt}}, \code{\link{linrmpg}}, \code{\link{varpoord}}}
+\code{\link{linarpt}}, \code{\link{linrmpg}}, \code{\link{varpoord}} , \code{\link{vardcrospoor}}, \code{\link{vardchangespoor}}}
 
 \keyword{Linearization}

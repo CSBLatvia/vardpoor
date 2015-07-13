@@ -1,6 +1,11 @@
 
 
-vardchangespoor <- function(Y, Y_thres,
+vardchangespoor <- function(Y,
+                     age=NULL,
+                      pl085=NULL,
+                     month_at_work=NULL,
+                     Y_den=NULL,
+                     Y_thres = NULL,
                      wght_thres = NULL,
                      H, PSU, w_final, id,
                      Dom = NULL,
@@ -20,8 +25,9 @@ vardchangespoor <- function(Y, Y_thres,
  
   ### Checking
 
-  all_choices <- c("linarpr","linarpt","lingpg","linpoormed",
-                   "linrmpg","lingini","lingini2","linqsr")
+  all_choices <- c("linarpr","linarpt","lingpg",
+                            "linpoormed",  "linrmpg","lingini",
+                            "lingini2","linqsr", "linrmi", "linarr")
   choices <- c("all_choices", all_choices)
   type <- tolower(type)
 
@@ -56,7 +62,24 @@ vardchangespoor <- function(Y, Y_thres,
       if (min(Y %in% names(dataset))==1) {
                                 Y <- data.frame(dataset[, Y], check.names=FALSE)
                                 names(Y) <- aY }
-
+      if(!is.null(age)) {
+          if (min(age %in% names(dataset))!=1) stop("'age' does not exist in 'dataset'!")
+          if (min(age %in% names(dataset))==1) age <- dataset[, age] }
+      if(!is.null(pl085)) {
+          if (min(pl085 %in% names(dataset))!=1) stop("'pl085' does not exist in 'dataset'!")
+          if (min(pl085 %in% names(dataset))==1) pl085 <- dataset[, pl085] }
+      if(!is.null(month_at_work)) {
+          if (min(month_at_work %in% names(dataset))!=1) stop("'month_at_work' does not exist in 'dataset'!")
+          if (min(month_at_work %in% names(dataset))==1) month_at_work <- dataset[, month_at_work] }
+      if(!is.null(Y_den)) {
+          if (min(Y_den %in% names(dataset))!=1) stop("'Y_den' does not exist in 'dataset'!")
+          if (min(Y_den %in% names(dataset))==1) Y_den <- dataset[, Y_den] }
+      if(!is.null(Y_thres)) {
+          if (min(Y_thres %in% names(dataset))!=1) stop("'Y_thres' does not exist in 'dataset'!")
+          if (min(Y_thres %in% names(dataset))==1) Y_thres <- dataset[, Y_thres] }    
+      if(!is.null(wght_thres)) {
+          if (min(wght_thres %in% names(dataset))!=1) stop("'wght_thres' does not exist in 'dataset'!")
+          if (min(wght_thres %in% names(dataset))==1) wght_thres <- dataset[, wght_thres] }
       if(!is.null(H)) {
           aH <- H  
           if (min(H %in% names(dataset))!=1) stop("'H' does not exist in 'dataset'!")
@@ -118,6 +141,63 @@ vardchangespoor <- function(Y, Y_thres,
   if (!is.numeric(Y)) stop("'Y' must be numerical")
   if (any(is.na(Y))) stop("'Y' has unknown values")
   
+ if (!is.null(Y_den)) {
+          Y_den <- data.frame(Y_den)
+          if (ncol(Y_den) != 1) stop("'Y_den' must be vector or 1 column data.frame, matrix, data.table")
+          if (nrow(Y_den) != n) stop("'Y_den' must be the same length as 'Y'")
+          Y_den <- Y_den[,1]
+          if(!is.numeric(Y_den)) stop("'Y_den' must be numerical")
+          if (any(is.na(Y_den))) stop("'Y_den' has unknown values")
+  }
+
+  # age
+  if (!is.null(age)) {
+       age <- data.frame(age)
+       if (nrow(age) != n) stop("'age' must be the same length as 'Y'")
+       if (ncol(age) != 1) stop("'age' must be vector or 1 column data.frame, matrix, data.table")
+      age <- age[, 1]
+      if (!is.numeric(age)) stop("'age' must be numerical")
+      if (any(is.na(age))) stop("'age' has unknown values")
+   }
+
+   # pl085
+   if (!is.null(pl085)) {
+       pl085 <- data.frame(pl085)
+       if (nrow(pl085) != n) stop("'pl085' must be the same length as 'Y'")
+       if (ncol(pl085) != 1) stop("'pl085' must be vector or 1 column data.frame, matrix, data.table")
+       pl085 <- pl085[, 1]
+       if (!is.numeric(pl085)) stop("'pl085' must be numerical")
+       if (any(is.na(pl085))) stop("'pl085' has unknown values")
+   }
+
+   # month_at_work
+   if (!is.null(month_at_work)) {
+        month_at_work <- data.frame(month_at_work)
+        if (nrow(month_at_work) != n) stop("'month_at_work' must be the same length as 'Y'")
+        if (ncol(month_at_work) != 1) stop("'month_at_work' must be vector or 1 column data.frame, matrix, data.table")
+        month_at_work <- month_at_work[, 1]
+        if (!is.numeric(pl085)) stop("'month_at_work' must be numerical")
+        if (any(is.na(pl085))) stop("'month_at_work' has unknown values")
+  }
+
+  # Y_thres
+  if (!is.null(Y_thres)) {
+       Y_thres <- data.frame(Y_thres)
+       if (nrow(Y_thres) != n) stop("'Y_thres' must have the same length as 'Y'")
+       if (ncol(Y_thres) != 1) stop("'Y_thres' must have vector or 1 column data.frame, matrix, data.table")
+       Y_thres <- Y_thres[,1]
+       if (!is.numeric(Y_thres)) stop("'Y_thres' must be numerical")
+       if (any(is.na(Y_thres))) stop("'Y_thres' has unknown values") 
+     } else Y_thres <- Y
+
+  # wght_thres
+  if (is.null(wght_thres)) wght_thres <- w_final
+  wght_thres <- data.frame(wght_thres)
+  if (nrow(wght_thres) != n) stop("'wght_thres' must have the same length as 'Y'")
+  if (ncol(wght_thres) != 1) stop("'wght_thres' must have vector or 1 column data.frame, matrix, data.table")
+  wght_thres <- wght_thres[,1]
+  if (!is.numeric(wght_thres)) stop("'wght_thres' must be a numeric vector")
+ 
   # H
   H <- data.table(H)
   if (nrow(H) != n) stop("'H' length must be equal with 'Y' row count")
@@ -208,8 +288,10 @@ vardchangespoor <- function(Y, Y_thres,
    setkeyv(period2, names(periods))
    if (any(is.na(merge(period2, periodss, all.x=TRUE)))) stop("'period2' row must be exist in 'periods'")
 
-   
-   data <- vardcrospoor(Y=Y, H=H, PSU=PSU, w_final=w_final,
+   data <- vardcrospoor(Y=Y, age=age, pl085=pl085,
+                        month_at_work=month_at_work,
+                        Y_den=Y_den, Y_thres=Y_thres,
+                        H=H, PSU=PSU, w_final=w_final,
                         id=id, Dom=Dom, country=country,
                         periods=periods, sort=sort, 
                         gender = NULL,

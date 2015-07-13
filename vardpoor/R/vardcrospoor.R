@@ -1,6 +1,10 @@
 
-vardcrospoor <- function(Y, 
-                     Y_thres = NULL,
+vardcrospoor <- function(Y,  
+                     age=NULL,
+                     pl085=NULL,
+                     month_at_work=NULL,
+                     Y_den=NULL,
+                     Y_thres = NULL, 
                      wght_thres = NULL, 
                      H, PSU, w_final, id,
                      Dom = NULL,
@@ -20,7 +24,7 @@ vardcrospoor <- function(Y,
   ### Checking
 
   all_choices <- c("linarpr","linarpt","lingpg","linpoormed",
-                   "linrmpg","lingini","lingini2","linqsr")
+                   "linrmpg","lingini","lingini2","linqsr", "linrmi", "linarr")
   choices <- c("all_choices", all_choices)
   type <- tolower(type)
   type <- match.arg(type, choices, several.ok)
@@ -55,15 +59,25 @@ vardcrospoor <- function(Y,
       if (min(Y %in% names(dataset))==1) {
                                 Y <- data.frame(dataset[, Y], check.names=FALSE)
                                 names(Y) <- aY }
-    
+
+      if(!is.null(age)) {
+          if (min(age %in% names(dataset))!=1) stop("'age' does not exist in 'dataset'!")
+          if (min(age %in% names(dataset))==1) age <- dataset[, age] }
+      if(!is.null(pl085)) {
+          if (min(pl085 %in% names(dataset))!=1) stop("'pl085' does not exist in 'dataset'!")
+          if (min(pl085 %in% names(dataset))==1) pl085 <- dataset[, pl085] }
+      if(!is.null(month_at_work)) {
+          if (min(month_at_work %in% names(dataset))!=1) stop("'month_at_work' does not exist in 'dataset'!")
+          if (min(month_at_work %in% names(dataset))==1) month_at_work <- dataset[, month_at_work] }
+      if(!is.null(Y_den)) {
+          if (min(Y_den %in% names(dataset))!=1) stop("'Y_den' does not exist in 'dataset'!")
+          if (min(Y_den %in% names(dataset))==1) Y_den <- dataset[, Y_den] }
       if(!is.null(Y_thres)) {
           if (min(Y_thres %in% names(dataset))!=1) stop("'Y_thres' does not exist in 'dataset'!")
           if (min(Y_thres %in% names(dataset))==1) Y_thres <- dataset[, Y_thres] }    
-
       if(!is.null(wght_thres)) {
           if (min(wght_thres %in% names(dataset))!=1) stop("'wght_thres' does not exist in 'dataset'!")
           if (min(wght_thres %in% names(dataset))==1) wght_thres <- dataset[, wght_thres] }
-
       if(!is.null(H)) {
           aH <- H  
           if (min(H %in% names(dataset))!=1) stop("'H' does not exist in 'dataset'!")
@@ -123,6 +137,45 @@ vardcrospoor <- function(Y,
   Y <- Y[,1]
   if (!is.numeric(Y)) stop("'Y' must be numerical")
   if (any(is.na(Y))) stop("'Y' has unknown values")
+
+   if (!is.null(Y_den)) {
+          Y_den <- data.frame(Y_den)
+          if (ncol(Y_den) != 1) stop("'Y_den' must be vector or 1 column data.frame, matrix, data.table")
+          if (nrow(Y_den) != n) stop("'Y_den' must be the same length as 'Y'")
+          Y_den <- Y_den[,1]
+          if(!is.numeric(Y_den)) stop("'Y_den' must be numerical")
+          if (any(is.na(Y_den))) stop("'Y_den' has unknown values")
+  }
+
+  # age
+  if (!is.null(age)) {
+       age <- data.frame(age)
+       if (nrow(age) != n) stop("'age' must be the same length as 'Y'")
+       if (ncol(age) != 1) stop("'age' must be vector or 1 column data.frame, matrix, data.table")
+      age <- age[, 1]
+      if (!is.numeric(age)) stop("'age' must be numerical")
+      if (any(is.na(age))) stop("'age' has unknown values")
+   }
+
+   # pl085
+   if (!is.null(pl085)) {
+       pl085 <- data.frame(pl085)
+       if (nrow(pl085) != n) stop("'pl085' must be the same length as 'Y'")
+       if (ncol(pl085) != 1) stop("'pl085' must be vector or 1 column data.frame, matrix, data.table")
+       pl085 <- pl085[, 1]
+       if (!is.numeric(pl085)) stop("'pl085' must be numerical")
+       if (any(is.na(pl085))) stop("'pl085' has unknown values")
+   }
+
+   # month_at_work
+   if (!is.null(month_at_work)) {
+        month_at_work <- data.frame(month_at_work)
+        if (nrow(month_at_work) != n) stop("'month_at_work' must be the same length as 'Y'")
+        if (ncol(month_at_work) != 1) stop("'month_at_work' must be vector or 1 column data.frame, matrix, data.table")
+        month_at_work <- month_at_work[, 1]
+        if (!is.numeric(pl085)) stop("'month_at_work' must be numerical")
+        if (any(is.na(pl085))) stop("'month_at_work' has unknown values")
+  }
 
   # Y_thres
   if (!is.null(Y_thres)) {
@@ -215,7 +268,6 @@ vardcrospoor <- function(Y,
     Dom <- data.table(Dom, Dom1[, "Dom", with=FALSE])
   }
     
-  
  # Calculation
  Dom1 <- n_h <- stratasf <- name1 <- nhcor <- n_h <- var <- NULL
  num <- count_respondents <- value <- estim <- pop_size <- NULL
@@ -339,6 +391,37 @@ vardcrospoor <- function(Y,
        estim <- rbind(estim, esti)
        vgini2 <- esti <- NULL
      }
+  if (("linrmi" %in% type)&&(!is.null(age))) {
+       vrmi <- linrmi(Y=Y, id=id, age=age, weight=w_final, 
+                      sort=sort, Dom=Dom, period=countryper,
+                      dataset=NULL, order_quant=order_quant,
+                      var_name="lin_rmi") 
+       Y1 <- merge(Y1, vrmi$lin, all.x=TRUE)
+
+       esti <- data.table("RMI", vrmi$value)  
+       setnames(esti, names(esti)[c(1, -1:0+ncol(esti))],
+                                  c("type", "value", "value_eu"))
+       estim <- rbind(estim, esti)
+       vrmi <-  esti <- NULL
+    }
+  if (("linarr" %in% type)&&(!is.null(age))
+                &&(!is.null(pl085))&&(!is.null(month_at_work))) {
+
+       varr <- linarr(Y=Y, Y_den=Y_den, id=id, age=age, pl085=pl085, 
+                             month_at_work=month_at_work, weight=w_final, 
+                             sort=sort, Dom=Dom, period=countryper, dataset=NULL,
+                             order_quant=order_quant,  var_name="lin_arr") 
+
+       Y1 <- merge(Y1, varr$lin, all.x=TRUE)
+
+       esti <- data.table("ARR", varr$value)  
+       setnames(esti, names(esti)[c(1, -1:0+ncol(esti))],
+                                  c("type", "value", "value_eu"))
+       estim <- rbind(estim, esti)
+       varr <- esti <- NULL
+    }
+
+
   setnames(estim, "value", "estim")
   estim$period_country <- do.call("paste", c(as.list(estim[,names(countryper),with=FALSE]), sep="_"))
   nams <- names(countryper)

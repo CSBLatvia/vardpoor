@@ -71,6 +71,6 @@ dd$value}
 
 
 \seealso{
-\code{\link{incPercentile}}, \code{\link{varpoord}}}
+\code{\link{incPercentile}}, \code{\link{varpoord}}, \code{\link{vardcrospoor}}, \code{\link{vardchangespoor}}}
 \keyword{Linearization}
 

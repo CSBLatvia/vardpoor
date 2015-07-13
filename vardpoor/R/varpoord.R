@@ -1,7 +1,11 @@
 
-varpoord <- function(Y, w_final, 
+varpoord <- function(Y, w_final,
+                     age=NULL,
+                     pl085=NULL,
+                     month_at_work=NULL,
+                     Y_den=NULL,
                      Y_thres = NULL,
-                     wght_thres = NULL,
+                     wght_thres = NULL,                    
                      ID_household,
                      id = NULL, 
                      H, PSU, N_h,
@@ -35,7 +39,7 @@ varpoord <- function(Y, w_final,
   if (!is.logical(PSU_level)) stop("'PSU_level' must be the logical value")
 
   all_choices <- c("linarpr","linarpt","lingpg","linpoormed",
-                   "linrmpg","lingini","lingini2","linqsr")
+                   "linrmpg","lingini","lingini2", "linqsr", "linrmi", "linarr")
   choices <- c("all_choices", all_choices)
   type <- tolower(type)
   type <- match.arg(type, choices, several.ok) 
@@ -68,6 +72,18 @@ varpoord <- function(Y, w_final,
       if(!is.null(w_final)) {
           if (min(w_final %in% names(dataset))!=1) stop("'w_final' does not exist in 'dataset'!")
           if (min(w_final %in% names(dataset))==1) w_final <- dataset[, w_final] }
+      if(!is.null(age)) {
+          if (min(age %in% names(dataset))!=1) stop("'age' does not exist in 'dataset'!")
+          if (min(age %in% names(dataset))==1) age <- dataset[, age] }
+      if(!is.null(pl085)) {
+          if (min(pl085 %in% names(dataset))!=1) stop("'pl085' does not exist in 'dataset'!")
+          if (min(pl085 %in% names(dataset))==1) pl085 <- dataset[, pl085] }
+      if(!is.null(month_at_work)) {
+          if (min(month_at_work %in% names(dataset))!=1) stop("'month_at_work' does not exist in 'dataset'!")
+          if (min(month_at_work %in% names(dataset))==1) month_at_work <- dataset[, month_at_work] }
+      if(!is.null(Y_den)) {
+          if (min(Y_den %in% names(dataset))!=1) stop("'Y_den' does not exist in 'dataset'!")
+          if (min(Y_den %in% names(dataset))==1) Y_den <- dataset[, Y_den] }
       if(!is.null(Y_thres)) {
           if (min(Y_thres %in% names(dataset))!=1) stop("'Y_thres' does not exist in 'dataset'!")
           if (min(Y_thres %in% names(dataset))==1) Y_thres <- dataset[, Y_thres] }    
@@ -151,7 +167,16 @@ varpoord <- function(Y, w_final,
   Y <- Y[,1]
   if (!is.numeric(Y)) stop("'Y' must be numerical")
   if (any(is.na(Y))) stop("'Y' has unknown values")
-           
+  
+   if (!is.null(Y_den)) {
+          Y_den <- data.frame(Y_den)
+          if (ncol(Y_den) != 1) stop("'Y_den' must be vector or 1 column data.frame, matrix, data.table")
+          if (nrow(Y_den) != n) stop("'Y_den' must be the same length as 'Y'")
+          Y_den <- Y_den[,1]
+          if(!is.numeric(Y_den)) stop("'Y_den' must be numerical")
+          if (any(is.na(Y_den))) stop("'Y_den' has unknown values")
+  }
+ 
   # period     
   if (!is.null(period)) {
       period <- data.table(period)
@@ -173,6 +198,36 @@ varpoord <- function(Y, w_final,
   if (is.null(period)){ if (any(duplicated(id))) stop("'id' are duplicate values") 
                        } else if (any(duplicated(data.table(period, id)))) stop("'id' by period are duplicate values")
  
+  # age
+  if (!is.null(age)) {
+       age <- data.frame(age)
+       if (nrow(age) != n) stop("'age' must be the same length as 'Y'")
+       if (ncol(age) != 1) stop("'age' must be vector or 1 column data.frame, matrix, data.table")
+      age <- age[, 1]
+      if (!is.numeric(age)) stop("'age' must be numerical")
+      if (any(is.na(age))) stop("'age' has unknown values")
+   }
+
+   # pl085
+   if (!is.null(pl085)) {
+       pl085 <- data.frame(pl085)
+       if (nrow(pl085) != n) stop("'pl085' must be the same length as 'Y'")
+       if (ncol(pl085) != 1) stop("'pl085' must be vector or 1 column data.frame, matrix, data.table")
+       pl085 <- pl085[, 1]
+       if (!is.numeric(pl085)) stop("'pl085' must be numerical")
+       if (any(is.na(pl085))) stop("'pl085' has unknown values")
+   }
+
+   # month_at_work
+   if (!is.null(month_at_work)) {
+        month_at_work <- data.frame(month_at_work)
+        if (nrow(month_at_work) != n) stop("'month_at_work' must be the same length as 'Y'")
+        if (ncol(month_at_work) != 1) stop("'month_at_work' must be vector or 1 column data.frame, matrix, data.table")
+        month_at_work <- month_at_work[, 1]
+        if (!is.numeric(pl085)) stop("'month_at_work' must be numerical")
+        if (any(is.na(pl085))) stop("'month_at_work' has unknown values")
+  }
+
   # ID_household
   if (is.null(ID_household)) stop("'ID_household' must be defined")
   ID_household <- data.table(ID_household)
@@ -558,6 +613,47 @@ varpoord <- function(Y, w_final,
        estim <- rbind(estim, esti)
        vgini2 <- vgini2a <- esti <- NULL
      }
+  if (("linrmi" %in% type)&&(!is.null(age))) {
+       vrmi <- linrmi(Y=Y, id=id, age=age, weight=w_final, 
+                      sort=sort, Dom=Dom, period=period,
+                      dataset=NULL, order_quant=order_quant,
+                      var_name="lin_rmi") 
+       vrmia <- linrmi(Y=Y, id=id, age=age, weight=w_design,
+                      sort=sort, Dom=Dom, period=period,
+                      dataset=NULL, order_quant=order_quant,
+                      var_name="lin_qsr") 
+
+       Y1 <- merge(Y1, vrmi$lin, all.x=TRUE)
+       Y1a <- merge(Y1a, vrmia$lin, all.x=TRUE)
+
+       esti <- data.table("RMI", vrmi$value)  
+       setnames(esti, names(esti)[c(1, -1:0+ncol(esti))],
+                                  c("type", "value", "value_eu"))
+       estim <- rbind(estim, esti)
+       vrmi <- vrmia <- esti <- NULL
+    }
+  if (("linarr" %in% type)&&(!is.null(age))
+                &&(!is.null(pl085))&&(!is.null(month_at_work))) {
+
+       varr <- linarr(Y=Y, Y_den=Y_den, id=id, age=age, pl085=pl085, 
+                             month_at_work=month_at_work, weight=w_final, 
+                             sort=sort, Dom=Dom, period=period, dataset=NULL,
+                             order_quant=order_quant,  var_name="lin_arr") 
+       varra <- linarr(Y=Y, Y_den=Y_den, id=id, age=age, pl085=pl085, 
+                             month_at_work=month_at_work, weight=w_design, 
+                             sort=sort, Dom=Dom, period=period, dataset=NULL,
+                             order_quant=order_quant,  var_name="lin_arr") 
+
+       Y1 <- merge(Y1, varr$lin, all.x=TRUE)
+       Y1a <- merge(Y1a, varra$lin, all.x=TRUE)
+
+       esti <- data.table("ARR", varr$value)  
+       setnames(esti, names(esti)[c(1, -1:0+ncol(esti))],
+                                  c("type", "value", "value_eu"))
+       estim <- rbind(estim, esti)
+       varr <- varra <- esti <- NULL
+    }
+
 
   setkey(Y1, Y1sort)
   setkey(Y1a, Y1asort)

@@ -6,7 +6,8 @@
 
 \description{Computes the estimation of the variance for indicators on social exclusion and poverty.}
 
-\usage{ varpoord(Y, w_final, Y_thres = NULL, wght_thres = NULL,
+\usage{ varpoord(Y, w_final, age=NULL, pl085=NULL, month_at_work=NULL,
+                     Y_den=NULL, Y_thres = NULL, wght_thres = NULL,
                  ID_household, id = NULL, H, PSU, N_h, fh_zero = FALSE,
                  PSU_level=TRUE, sort = NULL, Dom = NULL, period = NULL,
                  gender = NULL, dataset = NULL, X = NULL, periodX = NULL,
@@ -18,9 +19,21 @@
 
 \arguments{
 
-\item{Y}{Study variable (for example equalized disposable income). One dimensional object convertible to one-column \code{data.frame} or variable name as character, column number or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset}).}
+\item{Y}{Study variable (for example equalized disposable income or gross pension income). One dimensional object convertible to one-column \code{data.frame} or variable name as character, column number or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset}).}
 
 \item{w_final}{Weight variable. One dimensional object convertible to one-column \code{data.frame} or variable name as character, column number or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset}).}
+
+\item{age}{Age variable. One dimensional object convertible to one-column \code{data.frame} or variable name as character, column number or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset}).
+}
+
+\item{pl085}{Retirement variable (Number of months spent in retirement or early retirement). One dimensional object convertible to one-column \code{data.frame} or variable name as character, column number or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset}).
+}
+
+\item{month_at_work}{Variable for total number of month at work (sum of the number of months spent at full-time work as employee, number of months spent at part-time work as employee, number of months spent at full-time work as self-employed (including family worker), number of months spent at part-time work as self-employed (including family worker)).  One dimensional object convertible to one-column \code{data.frame} or variable name as character, column number or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset}).
+}
+
+\item{Y_den}{Denominator variable (for example gross individual earnings). One dimensional object convertible to one-column \code{data.frame} or variable name as character, column number or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset}).
+}
 
 \item{Y_thres}{Variable (for example equalized disposable income) used for computation and linearization of poverty threshold. One dimensional object convertible to one-column \code{data.frame} or variable name as character, column number or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset}). Variable specified for \code{inc} is used as \code{income_thres} if \code{income_thres} is  not defined.}
 
@@ -83,7 +96,7 @@ For example, to compute poverty threshold equal to some percentage of median inc
 \item{several.ok}{Logical value. If \code{type} should be allowed to have more than one.}
 
 \item{type}{a character vector (of length one unless several.ok is TRUE), example "linarpr","linarpt", "lingpg", "linpoormed", "linrmpg",
-   "lingini", "lingini2", "linqsr", "all_choices".}
+   "lingini", "lingini2", "linqsr", "linarr", "linrmi", "all_choices".}
 
 }
 

@@ -14,6 +14,8 @@ Generation of domain variables,
     at risk of poverty threshold,
     Gini coefficient,
     gender pay gap,
+    the aggregate replacement ratio,
+    the relative median income ratio, 
     median income of individuals below at risk of poverty gap,
     income quintile share ratio,
     relative median at risk of poverty gap),
@@ -30,10 +32,10 @@ Generation of domain variables,
 \details{
 \tabular{ll}{
 Package: \tab vardpoor\cr
-Version: \tab 0.3.2\cr
-Date: \tab 2015-06-10\cr
+Version: \tab 0.3.4\cr
+Date: \tab 2015-07-10\cr
 Depends: \tab R (>= 3.0.0), data.table (>= 1.9.4), laeken, stringr\cr
-Imports: \tab reshape, foreach, plyr, gdata, MASS\cr
+Imports: \tab reshape, foreach, plyr, gdata, MASS, stats, utils\cr
 License: \tab GPL (>= 2)\cr
 URL: \tab https://github.com/CSBLatvia/vardpoor/ \cr
 BugReports: \tab https://github.com/CSBLatvia/vardpoor/issues/ \cr
@@ -44,6 +46,8 @@ Index:
 domain                  Split data variables by domains
 incPercentile           Weighted income percentile
 lin.ratio               Linearization of the ratio estimator
+linarr    	              Linearization of the aggregate replacement ratio
+linrmi                       Linearization of the relative median income ratio
 linarpr                 Linearization of the at-risk-of-poverty rate
 linarpt                 Linearization of the at-risk-of-poverty
                         threshold

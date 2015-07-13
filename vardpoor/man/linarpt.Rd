@@ -93,7 +93,7 @@ Jean-Claude Deville (1999). Variance estimation for complex statistics and estim
 
 
 \seealso{
-\code{\link{linarpr}}, \code{\link{incPercentile}}, \code{\link{varpoord}}
+\code{\link{linarpr}}, \code{\link{incPercentile}}, \code{\link{varpoord}} , \code{\link{vardcrospoor}}, \code{\link{vardchangespoor}}
 }
 
 

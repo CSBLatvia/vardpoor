@@ -79,6 +79,6 @@ dd$value}
 }
 
 \seealso{
-\code{\link{linarpt}}, \code{\link{linarpr}},  \code{\link{linpoormed}}, \code{\link{varpoord}}}
+\code{\link{linarpt}}, \code{\link{linarpr}},  \code{\link{linpoormed}}, , \code{\link{varpoord}} , \code{\link{vardcrospoor}}, \code{\link{vardchangespoor}}}
 \keyword{Linearization}
 

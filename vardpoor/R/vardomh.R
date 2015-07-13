@@ -260,7 +260,7 @@ vardomh <- function(Y, H, PSU, w_final,
     IDh <- data.table(unique(ID_household))
     if (!is.null(periodX)) {X_ID_household <- data.table(periodX, X_ID_household)
                            IDh <- data.table(unique(data.table(period, ID_household)))}
-
+ 
     if (any(duplicated(X_ID_household))) stop("'X_ID_household' have duplicates")
     setkeyv(X_ID_household, names(X_ID_household))
     setkeyv(IDh, names(IDh))

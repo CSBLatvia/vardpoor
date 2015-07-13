@@ -75,7 +75,7 @@ Jean-Claude Deville (1999). Variance estimation for complex statistics and estim
 
 
 \seealso{
-\code{\link{linqsr}}, \code{\link{lingini}}, \code{\link{varpoord}}}
+\code{\link{linqsr}}, \code{\link{lingini}}, \code{\link{varpoord}} , \code{\link{vardcrospoor}}, \code{\link{vardchangespoor}}}
 
 
 \examples{

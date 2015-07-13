@@ -182,5 +182,5 @@ result <- vardchanges(Y=c("pov", "dep", "lwi", "arope"),
 }
 
 \seealso{
-\code{\link{domain}},   \code{\link{vardcros}}}
+\code{\link{domain}},   \code{\link{vardcros}},  \code{\link{vardchangespoor}}}
 \keyword{vardchanges}

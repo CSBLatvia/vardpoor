@@ -71,5 +71,5 @@ dat2$value}
 }
 
 \seealso{
-\code{\link{lingini}}, \code{\link{varpoord}}, \code{\link{linqsr}}}
+\code{\link{lingini}}, \code{\link{linqsr}}, \code{\link{varpoord}} , \code{\link{vardcrospoor}}, \code{\link{vardchangespoor}}}
 \keyword{Linearization}

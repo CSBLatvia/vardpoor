@@ -38,13 +38,14 @@ vardomh <- function(Y, H, PSU, w_final,
       if(!is.null(id)) {
           id2 <- id
           if (min(id %in% names(dataset))!=1) stop("'id' does not exist in 'dataset'!")
-          if (min(id %in% names(dataset))==1) id <- data.frame(dataset[, id])
+          if (min(id %in% names(dataset))==1) id <- data.frame(dataset[, id], stringsAsFactors=FALSE)
           names(id) <- id2  }
       if(!is.null(ID_household)) {
           ID_household2 <- ID_household
           if (min(ID_household %in% names(dataset))!=1) stop("'ID_household' does not exist in 'dataset'!")
-          if (min(ID_household %in% names(dataset))==1) ID_household <- data.frame(dataset[, ID_household])
+          if (min(ID_household %in% names(dataset))==1) ID_household <- data.frame(dataset[, ID_household], stringsAsFactors=FALSE)
           names(ID_household) <- ID_household2  }
+    
       if(!is.null(H)) {
           aH <- H  
           if (min(H %in% names(dataset))!=1) stop("'H' does not exist in 'dataset'!")
@@ -95,7 +96,7 @@ vardomh <- function(Y, H, PSU, w_final,
       if(!is.null(X_ID_household)) {
           X_ID_household2 <- X_ID_household
           if (min(X_ID_household %in% names(datasetX))!=1) stop("'X_ID_household' does not exist in 'datasetX'!")
-          if (min(X_ID_household %in% names(datasetX))==1) X_ID_household <- data.frame(datasetX[, X_ID_household])
+          if (min(X_ID_household %in% names(datasetX))==1) X_ID_household <- data.frame(datasetX[, X_ID_household], stringsAsFactors=FALSE)
           names(X_ID_household) <- X_ID_household2  }
 
       if(!is.null(X)) {
@@ -351,12 +352,15 @@ vardomh <- function(Y, H, PSU, w_final,
 
   # Design weights
   if (!is.null(X)) {
-             idh <- ID_household
+             idh <- data.frame(ID_household)
              if (!is.null(period)) idh <- data.table(period, idh)
              idhx <- data.table(X_ID_household, g)
              setnames(idhx, names(idhx)[c(1:(ncol(idhx)-1))], names(idh))
-             idg <- merge(idh, idhx, by=names(idh))
+             idg <- data.table(merge(idh, idhx, by=names(idh), sort=FALSE))
              w_design <- w_final / idg[[ncol(idg)]]
+             idg <- data.table(idg, w_design=w_design)
+             idh <- idg[, .N, keyby=c(names(idh), "w_design")]
+             if (nrow(X) != nrow(idh))  stop("Aggregated 'w_design' length must the same as matrix 'X'")
              idg <- idhx <- idh <- NULL
       } else w_design <- w_final
       

@@ -36,7 +36,7 @@
   in each strata, if true, fh value is zero in each strata.}
 
   \item{PSU_level}{by default TRUE; if PSU_level is true, in each strata fh
-  is calculated as division of count of PSU in sample (n_h) and count of PSU in frame(N_h). 
+  is calculated as division of count of PSU in sample (n_h) and count of PSU in frame (N_h). 
   if PSU_level is false, in each strata fh is calculated as division of count of units in
   sample (n_h) and count of units in frame(N_h), which calculated as sum of weights. }
 
@@ -57,49 +57,53 @@
   variance estimation by totals.
 }
 \details{
-If we assume that \eqn{n_h \geq 2} for all \eqn{h}, that is, two or more PSUs
- are selected from each stratum, then the variance of \eqn{\hat{\theta}} 
+If we assume that \eqn{n_h \geq 2}{n_h>=2} for all \eqn{h}, that is, two or more PSUs
+ are selected from each stratum, then the variance of \eqn{\hat{\theta}}{\theta}
 can be estimated from the variation among the estimated PSU totals of the variable \eqn{Z}:
 
-\deqn{\hat{V} \left(\hat{\theta} \right)=\sum\limits_{h=1}^{H} \left(1-f_h \right) \frac{n_h}{n_{h}-1} \sum\limits_{i=1}^{n_h} \left( z_{hi\bullet}-\bar{z}_{h\bullet\bullet}\right)^2, }
+\deqn{\hat{V} \left(\hat{\theta} \right)=\sum\limits_{h=1}^{H} \left(1-f_h \right) \frac{n_h}{n_{h}-1} \sum\limits_{i=1}^{n_h} \left( z_{hi\bullet}-\bar{z}_{h\bullet\bullet}\right)^2, }{V(\theta)=\sum h=1...H  (1-f_h)*n_h/(n_h-1)* \sum  i=1...n_h ( z_hi.- z_h..)^2, }
 
 where
 
-\eqn{\bullet}  
-\eqn{z_{hi\bullet}=\sum\limits_{j=1}^{m_{hi}} \omega_{hij} z_{hij}}
+\eqn{\bullet}{} 
+\eqn{z_{hi\bullet}=\sum\limits_{j=1}^{m_{hi}} \omega_{hij} z_{hij}}{z_hi.=\sum j=1...m_hi \omega_hij * z_hij}
 
-\eqn{\bullet}  
-\eqn{\bar{z}_{h\bullet\bullet}=\frac{\left( \sum\limits_{i=1}^{n_h} z_{hi\bullet} \right)}{n_h}}
+\eqn{\bullet}{}
+\eqn{\bar{z}_{h\bullet\bullet}=\frac{\left( \sum\limits_{i=1}^{n_h} z_{hi\bullet} \right)}{n_h}}{z_h..=(\sum i=1...n_h z_hi.)/n_h}
 
-\eqn{\bullet}  
+\eqn{\bullet}{}
 \eqn{f_h} is the sampling fraction of PSUs within stratum
 
-\eqn{\bullet}  
+\eqn{\bullet}{}
 \eqn{h} is the stratum number, with a total of H strata
 
-\eqn{\bullet}  
+\eqn{\bullet}{}
 \eqn{i} is the primary sampling unit (PSU) number within stratum \eqn{h}, with a total of \eqn{n_h} PSUs
 
-\eqn{\bullet}  
-\eqn{j} is the household number within cluster \eqn{i} of stratum \eqn{h}, with a total of \eqn{m_{hi}} household
+\eqn{\bullet}{}
+\eqn{j} is the household number within cluster \eqn{i} of stratum \eqn{h}, with a total of \eqn{m_{hi}}{m_hi} household
 
-\eqn{\bullet}  
-\eqn{w_{hij}} is the sampling weight for household \eqn{j} in PSU \eqn{i} of stratum \eqn{h}
+\eqn{\bullet}{}
+\eqn{w_{hij}}{w_hij} is the sampling weight for household \eqn{j} in PSU \eqn{i} of stratum \eqn{h}
 
-\eqn{\bullet}  
-\eqn{z_{hij}} denotes the observed value of the analysis variable \eqn{z} for household \eqn{j} in PSU \eqn{i} of stratum \eqn{h}
+\eqn{\bullet}{}
+\eqn{z_{hij}}{z_hij} denotes the observed value of the analysis variable \eqn{z} for household \eqn{j} in PSU \eqn{i} of stratum \eqn{h}
 
 }
 
 \references{
+Morris H. Hansen, William N. Hurwitz, William G. Madow, (1953), Sample survey methods and theory Volume I Methods and applications, 257-258, Wiley. \cr
+
+Guillaume Osier and Emilio Di Meglio. The linearisation approach implemented by Eurostat for
+the first wave of EU-SILC: what could be done from the second onwards? 2012
+
 Eurostat Methodologies and Working papers, Standard error estimation for the EU-SILC indicators of poverty and social exclusion, 2013, URL \url{http://ec.europa.eu/eurostat/documents/3859598/5927001/KS-RA-13-029-EN.PDF}. \cr
 
 Yves G. Berger, Tim Goedeme, Guillame Osier (2013). Handbook on standard
 error estimation and other related sampling issues in EU-SILC,
 URL \url{http://www.cros-portal.eu/content/handbook-standard-error-estimation-and-other-related-sampling-issues-ver-29072013}    \cr
 
-Guillaume Osier and Emilio Di Meglio. The linearisation approach implemented by Eurostat for
-the first wave of EU-SILC: what could be done from the second onwards? 2012
+Eurostat Methodologies and Working papers, Handbook on precision requirements and variance estimation for ESS household surveys, 2013, URL \url{http://ec.europa.eu/eurostat/documents/3859598/5927001/KS-RA-13-029-EN.PDF}. \cr
 }
 
 \examples{
@@ -107,8 +111,18 @@ Ys <- rchisq(10, 3)
 w <- rep(2, 10)
 PSU <- 1:length(Ys)
 H <- rep("Strata_1", 10)
+
+# by default without using fh_zero (finite population correction)
 variance_est(Y=Ys, H=H, PSU=PSU, w_final=w)
 
+
+\dontrun{
+# without using fh_zero (finite population correction)
+variance_est(Y=Ys, H=H, PSU=PSU, w_final=w, fh_zero=FALSE)
+
+# with using fh_zero (finite population correction)
+variance_est(Y=Ys, H=H, PSU=PSU, w_final=w, fh_zero=TRUE)
+}
 } 
 \seealso{
    \code{\link{domain}},   \code{\link{lin.ratio}},    \code{\link{linarpr}},

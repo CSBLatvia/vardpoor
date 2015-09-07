@@ -57,8 +57,7 @@ Working group on Statistics on Income and Living Conditions (2004) Common cross-
 
 \examples{
 data(eusilc)
-dati <- data.frame(1:nrow(eusilc),eusilc)
-colnames(dati)[1] <- "IDd"
+dati <- data.table(IDd=1:nrow(eusilc), eusilc)
 
 # Full population
 dat1 <- lingini2(Y="eqIncome", id="IDd", weight = "rb050",  dataset=dati)

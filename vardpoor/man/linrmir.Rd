@@ -1,23 +1,23 @@
-\name{linrmi}
+\name{linrmir}
 
-\alias{linrmi}
+\alias{linrmir}
 
 \title{Linearization of the relative median income ratio}
 
 \description{
-Estimates the arelative median income ratio (defined as the ratio of the median equivalised disposable income of people aged above 65 to the median equivalised disposable income of those aged below 65) and computes linearized variable for variance estimation.
+Estimates the arelative median income ratio (defined as the ratio of the median equivalised disposable income of people aged above age  to the median equivalised disposable income of those aged below 65) and computes linearized variable for variance estimation.
 }
 
 
 \usage{
-linrmi(Y, id, age,
+linrmir(Y, id, age,
   weight = NULL,
   sort = NULL,
   Dom = NULL,
   period = NULL,
   dataset = NULL,
   order_quant = 50,
-  var_name = "lin_rmi")
+  var_name = "lin_rmir")
 }
 
 
@@ -85,16 +85,16 @@ Jean-Claude Deville (1999). Variance estimation for complex statistics and estim
 \examples{
 data(eusilc)
 
-dati <- data.frame(IDd = 1:nrow(eusilc), eusilc)
+dati <- data.table(IDd = 1:nrow(eusilc), eusilc)
 
 # Full population
-d <- linrmi(Y="eqIncome", id="IDd",  age="age", weight="rb050", 
+d <- linrmir(Y="eqIncome", id="IDd",  age="age", weight="rb050", 
                   Dom=NULL, dataset=dati, order_quant=50)
 d$value
 
 \dontrun{
 # By domains
-dd <- linrmi(Y="eqIncome", id="IDd", age="age", weight="rb050", 
+dd <- linrmir(Y="eqIncome", id="IDd", age="age", weight="rb050", 
                      Dom="db040", dataset=dati, percentage=60, order_quant=50)
 
 dd}

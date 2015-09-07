@@ -1,4 +1,3 @@
-
 varpoord <- function(Y, w_final,
                      age=NULL,
                      pl085=NULL,
@@ -30,7 +29,6 @@ varpoord <- function(Y, w_final,
                      confidence = .95,
                      outp_lin = FALSE,
                      outp_res = FALSE,
-                     several.ok=FALSE,
                      type="linrmpg") {
 
   ### Checking
@@ -39,12 +37,11 @@ varpoord <- function(Y, w_final,
   if (!is.logical(PSU_level)) stop("'PSU_level' must be the logical value")
 
   all_choices <- c("linarpr","linarpt","lingpg","linpoormed",
-                   "linrmpg","lingini","lingini2", "linqsr", "linrmi", "linarr")
+                   "linrmpg","lingini","lingini2", "linqsr", "linrmir", "linarr")
   choices <- c("all_choices", all_choices)
   type <- tolower(type)
-  type <- match.arg(type, choices, several.ok) 
-  if (any(type == "all_choices")) {type <- all_choices
-                                   several.ok <- TRUE } 
+  type <- match.arg(type, choices, length(type)>1) 
+  if (any(type == "all_choices")) type <- all_choices 
 
   # check 'p'
   p <- percentage
@@ -426,13 +423,16 @@ varpoord <- function(Y, w_final,
 
   # Design weights
   if (!is.null(X)) {
-             idh <- ID_household
+             idh <- data.frame(ID_household)
              if (!is.null(period)) idh <- data.table(period, idh)
              idhx <- data.table(X_ID_household, g)
              setnames(idhx, names(idhx)[c(1:(ncol(idhx)-1))], names(idh))
-             idg <- merge(idh, idhx, by=names(idh))
+             idg <- data.table(merge(idh, idhx, by=names(idh), sort=FALSE))
              w_design <- w_final / idg[[ncol(idg)]]
-             idhx <- idh <- NULL
+             idg <- data.table(idg, w_design=w_design)
+             idh <- idg[, .N, keyby=c(names(idh), "w_design")]
+             if (nrow(X) != nrow(idh))  stop("Aggregated 'w_design' length must the same as matrix 'X'")
+             idg <- idhx <- idh <- NULL
       } else w_design <- w_final
 
   ### Calculation
@@ -613,24 +613,24 @@ varpoord <- function(Y, w_final,
        estim <- rbind(estim, esti)
        vgini2 <- vgini2a <- esti <- NULL
      }
-  if (("linrmi" %in% type)&&(!is.null(age))) {
-       vrmi <- linrmi(Y=Y, id=id, age=age, weight=w_final, 
+  if (("linrmir" %in% type)&&(!is.null(age))) {
+       vrmir <- linrmir(Y=Y, id=id, age=age, weight=w_final, 
+                      sort=sort, Dom=Dom, period=period,
+                      dataset=NULL,  order_quant=order_quant,
+                      var_name="lin_rmir") 
+       vrmira <- linrmir(Y=Y, id=id, age=age, weight=w_design,
                       sort=sort, Dom=Dom, period=period,
                       dataset=NULL, order_quant=order_quant,
-                      var_name="lin_rmi") 
-       vrmia <- linrmi(Y=Y, id=id, age=age, weight=w_design,
-                      sort=sort, Dom=Dom, period=period,
-                      dataset=NULL, order_quant=order_quant,
-                      var_name="lin_qsr") 
+                       var_name="lin_rmir") 
 
-       Y1 <- merge(Y1, vrmi$lin, all.x=TRUE)
-       Y1a <- merge(Y1a, vrmia$lin, all.x=TRUE)
+       Y1 <- merge(Y1, vrmir$lin, all.x=TRUE)
+       Y1a <- merge(Y1a, vrmira$lin, all.x=TRUE)
 
-       esti <- data.table("RMI", vrmi$value)  
+       esti <- data.table("RMIR", vrmir$value, NA)  
        setnames(esti, names(esti)[c(1, -1:0+ncol(esti))],
                                   c("type", "value", "value_eu"))
        estim <- rbind(estim, esti)
-       vrmi <- vrmia <- esti <- NULL
+       vrmir <- vrmira <- esti <- NULL
     }
   if (("linarr" %in% type)&&(!is.null(age))
                 &&(!is.null(pl085))&&(!is.null(month_at_work))) {
@@ -647,7 +647,7 @@ varpoord <- function(Y, w_final,
        Y1 <- merge(Y1, varr$lin, all.x=TRUE)
        Y1a <- merge(Y1a, varra$lin, all.x=TRUE)
 
-       esti <- data.table("ARR", varr$value)  
+       esti <- data.table("ARR", varr$value, NA)  
        setnames(esti, names(esti)[c(1, -1:0+ncol(esti))],
                                   c("type", "value", "value_eu"))
        estim <- rbind(estim, esti)
@@ -811,7 +811,7 @@ varpoord <- function(Y, w_final,
   
   setkeyv(all_result, c(nDom, names(period)))
 
-  if (!is.null(c(Dom, period))) { all_result <- merge(all_result, nhs, all=TRUE)
+  if (!is.null(c(nDom, period))) { all_result <- merge(all_result, nhs, all=TRUE)
                          } else { all_result[, respondent_count:=nhs$respondent_count]
                                   all_result[, pop_size:=nhs$pop_size]
                                   all_result[, n_nonzero:=nhs$n_nonzero]} 

@@ -10,9 +10,9 @@
 #******************************************************************************************
 #******************************************************************************************
 
-linrmi <- function(Y, id, age, weight=NULL,  sort=NULL, 
+linrmir <- function(Y, id, age, weight=NULL,  sort=NULL, 
                              Dom=NULL, period=NULL, dataset = NULL, 
-                             order_quant=50, var_name="lin_rmi") {
+                             order_quant=50, var_name="lin_rmir") {
  
    ## initializations
    if (min(dim(data.table(var_name))==1)!=1) {
@@ -129,7 +129,7 @@ linrmi <- function(Y, id, age, weight=NULL,  sort=NULL,
                         } else period1 <- data.table(ind=ind0)
     period1_agg <- data.table(unique(period1))
 
-    # RMI by domain (if requested)
+    # RMIR by domain (if requested)
     age_under_65s <- data.table(age_under_65s=as.integer(age < 65))
     if (!is.null(Dom)) age_under_65s <- data.table(age_under_65s, Dom)
 
@@ -149,22 +149,22 @@ linrmi <- function(Y, id, age, weight=NULL,  sort=NULL,
                quantile <- merge(quantile_under_65, quantile_over_65, all=TRUE)
         } else quantile <- data.table(quantile_under_65, quantile_over_65)
   
-    rmi_id <- id
+    rmir_id <- id
     age_under_65s <- age_under_65s[["age_under_65s"]]
-    if (!is.null(period)) rmi_id <- data.table(rmi_id, period)
+    if (!is.null(period)) rmir_id <- data.table(rmir_id, period)
 
   if (!is.null(Dom)) {
         Dom_agg <- data.table(unique(Dom))
         setkeyv(Dom_agg, names(Dom_agg))
           
-        rmi_v <- c()
-        rmi_m <- copy(rmi_id)
+        rmir_v <- c()
+        rmir_m <- copy(rmir_id)
         for(i in 1:nrow(Dom_agg)) {
               g <- c(var_name, paste(names(Dom), as.matrix(Dom_agg[i,]), sep = "."))
               var_nams <- do.call(paste, as.list(c(g, sep="__")))
               ind <- as.integer(rowSums(Dom == Dom_agg[i,][ind0,]) == ncol(Dom))
 
-              rmil <- lapply(1:nrow(period1_agg), function(j) {
+              rmirl <- lapply(1:nrow(period1_agg), function(j) {
                                if (!is.null(period)) { 
                                        rown <- cbind(period_agg[j], Dom_agg[i])
                                        setkeyv(rown, names(rown))
@@ -175,8 +175,8 @@ linrmi <- function(Y, id, age, weight=NULL,  sort=NULL,
 
                                indj <- (rowSums(period1 == period1_agg[j,][ind0,]) == ncol(period1))
 
-                               rmi_l <- rmilinCalc(Y1=Y[indj],
-                                                   ids=rmi_id[indj],
+                               rmir_l <- rmirlinCalc(Y1=Y[indj],
+                                                   ids=rmir_id[indj],
                                                    wght=weight[indj],
                                                    indicator=ind[indj],
                                                    order_quants=order_quant,
@@ -184,18 +184,18 @@ linrmi <- function(Y, id, age, weight=NULL,  sort=NULL,
                                                    quant_under_65=rown[["quantile_under_65"]],
                                                    quant_over_65=rown[["quantile_over_65"]])
 
-                      list(rmi=data.table(rown2, rmi=rmi_l$rmi_val), lin=rmi_l$lin)
+                      list(rmir=data.table(rown2, rmir=rmir_l$rmir_val), lin=rmir_l$lin)
                       })
-                 rmis <- rbindlist(lapply(rmil, function(x) x[[1]]))
-                 rmilin <- rbindlist(lapply(rmil, function(x) x[[2]]))
+                 rmirs <- rbindlist(lapply(rmirl, function(x) x[[1]]))
+                 rmirlin <- rbindlist(lapply(rmirl, function(x) x[[2]]))
 
-                 setnames(rmilin, names(rmilin), c(names(rmi_id), var_nams))
-                 setkeyv(rmi_m, names(rmi_id))
-                 setkeyv(rmilin, names(rmi_id))
-                 rmi_m <- merge(rmi_m, rmilin, all.x=TRUE)
-                 rmi_v <- rbind(rmi_v, rmis) 
+                 setnames(rmirlin, names(rmirlin), c(names(rmir_id), var_nams))
+                 setkeyv(rmir_m, names(rmir_id))
+                 setkeyv(rmirlin, names(rmir_id))
+                 rmir_m <- merge(rmir_m, rmirlin, all.x=TRUE)
+                 rmir_v <- rbind(rmir_v, rmirs) 
            }
-     } else { rmil <- lapply(1:nrow(period1_agg), function(j) {
+     } else { rmirl <- lapply(1:nrow(period1_agg), function(j) {
                            if (!is.null(period)) { 
                                          rown <- period_agg[j]
                                          setkeyv(rown, names(rown))
@@ -203,8 +203,8 @@ linrmi <- function(Y, id, age, weight=NULL,  sort=NULL,
                                        } else rown <- quantile
                            ind2 <- (rowSums(period1 == period1_agg[j,][ind0,]) == ncol(period1))
       
-                           rmi_l <- rmilinCalc(Y1=Y[ind2],
-                                                 ids=rmi_id[ind2],
+                           rmir_l <- rmirlinCalc(Y1=Y[ind2],
+                                                 ids=rmir_id[ind2],
                                                  wght=weight[ind2],
                                                  indicator=ind0[ind2],
                                                  order_quants=order_quant,
@@ -212,17 +212,17 @@ linrmi <- function(Y, id, age, weight=NULL,  sort=NULL,
                                                  quant_under_65=rown[["quantile_under_65"]],
                                                  quant_over_65=rown[["quantile_over_65"]])
                           if (!is.null(period)) { 
-                                   rmis <- data.table(period_agg[j], rmi=rmi_l$rmi_val)
-                             } else rmis <- data.table(rmi=rmi_l$rmi_val)
-                          list(rmi=rmis, lin=rmi_l$lin)
+                                   rmirs <- data.table(period_agg[j], rmir=rmir_l$rmir_val)
+                             } else rmirs <- data.table(rmir=rmir_l$rmir_val)
+                          list(rmir=rmirs, lin=rmir_l$lin)
                        })
-               rmi_v <- rbindlist(lapply(rmil, function(x) x[[1]]))
-               rmi_m <- rbindlist(lapply(rmil, function(x) x[[2]]))
-               setnames(rmi_m, names(rmi_m), c(names(rmi_id), var_name))
+               rmir_v <- rbindlist(lapply(rmirl, function(x) x[[1]]))
+               rmir_m <- rbindlist(lapply(rmirl, function(x) x[[2]]))
+               setnames(rmir_m, names(rmir_m), c(names(rmir_id), var_name))
             } 
-     rmi_m[is.na(rmi_m)] <- 0
-     setkeyv(rmi_m, names(rmi_id))
-     return(list(value=rmi_v, lin=rmi_m))
+     rmir_m[is.na(rmir_m)] <- 0
+     setkeyv(rmir_m, names(rmir_id))
+     return(list(value=rmir_v, lin=rmir_m))
 }
 
 
@@ -230,7 +230,7 @@ linrmi <- function(Y, id, age, weight=NULL,  sort=NULL,
 
 
 ## workhorse
-rmilinCalc <- function(Y1, ids, wght, indicator, order_quants, age_under_65, quant_under_65, quant_over_65) {
+rmirlinCalc <- function(Y1, ids, wght, indicator, order_quants, age_under_65, quant_under_65, quant_over_65) {
 
     dom1 <- (age_under_65==1) * indicator
     dom2 <- (age_under_65==0) * indicator
@@ -239,7 +239,7 @@ rmilinCalc <- function(Y1, ids, wght, indicator, order_quants, age_under_65, qua
     N1 <- sum(wght * dom1)   
     N2 <- sum(wght * dom2) 
 				
-    rmi_val <- quant_over_65/quant_under_65  # Estimated relative median income ratio
+    rmir_val <- quant_over_65/quant_under_65  # Estimated relative median income ratio
 
     # Bandwith parameter - h=S/N^(1/5) (calculated over the whole population) 
 
@@ -268,6 +268,5 @@ rmilinCalc <- function(Y1, ids, wght, indicator, order_quants, age_under_65, qua
     lin <- (quant_under_65 * lin_quant_over_65 - quant_over_65 * lin_quant_under_65)/(quant_under_65*quant_under_65)
 
     lin_id <- data.table(ids, lin)
-    return(list(rmi_val=rmi_val, lin=lin_id))
+    return(list(rmir_val=rmir_val, lin=lin_id))
 }
-

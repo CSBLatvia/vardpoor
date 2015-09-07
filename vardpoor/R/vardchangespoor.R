@@ -20,20 +20,18 @@ vardchangespoor <- function(Y,
                      linratio = FALSE,
                      use.estVar = FALSE,
                      confidence=0.95,
-                     several.ok=FALSE,
                      type="linrmpg") {
  
   ### Checking
 
   all_choices <- c("linarpr","linarpt","lingpg",
                             "linpoormed",  "linrmpg","lingini",
-                            "lingini2","linqsr", "linrmi", "linarr")
+                            "lingini2","linqsr", "linrmir", "linarr")
   choices <- c("all_choices", all_choices)
   type <- tolower(type)
 
-  type <- match.arg(type, choices, several.ok)
-  if (any(type == "all_choices")) {type <- all_choices
-                                   several.ok <- TRUE }  
+  type <- match.arg(type, choices, length(type)>1) 
+  if (any(type == "all_choices"))  type <- all_choices
 
   # check 'p'
   p <- percentage
@@ -303,7 +301,6 @@ vardchangespoor <- function(Y,
                         withperiod = TRUE,
                         netchanges = TRUE,
                         confidence=confidence,
-                        several.ok=several.ok,
                         type=type)
 
   crossectional_results <- data$results

@@ -63,8 +63,7 @@ Jean-Claude Deville (1999). Variance estimation for complex statistics and estim
 
 \examples{
 data(eusilc)
-dati=data.frame(1:nrow(eusilc),eusilc)
-colnames(dati)[1] <- "IDd"
+dati=data.table(IDd=1:nrow(eusilc),eusilc)
 
 # Full population
 d <- linpoormed(Y="eqIncome", id="IDd", weight = "rb050", Dom=NULL,

@@ -13,8 +13,7 @@
                  gender = NULL, dataset = NULL, X = NULL, periodX = NULL,
                  X_ID_household = NULL, ind_gr = NULL, g = NULL, datasetX = NULL,
                  q, percentage = 60, order_quant = 50, alpha = 20,
-                 confidence = 0.95, outp_lin = FALSE, outp_res = FALSE,
-                 several.ok = FALSE, type = "linrmpg") }
+                 confidence = 0.95, outp_lin = FALSE, outp_res = FALSE, type = "linrmpg") }
                      
 
 \arguments{
@@ -93,10 +92,8 @@ For example, to compute poverty threshold equal to some percentage of median inc
 
 \item{outp_res}{Logical value. If \code{TRUE} estimated residuals of calibration will be printed out.}
 
-\item{several.ok}{Logical value. If \code{type} should be allowed to have more than one.}
-
 \item{type}{a character vector (of length one unless several.ok is TRUE), example "linarpr","linarpt", "lingpg", "linpoormed", "linrmpg",
-   "lingini", "lingini2", "linqsr", "linarr", "linrmi", "all_choices".}
+   "lingini", "lingini2", "linqsr", "linarr", "linrmir", "all_choices".}
 
 }
 
@@ -143,6 +140,8 @@ Eurostat Methodologies and Working papers, Standard error estimation for the EU-
 
 Jean-Claude Deville (1999). Variance estimation for complex statistics and estimators: linearization and residual techniques. Survey Methodology, 25, 193-203, URL \url{http://www5.statcan.gc.ca/bsolc/olc-cel/olc-cel?lang=eng&catno=12-001-X19990024882}. \cr
 
+Eurostat Methodologies and Working papers, Handbook on precision requirements and variance estimation for ESS household surveys, 2013, URL \url{http://ec.europa.eu/eurostat/documents/3859598/5927001/KS-RA-13-029-EN.PDF}. \cr
+
 MATTI LANGEL - YVES TILLE, Corrado Gini, a pioneer in balanced sampling and inequality theory. \emph{METRON - International Journal of Statistics}, 2011, vol. LXIX, n. 1, pp. 45-65, URL \url{ftp://metron.sta.uniroma1.it/RePEc/articoli/2011-1-3.pdf}. \cr
 
 Morris H. Hansen, William N. Hurwitz, William G. Madow, (1953), Sample survey methods and theory Volume I Methods and applications, 257-258, Wiley. \cr
@@ -154,15 +153,15 @@ Working group on Statistics on Income and Living Conditions (2004) Common cross-
 
 \examples{
 data(eusilc)
-dataset <- data.frame(1:nrow(eusilc),eusilc)
-colnames(dataset)[1] <- "IDd"
+dataset <- data.frame(IDd=1:nrow(eusilc),eusilc)
 dataset1 <- dataset[1:1000,]
 
+# use dataset1 by default without using fh_zero (finite population correction)
 aa<-varpoord(Y = "eqIncome", w_final = "rb050",
              Y_thres = NULL, wght_thres = NULL,
              ID_household = "db030", id = "IDd", 
              H = "db040", PSU = "rb030", N_h = NULL,
-             sort = NULL, Dom = "db040",
+             sort = NULL, Dom = NULL,
              gender = NULL, X = NULL,
              X_ID_household = NULL, g = NULL,
              datasetX = NULL,
@@ -170,12 +169,64 @@ aa<-varpoord(Y = "eqIncome", w_final = "rb050",
                         nrow(as.data.frame(H)) else nrow(datasetX)),
              dataset =  dataset1, percentage=60, order_quant=50,
              alpha = 20, confidence = .95, outp_lin = FALSE,
-             outp_res = FALSE, several.ok=FALSE, type="linarpt")
+             outp_res = FALSE, type="linarpt")
 aa
 
-
 \dontrun{
-aa<-varpoord(Y = "eqIncome", w_final = "rb050",
+# use dataset1 by default without using fh_zero (finite population correction)
+aa1 <-varpoord(Y = "eqIncome", w_final = "rb050",
+             Y_thres = NULL, wght_thres = NULL,
+             ID_household = "db030", id = "IDd", 
+             H = "db040", PSU = "rb030", N_h = NULL,
+              fh_zero = FALSE, sort = NULL, Dom = "db040",
+             gender = NULL, X = NULL,
+             X_ID_household = NULL, g = NULL,
+             datasetX = NULL,
+             q = rep(1, if (is.null(datasetX)) 
+                        nrow(as.data.frame(H)) else nrow(datasetX)),
+             dataset =  dataset1, percentage=60, order_quant=50,
+             alpha = 20, confidence = .95, outp_lin = FALSE,
+             outp_res = FALSE, type="linarpt")
+aa1
+aa1$all_result
+
+# use dataset1 by default with using fh_zero (finite population correction)
+aa2 <-varpoord(Y = "eqIncome", w_final = "rb050",
+             Y_thres = NULL, wght_thres = NULL,
+             ID_household = "db030", id = "IDd", 
+             H = "db040", PSU = "rb030", N_h = NULL,
+              fh_zero = TRUE, sort = NULL, Dom = "db040",
+             gender = NULL, X = NULL,
+             X_ID_household = NULL, g = NULL,
+             datasetX = NULL,
+             q = rep(1, if (is.null(datasetX)) 
+                        nrow(as.data.frame(H)) else nrow(datasetX)),
+             dataset =  dataset1, percentage=60, order_quant=50,
+             alpha = 20, confidence = .95, outp_lin = FALSE,
+             outp_res = FALSE, type="linarpt")
+aa2
+aa2$all_result
+
+
+# using dataset1
+aa3 <-varpoord(Y = "eqIncome", w_final = "rb050",
+             Y_thres = NULL, wght_thres = NULL,
+             ID_household = "db030", id = "IDd", 
+             H = "db040", PSU = "rb030", N_h = NULL,
+            sort = NULL, Dom = "db040",
+             gender = NULL, X = NULL,
+             X_ID_household = NULL, g = NULL,
+             datasetX = NULL,
+             q = rep(1, if (is.null(datasetX)) 
+                        nrow(as.data.frame(H)) else nrow(datasetX)),
+             dataset =  dataset1, percentage=60, order_quant=50,
+             alpha = 20, confidence = .95, outp_lin = FALSE,
+             outp_res = FALSE, type="all_choices")
+aa3
+aa3$all_result[type=="ARPT"]
+
+# using dataset
+aa4 <- varpoord(Y = "eqIncome", w_final = "rb050",
              Y_thres = NULL, wght_thres = NULL,
              ID_household = "db030", id = "IDd", 
              H = "db040", PSU = "rb030", N_h = NULL,
@@ -187,9 +238,11 @@ aa<-varpoord(Y = "eqIncome", w_final = "rb050",
                         nrow(as.data.frame(H)) else nrow(datasetX)),
              dataset =  dataset, percentage=60, order_quant=50,
              alpha = 20, confidence = .95, outp_lin = TRUE,
-             outp_res = TRUE, several.ok=FALSE, type="all_choices")
-aa$lin_out[20:40]
-aa$res_out[20:40]
+             outp_res = TRUE, type="all_choices")
+aa4$all_result[type=="ARPT"]
+
+aa4$lin_out[20:40]
+aa4$res_out[20:40]
 }
 
 

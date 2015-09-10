@@ -148,8 +148,8 @@ lingpg <- function(Y, gender = NULL, id, weight=NULL, sort = NULL,
                                          ids=gpg_id[indj], weights=weight[indj],
                                          sort=sort[indj])
                       list(data.table(rown, gpg=gpgl$gpg_pr), gpgl$lin)
-                     }  else list(data.table(rown, gpg=0, Gini_eu=0),                                            
-                                lin=data.table(lin=gpg_id[indi], lin=0))
+                     }  else list(data.table(rown, gpg=0),                                            
+                                lin=data.table(lin=cbind(gpg_id[indi], 0)))
               })
 
             gpgs <- rbindlist(lapply(gpg_l, function(x) x[[1]]))
@@ -158,7 +158,7 @@ lingpg <- function(Y, gender = NULL, id, weight=NULL, sort = NULL,
             setnames(gpglin, names(gpglin), c(names(gpg_id), var_nams))
             setkeyv(gpg_m, names(gpg_id))
             setkeyv(gpglin, names(gpg_id))
-            gpg_m <- merge(gpg_m, gpglin, all.x=T)
+            gpg_m <- merge(gpg_m, gpglin, all.x=TRUE)
             gpg_v <- rbind(gpg_v, gpgs) 
           }
       } else { gpg_l <- lapply(1:nrow(period1_agg), function(j) {
@@ -169,8 +169,8 @@ lingpg <- function(Y, gender = NULL, id, weight=NULL, sort = NULL,
                                                sort=sort[indj])
 
                           if (!is.null(period)) { 
-                                   gpgs <- data.table(period_agg[j], gpg=gpg_l$gpg)
-                             } else gpgs <- data.table(gpg=gpg_l$gpg)
+                                   gpgs <- data.table(period_agg[j], gpg=gpg_l$gpg_pr)
+                             } else gpgs <- data.table(gpg=gpg_l$gpg_pr)
                           list(gpg=gpgs, lin=gpg_l$lin)
                        })
                gpg_v <- rbindlist(lapply(gpg_l, function(x) x[[1]]))
@@ -207,12 +207,12 @@ linGapCalc <- function(x, gend, ids, weights = NULL, sort = NULL) {
     gpg_pr <- gpg*100 
  
  #-------------------------- Linearized variable (in %) -----------------------
-   lin <- 100*(1-gpg)*((indic_men/Nwomen)-(indic_men/Nmen)+((x*indic_men)/SINCmen)-((x*indic_women)/SINCwomen))
+   lin <- 100*(1-gpg)*((indic_women/Nwomen)-(indic_men/Nmen)+((x*indic_men)/SINCmen)-((x*indic_women)/SINCwomen))
  #-----------------------------------------------------------------------------
 
    lin_id <- cbind(ids, lin)
 
-   gpg <- data.table(gpg=gpg)
+   gpg <- data.table(gpg_pr=gpg_pr)
    return(list(gpg_pr=gpg_pr, lin=lin_id))
 }
 

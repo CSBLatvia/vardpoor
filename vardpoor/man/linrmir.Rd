@@ -10,7 +10,7 @@ Estimates the arelative median income ratio (defined as the ratio of the median 
 
 
 \usage{
-linrmir(Y, id, age,
+linrmir(Y, id=NULL, age,
   weight = NULL,
   sort = NULL,
   Dom = NULL,
@@ -47,8 +47,8 @@ linrmir(Y, id, age,
 }
  
 \item{order_quant}{A numeric value in range \eqn{\left[ 0,100 \right]}{[0,100]} for \eqn{\alpha} in the formula for at-risk-of-poverty threshold computation:
-\deqn{\frac{p}{100} \cdot Z_{\frac{\alpha}{100}}.}{p/100 * Z(\alpha/100).}
-For example, to compute at-risk-of-poverty threshold equal to some percentage of median income, \eqn{\alpha} should be set equal to 50.
+\deqn{\frac{p}{100} \cdot Z_{\frac{\alpha}{100}}.}{Z(\alpha/100).}
+For example, to compute the relative median income ratio to some percentage of median income, \eqn{\alpha} should be set equal to 50.
 }
 
 \item{var_name}{A character specifying the name of the linearized variable.
@@ -95,7 +95,7 @@ d$value
 \dontrun{
 # By domains
 dd <- linrmir(Y="eqIncome", id="IDd", age="age", weight="rb050", 
-                     Dom="db040", dataset=dati, percentage=60, order_quant=50)
+                     Dom="db040", dataset=dati, order_quant=50)
 
 dd}
 }

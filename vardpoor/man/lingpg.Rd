@@ -11,7 +11,8 @@ Estimation of gender pay (wage) gap and computation of linearized variables for 
 
 
 \usage{
-lingpg(Y, gender = NULL, id, 
+lingpg(Y, gender = NULL,
+  id = NULL, 
   weight = NULL,
   sort = NULL,
   Dom = NULL,

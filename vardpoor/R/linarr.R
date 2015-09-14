@@ -10,7 +10,7 @@
 #******************************************************************************************
 #******************************************************************************************
 
-linarr <- function(Y, Y_den, id, age, pl085, month_at_work, weight=NULL,  sort=NULL, 
+linarr <- function(Y, Y_den, id=NULL, age, pl085, month_at_work, weight=NULL,  sort=NULL, 
                              Dom=NULL, period=NULL, dataset = NULL, 
                              order_quant=50, var_name="lin_arr") {
  

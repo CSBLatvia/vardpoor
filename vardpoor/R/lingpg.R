@@ -10,7 +10,7 @@
 #******************************************************************************************
 #******************************************************************************************
 
-lingpg <- function(Y, gender = NULL, id, weight=NULL, sort = NULL,
+lingpg <- function(Y, gender = NULL, id=NULL, weight=NULL, sort = NULL,
                    Dom = NULL, period=NULL, dataset = NULL,
                    var_name="lin_gpg") {
 

@@ -10,7 +10,7 @@
 #******************************************************************************************
 #******************************************************************************************
 
-linrmir <- function(Y, id, age, weight=NULL,  sort=NULL, 
+linrmir <- function(Y, id=NULL, age, weight=NULL,  sort=NULL, 
                              Dom=NULL, period=NULL, dataset = NULL, 
                              order_quant=50, var_name="lin_rmir") {
  
@@ -160,17 +160,19 @@ linrmir <- function(Y, id, age, weight=NULL,  sort=NULL,
         rmir_v <- c()
         rmir_m <- copy(rmir_id)
         for(i in 1:nrow(Dom_agg)) {
+
               g <- c(var_name, paste(names(Dom), as.matrix(Dom_agg[i,]), sep = "."))
               var_nams <- do.call(paste, as.list(c(g, sep="__")))
               ind <- as.integer(rowSums(Dom == Dom_agg[i,][ind0,]) == ncol(Dom))
 
               rmirl <- lapply(1:nrow(period1_agg), function(j) {
+
                                if (!is.null(period)) { 
                                        rown <- cbind(period_agg[j], Dom_agg[i])
                                        setkeyv(rown, names(rown))
                                        rown2 <- copy(rown)
                                        rown <- merge(rown, quantile, all.x=TRUE)
-                                     } else {rown <- quantile
+                                     } else {rown <- quantile[i]
                                              rown2 <- Dom_agg[i] }
 
                                indj <- (rowSums(period1 == period1_agg[j,][ind0,]) == ncol(period1))

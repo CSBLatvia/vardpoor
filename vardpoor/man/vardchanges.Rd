@@ -136,6 +136,7 @@ result <- vardchanges(Y="pov",
                    use.estVar=FALSE)
  
 \dontrun{
+data("eusilc")
 data <- data.table(rbind(eusilc, eusilc),
                    year=c(rep(2010, nrow(eusilc)),
                           rep(2011, nrow(eusilc))),

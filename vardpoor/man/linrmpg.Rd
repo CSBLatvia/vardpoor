@@ -9,7 +9,7 @@
 }
 
 \usage{
-  linrmpg(Y, id, weight=NULL, sort=NULL, Dom=NULL,
+  linrmpg(Y, id=NULL, weight=NULL, sort=NULL, Dom=NULL,
           period=NULL, dataset = NULL, percentage=60,
           order_quant=50, var_name="lin_rmpg")
 

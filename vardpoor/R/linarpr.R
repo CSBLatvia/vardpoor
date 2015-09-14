@@ -10,7 +10,7 @@
 #******************************************************************************************
 #******************************************************************************************
 
-linarpr <- function(Y, id, weight=NULL, Y_thres=NULL, wght_thres=NULL,
+linarpr <- function(Y, id=NULL, weight=NULL, Y_thres=NULL, wght_thres=NULL,
                  sort=NULL, Dom=NULL, period=NULL, dataset = NULL, percentage=60, 
                  order_quant=50, var_name="lin_arpr") {
  

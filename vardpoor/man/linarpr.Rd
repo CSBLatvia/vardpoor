@@ -10,7 +10,7 @@ Estimates the at-risk-of-poverty rate (defined as the proportion of persons with
 
 
 \usage{
-linarpr(Y, id,
+linarpr(Y, id = NULL,
   weight = NULL,
   Y_thres = NULL,
   wght_thres = NULL,

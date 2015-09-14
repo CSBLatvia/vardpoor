@@ -10,7 +10,7 @@
 #***********************************************************************************************************************
 #***********************************************************************************************************************
 
-linpoormed <- function(Y, id, weight=NULL, sort=NULL, Dom=NULL,
+linpoormed <- function(Y, id=NULL, weight=NULL, sort=NULL, Dom=NULL,
                        period=NULL, dataset = NULL, percentage=60,
                        order_quant=50, var_name="lin_poormed") {
  

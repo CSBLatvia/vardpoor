@@ -207,12 +207,12 @@ linarr <- function(Y, Y_den, id=NULL, age, pl085, month_at_work, weight=NULL,  s
               ind <- as.integer(rowSums(Dom == Dom_agg[i,][ind0,]) == ncol(Dom))
 
               arrl <- lapply(1:nrow(period1_agg), function(j) {
-                               if (!is.null(period)) { 
+                              if (!is.null(period)) { 
                                        rown <- cbind(period_agg[j], Dom_agg[i])
                                        setkeyv(rown, names(rown))
                                        rown2 <- copy(rown)
                                        rown <- merge(rown, quantile, all.x=TRUE)
-                                     } else {rown <- quantile
+                                     } else {rown <- quantile[i]
                                              rown2 <- Dom_agg[i] }
 
                                indj <- (rowSums(period1 == period1_agg[j,][ind0,]) == ncol(period1))
@@ -239,13 +239,12 @@ linarr <- function(Y, Y_den, id=NULL, age, pl085, month_at_work, weight=NULL,  s
                  arr_m <- merge(arr_m, arrlin, all.x=TRUE)
                  arr_v <- rbind(arr_v, arrs) 
            }
-     } else { arrl <- lapply(1:nrow(period1_agg), function(j) {
-j=1              
-             if (!is.null(period)) { 
-                                         rown <- period_agg[j]
-                                         setkeyv(rown, names(rown))
-                                         rown <- merge(rown, quantile, all.x=TRUE)
-                                       } else rown <- quantile
+     } else { arrl <- lapply(1:nrow(period1_agg), function(j) {  
+         
+             if (!is.null(period)) { rown <- period_agg[j]
+                                     setkeyv(rown, names(rown))
+                                     rown <- merge(rown, quantile, all.x=TRUE)
+                                 } else rown <- quantile
                            ind2 <- (rowSums(period1 == period1_agg[j,][ind0,]) == ncol(period1))
       
                            arr_l <- arrlinCalc(Y_num=Y[ind2],

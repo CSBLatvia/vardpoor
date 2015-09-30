@@ -137,7 +137,8 @@ variance_est <- function(Y, H, PSU, w_final, N_h=NULL, fh_zero=FALSE, PSU_level=
   }
   
   # var_z_hi
-  var_z_hi <- z_hi[, lapply(.SD, var, na.rm=FALSE), keyby = c(names(z_hi)[1:(1+np)]),.SDcols = names(z_hi)[-(1:(2+np))]]
+  var_z_hi <- z_hi[, lapply(.SD, var, na.rm=FALSE), keyby = c(names(z_hi)[1:(1+np)]),
+    .SDcols = names(z_hi)[-(1:(2+np))]]
   
   # f_h
   F_h <- merge(N_h, n_h, by = names(hpY)[c(1:(1+np))], sort=TRUE)
@@ -156,7 +157,8 @@ variance_est <- function(Y, H, PSU, w_final, N_h=NULL, fh_zero=FALSE, PSU_level=
      n_h1 <- NULL
      fh1 <- data.table(hpY[, c(1:(1+np)), with=FALSE], w_final)
      fh1[, n_h1:=1]
-     fh1 <- fh1[, lapply(.SD, sum, na.rm=TRUE), keyby = c(names(fh1)[c(1:(1+np))]), .SDcols = c("n_h1", "w_final")]
+     fh1 <- fh1[, lapply(.SD, sum, na.rm=TRUE), keyby = c(names(fh1)[c(1:(1+np))]),
+	   .SDcols = c("n_h1", "w_final")]
      fh1[, fh1:=n_h1/w_final]
      f_h <- fh1[,"fh1", with=FALSE]
    }

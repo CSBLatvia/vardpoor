@@ -59,16 +59,15 @@ It is possible to compute population size \eqn{M_g} from sampling frame. The sta
 
 \deqn{\hat{\bar{Y}}_g =\frac{\hat{Y}_g}{M_g}= \frac{1}{M_g} \sum\limits_{h=1}^{H} \frac{N_h}{n_h} \sum\limits_{i=1}^{n_h} y_{hi} z_{hi}}{Ym_g =Ym_g/M_g= 1/M_g \sum h=1...H N_h/n_h \sum i=1...n_h  y_hi z_hi}
 
-\deqn{\hat{Var} \left(\hat{\bar{Y}} \right) =\frac{1}{M_g^2} \sum\limits_{h=1}^{H} N_h^2 \left(\frac{1}{n_h} - \frac{1}{N_h}\right) \sigma_h^2}{Var(Ym) =1/M_g^2 \sum h=1...H N_h^2 (1/n_h - 1/N_h) \sigma_h^2}
-
-\deqn{\sigma_h^2 =\frac{1}{n_h-1} \sum\limits_{i=1}^{n_h} \left(y_{hi} z_{hi} - \frac{1}{n_h} \sum\limits_{t=1}^{n_h} y_{ht} z_{ht} \right)^2}{\sigma_h^2 =1/(n_h-1) \sum i=1...n_h (y_hi z_hi - 1/n_h \sum t=1...n_h y_ht z_ht)^2}
 
 So the estimate of \eqn{S_g^2} is
 
 \eqn{s_g^2=\frac{1}{M_g-1} \sum\limits_{h=1}^{H} \frac{N_h}{n_h} \sum\limits_{i=1}^{n_h} y_{hi}^2 z_{hi} -}{s_g^2=\1/(M_g-1) \sum h=1...H  N_h/n_h \sum i=1...n_h (y_hi)^2 * z_hi -}
 
 
-\eqn{-\frac{M_g}{M_g-1} \left( \left( \frac{1}{M_g} \sum\limits_{h=1}^{H} \frac{N_h}{n_h} \sum\limits_{i=1}^{n_h} y_{hi} z_{hi} \right)^2 - \frac{1}{M_g^2} \sum\limits_{h=1}^{H} N_h^2 \left(\frac{1}{n_h} - \frac{1}{N_h}\right) \frac{1}{n_h-1} \sum\limits_{i=1}^{n_h} \left(y_{hi} z_{hi} - \frac{1}{n_h} \sum\limits_{t=1}^{n_h} y_{ht} z_{ht} \right)^2 \right)}{-M_g/(M_g-1) (( 1/M_g \sum h=1...H N_h/n_h \sum i=1...n_h y_hi z_hi)^2 - 1/(M_g)^2 \sum h=1...H N_h^2 (1/n_h - 1/N_h) 1/(n_h-1) \sum i=1...n_h (y_hi z_hi - 1/n_h \sum t=1...n_h y_ht z_ht)^2)}
+\eqn{-\frac{M_g}{M_g-1} \left( \left( \frac{1}{M_g} \sum\limits_{h=1}^{H} \frac{N_h}{n_h} \sum\limits_{i=1}^{n_h} y_{hi} z_{hi} \right)^2 - \frac{1}{M_g^2} \sum\limits_{h=1}^{H} N_h^2 \left(\frac{1}{n_h} - \frac{1}{N_h}\right) \frac{1}{n_h-1} \sum\limits_{i=1}^{n_h} \left(y_{hi} z_{hi} - \frac{1}{n_h} \sum\limits_{t=1}^{n_h} y_{ht} z_{ht} \right)^2 \right)}{-M_g/(M_g-1) (1/M_g \sum h=1...H N_h/n_h \sum i=1...n_h y_hi z_hi)^2 
+
+}
 
 
 Two conditions have to realize to estimate \eqn{S_g^2: n_h>1, \forall g}{S_g^2: n_h>1, forall g} and \eqn{\theta_g \ne 0, \forall g.}{\theta_g <> 0, forall g.}

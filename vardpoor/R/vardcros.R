@@ -1,3 +1,5 @@
+
+
 vardcros <- function(Y, H, PSU, w_final, id,
                      Dom = NULL,
                      Z = NULL, 

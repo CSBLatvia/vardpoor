@@ -128,7 +128,7 @@ variance_othstr <- function(Y, H, H2, w_final, N_h=NULL, N_h2, period=NULL, data
 
   if (all(names(H)==names(H2))) {
       if (!is.null(N_h2))  setnames(N_h2, names(N_h2), paste0(names(N_h2),"2"))  
-     setnames(H2, names(H2), paste0(names(H),"2"))  }
+     setnames(H2, names(H2), paste0(names(H), "2"))  }
 
 
 
@@ -139,8 +139,6 @@ variance_othstr <- function(Y, H, H2, w_final, N_h=NULL, N_h2, period=NULL, data
   Ys <- copy(Y)
   Ys[, paste0(names(Y),"_sa") := lapply(Y, function(x) w_final * x^2)]
   Ys[, paste0(names(Y),"_sb") := lapply(Y, function(x) x * w_final)]
-  Ys[, paste0(names(Y),"_sc") := lapply(Y, function(x) x ^ 2)]
-  Ys[, paste0(names(Y),"_sd") := Y]
 
   Ys <- data.table(H, H2, Ys)
   if (!is.null(period)) Ys <- data.table(period, Ys)
@@ -184,18 +182,6 @@ variance_othstr <- function(Y, H, H2, w_final, N_h=NULL, N_h2, period=NULL, data
 
   pop <- z_h_h2[[names(N_h)[ncol(N_h)]]]
 
-  y_sc <- z_h_h2[, paste0(names(Y),"_sc"), with=F]
-  y_sd <- z_h_h2[, paste0(names(Y),"_sd"), with=F]
-
-  z_h_h2[, paste0(names(Y),"_sc") := lapply(y_sc, function(x)
-           x * pop ^ 2 * ( 1/n_h1 - 1/pop)/(n_h1-1))]
-
-  z_h_h2[, paste0(names(Y),"_sd") := lapply(y_sd, function(x) 
-                 (1/n_h1) * x ^ 2  * pop ^ 2 * (1/n_h1 - 1/pop)/(n_h1-1))]
-
-  z_h_h2[n_h1==1, paste0(names(Y),"_sc"):=NA]
-  z_h_h2[n_h1==1, paste0(names(Y),"_sd"):=NA]
-
   nameszh2 <- names(H2)
   if (!is.null(period)) nameszh2 <- c(names(period), nameszh2)
   
@@ -203,7 +189,7 @@ variance_othstr <- function(Y, H, H2, w_final, N_h=NULL, N_h2, period=NULL, data
                       .SDcols = names(z_h_h2)[-(1:(2+np))]] 
 
   F_h2 <- merge(N_h2, n_h2)
-  f_h2 <- F_h2[, np+3, with=F] / F_h2[, np+2, with=F]
+  f_h2 <- F_h2[, np+3, with=F] / F_h2[, np+2, with=FALSE]
   setnames(f_h2, "n_h2", "f_h2")
 
   if (any(f_h2 > 1)) {    
@@ -218,11 +204,9 @@ variance_othstr <- function(Y, H, H2, w_final, N_h=NULL, N_h2, period=NULL, data
   nh2 <- zh2[[names(n_h2)[ncol(n_h2)]]]
 
   # s2
-  s2_g <- zh2[,mapply(function(sa, sb, sc, sd) sa/(pop2-1)-pop2/(pop2-1)*((sb/pop2)^2-(sc-sd)/pop2^2),
+  s2_g <- zh2[,mapply(function(sa, sb) sa/(pop2-1)-pop2/(pop2-1)*(sb/pop2)^2,
               zh2[, paste0(names(Y),"_sa"), with=FALSE], 
-              zh2[, paste0(names(Y),"_sb"), with=FALSE],
-              zh2[, paste0(names(Y),"_sc"), with=FALSE],
-              zh2[, paste0(names(Y),"_sd"), with=FALSE])]
+              zh2[, paste0(names(Y),"_sb"), with=FALSE]]
 
   # var_g 
   if (nrow(s2_g)==1) s2_g <- t(s2_g)

@@ -7,7 +7,7 @@ checker <- function(variables, datasets, varname) {
          if ((variables <= ncol(datasets))*(0 < variables)) { vars <- vars + 100
             } else vars <- vars + 10 }
       if (is.logical(variables)) {
-         if (nrow(as.data.frame(variables)) == ncol(datasets)) { vars <- vars + 100
+         if (length(variables) == ncol(datasets)) { vars <- vars + 100
             } else vars <- vars + 20 }
        
       if (vars == 1)  stop(paste(variables,"does not exist in 'dataset'!", sep = " "))
@@ -26,27 +26,25 @@ incPercentile <- function(Y, weights = NULL, sort = NULL,
     } else k <- round(k)
    
    if(!is.null(dataset)) {
-       dataset <- data.frame(dataset, stringsAsFactors=FALSE)
-       if (checker(Y, dataset, "Y")) Y <- dataset[, Y] 
+       dataset <- data.table(dataset)
+       if (checker(Y, dataset, "Y")) Y <- dataset[, Y, with=FALSE] 
 
        if(!is.null(weights)) {
-           if (checker(weights, dataset, "weights")) weights <- dataset[, weights] }
+           if (checker(weights, dataset, "weights")) weights <- dataset[, weights, with=FALSE] }
      
        if(!is.null(sort)) {
-           if (checker(sort, dataset, "sort")) sort <- dataset[, sort] }
+           if (checker(sort, dataset, "sort")) sort <- dataset[, sort, with=FALSE] }
 
        if (!is.null(period)) {
-            aperiod <- period  
             if (min(period %in% names(dataset))!=1) stop("'period' does not exist in 'dataset'!")
             if (min(period %in% names(dataset))==1) {
-                                period <- data.frame(dataset[, period], stringsAsFactors=FALSE)
-                                names(period) <- aperiod }}
+                                period <- dataset[, period, with=FALSE]
+                                period[, (names(period)):=lapply(.SD, as.character)] }}
 
        if (!is.null(Dom)) {
-            Dom2 <- Dom
             if (checker(Dom, dataset, "Dom")) {
-                    Dom <- data.table(dataset[, Dom]) 
-                    setnames(Dom, names(Dom), Dom2)  }}
+                                Dom <- dataset[, Dom, with=FALSE]
+                                Dom[, (names(Dom)):=lapply(.SD, as.character)] }}
       }
 
    # check vectors
@@ -54,22 +52,25 @@ incPercentile <- function(Y, weights = NULL, sort = NULL,
    Y <- data.frame(Y)
    n <- nrow(Y)
    if (ncol(Y) != 1) stop("'Y' must be a vector or 1 column data.frame, matrix, data.table")
-   Y <- Y[,1]
+   Y <- Y[, 1]
    if(!is.numeric(Y)) stop("'Y' must be numerical")
    if (any(is.na(Y))) stop("'Y' has unknown values")
 
    # weights
-   weights <- data.frame(weights)
+   weights <- data.table(weights)
    if (nrow(weights) != n) stop("'weights' must be the same length as 'Y'")
    if (ncol(weights) != 1) stop("'weights' must be vector or 1 column data.frame, matrix, data.table")
-   weights <- weights[,1]
+   weights <- weights[[1]]
    if(!is.numeric(weights)) stop("'weights' must be numerical")
    if (any(is.na(weights))) stop("'weights' has unknown values")
 
    # sort  
-   if(!is.null(sort) && !is.vector(sort) && !is.ordered(sort)) {
-         stop("'sort' must be a vector or ordered factor") }
-   if(!is.null(sort) && length(sort) != n) stop("'sort' must be the same length as 'Y'")
+   if(!is.null(sort)) {
+         sort <- data.frame(sort)
+         if (nrow(sort) != n) stop("'sort' must be the same length as 'Y'")
+         if (ncol(sort) != 1) stop("'sort' must be vector or 1 column data.frame, matrix, data.table")
+         sort <- sort[, 1]
+   }
 
    # period     
    if (!is.null(period)) {
@@ -88,7 +89,7 @@ incPercentile <- function(Y, weights = NULL, sort = NULL,
              namesDom <- names(Dom)
              if (is.null(names(Dom))) stop("'Dom' must be colnames")
              if (nrow(Dom) != n) stop("'Dom' must be the same length as 'Y'")
-             Dom <- Dom[, lapply(.SD, as.character), .SDcols = names(Dom)]
+             Dom[, (namesDom):=lapply(.SD, as.character)]
        }
     
     if (!is.null(period)) {

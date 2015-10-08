@@ -16,19 +16,19 @@ incPercentile(Y, weights = NULL, sort = NULL,
 
 \arguments{
   
-  \item{Y}{Study variable (for example equalized disposable income). One dimensional object convertible to one-column \code{data.frame} or variable name as character, column number or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset}).}
+  \item{Y}{Study variable (for example equalized disposable income). One dimensional object convertible to one-column \code{data.table} or variable name as character, column number or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset}).}
   
-  \item{weights}{Optional weight variable. One dimensional object convert to one-column \code{data.frame} or variable name as character, column number or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset}).}
+  \item{weights}{Optional weight variable. One dimensional object convert to one-column \code{data.table} or variable name as character, column number or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset}).}
   
-  \item{sort}{Optional variable to be used as tie-breaker for sorting. One dimensional object convertible to one-column \code{data.frame} or variable name as character, column number or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset}).}
+  \item{sort}{Optional variable to be used as tie-breaker for sorting. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset}).}
   
-  \item{Dom}{Optional variables used to define population domains. If supplied, the estimates of percentiles are computed for each domain. An object convert able to \code{data.frame} or variable names as character vector, column numbers or logical vector (length of the vector has to be the same as the column count of \code{dataset}).}
+  \item{Dom}{Optional variables used to define population domains. If supplied, the estimates of percentiles are computed for each domain. An object convertable to \code{data.table} or variable names as character vector, column numbers or logical vector (length of the vector has to be the same as the column count of \code{dataset}).}
    
-  \item{period}{Optional variable for survey period. If supplied, linearization of at-risk-of-poverty threshold is done for each survey period. Object convertible to \code{data.frame} or variable names as character, column numbers as numeric vector or logical vector (length of the vector has to be the same as the column count of \code{dataset}).}
+  \item{period}{Optional variable for survey period. If supplied, linearization of at-risk-of-poverty threshold is done for each survey period. Object convertible to \code{data.table} or variable names as character, column numbers as numeric vector or logical vector (length of the vector has to be the same as the column count of \code{dataset}).}
   
   \item{k}{A vector of integers between 0 and 100 specifying the percentiles to be computed (0 gives the minimum, 100 gives the maximum).}
   
-  \item{dataset}{Optional survey data object convertible to \code{data.frame}.}
+  \item{dataset}{Optional survey data object convertible to \code{data.table}.}
 
 }
 

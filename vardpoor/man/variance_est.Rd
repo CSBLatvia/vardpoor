@@ -5,52 +5,23 @@
 \usage{variance_est(Y, H, PSU, w_final, N_h=NULL, fh_zero=FALSE,
                     PSU_level=TRUE, period=NULL, dataset=NULL)}
 \arguments{
-  \item{Y}{either a numeric data.frame, matrix, data.table with
-  column names giving the variables of interest, or (if \code{dataset} 
-  is not \code{NULL}) a character string, an integer or a
-  logical vector (length is the same as 'dataset' column count)
-  specifying the corresponding column of \code{dataset}.}
+\item{Y}{Variables of interest. Object convertible to \code{data.table} or variable names as character, column numbers or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset}).}
 
-  \item{H}{either 1 column data.frame, matrix, data.table with
-  column name giving elements  indicating the unit stratum,
-  or (if \code{dataset} is not \code{NULL}) a character string,
-  an integer or a logical vector (length is the same as 'dataset'
-  column count) specifying the corresponding column of \code{dataset}.}
+\item{H}{The unit stratum variable. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset}).}
 
-  \item{PSU}{either 1 column data.frame, matrix, data.table giving
-  primary sampling unit, or (if \code{dataset} is not \code{NULL})
-  a character string, an integer or a logical vector (length is the
-  same as 'dataset' column count) specifying the corresponding
-  column of \code{dataset}.}
+\item{PSU}{Primary sampling unit variable. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset}).}
 
-  \item{w_final}{either a numeric vector, 1 column data.frame, matrix,
-  data.table giving the final weights, or (if \code{dataset} is not
-  \code{NULL}) a character string,  an integer or a logical vector
-  (length is the same as 'dataset' column count) specifying the
-  corresponding column of \code{dataset}.}
+\item{w_final}{Weight variable. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset}).}
 
-  \item{N_h}{either a matrix giving the first column - stratum, but
-  the second column - the total of the population in each stratum.}
+\item{N_h}{optional; either a matrix giving the first column - stratum, but the second column - the total of the population in each stratum.}
 
-   \item{fh_zero}{by default FALSE; fh is calculated as division of n_h and N_h 
-  in each strata, if true, fh value is zero in each strata.}
+\item{fh_zero}{by default FALSE; fh is calculated as division of n_h and N_h in each strata, if true, fh value is zero in each strata.}
 
-  \item{PSU_level}{by default TRUE; if PSU_level is true, in each strata fh
-  is calculated as division of count of PSU in sample (n_h) and count of PSU in frame (N_h). 
-  if PSU_level is false, in each strata fh is calculated as division of count of units in
-  sample (n_h) and count of units in frame(N_h), which calculated as sum of weights. }
+\item{PSU_level}{by default TRUE; if PSU_level is true, in each strata fh is calculated as division of count of PSU in sample (n_h) and count of PSU in frame (N_h). if PSU_level is false, in each strata fh is calculated as division of count of units in sample (n_h) and count of units in frame (N_h), which calculated as sum of weights.}
 
-  \item{period}{optional; either a data.frame, matrix, data.table
-  with column names giving different periods, or (if 
-  \code{dataset} is not \code{NULL}) character strings,
-  integers or a logical vectors (length is the same as 
-  'dataset' column count) specifying the corresponding
-  columns of \code{dataset}. If supplied, the values for
-  each period are computed independently.
-  }
+\item{period}{Optional variable for the survey periods. If supplied, the values for each period are computed independently. Object convertible to \code{data.table} or variable names as character, column numbers or logical vector (length of the vector has to be the same as the column count of \code{dataset}).}
 
-  \item{dataset}{an optional name of the individual dataset
-  \code{data.frame}.}
+\item{dataset}{an optional name of the individual dataset  \code{data.table}.}
 
 }
 \value{a \code{data.table} containing the  values of the

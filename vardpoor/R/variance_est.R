@@ -6,36 +6,22 @@ variance_est <- function(Y, H, PSU, w_final, N_h=NULL, fh_zero=FALSE, PSU_level=
     if (!is.logical(fh_zero)) stop("'fh_zero' must be the logical value")
     if (!is.logical(PSU_level)) stop("'PSU_level' must be the logical value")
 
-
     if(!is.null(dataset)) {
-      dataset <- data.frame(dataset)
-      aY <- Y
+      dataset <- data.table(dataset)
       if (min(Y %in% names(dataset))!=1) stop("'Y' does not exist in 'dataset'!")
-      if (min(Y %in% names(dataset))==1) {
-                                Y <- data.frame(dataset[, Y], check.names=FALSE)
-                                names(Y) <- aY }
+      if (min(Y %in% names(dataset))==1) Y <- dataset[, Y, with=FALSE] 
       if(!is.null(H)) {
-          aH <- H  
           if (min(H %in% names(dataset))!=1) stop("'H' does not exist in 'dataset'!")
-          if (min(H %in% names(dataset))==1) {
-                                H <- as.data.frame(dataset[, H], stringsAsFactors=FALSE)
-                                names(H) <- aH }}
+          if (min(H %in% names(dataset))==1) H <- dataset[, H, with=FALSE] }
       if(!is.null(PSU)) {
-          aPSU <- PSU  
           if (min(PSU %in% names(dataset))!=1) stop("'PSU' does not exist in 'dataset'!")
-          if (min(PSU %in% names(dataset))==1) {
-                                PSU <- as.data.frame(dataset[, PSU], stringsAsFactors=FALSE)
-                                names(PSU) <- aPSU }}
+          if (min(PSU %in% names(dataset))==1) PSU <- dataset[, PSU, with=FALSE] }
       if(!is.null(w_final)) {
           if (min(w_final %in% names(dataset))!=1) stop("'w_final' does not exist in 'dataset'!")
-          if (min(w_final %in% names(dataset))==1) w_final <- dataset[, w_final] }
-
+          if (min(w_final %in% names(dataset))==1) w_final <- dataset[, w_final, with=FALSE] }
        if (!is.null(period)) {
-            aperiod <- period  
             if (min(period %in% names(dataset))!=1) stop("'period' does not exist in 'dataset'!")
-            if (min(period %in% names(dataset))==1) {
-                                period <- data.table(dataset[, period], stringsAsFactors=FALSE)
-                                setnames(period, names(period), aperiod) }}
+            if (min(period %in% names(dataset))==1) period <- dataset[, period, with=FALSE] }
       }
 
   # Y
@@ -52,12 +38,14 @@ variance_est <- function(Y, H, PSU, w_final, N_h=NULL, fh_zero=FALSE, PSU_level=
   if (ncol(H) != 1) stop("'H' must be 1 column data.frame, matrix, data.table")
   if (any(is.na(H))) stop("'H' has unknown values")
   if (is.null(names(H))) stop("'H' must be colnames")
+  H[, (names(H)):=lapply(.SD, as.character)]
   
   # PSU
   PSU <- data.table(PSU)
   if (nrow(PSU) != n) stop("'PSU' length must be equal with 'Y' row count")
   if (ncol(PSU) != 1) stop("'PSU' must be 1 column data.frame, matrix, data.table")
   if (any(is.na(PSU))) stop("'PSU' has unknown values")
+  PSU[, (names(PSU)):=lapply(.SD, as.character)]
   
   # w_final
   w_final <- data.frame(w_final)
@@ -85,22 +73,20 @@ variance_est <- function(Y, H, PSU, w_final, N_h=NULL, fh_zero=FALSE, PSU_level=
       if (!is.numeric(N_h[[ncol(N_h)]])) stop("The last column of 'N_h' should be numerical")
       if (any(is.na(N_h))) stop("'N_h' has unknown values") 
       if (is.null(names(N_h))) stop("'N_h' must be colnames")
-      namesH <- names(H)
-      if (H[, class(get(namesH))]!=N_h[, class(get(namesH))]) 
-                                         stop("Strata class for 'H' and 'N_h' is not equal ")
+      if (all(names(H) %in% names(N_h))) {N_h[, (names(H)):=lapply(.SD, as.character), .SDcols=names(H)]
+             } else stop("All strata titles of 'H' have not in 'N_h'")
       if (is.null(period)) {
              if (names(H) != names(N_h)[1]) stop("Strata titles for 'H' and 'N_h' is not equal")
-             if (any(is.na(merge(unique(H), N_h, by=names(H), all.x = T)))) stop("'N_h' is not defined for all stratas")
-             if (any(duplicated(N_h[, head(names(N_h),-1), with=F]))) stop("Strata values for 'N_h' must be unique")
+             if (any(is.na(merge(unique(H), N_h, by=names(H), all.x=TRUE)))) stop("'N_h' is not defined for all stratas")
+             if (any(duplicated(N_h[, head(names(N_h),-1), with=FALSE]))) stop("Strata values for 'N_h' must be unique")
        } else { pH <- data.table(period, H)
                 if (any(names(pH) != names(N_h)[c(1:(1+np))])) stop("Strata titles for 'period' with 'H' and 'N_h' is not equal")
                 nperH <- names(period)
                 if (pH[, class(get(nperH))]!=N_h[, class(get(nperH))]) 
                                                        stop("Period class for 'period' and 'N_h' is not equal ")
-                if (any(is.na(merge(unique(pH), N_h, by=names(pH), all.x = T)))) stop("'N_h' is not defined for all stratas and periods")
-                if (any(duplicated(N_h[, head(names(N_h),-1), with=F]))) stop("Strata values for 'N_h' must be unique in all periods")
+                if (any(is.na(merge(unique(pH), N_h, by=names(pH), all.x=TRUE)))) stop("'N_h' is not defined for all stratas and periods")
+                if (any(duplicated(N_h[, head(names(N_h),-1), with=FALSE]))) stop("Strata values for 'N_h' must be unique in all periods")
                 }
-
     setnames(N_h, names(N_h)[ncol(N_h)], "N_h")
     setkeyv(N_h, names(N_h)[c(1:(1+np))])
   } else {
@@ -170,8 +156,8 @@ variance_est <- function(Y, H, PSU, w_final, N_h=NULL, fh_zero=FALSE, PSU_level=
 
   # Variance_est 
 
-  if (np==0) {var_est <- data.table(t(colSums(var_h, na.rm=T)))
-           } else   var_est <- var_h2[, lapply(.SD, sum, na.rm=T), 
+  if (np==0) {var_est <- data.table(t(colSums(var_h, na.rm=TRUE)))
+           } else   var_est <- var_h2[, lapply(.SD, sum, na.rm=TRUE), 
                                         keyby = c(names(var_h2)[c(1:np)]),
                                        .SDcols = names(var_h)]
 

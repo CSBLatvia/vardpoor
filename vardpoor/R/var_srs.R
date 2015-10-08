@@ -26,14 +26,14 @@ var_srs <- function(Y, w) {
 
   wyN <- as.numeric(Y[, lapply(.SD, function(x) sum(x*w)/Nn)])
 
-  VO <- data.table(t(as.numeric(konst*Y[, mapply(function(x, x.vid) sum(w * (x - x.vid)^2),
+  varsrs <- data.table(t(as.numeric(konst*Y[, mapply(function(x, x.vid) sum(w * (x - x.vid)^2),
            .SD, wyN)] / (Nn - 1))))
-  setnames(VO, names(VO), names(Y))
+  setnames(varsrs, names(varsrs), names(Y))
 
-  VL <- data.table(t(as.numeric(konst*(Y[, lapply(.SD, function(x) sum(w * x^2))] / (Nn - 1) -
+  varsrs2 <- data.table(t(as.numeric(konst*(Y[, lapply(.SD, function(x) sum(w * x^2))] / (Nn - 1) -
     Nn / (Nn - 1) * (wyN)^2))))
-  setnames(VL, names(VL), names(Y))
+  setnames(varsrs2, names(varsrs2), names(Y))
 
- return(VL)
+ return(varsrs2)
 }
 

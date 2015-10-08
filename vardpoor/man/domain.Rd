@@ -44,7 +44,7 @@ domain(Y, D)
 ### Example 2
 
 Y <- matrix(1:20, 10, 2)
-colnames(Y) <- paste("Y", 1:2, sep="")
+colnames(Y) <- paste0("Y", 1:2)
 D <- matrix(rep(1:2, each = 5), 10, 1)
 colnames(D) <- "D"
 domain(Y, D)
@@ -53,18 +53,18 @@ domain(Y, D)
 ### Example 3
 
 Y <- matrix(1:20, 10, 2)
-colnames(Y) <- paste("Y", 1:2, sep="")
+colnames(Y) <- paste0("Y", 1:2)
 D <- matrix(rep(1:4, each = 5), 10, 2)
-colnames(D) <- paste("D", 1:2, sep="")
+colnames(D) <- paste0("D", 1:2)
 domain(Y, D)
 
 
 ### Example 4
 
 Y <- matrix(1:20, 10, 2)
-colnames(Y) <- paste("Y", 1:2, sep="")
+colnames(Y) <- paste0("Y", 1:2)
 D <- matrix(c(rep(1:2, each = 5), rep(3, 10)), 10, 2)
-colnames(D) <- paste("D", 1:2, sep="")
+colnames(D) <- paste0("D", 1:2)
 domain(Y, D)
 }
 

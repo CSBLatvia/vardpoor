@@ -7,9 +7,8 @@
                    Z = NULL,
                    X = NULL,
                    g = NULL,
+                   q = NULL,
                    dataset = NULL, 
-                   q = rep(1, if (is.null(dataset)) 
-                           nrow(data.frame(X)) else nrow(dataset)),
                    confidence = .95, 
                    outp_lin = FALSE,
                    outp_res = FALSE) {
@@ -20,72 +19,45 @@
           stop("'confidence' must be a numeric value in [0,1]")  }
 
   if(!is.null(dataset)) {
-      dataset <- data.frame(dataset)
-      aY <- Y
+      dataset <- data.table(dataset)
       if (min(Y %in% names(dataset))!=1) stop("'Y' does not exist in 'dataset'!")
-      if (min(Y %in% names(dataset))==1) {
-                                Y <- data.frame(dataset[, Y], check.names=FALSE, stringsAsFactors=FALSE)
-                                names(Y) <- aY }
+      if (min(Y %in% names(dataset))==1) Y <- dataset[, Y, with=FALSE] 
       if(!is.null(id)) {
-          id2 <- id
           if (min(id %in% names(dataset))!=1) stop("'id' does not exist in 'dataset'!")
-          if (min(id %in% names(dataset))==1) id <- data.frame(dataset[, id])
-          names(id) <- id2  }
+          if (min(id %in% names(dataset))==1) id <- dataset[, id, with=FALSE]  }
 
       if (!is.null(period)) {
-           aperiod <- period
-           print(aperiod)  
            if (min(period %in% names(dataset))!=1) stop("'period' does not exist in 'dataset'!")
-           if (min(period %in% names(dataset))==1) {
-                               period <- as.data.frame(dataset[, aperiod], stringsAsFactors=FALSE)
-                               names(period) <- aperiod }}
+           if (min(period %in% names(dataset))==1) period <- dataset[, period, with=FALSE] }
       if(!is.null(H)) {
-          aH <- H  
           if (min(H %in% names(dataset))!=1) stop("'H' does not exist in 'dataset'!")
-          if (min(H %in% names(dataset))==1) {
-                                H <- data.frame(dataset[, aH], stringsAsFactors=FALSE)
-                                names(H) <- aH }}
+          if (min(H %in% names(dataset))==1) H <- dataset[, H, with=FALSE] }
       if(!is.null(H2)) {
-          aH2 <- H2  
           if (min(H2 %in% names(dataset))!=1) stop("'H2' does not exist in 'dataset'!")
-          if (min(H2 %in% names(dataset))==1) {
-                                H2 <- data.frame(dataset[, aH2], stringsAsFactors=FALSE)
-                                names(H2) <- aH2 }}
+          if (min(H2 %in% names(dataset))==1) H2 <- dataset[, H2, with=FALSE] }
       if(!is.null(PSU)) {
-          aPSU <- PSU  
           if (min(PSU %in% names(dataset))!=1) stop("'PSU' does not exist in 'dataset'!")
-          if (min(PSU %in% names(dataset))==1) {
-                                PSU <- data.frame(dataset[, aPSU], stringsAsFactors=FALSE)
-                                names(PSU) <- aPSU }}
+          if (min(PSU %in% names(dataset))==1) PSU <- dataset[, PSU, with=FALSE] }
       if(!is.null(w_final)) {
-          aw_final <- w_final  
           if (min(w_final %in% names(dataset))!=1) stop("'w_final' does not exist in 'dataset'!")
-          if (min(w_final %in% names(dataset))==1) {
-                                w_final <- data.frame(dataset[, aw_final])
-                                names(w_final) <- aw_final }}
+          if (min(w_final %in% names(dataset))==1) w_final <- dataset[, w_final, with=FALSE] }
       if(!is.null(Z)) {
-          aZ <- Z
           if (min(Z %in% names(dataset))!=1) stop("'Z' does not exist in 'dataset'!")
-          if (min(Z %in% names(dataset))==1) {
-                                Z <-data.frame(dataset[, aZ],check.names=FALSE)
-                                names(Z) <- aZ }}
+          if (min(Z %in% names(dataset))==1) Z <- dataset[, Z, with=FALSE] }
       if(!is.null(X)) {
           if (min(X %in% names(dataset))!=1) stop("'X' does not exist in 'dataset'!")
-          if (min(X %in% names(dataset))==1) X <- dataset[, X] }
+          if (min(X %in% names(dataset))==1) X <- dataset[, X, with=FALSE] }
       if(!is.null(g)) {
           if (min(g %in% names(dataset))!=1) stop("'g' does not exist in 'dataset'!")
-          if (min(g %in% names(dataset))==1) g <- dataset[, g] }
+          if (min(g %in% names(dataset))==1) g <- dataset[, g, with=FALSE] }
       if(!is.null(q)) {
           if (min(q %in% names(dataset))!=1) {
               if (length(q)!=nrow(dataset))  stop("'q' does not exist in 'dataset'!") }
-          if (min(q %in% names(dataset))==1) q <- dataset[, q] } 
+          if (min(q %in% names(dataset))==1) q <- dataset[, q, with=FALSE] } 
       if (!is.null(Dom)) {
-          Dom2 <- Dom
           if (min(Dom %in% names(dataset))!=1) stop("'Dom' does not exist in 'data'!")
-          if (min(Dom %in% names(dataset))==1) {  
-                  Dom <- as.data.frame(dataset[, Dom2], stringsAsFactors=FALSE) 
-                  names(Dom) <- Dom2 }    }
-      }
+          if (min(Dom %in% names(dataset))==1) Dom <- dataset[, Dom, with=FALSE]   }
+    }
 
   # Y
   Y <- data.table(Y, check.names=TRUE)
@@ -101,6 +73,7 @@
   if (ncol(H) != 1) stop("'H' must be 1 column data.frame, matrix, data.table")
   if (any(is.na(H))) stop("'H' has unknown values")
   if (is.null(names(H))) stop("'H' must be colnames")
+  H[, (names(H)):=lapply(.SD, as.character)]
   
   # H2
   H2 <- data.table(H2)
@@ -108,12 +81,14 @@
   if (ncol(H2) != 1) stop("'H2' must be 1 column data.frame, matrix, data.table")
   if (any(is.na(H2))) stop("'H2' has unknown values")
   if (is.null(names(H2))) stop("'H2' must be colnames")
+  H2[, (names(H2)):=lapply(.SD, as.character)]
 
   # PSU
   PSU <- data.table(PSU)
   if (any(is.na(PSU))) stop("'PSU' has unknown values")
   if (nrow(PSU) != n) stop("'PSU' length must be equal with 'Y' row count")
   if (ncol(PSU) != 1) stop("'PSU' has more than 1 column")
+  PSU[, (names(PSU)):=lapply(.SD, as.character)]
   
   # id
   if (is.null(id)) id <- PSU
@@ -149,21 +124,19 @@
       if (!is.numeric(N_h[[ncol(N_h)]])) stop("The last column of 'N_h' should be numerical")
       if (any(is.na(N_h))) stop("'N_h' has unknown values") 
       if (is.null(names(N_h))) stop("'N_h' must be colnames")
-      namesH <- names(H)
-      if (H[, class(get(namesH))]!=N_h[, class(get(namesH))]) 
-                                         stop("Strata class for 'H' and 'N_h' is not equal ")
-
+      if (all(names(H) %in% names(N_h))) {N_h[, (names(H)):=lapply(.SD, as.character), .SDcols=names(H)]
+             } else stop("All strata titles of 'H' have not in 'N_h'")
       if (is.null(period)) {
              if (names(H) != names(N_h)[1]) stop("Strata titles for 'H' and 'N_h' is not equal")
-             if (any(is.na(merge(unique(H), N_h, by=names(H), all.x = T)))) stop("'N_h' is not defined for all stratas")
-             if (any(duplicated(N_h[, head(names(N_h),-1), with=F]))) stop("Strata values for 'N_h' must be unique")
+             if (any(is.na(merge(unique(H), N_h, by=names(H), all.x = TRUE)))) stop("'N_h' is not defined for all stratas")
+             if (any(duplicated(N_h[, head(names(N_h),-1), with=FALSE]))) stop("Strata values for 'N_h' must be unique")
        } else { pH <- data.frame(period, H)
                 if (any(names(pH) != names(N_h)[c(1:(1+np))])) stop("Strata titles for 'period' with 'H' and 'N_h' is not equal")
                 nperH <- names(period)
-                if (H[, class(get(nperH))]!=N_h2[, class(get(nperH))]) 
-                                                       stop("Period class for 'period' and 'N_h2' is not equal ")
-                if (any(is.na(merge(unique(pH), N_h, by=names(pH), all.x = T)))) stop("'N_h' is not defined for all stratas and periods")
-                if (any(duplicated(N_h[, head(names(N_h),-1), with=F]))) stop("Strata values for 'N_h' must be unique in all periods")
+                if (pH[, class(get(nperH))]!=N_h[, class(get(nperH))]) 
+                                                       stop("Period class for 'period' and 'N_h' is not equal ")
+                if (any(is.na(merge(unique(pH), N_h, by=names(pH), all.x=TRUE)))) stop("'N_h' is not defined for all stratas and periods")
+                if (any(duplicated(N_h[, head(names(N_h),-1), with=FALSE]))) stop("Strata values for 'N_h' must be unique in all periods")
                pH <- NULL
      }
     setkeyv(N_h, names(N_h)[c(1:(1+np))])
@@ -176,19 +149,17 @@
       if (!is.numeric(N_h2[[ncol(N_h2)]])) stop("The last column of 'N_h2' should be numerical")
       if (any(is.na(N_h2))) stop("'N_h2' has unknown values") 
       if (is.null(names(N_h2))) stop("'N_h2' must be colnames")
-     namesH2 <- names(H2)
-      if (H2[, class(get(namesH2))]!=N_h2[, class(get(namesH2))]) 
-                                         stop("Strata class for 'H2' and 'N_h2' is not equal ")
-
+      if (all(names(H2) %in% names(N_h2))) {N_h2[, (names(H2)):=lapply(.SD, as.character), .SDcols=names(H2)]
+             } else stop("All strata titles of 'H2' have not in 'N_h2'")
       if (is.null(period)) {
              if (names(H2) != names(N_h2)[1]) stop("Strata titles for 'H2' and 'N_h2' is not equal")
-             if (any(is.na(merge(unique(H2), N_h2, by=names(H2), all.x = T)))) stop("'N_h2' is not defined for all stratas")
+             if (any(is.na(merge(unique(H2), N_h2, by=names(H2), all.x = TRUE)))) stop("'N_h2' is not defined for all stratas")
        } else { pH2 <- data.table(period, H2)
                 if (any(names(pH2) != names(N_h2)[c(1:(1+np))])) stop("Strata titles for 'period' with 'H2' and 'N_h2' is not equal")
                 nperH <- names(period)
-                if (H[, class(get(nperH))]!=N_h2[, class(get(nperH))]) 
+                if (pH2[, class(get(nperH))]!=N_h2[, class(get(nperH))]) 
                                                        stop("Period class for 'period' and 'N_h2' is not equal ")
-                if (any(is.na(merge(unique(pH2), N_h2, by=names(pH2), all.x = T)))) stop("'N_h2' is not defined for all stratas and periods")
+                if (any(is.na(merge(unique(pH2), N_h2, by=names(pH2), all.x=TRUE)))) stop("'N_h2' is not defined for all stratas and periods")
                 } 
     setkeyv(N_h2, names(N_h2)[c(1:(1+np))])
   } else stop ("N_h2 is not defined!")
@@ -207,7 +178,7 @@
     if (nrow(Dom) != n) stop("'Dom' and 'Y' must be equal row count")
     if (any(is.na(Dom))) stop("'Dom' has unknown values")
     if (is.null(names(Dom))) stop("'Dom' must be colnames")
-    Dom <- Dom[, lapply(.SD, as.character), .SDcols = names(Dom)]
+    Dom[, (names(Dom)):=lapply(.SD, as.character)]
     namesDom <- names(Dom)
   }
   
@@ -243,6 +214,7 @@
     
   # q
   if (!is.null(X)) {
+    if (is.null(q))  q <- rep(1, nrow(X))
     if (is.null(class(q)) | all(class(q)=="function")) stop("'q' must be numerical")
     q <- data.frame(q)
     if (nrow(q) != nrow(X)) stop("'q' length must be equal with 'X' row count")

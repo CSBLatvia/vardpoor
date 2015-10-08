@@ -52,81 +52,59 @@ vardcrospoor <- function(Y,
           stop("'confidence' must be a numeric value in [0,1]")  }
 
   if(!is.null(dataset)) {
-      dataset <- data.frame(dataset)
-      aY <- Y
+      dataset <- data.table(dataset)
       if (min(Y %in% names(dataset))!=1) stop("'Y' does not exist in 'dataset'!")
-      if (min(Y %in% names(dataset))==1) {
-                                Y <- data.frame(dataset[, Y], check.names=FALSE)
-                                names(Y) <- aY }
+      if (min(Y %in% names(dataset))==1) Y <- dataset[, Y, with=FALSE] 
 
       if(!is.null(age)) {
           if (min(age %in% names(dataset))!=1) stop("'age' does not exist in 'dataset'!")
-          if (min(age %in% names(dataset))==1) age <- dataset[, age] }
+          if (min(age %in% names(dataset))==1) age <- dataset[, age, with=FALSE] }
       if(!is.null(pl085)) {
           if (min(pl085 %in% names(dataset))!=1) stop("'pl085' does not exist in 'dataset'!")
-          if (min(pl085 %in% names(dataset))==1) pl085 <- dataset[, pl085] }
+          if (min(pl085 %in% names(dataset))==1) pl085 <- dataset[, pl085, with=FALSE] }
       if(!is.null(month_at_work)) {
           if (min(month_at_work %in% names(dataset))!=1) stop("'month_at_work' does not exist in 'dataset'!")
-          if (min(month_at_work %in% names(dataset))==1) month_at_work <- dataset[, month_at_work] }
+          if (min(month_at_work %in% names(dataset))==1) month_at_work <- dataset[, month_at_work, with=FALSE] }
       if(!is.null(Y_den)) {
           if (min(Y_den %in% names(dataset))!=1) stop("'Y_den' does not exist in 'dataset'!")
-          if (min(Y_den %in% names(dataset))==1) Y_den <- dataset[, Y_den] }
+          if (min(Y_den %in% names(dataset))==1) Y_den <- dataset[, Y_den, with=FALSE] }
       if(!is.null(Y_thres)) {
           if (min(Y_thres %in% names(dataset))!=1) stop("'Y_thres' does not exist in 'dataset'!")
-          if (min(Y_thres %in% names(dataset))==1) Y_thres <- dataset[, Y_thres] }    
+          if (min(Y_thres %in% names(dataset))==1) Y_thres <- dataset[, Y_thres, with=FALSE] }    
       if(!is.null(wght_thres)) {
           if (min(wght_thres %in% names(dataset))!=1) stop("'wght_thres' does not exist in 'dataset'!")
-          if (min(wght_thres %in% names(dataset))==1) wght_thres <- dataset[, wght_thres] }
+          if (min(wght_thres %in% names(dataset))==1) wght_thres <- dataset[, wght_thres, with=FALSE] }
       if(!is.null(H)) {
-          aH <- H  
           if (min(H %in% names(dataset))!=1) stop("'H' does not exist in 'dataset'!")
-          if (min(H %in% names(dataset))==1) {
-                                H <- as.data.frame(dataset[, aH], stringsAsFactors=FALSE)
-                                names(H) <- aH }}
+          if (min(H %in% names(dataset))==1) H <- dataset[, H, with=FALSE]  }
       if(!is.null(id)) {
-          aid <- id  
           if (min(id %in% names(dataset))!=1) stop("'id' does not exist in 'dataset'!")
-          if (min(id %in% names(dataset))==1) {
-                                id <- as.data.frame(dataset[, aid], stringsAsFactors=FALSE)
-                                names(id) <- aid }}
+          if (min(id %in% names(dataset))==1) id <- dataset[, id, with=FALSE] }
      if(!is.null(PSU)) {
-          aPSU <- PSU  
           if (min(PSU %in% names(dataset))!=1) stop("'PSU' does not exist in 'dataset'!")
-          if (min(PSU %in% names(dataset))==1) {
-                                PSU <- as.data.frame(dataset[, aPSU], stringsAsFactors=FALSE)
-                                names(PSU) <- aPSU }}
+          if (min(PSU %in% names(dataset))==1) PSU <- dataset[, PSU, with=FALSE] }
       if(!is.null(w_final)) {
-          aw_final <- w_final  
           if (min(w_final %in% names(dataset))!=1) stop("'w_final' does not exist in 'dataset'!")
-          if (min(w_final %in% names(dataset))==1) {
-                                w_final <- data.frame(dataset[, aw_final])
-                                names(w_final) <- aw_final }}
+          if (min(w_final %in% names(dataset))==1) w_final <- dataset[, w_final, with=FALSE] }
       if(!is.null(country)) {
-          country2 <- country
           if (min(country %in% names(dataset))!=1) stop("'country' does not exist in 'dataset'!")
-          if (min(country %in% names(dataset))==1) country <- as.data.frame(dataset[, country], stringsAsFactors=FALSE)
-          names(country) <- country2  }
+          if (min(country %in% names(dataset))==1) country <- dataset[, country, with=FALSE]  }
 
       if(!is.null(periods)) {
-          periods2 <- periods
           if (min(periods %in% names(dataset))!=1) stop("'periods' does not exist in 'dataset'!")
-          if (min(periods %in% names(dataset))==1) periods <- data.frame(dataset[, periods], stringsAsFactors=FALSE)
-          names(periods) <- periods2  }
+          if (min(periods %in% names(dataset))==1) periods <- dataset[, periods, with=FALSE] }
 
       if(!is.null(gender)) {
           if (min(gender %in% names(dataset))!=1) stop("'gender' does not exist in 'dataset'!")
-          if (min(gender %in% names(dataset))==1) gender <- dataset[, gender] }
+          if (min(gender %in% names(dataset))==1) gender <- dataset[, gender, with=FALSE] }
 
       if(!is.null(sort)) {
           if (min(sort %in% names(dataset))!=1) stop("'sort' does not exist in 'dataset'!")
-          if (min(sort %in% names(dataset))==1) sort <- dataset[, sort] }
+          if (min(sort %in% names(dataset))==1) sort <- dataset[, sort, with=FALSE] }
      
       if (!is.null(Dom)) {
-          Dom2 <- Dom
           if (min(Dom %in% names(dataset))!=1) stop("'Dom' does not exist in 'data'!")
-          if (min(Dom %in% names(dataset))==1) {  
-                  Dom <- as.data.frame(dataset[, Dom2], stringsAsFactors=FALSE) 
-                  names(Dom) <- Dom2 }    }
+          if (min(Dom %in% names(dataset))==1) Dom <- dataset[, Dom, with=FALSE] }
       }
 
   # Y
@@ -200,7 +178,8 @@ vardcrospoor <- function(Y,
   if (ncol(H) != 1) stop("'H' must be 1 column data.frame, matrix, data.table")
   if (any(is.na(H))) stop("'H' has unknown values")
   if (is.null(names(H))) stop("'H' must be colnames")
-  
+  H[, (names(H)):=lapply(.SD, as.character)]
+
   # id
   if (is.null(id)) id <- 1:n
   id <- data.table(id)
@@ -214,19 +193,26 @@ vardcrospoor <- function(Y,
   if (any(is.na(PSU))) stop("'PSU' has unknown values")
   if (nrow(PSU) != n) stop("'PSU' length must be equal with 'Y' row count")
   if (ncol(PSU) != 1) stop("'PSU' has more than 1 column")
+  PSU[, (names(PSU)):=lapply(.SD, as.character)]
   
   # gender
   if (!is.null(gender)) {
+      gender <- data.frame(gender)
+      if (nrow(gender) != n) stop("'gender' must be the same length as 'Y'")
+      if (ncol(gender) != 1) stop("'gender' must be vector or 1 column data.frame, matrix, data.table")
+      gender <- gender[,1]
       if (!is.numeric(gender)) stop("'gender' must be numerical")
-      if (length(gender) != n) stop("'gender' must be the same length as 'Y'")
       if (length(unique(gender)) != 2) stop("'gender' must be exactly two values")
       if (!all.equal(unique(gender),c(1, 2))) stop("'gender' must be value 1 for male, 2 for females")
    }
 
   # sort
-  if (!is.null(sort) && !is.vector(sort) && !is.ordered(sort)) {
-        stop("'sort' must be a vector or ordered factor") }
-  if (!is.null(sort) && length(sort) != n) stop("'sort' must have the same length as 'Y'")     
+  if (!is.null(sort)) {
+        sort <- data.frame(sort)
+        if (length(sort) != n) stop("'sort' must have the same length as 'Y'")
+        if (ncol(sort) != 1) stop("'sort' must be vector or 1 column data.frame, matrix, data.table")
+        sort <- sort[,1]
+   }
 
   # w_final 
   w_final <- data.frame(w_final)
@@ -241,7 +227,7 @@ vardcrospoor <- function(Y,
   if (any(is.na(country))) stop("'country' has unknown values")
   if (nrow(country) != n) stop("'country' length must be equal with 'Y' row count")
   if (ncol(country) != 1) stop("'country' has more than 1 column")
-  if (!is.character(country[[names(country)]])) stop("'country' must be character")
+  country[, (names(country)):=lapply(.SD, as.character)]
 
   # periods
   if (withperiod) {
@@ -259,9 +245,9 @@ vardcrospoor <- function(Y,
                  paste(names(Dom)[duplicated(names(Dom))], collapse = ","))
     if (nrow(Dom) != n) stop("'Dom' and 'Y' must be equal row count")
     if (any(is.na(Dom))) stop("'Dom' has unknown values")
-    if (is.null(names(Dom))) stop("'Dom' must be colnames")
     namesDom <- names(Dom)
-    Dom <- Dom[, lapply(.SD, as.character), .SDcols = namesDom]
+    if (is.null(namesDom)) stop("'Dom' must be colnames")
+    Dom[, (namesDom):=lapply(.SD, as.character)]
     Dom1 <- Dom[, lapply(namesDom, function(x) make.names(paste0(x, ".", get(x))))]
     Dom1 <- Dom1[, Dom := Reduce(function(x, y) paste(x, y, sep="__"), .SD)]
     Dom <- data.table(Dom, Dom1[, "Dom", with=FALSE])

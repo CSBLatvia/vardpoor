@@ -15,62 +15,42 @@ vardchanges <- function(Y, H, PSU, w_final, id,
           stop("'confidence' must be a numeric value in [0,1]")  }
 
   if(!is.null(dataset)) {
-      dataset <- data.frame(dataset)
-      aY <- Y
+      dataset <- data.table(dataset)
       if (min(Y %in% names(dataset))!=1) stop("'Y' does not exist in 'dataset'!")
-      if (min(Y %in% names(dataset))==1) {
-                                Y <- data.frame(dataset[, Y], check.names=FALSE)
-                                names(Y) <- aY }
+      if (min(Y %in% names(dataset))==1)  Y <- dataset[, Y, with=FALSE]
 
       if(!is.null(H)) {
-          aH <- H  
           if (min(H %in% names(dataset))!=1) stop("'H' does not exist in 'dataset'!")
-          if (min(H %in% names(dataset))==1) {
-                                H <- as.data.frame(dataset[, aH], stringsAsFactors=FALSE)
-                                names(H) <- aH }}
+          if (min(H %in% names(dataset))==1) H <- dataset[, H, with=FALSE] }
+
       if(!is.null(id)) {
-          aid <- id  
           if (min(id %in% names(dataset))!=1) stop("'id' does not exist in 'dataset'!")
-          if (min(id %in% names(dataset))==1) {
-                                id <- as.data.frame(dataset[, aid], stringsAsFactors=FALSE)
-                                names(id) <- aid }}
+          if (min(id %in% names(dataset))==1) id <- dataset[, id, with=FALSE]}
+
       if(!is.null(PSU)) {
-          aPSU <- PSU  
           if (min(PSU %in% names(dataset))!=1) stop("'PSU' does not exist in 'dataset'!")
-          if (min(PSU %in% names(dataset))==1) {
-                                PSU <- as.data.frame(dataset[, aPSU], stringsAsFactors=FALSE)
-                                names(PSU) <- aPSU }}
+          if (min(PSU %in% names(dataset))==1) PSU <- dataset[, PSU, with=FALSE] }
+
       if(!is.null(w_final)) {
-          aw_final <- w_final  
           if (min(w_final %in% names(dataset))!=1) stop("'w_final' does not exist in 'dataset'!")
-          if (min(w_final %in% names(dataset))==1) {
-                                w_final <- data.frame(dataset[, aw_final])
-                                names(w_final) <- aw_final }}
+          if (min(w_final %in% names(dataset))==1) w_final <- dataset[, w_final, with=FALSE] }
+
       if(!is.null(Z)) {
-          aZ <- Z
           if (min(Z %in% names(dataset))!=1) stop("'Z' does not exist in 'dataset'!")
-          if (min(Z %in% names(dataset))==1) {
-                                Z <-data.frame(dataset[, aZ], check.names=FALSE, stringsAsFactors=FALSE)
-                                names(Z) <- aZ }}
+          if (min(Z %in% names(dataset))==1) Z <- dataset[, Z, with=FALSE]}
+
       if(!is.null(country)) {
-          acountry <- country
           if (min(country %in% names(dataset))!=1) stop("'country' does not exist in 'dataset'!")
-          if (min(country %in% names(dataset))==1) country <- data.frame(dataset[, acountry], stringsAsFactors=FALSE)
-          names(country) <- acountry  }
+          if (min(country %in% names(dataset))==1) country <- dataset[, country, with=FALSE] }
 
       if(!is.null(periods)) {
-          aperiods <- periods
           if (min(periods %in% names(dataset))!=1) stop("periods' does not exist in 'dataset'!")
-          if (min(periods %in% names(dataset))==1) periods <- data.frame(dataset[, aperiods])
-          names(periods) <- aperiods  }
+          if (min(periods %in% names(dataset))==1) periods <-dataset[, periods, with=FALSE] }
      
       if (!is.null(Dom)) {
-          aDom <- Dom
           if (min(Dom %in% names(dataset))!=1) stop("'Dom1' does not exist in 'dataset'!")
-          if (min(Dom %in% names(dataset))==1) {  
-                  Dom <- as.data.frame(dataset[, aDom], stringsAsFactors=FALSE) 
-                  names(Dom) <- aDom }    }
-      }
+          if (min(Dom %in% names(dataset))==1) Dom <- dataset[, Dom, with=FALSE]    }
+   }
 
   # Y
   Y <- data.table(Y, check.names=TRUE)
@@ -131,6 +111,7 @@ vardchanges <- function(Y, H, PSU, w_final, id,
     if (nrow(Dom) != n) stop("'Dom' and 'Y' must be equal row count")
     if (any(is.na(Dom))) stop("'Dom' has unknown values")
     if (is.null(names(Dom))) stop("'Dom' must be colnames")
+    Dom[, (names(Dom)):=lapply(.SD, as.character)]
   }
   
   namesZ <- NULL
@@ -151,10 +132,9 @@ vardchanges <- function(Y, H, PSU, w_final, id,
    if (any(is.na(period1))) stop("'period1' has unknown values")
    setkeyv(period1, names(periods))
    periodss <- copy(periods)
-   periodss[,periodss:=1]
+   periodss[, periodss:=1]
    setkeyv(periodss, names(periods))
    if (any(is.na(merge(period1, periodss, all.x=TRUE)))) stop("'period1' row must be exist in 'periods'")
-
 
    # period2
    period2 <- data.table(t(period2), check.names=TRUE)
@@ -164,7 +144,6 @@ vardchanges <- function(Y, H, PSU, w_final, id,
    if (any(is.na(period2))) stop("'period2' has unknown values")
    setkeyv(period2, names(periods))
    if (any(is.na(merge(period2, periodss, all.x=TRUE)))) stop("'period2' row must be exist in 'periods'")
-
 
    data <- vardcros(Y=Y, H=H, PSU=PSU, w_final=w_final,
                     id=id, Dom=Dom, Z=Z, country=country,
@@ -220,6 +199,7 @@ vardchanges <- function(Y, H, PSU, w_final, id,
   nrowv <- nrow(var_grad)
 
   period <- names(data1)[4:ncol(data1)]
+  print(period)
   setnames(data1, names(data1)[-c(1:3)], paste0(names(data1)[-c(1:3)], "_1"))
   setnames(data2, names(data2)[-c(1:3)], paste0(names(data2)[-c(1:3)], "_2"))
   period2 <- names(data2)[4:ncol(data2)]

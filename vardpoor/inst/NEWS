@@ -1,6 +1,10 @@
-Changes in vardpoor version 0.4.5
+Changes in vardpoor version 0.4.6
 
     + Corrected mistakes in function linrmir
+
+    + In all functions changed type of dataset from data.frame to data.table
+    
+    + Corrected dataset type in examples
 
 Changes in vardpoor version 0.4.4
 

@@ -20,9 +20,8 @@ varpoord <- function(Y, w_final,
                      X_ID_household = NULL,
                      ind_gr = NULL,
                      g = NULL,
+                     q = NULL,
                      datasetX = NULL,
-                     q = rep(1, if (is.null(datasetX)) 
-                            nrow(data.frame(X)) else nrow(datasetX)),
                      percentage=60,
                      order_quant=50,
                      alpha = 20,
@@ -63,99 +62,78 @@ varpoord <- function(Y, w_final,
          stop("'confidence' must be a numeric value in [0,1]")  }
 
   if(!is.null(dataset)) {
-      dataset <- data.frame(dataset)
+      dataset <- data.table(dataset)
       if (min(Y %in% names(dataset))!=1) stop("'Y' does not exist in 'dataset'!")
-      if (min(Y %in% names(dataset))==1) Y <- dataset[, Y]
+      if (min(Y %in% names(dataset))==1) Y <- dataset[, Y, with=FALSE]
       if(!is.null(w_final)) {
           if (min(w_final %in% names(dataset))!=1) stop("'w_final' does not exist in 'dataset'!")
-          if (min(w_final %in% names(dataset))==1) w_final <- dataset[, w_final] }
+          if (min(w_final %in% names(dataset))==1) w_final <- dataset[, w_final, with=FALSE] }
       if(!is.null(age)) {
           if (min(age %in% names(dataset))!=1) stop("'age' does not exist in 'dataset'!")
-          if (min(age %in% names(dataset))==1) age <- dataset[, age] }
+          if (min(age %in% names(dataset))==1) age <- dataset[, age, with=FALSE] }
       if(!is.null(pl085)) {
           if (min(pl085 %in% names(dataset))!=1) stop("'pl085' does not exist in 'dataset'!")
-          if (min(pl085 %in% names(dataset))==1) pl085 <- dataset[, pl085] }
+          if (min(pl085 %in% names(dataset))==1) pl085 <- dataset[, pl085, with=FALSE] }
       if(!is.null(month_at_work)) {
           if (min(month_at_work %in% names(dataset))!=1) stop("'month_at_work' does not exist in 'dataset'!")
-          if (min(month_at_work %in% names(dataset))==1) month_at_work <- dataset[, month_at_work] }
+          if (min(month_at_work %in% names(dataset))==1) month_at_work <- dataset[, month_at_work, with=FALSE] }
       if(!is.null(Y_den)) {
           if (min(Y_den %in% names(dataset))!=1) stop("'Y_den' does not exist in 'dataset'!")
-          if (min(Y_den %in% names(dataset))==1) Y_den <- dataset[, Y_den] }
+          if (min(Y_den %in% names(dataset))==1) Y_den <- dataset[, Y_den, with=FALSE] }
       if(!is.null(Y_thres)) {
           if (min(Y_thres %in% names(dataset))!=1) stop("'Y_thres' does not exist in 'dataset'!")
-          if (min(Y_thres %in% names(dataset))==1) Y_thres <- dataset[, Y_thres] }    
+          if (min(Y_thres %in% names(dataset))==1) Y_thres <- dataset[, Y_thres, with=FALSE] }    
       if(!is.null(wght_thres)) {
           if (min(wght_thres %in% names(dataset))!=1) stop("'wght_thres' does not exist in 'dataset'!")
-          if (min(wght_thres %in% names(dataset))==1) wght_thres <- dataset[, wght_thres] }
+          if (min(wght_thres %in% names(dataset))==1) wght_thres <- dataset[, wght_thres, with=FALSE] }
       if(!is.null(id)) {
-          id2 <- id
           if (min(id %in% names(dataset))!=1) stop("'id' does not exist in 'dataset'!")
-          if (min(id %in% names(dataset))==1) id <- data.frame(dataset[, id], stringsAsFactors=FALSE)
-          names(id) <- id2  }
+          if (min(id %in% names(dataset))==1) id <- dataset[, id, with=FALSE]  }
       if(!is.null(ID_household)) {
-          ID_household2 <- ID_household
           if (min(ID_household %in% names(dataset))!=1) stop("'ID_household' does not exist in 'dataset'!")
-          if (min(ID_household %in% names(dataset))==1) ID_household <- as.data.frame(dataset[, ID_household], stringsAsFactors=FALSE)
-          names(ID_household) <- ID_household2  }
+          if (min(ID_household %in% names(dataset))==1) ID_household <- dataset[, ID_household, with=FALSE] }
       if(!is.null(H)) {
-          aH <- H  
           if (min(H %in% names(dataset))!=1) stop("'H' does not exist in 'dataset'!")
-          if (min(H %in% names(dataset))==1) {
-                                H <- as.data.frame(dataset[, H], stringsAsFactors=FALSE)
-                                names(H) <- aH }}
+          if (min(H %in% names(dataset))==1) H <- dataset[, H, with=FALSE] }
       if(!is.null(PSU)) {
-          aPSU <- PSU  
           if (min(PSU %in% names(dataset))!=1) stop("'PSU' does not exist in 'dataset'!")
-          if (min(PSU %in% names(dataset))==1) {
-                                PSU <- as.data.frame(dataset[, PSU], stringsAsFactors=FALSE)
-                                names(PSU) <- aPSU }}
+          if (min(PSU %in% names(dataset))==1) PSU <- dataset[, PSU, with=FALSE]  }
       if(!is.null(gender)) {
           if (min(gender %in% names(dataset))!=1) stop("'gender' does not exist in 'dataset'!")
-          if (min(gender %in% names(dataset))==1) gender <- dataset[, gender] }
+          if (min(gender %in% names(dataset))==1) gender <- dataset[, gender, with=FALSE] }
       if(!is.null(sort)) {
           if (min(sort %in% names(dataset))!=1) stop("'sort' does not exist in 'dataset'!")
-          if (min(sort %in% names(dataset))==1) sort <- dataset[, sort] }
+          if (min(sort %in% names(dataset))==1) sort <- dataset[, sort, with=FALSE] }
       if (!is.null(period)) {
-            aperiod <- period  
             if (min(period %in% names(dataset))!=1) stop("'period' does not exist in 'dataset'!")
-            if (min(period %in% names(dataset))==1) {
-                                period <- as.data.frame(dataset[, period], stringsAsFactors=FALSE)
-                                names(period) <- aperiod  }}
+            if (min(period %in% names(dataset))==1) period <- dataset[, period, with=FALSE] }
       if (!is.null(Dom)) {
-          Dom2 <- Dom
           if (min(Dom %in% names(dataset))!=1) stop("'Dom' does not exist in 'dataset'!")
-          if (min(Dom %in% names(dataset))==1) {  
-                  Dom <- as.data.frame(dataset[, Dom], stringsAsFactors=FALSE) 
-                  names(Dom) <- Dom2 }    }
-      }
+          if (min(Dom %in% names(dataset))==1) Dom <- dataset[, Dom, with=FALSE] }
+    }
 
   if(!is.null(datasetX)) {
-      dataset <- data.frame(datasetX)
+      dataset <- data.table(datasetX)
        if (!is.null(periodX)) {
-            aperiodX <- periodX  
             if (min(periodX %in% names(datasetX))!=1) stop("'periodX' does not exist in 'datasetX'!")
-            if (min(periodX %in% names(datasetX))==1) {
-                                periodX <- as.data.frame(datasetX[, periodX])
-                                names(periodX) <- aperiodX }}     
+            if (min(periodX %in% names(datasetX))==1) periodX <- datasetX[, periodX, with=FALSE] }     
       if(!is.null(X_ID_household)) {
-          X_ID_household2 <- X_ID_household
           if (min(X_ID_household %in% names(datasetX))!=1) stop("'X_ID_household' does not exist in 'datasetX'!")
-          if (min(X_ID_household %in% names(datasetX))==1) X_ID_household <- data.frame(datasetX[, X_ID_household])
-          names(X_ID_household) <- X_ID_household2  }
+          if (min(X_ID_household %in% names(datasetX))==1) X_ID_household <- datasetX[, X_ID_household, with=FALSE] }
       if(!is.null(X)) {
           if (min(X %in% names(datasetX))!=1) stop("'X' does not exist in 'datasetX'!")
-          if (min(X %in% names(datasetX))==1) X <- datasetX[, X] }
+          if (min(X %in% names(datasetX))==1) X <- datasetX[, X, with=FALSE] }
       if(!is.null(ind_gr)) {
           if (min(ind_gr %in% names(datasetX))!=1) stop("'ind_gr' does not exist in 'datasetX'!")
-          if (min(ind_gr %in% names(datasetX))==1) ind_gr <- datasetX[, ind_gr] }
+          if (min(ind_gr %in% names(datasetX))==1) ind_gr <- datasetX[, ind_gr, with=FALSE] }
       if(!is.null(g)) {
           if (min(g %in% names(datasetX))!=1) stop("'g' does not exist in 'datasetX'!")
-          if (min(g %in% names(datasetX))==1) g <- datasetX[, g] }
+          if (min(g %in% names(datasetX))==1) g <- datasetX[, g, with=FALSE] }
       if(!is.null(q)) {
           if (min(q %in% names(datasetX))!=1) {
                if (length(q) != nrow(datasetX))  stop("'q' does not exist in 'datasetX'!") }
-          if (min(q %in% names(datasetX))==1) q <- datasetX[, q] } 
-      }
+          if (min(q %in% names(datasetX))==1) q <- datasetX[, q, with=FALSE]  }
+    }
 
   # Y
   Y <- data.frame(Y)
@@ -194,7 +172,7 @@ varpoord <- function(Y, w_final,
   if (is.null(names(id))||(names(id)=="id")) setnames(id,names(id),"ID")
   if (is.null(period)){ if (any(duplicated(id))) stop("'id' are duplicate values") 
                        } else if (any(duplicated(data.table(period, id)))) stop("'id' by period are duplicate values")
- 
+
   # age
   if (!is.null(age)) {
        age <- data.frame(age)
@@ -265,17 +243,22 @@ varpoord <- function(Y, w_final,
   if (ncol(H) != 1) stop("'H' must have 1 column data.frame, matrix, data.table")
   if (any(is.na(H))) stop("'H' has unknown values")
   if (is.null(names(H))) stop("'H' must be colnames")
+  H[, (names(H)):=lapply(.SD, as.character)]
 
   # PSU
   PSU <- data.table(PSU)
   if (nrow(PSU) != n) stop("'PSU' must have the same length as 'Y'")
   if (ncol(PSU) != 1) stop("'PSU' must have vector or 1 column data.frame, matrix, data.table")
   if (any(is.na(PSU))) stop("'PSU' has unknown values")
+  PSU[, (names(PSU)):=lapply(.SD, as.character)]
 
   # gender
   if (!is.null(gender)) {
+      gender <- data.frame(gender)
+      if (nrow(gender) != n) stop("'gender' must be the same length as 'Y'")
+      if (ncol(gender) != 1) stop("'gender' must be vector or 1 column data.frame, matrix, data.table")
+      gender <- gender[,1]
       if (!is.numeric(gender)) stop("'gender' must be numerical")
-      if (length(gender) != n) stop("'gender' must be the same length as 'Y'")
       if (length(unique(gender)) != 2) stop("'gender' must be exactly two values")
       if (!all.equal(unique(gender),c(1, 2))) stop("'gender' must be value 1 for male, 2 for females")
    }
@@ -287,9 +270,8 @@ varpoord <- function(Y, w_final,
       if (!is.numeric(N_h[[ncol(N_h)]])) stop("The last column of 'N_h' should be numerical")
       if (any(is.na(N_h))) stop("'N_h' has unknown values") 
       if (is.null(names(N_h))) stop("'N_h' must be colnames")
-      namesH <- names(H)
-      if (H[, class(get(namesH))]!=N_h[, class(get(namesH))]) stop("Strata class for 'H' and 'N_h' is not equal ")
-
+      if (all(names(H) %in% names(N_h))) {N_h[, (names(H)):=lapply(.SD, as.character), .SDcols=names(H)]
+             } else stop("All strata titles of 'H' have not in 'N_h'")
       if (is.null(period)) {
              if (names(H) != names(N_h)[1]) stop("Strata titles for 'H' and 'N_h' is not equal")
              if (any(is.na(merge(unique(H), N_h, by=names(H), all.x = T)))) stop("'N_h' is not defined for all stratas")
@@ -297,9 +279,10 @@ varpoord <- function(Y, w_final,
        } else { pH <- data.frame(period, H)
                 if (any(names(pH) != names(N_h)[c(1:(1+np))])) stop("Strata titles for 'period' with 'H' and 'N_h' is not equal")
                 nperH <- names(period)
-                if (pH[, class(get(nperH))]!=N_h[, class(get(nperH))])  stop("Period class for 'period' and 'N_h2' is not equal ")
-                if (any(is.na(merge(unique(pH), N_h, by=names(pH), all.x = T)))) stop("'N_h' is not defined for all stratas and periods")
-                if (any(duplicated(N_h[, head(names(N_h),-1), with=F]))) stop("Strata values for 'N_h' must be unique in all periods")
+                if (pH[, class(get(nperH))]!=N_h[, class(get(nperH))]) 
+                                                       stop("Period class for 'period' and 'N_h' is not equal ")
+                if (any(is.na(merge(unique(pH), N_h, by=names(pH), all.x = TRUE)))) stop("'N_h' is not defined for all stratas and periods")
+                if (any(duplicated(N_h[, head(names(N_h),-1), with=FALSE]))) stop("Strata values for 'N_h' must be unique in all periods")
                 pH <- NULL
      }
     setkeyv(N_h, names(N_h)[c(1:(1+np))])
@@ -332,6 +315,7 @@ varpoord <- function(Y, w_final,
   if (!is.null(X)) {
      if(!is.null(periodX)) {
         periodX <- data.table(periodX)
+        periodX[, (names(periodX)):=lapply(.SD, as.character)]
         periX <- data.table(unique(periodX))
         setkeyv(periX, names(periX))
         peri <- data.table(unique(period))
@@ -351,6 +335,7 @@ varpoord <- function(Y, w_final,
  # X_ID_household
   if (!is.null(X)) {
     X_ID_household <- data.table(X_ID_household)
+    X_ID_household[, (names(X_ID_household)):=lapply(.SD, as.character)]
     if (nrow(X) != nrow(X_ID_household)) stop("'X' and 'X_ID_household' have different row count")
     if (ncol(X_ID_household) != 1) stop("'X_ID_household' must be 1 column data.frame, matrix, data.table")
     if (any(is.na(X_ID_household))) stop("'X_ID_household' has unknown values")
@@ -411,6 +396,7 @@ varpoord <- function(Y, w_final,
     
   # q
   if (!is.null(X)) {
+    if (is.null(q))  q <- rep(1, nrow(X))
     if (is.null(class(q)) | all(class(q)=="function")) stop("'q' must be numerical")
     q <- data.frame(q)
     if (nrow(q) != nrow(X)) stop("'q' length must be equal with 'X' row count")
@@ -451,6 +437,7 @@ varpoord <- function(Y, w_final,
   aH <- names(H)
   idper <- copy(id)
   Y1sort <- Y1asort <- NULL
+  aPSU <- names(PSU)
   if (!is.null(period)) idper <- data.table(idper, period)
   Y1 <- data.table(idper, ID_household, H, PSU, w_final, check.names=TRUE)
   Y1a <- data.table(idper, ID_household, H, PSU, w_design, check.names=TRUE)

@@ -19,32 +19,24 @@ lingini <- function(Y, id = NULL, weight = NULL, sort = NULL,
        stop("'var_name' must have defined name of the linearized variable")}
 
    if (!is.null(dataset)) {
-       dataset <- data.frame(dataset) 
-       if (checker(Y, dataset, "Y")) Y <- dataset[, Y] 
+       dataset <- data.table(dataset) 
+       if (checker(Y, dataset, "Y")) Y <- dataset[, Y, with=FALSE] 
 
        if (!is.null(id)) {
-            id2 <- id
-            if (checker(id, dataset, "id")) id <- data.frame(dataset[, id], stringsAsFactors=FALSE)
-            names(id) <- id2 }
+            if (checker(id, dataset, "id")) id <- dataset[, id, with=FALSE]}
 
        if(!is.null(weight)) {
-           if (checker(weight, dataset, "weight")) weight <- dataset[, weight] }
+           if (checker(weight, dataset, "weight")) weight <- dataset[, weight, with=FALSE] }
 
        if(!is.null(sort)) {
-           if (checker(sort, dataset, "sort")) sort <- dataset[, sort] }
+           if (checker(sort, dataset, "sort")) sort <- dataset[, sort, with=FALSE] }
 
-       if (!is.null(period)) {
-            aperiod <- period  
+       if (!is.null(period)) { 
             if (min(period %in% names(dataset))!=1) stop("'period' does not exist in 'dataset'!")
-            if (min(period %in% names(dataset))==1) {
-                                period <- data.frame(dataset[, period], stringsAsFactors=FALSE)
-                                names(period) <- aperiod }}
+            if (min(period %in% names(dataset))==1) period <- dataset[, period, with=FALSE] }
 
        if (!is.null(Dom)) {
-            Dom2 <- Dom
-            if (checker(Dom,dataset,"Dom")) {
-                    Dom <- as.data.frame(dataset[, Dom], stringsAsFactors=FALSE) 
-                    names(Dom) <- Dom2 }    }
+            if (checker(Dom,dataset,"Dom")) Dom <- dataset[, Dom, with=FALSE] }
 
      } 
 
@@ -67,10 +59,13 @@ lingini <- function(Y, id = NULL, weight = NULL, sort = NULL,
    if (any(is.na(weight))) stop("'weight' has unknown values")
 
    # sort
-   if (!is.null(sort) && !is.vector(sort) && !is.ordered(sort)) {
-         stop("'sort' must be a vector or ordered factor") }
-   if (!is.null(sort) && length(sort) != n) stop("'sort' must be the same length as 'Y'")     
-   
+   if (!is.null(sort)) {
+        sort <- data.frame(sort)
+        if (length(sort) != n) stop("'sort' must have the same length as 'Y'")
+        if (ncol(sort) != 1) stop("'sort' must be vector or 1 column data.frame, matrix, data.table")
+        sort <- sort[, 1]
+   }
+
    # period     
    if (!is.null(period)) {
        period <- data.table(period)
@@ -78,7 +73,7 @@ lingini <- function(Y, id = NULL, weight = NULL, sort = NULL,
                  stop("'period' are duplicate column names: ", 
                       paste(names(period)[duplicated(names(period))], collapse = ","))
        if (nrow(period) != n) stop("'period' must be the same length as 'Y'")
-       if(any(is.na(period))) stop("'period' has unknown values")  
+       if(any(is.na(period))) stop("'period' has unknown values")
    }   
 
    # id
@@ -93,7 +88,7 @@ lingini <- function(Y, id = NULL, weight = NULL, sort = NULL,
                           id1 <- data.table(period, id)
                           if (any(duplicated(id1))) stop("'id' by period are duplicate values")
                          }
- 
+
    # Dom     
    if (!is.null(Dom)) {
              Dom <- data.table(Dom)
@@ -102,7 +97,7 @@ lingini <- function(Y, id = NULL, weight = NULL, sort = NULL,
                       paste(names(Dom)[duplicated(names(Dom))], collapse = ","))
              if (is.null(names(Dom))) stop("'Dom' must be colnames")
              if (nrow(Dom) != n) stop("'Dom' must be the same length as 'Y'")
-             Dom <- Dom[, lapply(.SD, as.character), .SDcols = names(Dom)]
+             Dom[, (names(Dom)):=lapply(.SD, as.character)]
        }
 
    ## computations

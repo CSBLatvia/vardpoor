@@ -21,7 +21,7 @@ incPercentile <- function(Y, weights = NULL, sort = NULL,
         Dom = NULL, period=NULL, k = c(20, 80), dataset = NULL) {
    
    ## initializations
-   if(!is.numeric(k) || length(k) == 0 || any(k < 0 | k > 100)) {
+   if(length(k) == 0 | any(!is.numeric(k) | k < 0 | k > 100)) {
         stop("'k' must be a vector of integers between 0 and 100")
     } else k <- round(k)
    

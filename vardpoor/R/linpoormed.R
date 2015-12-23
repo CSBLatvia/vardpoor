@@ -20,16 +20,13 @@ linpoormed <- function(Y, id=NULL, weight=NULL, sort=NULL, Dom=NULL,
 
    # check 'p'
    p <- percentage
-   if(!is.numeric(p) || length(p) != 1 || p[1] < 0 || p[1] > 100) {
-          stop("'percentage' must be a numeric value in [0,100]")
-      } else p <- percentage[1]
+   if(length(p) != 1 |  any(!is.numeric(p) | p < 0 | p > 100)) {
+          stop("'percentage' must be a numeric value in [0, 100]") }
 
    # check 'order_quant'
-
    oq <- order_quant
-   if(!is.numeric(oq) || length(oq) != 1 || oq[1] < 0 || oq[1] > 100) {
-          stop("'order_quant' must be a numeric value in [0,100]")
-      } else order_quant <- order_quant[1]
+   if(length(oq) != 1 | any(!is.numeric(oq) | oq < 0 | oq > 100)) {
+          stop("'order_quant' must be a numeric value in [0, 100]") }
 
    if(!is.null(dataset)) {
        dataset <- data.table(dataset)

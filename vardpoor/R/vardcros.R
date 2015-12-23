@@ -1,5 +1,3 @@
-
-
 vardcros <- function(Y, H, PSU, w_final, id,
                      Dom = NULL,
                      Z = NULL, 
@@ -11,530 +9,522 @@ vardcros <- function(Y, H, PSU, w_final, id,
                      withperiod = TRUE,
                      netchanges = TRUE,
                      confidence = .95) {
-  
+ 
   ### Checking
-  if (!is.logical(linratio)) stop("'linratio' must be logical")
-  if (!is.logical(household_level_max)) stop("'household_level_max' must be logical")
-  if (!is.logical(withperiod)) stop("'withperiod' must be logical")
-  if (!is.logical(netchanges)) stop("'netchanges' must be logical")
+  if (length(linratio) != 1 | !any(is.logical(linratio))) stop("'linratio' must be the logical value")
+  if (length(netchanges) != 1 | !any(is.logical(netchanges))) stop("'netchanges' must be the logical value")
+  if (length(withperiod) != 1 | !any(is.logical(withperiod))) stop("'withperiod' must be the logical value")
+  if (length(use.estVar) != 1 | !any(is.logical(use.estVar))) stop("'use.estVar' must be the logical value")
+  if (length(household_level_max) != 1 | !any(is.logical(household_level_max))) stop("'household_level_max' must be the logical value")
+  if(length(confidence) != 1 | any(!is.numeric(confidence) |  confidence < 0 | confidence > 1)) {
+          stop("'confidence' must be a numeric value in [0,1]")  }
   if (is.null(Z)==linratio & linratio==TRUE) stop("'linratio' must be FALSE")
-  
-  if(!is.numeric(confidence) || length(confidence) != 1 || confidence[1] < 0 || confidence[1] > 1) {
-    stop("'confidence' must be a numeric value in [0,1]")  }
-  
+
   if(!is.null(dataset)) {
-    dataset <- data.table(dataset)
-    if (min(Y %in% names(dataset))!=1) stop("'Y' does not exist in 'dataset'!")
-    if (min(Y %in% names(dataset))==1) Y <- dataset[, Y, with=FALSE] 
-  if(!is.null(H)) {
-    if (min(H %in% names(dataset))!=1) stop("'H' does not exist in 'dataset'!")
-    if (min(H %in% names(dataset))==1) H <- dataset[, H, with=FALSE] }
-  if(!is.null(id)) {
-    if (min(id %in% names(dataset))!=1) stop("'id' does not exist in 'dataset'!")
-    if (min(id %in% names(dataset))==1) id <- dataset[, id, with=FALSE] }
-  if(!is.null(PSU)) {
-    if (min(PSU %in% names(dataset))!=1) stop("'PSU' does not exist in 'dataset'!")
-    if (min(PSU %in% names(dataset))==1) PSU <- dataset[, PSU, with=FALSE] }
-  if(!is.null(w_final)) {
-    if (min(w_final %in% names(dataset))!=1) stop("'w_final' does not exist in 'dataset'!")
-    if (min(w_final %in% names(dataset))==1)  w_final <- dataset[, w_final, with=FALSE] }
-  if(!is.null(Z)) {
-    if (min(Z %in% names(dataset))!=1) stop("'Z' does not exist in 'dataset'!")
-    if (min(Z %in% names(dataset))==1) Z <- dataset[, Z, with=FALSE] }
-  if(!is.null(country)) {
-    if (min(country %in% names(dataset))!=1) stop("'country' does not exist in 'dataset'!")
-    if (min(country %in% names(dataset))==1) country <- dataset[, country, with=FALSE]  }
+      dataset <- data.frame(dataset)
+      aY <- Y
+      if (min(Y %in% names(dataset))!=1) stop("'Y' does not exist in 'dataset'!")
+      if (min(Y %in% names(dataset))==1) {
+                                Y <- data.frame(dataset[, Y], check.names=FALSE)
+                                names(Y) <- aY }
+      if(!is.null(H)) {
+          aH <- H  
+          if (min(H %in% names(dataset))!=1) stop("'H' does not exist in 'dataset'!")
+          if (min(H %in% names(dataset))==1) {
+                                H <- as.data.frame(dataset[, aH], stringsAsFactors=FALSE)
+                                names(H) <- aH }}
+      if(!is.null(id)) {
+          aid <- id  
+          if (min(id %in% names(dataset))!=1) stop("'id' does not exist in 'dataset'!")
+          if (min(id %in% names(dataset))==1) {
+                                id <- as.data.frame(dataset[, aid], stringsAsFactors=FALSE)
+                                names(id) <- aid }}
+     if(!is.null(PSU)) {
+          aPSU <- PSU  
+          if (min(PSU %in% names(dataset))!=1) stop("'PSU' does not exist in 'dataset'!")
+          if (min(PSU %in% names(dataset))==1) {
+                                PSU <- as.data.frame(dataset[, aPSU], stringsAsFactors=FALSE)
+                                names(PSU) <- aPSU }}
+      if(!is.null(w_final)) {
+          aw_final <- w_final  
+          if (min(w_final %in% names(dataset))!=1) stop("'w_final' does not exist in 'dataset'!")
+          if (min(w_final %in% names(dataset))==1) {
+                                w_final <- data.frame(dataset[, aw_final])
+                                names(w_final) <- aw_final }}
+      if(!is.null(Z)) {
+          aZ <- Z
+          if (min(Z %in% names(dataset))!=1) stop("'Z' does not exist in 'dataset'!")
+          if (min(Z %in% names(dataset))==1) {
+                                Z <- data.frame(dataset[, aZ], check.names=FALSE, stringsAsFactors=FALSE)
+                                names(Z) <- aZ }}
+      if(!is.null(country)) {
+          country2 <- country
+          if (min(country %in% names(dataset))!=1) stop("'country' does not exist in 'dataset'!")
+          if (min(country %in% names(dataset))==1) country <- as.data.frame(dataset[, country], stringsAsFactors=FALSE)
+          names(country) <- country2  }
+
+      if(!is.null(periods)) {
+          periods2 <- periods
+          if (min(periods %in% names(dataset))!=1) stop("'periods' does not exist in 'dataset'!")
+          if (min(periods %in% names(dataset))==1) periods <- data.frame(dataset[, periods], stringsAsFactors=FALSE)
+          names(periods) <- periods2  }
+     
+      if (!is.null(Dom)) {
+          Dom2 <- Dom
+          if (min(Dom %in% names(dataset))!=1) stop("'Dom' does not exist in 'data'!")
+          if (min(Dom %in% names(dataset))==1) {  
+                  Dom <- as.data.frame(dataset[, Dom2], stringsAsFactors=FALSE) 
+                  names(Dom) <- Dom2 }    }
+      }
+
+  # Y
+  Y <- data.table(Y, check.names=TRUE)
+  n <- nrow(Y)
+  m <- ncol(Y)
+  if (!all(sapply(Y, is.numeric))) stop("'Y' must be numeric values")
+  if (any(is.na(Y))) stop("'Y' has unknown values")
+  if (is.null(names(Y))) stop("'Y' must be colnames")
   
-  if(!is.null(periods)) {
-    if (min(periods %in% names(dataset))!=1) stop("'periods' does not exist in 'dataset'!")
-    if (min(periods %in% names(dataset))==1) periods <- dataset[, periods, with=FALSE] }
+  # H
+  H <- data.table(H)
+  if (nrow(H) != n) stop("'H' length must be equal with 'Y' row count")
+  if (ncol(H) != 1) stop("'H' must be 1 column data.frame, matrix, data.table")
+  if (any(is.na(H))) stop("'H' has unknown values")
+  if (is.null(names(H))) stop("'H' must be colnames")
   
+  # id
+  id <- data.table(id)
+  if (any(is.na(id))) stop("'id' has unknown values")
+  if (nrow(id) != n) stop("'id' length must be equal with 'Y' row count")
+  if (ncol(id) != 1) stop("'id' must be 1 column data.frame, matrix, data.table")
+  if (is.null(names(id))||(names(id)=="id")) setnames(id, names(id), "h_ID")
+
+  # PSU
+  PSU <- data.table(PSU)
+  if (any(is.na(PSU))) stop("'PSU' has unknown values")
+  if (nrow(PSU) != n) stop("'PSU' length must be equal with 'Y' row count")
+  if (ncol(PSU) != 1) stop("'PSU' has more than 1 column")
+  
+  # w_final 
+  w_final <- data.frame(w_final)
+  if (nrow(w_final) != n) stop("'w_final' must be equal with 'Y' row count")
+  if (ncol(w_final) != 1) stop("'w_final' must be vector or 1 column data.frame, matrix, data.table")
+  w_final <- w_final[,1]
+  if (!is.numeric(w_final)) stop("'w_final' must be numerical")
+  if (any(is.na(w_final))) stop("'w_final' has unknown values") 
+  
+  # country
+  country <- data.table(country)
+  if (any(is.na(country))) stop("'country' has unknown values")
+  if (nrow(country) != n) stop("'country' length must be equal with 'Y' row count")
+  if (ncol(country) != 1) stop("'country' has more than 1 column")
+  if (!is.character(country[[names(country)]])) stop("'country' must be character")
+
+
+  # periods
+  if (withperiod) {
+        periods <- data.table(periods)
+        if (any(is.na(periods))) stop("'periods' has unknown values")
+        if (nrow(periods) != n) stop("'periods' length must be equal with 'Y' row count")
+    } else if (!is.null(periods)) stop("'periods' must be NULL for those data")
+
+  # Dom
+  namesDom <- NULL
   if (!is.null(Dom)) {
-    if (min(Dom %in% names(dataset))!=1) stop("'Dom' does not exist in 'data'!")
-    if (min(Dom %in% names(dataset))==1) Dom <- dataset[, Dom, with=FALSE] }
-}
+    Dom <- data.table(Dom)
+    if (any(duplicated(names(Dom)))) 
+           stop("'Dom' are duplicate column names: ", 
+                 paste(names(Dom)[duplicated(names(Dom))], collapse = ","))
+    if (nrow(Dom) != n) stop("'Dom' and 'Y' must be equal row count")
+    if (any(is.na(Dom))) stop("'Dom' has unknown values")
+    if (is.null(names(Dom))) stop("'Dom' must be colnames")
+    namesDom <- names(Dom)
+    Dom <- Dom[, lapply(.SD, as.character), .SDcols = namesDom]
+    Dom_agg <- Dom[,.N, keyby=namesDom][,N:=NULL]
+    Dom_agg1 <- Dom_agg[, lapply(namesDom, function(x) make.names(paste0(x,".", get(x))))]
+    Dom_agg1[, Dom := Reduce(function(x, y) paste(x, y, sep="__"), .SD)]
+    Dom_agg <- data.table(Dom_agg, Dom_agg1[, "Dom", with=FALSE])
+  }
 
-# Y
-Y <- data.table(Y, check.names=TRUE)
-n <- nrow(Y)
-m <- ncol(Y)
-if (!all(sapply(Y, is.numeric))) stop("'Y' must be numeric values")
-if (any(is.na(Y))) stop("'Y' has unknown values")
-if (is.null(names(Y))) stop("'Y' must be colnames")
+  # Z
+  if (!is.null(Z)) {
+    Z <- data.table(Z, check.names=TRUE)
+    if (!all(sapply(Z, is.numeric))) stop("'Z' must be numeric values")
+    if (nrow(Z) != n) stop("'Z' and 'Y' must be equal row count")
+    if (ncol(Z) != m) stop("'Z' and 'Y' must be equal column count")
+    if (any(is.na(Z))) stop("'Z' has unknown values")
+    if (is.null(names(Z))) stop("'Z' must be colnames")
+  }
+      
+  
+  # Calculation
+      
+  # Domains
+  N <- nameY <- nameZ <- variable <- NULL
+  sample_size <- totalY <- totalZ <- Z1 <- NULL
 
-# H
-H <- data.table(H)
-if (nrow(H) != n) stop("'H' length must be equal with 'Y' row count")
-if (ncol(H) != 1) stop("'H' must be 1 column data.frame, matrix, data.table")
-if (any(is.na(H))) stop("'H' has unknown values")
-if (is.null(names(H))) stop("'H' must be colnames")  
-H[, (names(H)):=lapply(.SD, as.character)] 
+  size <- data.table(size=rep(1, nrow(Y)))
+  if (!is.null(Dom)) size1 <- domain(size, Dom) else size1 <- copy(size)
 
-# id
-id <- data.table(id)
-if (any(is.na(id))) stop("'id' has unknown values")
-if (nrow(id) != n) stop("'id' length must be equal with 'Y' row count")
-if (ncol(id) != 1) stop("'id' must be 1 column data.frame, matrix, data.table")
-if (is.null(names(id))||(names(id)=="id")) setnames(id, names(id), "h_ID")
+  if (!is.null(Dom)) Y1 <- domain(Y, Dom) else Y1 <- Y
 
-# PSU
-PSU <- data.table(PSU)
-if (any(is.na(PSU))) stop("'PSU' has unknown values")
-if (nrow(PSU) != n) stop("'PSU' length must be equal with 'Y' row count")
-if (ncol(PSU) != 1) stop("'PSU' has more than 1 column")
-PSU[, (names(PSU)):=lapply(.SD, as.character)] 
-
-# w_final 
-w_final <- data.frame(w_final)
-if (nrow(w_final) != n) stop("'w_final' must be equal with 'Y' row count")
-if (ncol(w_final) != 1) stop("'w_final' must be vector or 1 column data.frame, matrix, data.table")
-w_final <- w_final[,1]
-if (!is.numeric(w_final)) stop("'w_final' must be numerical")
-if (any(is.na(w_final))) stop("'w_final' has unknown values") 
-
-# country
-country <- data.table(country)
-if (any(is.na(country))) stop("'country' has unknown values")
-if (nrow(country) != n) stop("'country' length must be equal with 'Y' row count")
-if (ncol(country) != 1) stop("'country' has more than 1 column")
-if (!is.character(country[[names(country)]])) stop("'country' must be character")
-
-# periods
-if (withperiod) {
-  periods <- data.table(periods)
-  if (any(is.na(periods))) stop("'periods' has unknown values")
-  if (nrow(periods) != n) stop("'periods' length must be equal with 'Y' row count")
-} else if (!is.null(periods)) stop("'periods' must be NULL for those data")
-
-# Dom
-namesDom <- NULL
-if (!is.null(Dom)) {
-  Dom <- data.table(Dom)
-  if (any(duplicated(names(Dom)))) 
-    stop("'Dom' are duplicate column names: ", 
-         paste(names(Dom)[duplicated(names(Dom))], collapse = ","))
-  if (nrow(Dom) != n) stop("'Dom' and 'Y' must be equal row count")
-  if (any(is.na(Dom))) stop("'Dom' has unknown values")
-  if (is.null(names(Dom))) stop("'Dom' must be colnames")
   namesDom <- names(Dom)
-  Dom[, (namesDom):=lapply(.SD, as.character)]
-  Dom_agg <- Dom[,.N, keyby=namesDom][,N:=NULL]
-  Dom_agg1 <- Dom_agg[, lapply(namesDom, function(x) make.names(paste0(x,".", get(x))))]
-  Dom_agg1[, Dom := Reduce(function(x, y) paste(x, y, sep="__"), .SD)]
-  Dom_agg <- data.table(Dom_agg, Dom_agg1[, "Dom", with=FALSE])
-}
+  DTp <- copy(country)
+  if (withperiod) DTp <- data.table(periods, country)
+  namesperc <- names(DTp)
+  namesperc2 <- c("period_country", names(DTp))
+  period_country <- do.call("paste", c(as.list(DTp), sep="_")) 
 
-# Z
-if (!is.null(Z)) {
-  Z <- data.table(Z, check.names=TRUE)
-  if (!all(sapply(Z, is.numeric))) stop("'Z' must be numeric values")
-  if (nrow(Z) != n) stop("'Z' and 'Y' must be equal row count")
-  if (ncol(Z) != m) stop("'Z' and 'Y' must be equal column count")
-  if (any(is.na(Z))) stop("'Z' has unknown values")
-  if (is.null(names(Z))) stop("'Z' must be colnames")
-}
+  if (!is.null(Z)) {
+       if (!is.null(Dom)) Z1 <- domain(Z, Dom) else Z1 <- Z               
+       if (linratio){ 
+                   sorts <- unlist(split(Y1[, .I], period_country))
+                   lin1 <- lapply(split(Y1[, .I], period_country), 
+                                  function(i) lin.ratio(Y1[i], Z1[i], w_final[i], Dom=NULL))
+                   Y2 <- rbindlist(lin1)[sorts]
+                   if (any(is.na(Y2))) print("Results are calculated, but there are cases where Z = 0")
+                  } else Y2 <- data.table(copy(Y1), copy(Z1))
+    } else Y2 <- copy(Y1)
 
+  namesY2 <- names(Y2)
+  namesY2w <- paste0(namesY2, "w")
+ 
+  Y2w <- Y2 * w_final
+  setnames(Y2w, namesY2, namesY2w)
 
-# Calculation
+  size1w <- size1 * w_final
+  size1wn <- paste0(names(size1), "w")
+  setnames(size1w, names(size1), size1wn)
+ 
+  DT <- data.table(period_country, DTp, H, PSU, id,
+                    w_final, size1, size1w, Y2, Y2w) 
 
-# Domains
-n_h <- stratasf <- name1 <- name2 <- nhcor <- n_h <- num1 <- num <- den1 <- NULL
-den <- num_den1 <- dom <- name2 <- variable <- name1 <- namess <- NULL
-grad1 <- grad2 <- estim <- total <- pop_size <- N <- stderr_nw <- sample_size <- NULL
-sd_nw <-  stderr_w <- sd_w <- se <- rse <- cv <- absolute_margin_of_error <- NULL
-relative_margin_of_error <- CI_lower <- CI_upper <- nams <- totalZ <- NULL
-Z1 <- namesY <- namesZ <- namesZ1 <- H_sk <- NULL
+  namesY <- names(Y)
+  namesZ <- names(Z)
+  names_H <- names(H)
+  namesY1 <- names(Y1)
+  namesZ1 <- names(Z1)
+  names_id <- names(id)
+  names_PSU <- names(PSU)
+  names_size1 <- names(size1)
+  namesYZ <- c(namesY, namesZ)
+  namesY1Z1 <- c(namesY1, namesZ1)
+  names_country <- names(country)
+  H <- PSU <- id <- DTp <- country <- NULL
 
-if (!is.null(Dom)) Y1 <- domain(Y, Dom) else Y1 <- Y
+  DTagg <- data.table(DT[, namesperc, with=FALSE], w_final)
+  if (!is.null(Dom)) DTagg <- data.table(DTagg, Dom)
+  DTagg <- data.table(DTagg, sample_size=1, 
+                     pop_size=w_final, w_final*Y)
+  if (!is.null(Z)) DTagg <- data.table(DTagg, w_final*Z)
 
-size <- data.table(size=rep(1, nrow(Y1)))
-if (!is.null(Dom)) size1 <- domain(size, Dom) else size1 <- copy(size)
+  DTagg <- DTagg[, lapply(.SD, sum, na.rm=TRUE),
+                    keyby=c(namesperc, namesDom),
+                   .SDcols=c("sample_size", "pop_size", namesYZ)]
+  DTaggs <- DTagg[, c(namesperc, namesDom,
+                    "sample_size", "pop_size"), with=FALSE] 
 
-namesDom <- names(Dom)
-DTp <- copy(country)
-if (withperiod) DTp <- data.table(periods, country)
-namesperc <- names(DTp)
-namesperc2 <- c("period_country", names(DTp))
-period_country <- do.call("paste", c(as.list(DTp), sep="_"))
-if (!is.null(Y1)) namesY1 <- names(Y1) else namesY1 <- NULL
-namesYZ <- namesY1
-nams <- data.table(name1=namesY1)
+  vars <- data.table(variable=namesY, namesY=namesY)
+  if (!is.null(namesZ)) vars <- data.table(variable=as.character(1:length(namesY)), 
+                                           namesY=namesY, namesZ=namesZ) 
 
+  varsYZ <- list(namesY)
+  if (!is.null(namesZ)) varsYZ <- list(namesY, namesZ)
+  DTagg <- melt(DTagg, id=c(namesperc, namesDom),
+                       measure=varsYZ,
+                       variable.factor=FALSE)
+  setnames(DTagg, "value1", "totalY")
+  if (!is.null(Z)) setnames(DTagg, "value2", "totalZ")
 
-if (!is.null(Z)) {
-  if (!is.null(Dom)) Z1 <- domain(Z, Dom) else Z1 <- Z               
-  if (!is.null(Z1)) namesZ1 <- names(Z1) else namesZ1 <- NULL
-  namesYZ <- c(namesYZ, namesZ1)
-  nams <- data.table(nams, nameZ=namesZ1)
-  if (linratio){ 
-    sorts <- unlist(split(Y1[, .I], period_country))
-    lin1 <- lapply(split(Y1[, .I], period_country), 
-                   function(i) lin.ratio(Y1[i], Z1[i], w_final[i], Dom=NULL))
-    Y2 <- rbindlist(lin1)[sorts]
-    if (any(is.na(Y2))) print("Results are calculated, but there are cases where Z = 0")
-  } else Y2 <- data.table(copy(Y1), copy(Z1))
-} else Y2 <- copy(Y1)
+  DTagg <- merge(DTagg, vars, by="variable")
+  DTagg[, variable:=NULL]
 
-Y2 <- data.table(Y2, size1, check.names=TRUE)
-names_size1 <- names(Y2)[-ncol(size1):-1+1+ncol(Y2)]
+  DTagg <- merge(DTagg, DTaggs, all.x=TRUE,
+                 by=c(namesperc, namesDom))
 
-Y2w <- Y2 * w_final
-namesY2 <- names(Y2)
+  if (!is.null(namesDom)) DTagg[,(paste0(namesDom, "_new")):=lapply(namesDom,
+                     function(x) make.names(paste0(x,".", get(x))))]
 
-namesY2w <- paste0(namesY2, "w")
-setnames(Y2w, namesY2, namesY2w)
+  varsYZ <- vars <- nameY1 <- nameZ1 <- valueY1 <- valueZ1 <- Dom <- NULL
+  Z1 <- Y1 <- period_country <- Y2 <- Y2w <- total <- pop_size <- NULL
+  stderr_nw <- nhcor <- num1 <- num <- den1 <- den <- num_den1 <- NULL
+  grad1 <- grad2 <- estim <- sd_nw <- stderr_w <- sd_w <- se <- rse <- NULL
+  cv <- CI_lower <- absolute_margin_of_error <- CI_upper <- totalZ <- NULL
+  relative_margin_of_error <- NULL
 
-DT <- data.table(period_country, DTp, H, PSU, id, w_final, Y2, Y2w)
+  #--------------------------------------------------------*
+  # AGGREGATION AT PSU LEVEL ("ULTIMATE CLUSTER" APPROACH) |
+  #--------------------------------------------------------*
 
-DTp <- data.table(period_country, w_final*Y1)
-if (!is.null(Z)) DTp <- data.table(DTp, w_final*Z1)
+  DT1 <- DT[, lapply(.SD, sum, na.rm=TRUE), keyby=c(namesperc2,
+               names_H, names_PSU), .SDcols = namesY2w]
+  setnames(DT1, namesY2w, namesY2)
 
-DTp <- DTp[, lapply(.SD, sum, na.rm=TRUE), keyby="period_country", .SDcols=namesYZ]
-setnames(DTp, namesYZ, paste0(namesYZ, "_sum"))
+  DTnet <- copy(DT1)
+  if (!netchanges)  DTnet <- NULL
 
-DT1 <- copy(DT)
-names_id <- names(id)
-names_H <- names(H)
-names_PSU <- names(PSU)
-names_country <- names(country)
-period_country <- ech <- ech1 <-  NULL
-id <- Dom <- Z1 <- country <-  NULL
-H <- PSU <- Y1 <- Y2 <-  NULL 
-Y2W <- nh <- nh_cor <- NULL
+  DT2 <- DT1[, lapply(.SD, sum, na.rm=TRUE),
+            keyby=namesperc, .SDcols = namesY2]
+  varsYZ <- list(namesY1)
+  if (!is.null(namesZ1)) varsYZ <- list(namesY1, namesZ1)
+  DT2 <- melt(DT2, id=namesperc,
+                       measure=varsYZ,
+                       variable.factor=FALSE)
+  setnames(DT2, "value1", "valueY1")
+  if (!is.null(namesZ1))  setnames(DT2, "value2", "valueZ1")
 
-DT2 <- DT1[, lapply(.SD, sum, na.rm=TRUE),
-           keyby=namesperc2,
-           .SDcols = c(names_size1, namesY2w)]
-setnames(DT2, names(DT2)[-c(1:length(namesperc2))],
-         paste0(names(DT2)[-c(1:length(namesperc2))], "s"))
-
-
-#--------------------------------------------------------*
-# AGGREGATION AT PSU LEVEL ("ULTIMATE CLUSTER" APPROACH) |
-#--------------------------------------------------------*
-
-DT3 <- DT1[, lapply(.SD, sum, na.rm=TRUE), keyby=c(namesperc2,
-                                                   names_H, names_PSU), .SDcols = namesY2w]
-setnames(DT3, namesY2w, namesY2)
-DT1 <- copy(DT3)
-DT1[, (c("period_country", paste0(names_size1, ""))):=NULL]
-if (!netchanges) DT1 <- NULL
-
-setkeyv(DT2, namesperc2)
-DT3 <- merge(DT2, DT3, all=TRUE)
-
-# VECTOR OF THE PARTIAL DERIVATIVES (GRADIENT FUNCTION)
-
-if (!is.null(namesZ1) & !linratio) {
-  Z1ws <- paste0(namesZ1, "ws")
-  Y1ws <- paste0(namesY1, "ws") 
   
-  DT4 <- DT3[, lapply(paste0(namesZ1, "ws"), function(z) 1/get(z))]
-  setnames(DT4, names(DT4), paste0("g1__", namesY1, "___", namesZ1))
+  if (!is.null(namesZ1)) { vars <- data.table(variable=1:length(namesY1))
+                       } else vars <- data.table(variable=namesY1)
+
+  if (!is.null(namesDom)) { vars <- data.table(vars, nameY1=namesY1,
+                                               t(data.frame(strsplit(namesY1, "__"))))
+                            setnames(vars, names(vars)[3:length(vars)], 
+                                        c("namesY", paste0(namesDom, "_new")))
+                     } else {vars <- data.table(vars, nameY1=namesY1, namesY1=namesY1) }
+                           
+  if (!is.null(namesZ1)) { vars <- data.table(vars, nameZ1=namesZ1)
+                           if (!is.null(namesDom)) {
+                                      varsZ <- data.table(nameZ1=namesZ1, 
+                                                          t(data.frame(strsplit(namesZ1, "__"))))
+                                      setnames(varsZ, names(varsZ)[2:length(varsZ)],
+                                                    c("namesZ", paste0(namesDom, "_new"))) 
+                                      varsZ[, (paste0(namesDom, "_new")):=NULL] 
+                                      vars <- merge(vars, varsZ, by="nameZ1") 
+                               } else vars[, namesZ1:=nameZ1]  }
+
+  vars <- vars[, lapply(vars, as.character)]
+
+  DT2 <- merge(DT2, vars, by="variable")
+  DT2[, variable:=NULL]
+  vars <- varsZ <- NULL 
+
+  vars <- c(namesperc, paste0(namesDom, "_new"), "namesY", "namesZ")
+  vars <- names(DT2)[names(DT2) %in% vars]
+
+  DTagg <- merge(DTagg, DT2, by=vars)
+  DT2 <- vars <- NULL
+
+
+  # VECTOR OF THE PARTIAL DERIVATIVES (GRADIENT FUNCTION)
+
+  if (!is.null(namesZ1) & !linratio) {
+      DTagg[, grad1:=1/valueZ1]
+      DTagg[, grad2:=-valueY1/valueZ1^2]
+  }
+
+  # NUMBER OF PSUs PER STRATUM
+  setkeyv(DT1, c(namesperc2, names_H))
+
+  stratasf <- nh <- nhcor <- NULL
+  DT1[, nh:=.N, by=c(namesperc2, names_H)]
+
+
+ #--------------------------------------------------------------------------*
+ # MULTIVARIATE REGRESSION APPROACH USING STRATUM DUMMIES AS REGRESSORS AND |
+ # STANDARD ERROR ESTIMATION 						      |
+ #--------------------------------------------------------------------------*
+
+  DT1H <- DT1[[names_H]]
+  DT1H <- factor(DT1H)
+  if (length(levels(DT1H))==1) { DT1[, stratasf:=1]
+                                 DT1H <- "stratasf"
+
+                       }  else { DT1H <- data.table(model.matrix( ~ DT1H-1))
+                                 DT1 <- cbind(DT1, DT1H)
+                                 DT1H <- names(DT1H) }
+
+  fits <-lapply(1:length(namesY1), function(i) {
+           fitss <- lapply(split(DT1, DT1$period_country), function(DT1c) {
+                   	y <- namesY1[i]
+                        if ((!is.null(namesZ1))&(!linratio)) z <- paste0(",", toString(namesZ1[i])) else z <- ""
+                        funkc <- as.formula(paste("cbind(", trim(toString(y)), z, ")~",
+                                       paste(c(-1, DT1H), collapse= "+")))
+                   	res1 <- lm(funkc, data=DT1c)
+
+           	            if (use.estVar==TRUE) {res1 <- data.table(crossprod(res1$res))
+                                } else res1 <- data.table(res1$res)
+                        setnames(res1, names(res1)[1], "num") 
+                        res1[, nameY1:=y]
+                        if (!is.null(namesZ1) & !linratio) {
+                              setnames(res1, names(res1)[2], "den")
+                              res1[, nameZ1:=namesZ1[i]]}
+
+                        if (use.estVar==TRUE) {
+                              setnames(res1, "num", "num1") 
+                              if (!is.null(namesZ1) & !linratio) {
+                                       res1[, num_den1:=res1[["den"]][1]]
+                                       res1[, den1:=res1[["den"]][2]] }
+                              res1 <- data.table(res1[1], DT1c[1])
+                          } else {
+                              res1 <- data.table(res1, DT1c)
+                              res1[, nhcor:=ifelse(nh==1,1, nh/(nh-1))]
+                              res1[, num1:=nhcor * num * num]
+                              if (!is.null(namesZ1) & !linratio) {
+                                  res1[, num_den1:=nhcor * num * den]
+                                  res1[, den1:=nhcor * den * den]
+                               }}
+                        namep <- c("nameY1", "nameZ1")
+                        namep <- namep[namep %in% names(res1)]
+                        varsp <- c("num1", "den1", "num_den1")
+                        varsp <- varsp[varsp %in% names(res1)]
+                        fits <- res1[, lapply(.SD, sum), 
+                                       keyby=c("period_country",
+                                               namesperc, namep),
+                                       .SDcols=varsp]
+                        return(fits)
+                    })
+            return(rbindlist(fitss))
+        })
+  res <- rbindlist(fits)
+  DT1 <- fits <- DT1H <- NULL
+
+  vars <- c(namesperc, namesDom, "nameY1", "nameZ1")
+  vars <- names(res)[names(res) %in% vars]
+
+  res <- merge(DTagg, res, by=vars)
+
+  DTagg <- total <- NULL
+	
+  res[, var:=num1]
+  if (!is.null(res$totalZ) & !linratio) res[, var:=(grad1*grad1*num1)+
+                                                  (grad2*grad2*den1)+
+                                                2*(grad1*grad2*num_den1)] 
+  res[, estim:=totalY]
+  if (!is.null(res$totalZ)) res[, estim:=totalY/totalZ] 
   
-  DT3 <- cbind(DT3, DT4)
-  
-  DT4 <- data.table(DT3[, mapply(function(y, z) -get(y)/(get(z))^2, Y1ws, Z1ws)])
-  setnames(DT4, names(DT4), paste0("g2__", namesY1, "___", namesZ1))
-  DT3 <- cbind(DT3, DT4)
-}
+  main <- c(namesperc, namesDom, "namesY", "nameY1")
+  if (!is.null(namesDom)) main <- c(main, paste0(namesDom, "_new"))
+  if (!is.null(res$namesZ)) main <- c(main, "namesZ", "nameZ1") 
+  main2 <- c(main, "estim", "totalY", "valueY1")
+  if (!is.null(res$namesZ)) main <- c(main, "totalZ") 
+  if (!is.null(namesZ1) & !linratio) main2 <- c(main2, "valueZ1")
+  main2 <- c(main2, "num1")
+  if (!is.null(namesZ1) & !linratio) main2 <- c(main2, "den1", "grad1", "grad2")
 
-# NUMBER OF PSUs PER STRATUM
-setkeyv(DT3, c(namesperc2, names_H))
-DT3[, nh:=.N, by=c(namesperc2, names_H)]
+  if (netchanges) { res1 <- res[, main2[!(main2 %in% c("nameY1",
+                                     paste0(namesDom, "_new"), "nameZ1"))], with=FALSE]                  
+                  } else res1 <- NULL
 
-#--------------------------------------------------------------------------*
-# MULTIVARIATE REGRESSION APPROACH USING STRATUM DUMMIES AS REGRESSORS AND |
-# STANDARD ERROR ESTIMATION 						      |
-#--------------------------------------------------------------------------*
+  main <- c(main, "sample_size", "pop_size", "estim", "var")
+  res <- res[, main, with=FALSE]
 
-DT3H <- DT3[[names_H]]
-DT3H <- factor(DT3H)
-if (length(levels(DT3H))==1) { DT3[, stratasf:=1]
-  DT3H <- "stratasf"
-}  else { DT3H <- data.table(model.matrix( ~ DT3H-1))
-DT3 <- cbind(DT3, DT3H)
-DT3H <- names(DT3H) }
+  #-------------------------------------------------------------------------*
+  # DESIGN EFFECT (DEFF) ESTIMATION - VARIANCE UNDER SIMPLE RANDOM SAMPLING |
+  #-------------------------------------------------------------------------*
 
-fits <-lapply(1:length(namesY1), function(i) {
-  fitss <- lapply(split(DT3, DT3$period_country), function(DT3c) {
-    y <- namesY1[i]
-    if ((!is.null(namesZ1))&(!linratio)) z <- paste0(",", toString(namesZ1[i])) else z <- ""
-    funkc <- as.formula(paste("cbind(", trim(toString(y)), z, ")~",
-                              paste(c(-1, DT3H), collapse= "+")))
-    res1 <- lm(funkc, data=DT3c)
+  # We aggregate the target variables at household level
+
+
+  DTs <- DT[, lapply(.SD, sum, na.rm=TRUE), 
+                          keyby=c(namesperc2, names_id, "w_final"),
+                         .SDcols = c(names_size1, size1wn, namesY2)]
+  if (household_level_max) {    
+           DTm <- DT[, lapply(.SD, max, na.rm=TRUE), keyby=c(namesperc2, names_id), .SDcols = names_size1]
+       } else {
+          DTm <- DT[, lapply(.SD, sum, na.rm=TRUE), keyby=c(namesperc2, names_id), .SDcols = names_size1]
+     }
+
+  setnames(DTm, names_size1, paste0(names_size1, "m"))
+  DTs <- merge(DTs, DTm, by=c(namesperc2, names_id))
+
+  # Linearised variables
+
+  if (!is.null(namesZ1)) {
+                   lin1 <- lapply(split(DTs[, .I], DTs$period_country), function(i) 
+                                lin.ratio(Y=DTs[i, namesY1, with=FALSE],
+                                          Z=DTs[i, namesZ1, with=FALSE],
+                                          weight=DTs[["w_final"]][i], Dom=NULL))
+                   Y2a <- rbindlist(lin1)
+                   setnames(Y2a, names(Y2a), paste0("lin___", namesY1))
+                   DTs <- data.table(DTs, Y2a)
+                   Y2a <- paste0("lin___", namesY1)
+               } else Y2a <- namesY1
+
+  w_final <- DTs[["w_final"]]
+  DTsd <- DTs[, lapply(.SD[, Y2a, with = FALSE], function(x) 
+                       sum(w_final*((x-sum(w_final*x)/sum(w_final))^2))/(sum(w_final)-1)),
+                       keyby="period_country"]
+
+  setnames(DTsd, Y2a, paste0("sd_w__", namesY1))
+  DTs <- merge(DTs, DTsd, by="period_country")
+
+  DTm <- DTs[, lapply(.SD[, paste0(names_size1, "m"), with = FALSE], function(x) sum(w_final*x, na.rm=TRUE)),
+                       keyby="period_country"]
+  setnames(DTm, paste0(names_size1, "m"), paste0("pop_", names_size1))
+  DTs <- merge(DTs, DTm, by="period_country")
+
+  DTsd <- DTs[, lapply(.SD, sd, na.rm=TRUE), keyby="period_country", .SDcols = Y2a]
+  setnames(DTsd, Y2a, paste0("sd_nw__", namesY1))
+  DTs <- merge(DTs, DTsd, by="period_country")
+
+  DTm <- DTs[, lapply(.SD, sum, na.rm=TRUE), keyby="period_country", .SDcols = names_size1]
+  setnames(DTm, names_size1, paste0("samp_", names_size1))
+  DTs <- merge(DTs, DTm, by="period_country")
     
-    if (use.estVar==TRUE) {res1 <- data.table(crossprod(res1$res))
-    } else res1 <- data.table(res1$res)
-    setnames(res1, names(res1)[1], "num") 
-    res1[, namesY1:=y]
-    if (!is.null(namesZ1) & !linratio) {
-      setnames(res1, names(res1)[2], "den")
-      res1[, namesZ1:=namesZ1[i]]}
-    
-    if (use.estVar==TRUE) {
-      setnames(res1, "num", "num1") 
-      if (!is.null(namesZ1) & !linratio) {
-        res1[, num_den1:=res1[["den"]][1]]
-        res1[, den1:=res1[["den"]][2]] }
-      res1 <- data.table(res1[1], DT3c[1])
-    } else {
-      res1 <- data.table(res1, DT3c)
-      res1[, nhcor:=ifelse(nh==1,1, nh/(nh-1))]
-      res1[, num1:=nhcor * num * num]
-      if (!is.null(namesZ1) & !linratio) {
-        res1[, num_den1:=nhcor * num * den]
-        res1[, den1:=nhcor * den * den]
-      }}
-    namep <- c("namesY1", "namesZ1")
-    namep <- namep[namep %in% names(res1)]
-    varsp <- c("num1", "den1", "num_den1")
-    varsp <- varsp[varsp %in% names(res1)]
-    fits <- res1[, lapply(.SD, sum), 
-                 keyby=c("period_country",
-                         namesperc, namep),
-                 .SDcols=varsp]
-    return(fits)
-  })
-  return(rbindlist(fitss))
-})
-res <- rbindlist(fits)    
-a0 <- unlist(lapply(res$namesY1, function(d) regexpr("__", d)[1]))+2
-if (!is.null(namesDom)) res[, Dom:=substr(res$namesY1, a0, nchar(res$namesY1))]
-a0 <- fits <- DT3H <- NULL
+  DTx <- DTs[, .N, keyby=c(namesperc, paste0("sd_w__", namesY1),
+                               paste0("sd_nw__", namesY1),
+                               paste0("pop_", names_size1),
+                               paste0("samp_", names_size1))]
+  DTx[, N:=NULL]
 
-sd1 <- paste0(c(names_size1, namesY2w), "s")
-if ((!is.null(namesZ1))&(!linratio)) {
-  sd1 <- c(sd1, paste0("g1__", namesY1, "___", namesZ1),
-           paste0("g2__", namesY1, "___", namesZ1))}
-
-DT2 <- DT3[, lapply(.SD, mean, na.rm=TRUE),
-           keyby="period_country", 
-           .SDcols = sd1]
-
-main <- melt(DT2[, c(paste0(names_size1, "s"), "period_country"), with=FALSE],
-             id="period_country")
-main[, variable:=trim(as.character(variable))]
-main[nchar(variable)>6, Dom:=substr(variable, 7, nchar(variable)-1)]
-if (is.null(namesDom)) npcs <- "period_country" else npcs <- c("period_country", "Dom")
-main[, variable:=NULL]
-setnames(main, "value", "sample_size")
-setkeyv(main, npcs)
-setkeyv(res, npcs)
-res <- merge(res, main, all.y=TRUE) 
-
-main <- melt(DT2[, c(paste0(names_size1, "ws"), "period_country"), with=FALSE], id="period_country")
-main[, variable:=trim(as.character(variable))]
-main[nchar(variable)>6, Dom:=substr(variable, 7, nchar(variable)-2)] 
-main[, variable:=NULL]
-setnames(main, "value", "pop_size")
-setkeyv(main, npcs)
-res <- merge(res, main, all=TRUE)
-
-total <- totalY <- totalZ <- NULL
-main <- melt(DT2[, c(paste0(namesY1, "ws"), "period_country"), with=FALSE], id="period_country")
-main[, variable:=trim(as.character(variable))]
-main[, namesY1:=substr(variable, 1, nchar(variable)-2)] 
-main[, variable:=NULL]
-setnames(main, "value", "total")
-setkeyv(main, c("period_country", "namesY1"))
-setkeyv(res, c("period_country", "namesY1"))
-res <- merge(res, main, all=TRUE)
-
-main <- melt(DTp[, c(paste0(namesY1, "_sum"), "period_country"), with=FALSE], id="period_country")
-main[, variable:=trim(as.character(variable))]
-main[, namesY1:=substr(variable, 1, nchar(trim(as.character(variable)))-4)] 
-main[, variable:=NULL]
-setnames(main, "value", "totalY")
-setkeyv(main, c("period_country", "namesY1"))
-setkeyv(res, c("period_country", "namesY1"))
-res <- merge(res,  main, all=TRUE)
-
-if (!is.null(res$namesZ1)) { 
-  main <- melt(DTp[, c(paste0(namesZ1, "_sum"), "period_country"), with=FALSE], id="period_country")
-  main[, variable:=trim(as.character(variable))]
-  main[, namesZ1:=substr(variable, 1, nchar(variable)-4)] 
+  main <- melt(DTx[, c(namesperc, paste0("sd_w__", namesY1)), with=FALSE],  id=namesperc)
+  main[, nameY1:=substr(variable, 7, nchar(trim(as.character(variable))))] 
   main[, variable:=NULL]
-  setnames(main, "value", "totalZ")
-  setkeyv(main, c("period_country", "namesZ1"))
-  setkeyv(res, c("period_country", "namesZ1"))
-  res <- merge(res, main, all=TRUE)
-}
+  setnames(main, "value", "sd_w")
+  res <- merge(res, main, all.x=TRUE, by=c(namesperc, "nameY1"))
 
-res[, namess:=namesY1]
-if (!is.null(res$namesZ1)) res[, namess:=paste0(namesY1,"___",namesZ1)] 
-
-if (!is.null(res$namesZ1) & !linratio) {
-  main <- melt(DT2[,c(paste0("g1__", namesY1,"___", namesZ1), "period_country"), with=FALSE], id="period_country")
-  main[, variable:=trim(as.character(variable))]
-  main[, namess:=substr(variable, 5, nchar(variable))] 
+  main <- melt(DTx[, c(namesperc, paste0("sd_nw__", namesY1)), with=FALSE],  id=namesperc)
+  main[, nameY1:=substr(variable, 8, nchar(trim(as.character(variable))))] 
   main[, variable:=NULL]
-  setnames(main, "value", "grad1")
-  setkeyv(main, c("period_country", "namess"))
-  setkeyv(res, c("period_country", "namess"))
-  res <- merge(res, main, all=TRUE)	 
-  
-  main <- melt(DT2[, c(paste0("g2__", namesY1,"___", namesZ1), "period_country"), with=FALSE], id="period_country")
-  main[, variable:=trim(as.character(variable))]
-  main[, namess:=substr(variable, 5, nchar(variable))] 
+  setnames(main, "value", "sd_nw")
+  res <- merge(res, main, all=TRUE, by=c(namesperc, "nameY1"))
+
+  main <- melt(DTx[, c(namesperc, paste0("pop_", names_size1)), with=FALSE],  id=namesperc)
+  if (!is.null(namesDom)){ 
+                   main[, Dom:=substr(variable, 11, nchar(trim(as.character(variable))))] 
+                   vars <- unique(main[["Dom"]])
+                   vars <- data.table(Dom=vars, t(data.frame(strsplit(vars, "__"))))
+                   setnames(vars, names(vars)[2:length(vars)], paste0(namesDom, "_new"))
+                   main <- merge(main, vars, all.x=TRUE, by="Dom")  }
   main[, variable:=NULL]
-  setnames(main, "value", "grad2")
-  setkeyv(main, c("period_country", "namess"))
-  res <- merge(res, main, all=TRUE)
-}
-rm(DT2, DT3, DTp)
-res[, var:=num1]
-if (!is.null(res$totalZ) & !linratio) res[, var:=(grad1*grad1*num1)+
-                                            (grad2*grad2*den1)+
-                                            2*(grad1*grad2*num_den1)] 
-res[, estim:=totalY]
-if (!is.null(res$totalZ)) {res[, estim:=totalY/totalZ] 
-  res[, namesZ:=namesZ1] }
-res[, namesY:=paste0(namesY1, "__")] 
-res[, namesY:=substr(namesY, 1, regexpr("__", namesY)-1)]
+  setnames(main, "value", "pop")
+  nds <- namesperc
+  if (!is.null(namesDom)) nds <- c(namesperc, paste0(namesDom, "_new"))
+  res <- merge(res, main, all.x=TRUE, by=nds)
 
-if (!is.null(namesZ1)) { res[, namesZ:=paste0(namesZ1, "__")]
-  res[, namesZ:=substr(namesZ, 1, regexpr("__", namesZ)-1)] }
+  main <- melt(DTx[, c(namesperc, paste0("samp_", names_size1)), with=FALSE],  id=namesperc)
+  if (!is.null(namesDom)) main[, Dom:=substr(variable, 12, nchar(trim(as.character(variable))))] 
+  main[, variable:=NULL]
+  setnames(main, "value", "sampl_siz")
+  if (is.null(namesDom)) nds <- namesperc else nds <- c(namesperc, "Dom")
+  res <- merge(res, main, all=TRUE, by=nds)
 
-if (!is.null(namesDom)) {
-  setkeyv(res, "Dom")
-  setkeyv(Dom_agg, "Dom")
-  res <- merge(res, Dom_agg, all.x=TRUE)
-}
-Dom_agg <- NULL
+  res[, stderr_nw:=100*sqrt((1-(sample_size/pop_size))/pop_size * sd_nw * sd_nw/sample_size)]
+  res[, stderr_w:=100*sqrt((1-(sample_size/pop_size))/pop_size * sd_w * sd_w/sample_size)]
 
-main <- c(namesperc, namesDom)
-if (!is.null(namesDom)) main <- c(main, "Dom")
-main <- c(main, "namesY", "namesY1")
-if (!is.null(res$namesZ)) main <- c(main, "namesZ", "namesZ1") 
-main2 <- c(main, "estim", "num1")
-if (!is.null(namesZ1) & !linratio) main2 <- c(main2, "den1", "grad1", "grad2")
+  DT <- DTw <- DTx <- DTs <- DTsd <- sd1 <- nds <- NULL
 
-if (netchanges) { res1 <- res[, main2[!(main2 %in% c("Dom", "namesY1", "namesZ1"))], with=FALSE]                  
-} else res1 <- NULL
+  res[, se:=sqrt(var)]
+  res[, rse:=se/estim]
+  res[, cv:=rse*100]
+  tsad <- qnorm(0.5*(1+confidence))
+  res[, absolute_margin_of_error:=tsad*se]
+  res[, relative_margin_of_error:=tsad*cv]
+  res[, CI_lower:=estim - tsad*se]
+  res[, CI_upper:=estim + tsad*se]
 
-main <- c(main, "sample_size", "pop_size", "estim", "var")
-res <- res[, .N, keyby=main]
-
-#-------------------------------------------------------------------------*
-# DESIGN EFFECT (DEFF) ESTIMATION - VARIANCE UNDER SIMPLE RANDOM SAMPLING |
-#-------------------------------------------------------------------------*
-
-# We aggregate the target variables at household level
-
-DTs <- DT[, lapply(.SD, sum, na.rm=TRUE), keyby=c(namesperc2, names_id, "w_final"), .SDcols = namesY2]
-if (household_level_max) {    
-  DTm <- DT[, lapply(.SD, max, na.rm=TRUE), keyby=c(namesperc2, names_id), .SDcols = names_size1]
-} else {
-  DTm <- DT[, lapply(.SD, sum, na.rm=TRUE), keyby=c(namesperc2, names_id), .SDcols = names_size1]
-}
-
-setnames(DTm, names_size1, paste0(names_size1, "m"))
-DTs <- merge(DTs, DTm)
-
-# Linearised variables
-
-if ((!is.null(namesZ1))&(!linratio)) {
-  lin1 <- lapply(split(DTs[, .I], DTs$period_country), function(i) 
-    lin.ratio(Y=DTs[i, namesY1, with=FALSE],
-              Z=DTs[i, namesZ1, with=FALSE],
-              weight=DTs[["w_final"]][i], Dom=NULL))
-  Y2a <- rbindlist(lin1)
-  setnames(Y2a, names(Y2a), paste0("lin___", namesY1))
-  DTs <- data.table(DTs, Y2a)
-  Y2a <- paste0("lin___", namesY1)
-} else Y2a <- namesY1
-
-w_final <- DTs[["w_final"]]
-DTsd <- DTs[, lapply(.SD[, Y2a, with = FALSE], function(x) 
-  sum(w_final*((x-sum(w_final*x)/sum(w_final))^2))/(sum(w_final)-1)),
-  keyby="period_country"]
-
-setnames(DTsd, Y2a, paste0("sd_w__", namesY1))
-setkeyv(DTs, "period_country")
-DTs <- merge(DTs, DTsd)
-
-DTm <- DTs[, lapply(.SD[, paste0(names_size1, "m"), with = FALSE], function(x) sum(w_final*x, na.rm=TRUE)),
-           keyby="period_country"]
-setnames(DTm, paste0(names_size1, "m"), paste0("pop_", names_size1))
-DTs <- merge(DTs, DTm)
-
-DTsd <- DTs[, lapply(.SD, sd, na.rm=TRUE), keyby="period_country", .SDcols = Y2a]
-setnames(DTsd, Y2a, paste0("sd_nw__", namesY1))
-DTs <- merge(DTs, DTsd)
-
-DTm <- DTs[, lapply(.SD, sum, na.rm=TRUE), keyby="period_country", .SDcols = names_size1]
-setnames(DTm, names_size1, paste0("samp_", names_size1))
-DTs <- merge(DTs, DTm)
-
-DTx <- DTs[, .N, keyby=c(namesperc, paste0("sd_w__", namesY1),
-                         paste0("sd_nw__", namesY1),
-                         paste0("pop_", names_size1),
-                         paste0("samp_", names_size1))]
-DTx[, N:=NULL]
-
-main <- melt(DTx[, c(namesperc, paste0("sd_w__", namesY1)), with=FALSE],  id=namesperc)
-main[, namesY1:=substr(variable, 7, nchar(trim(as.character(variable))))] 
-main[, variable:=NULL]
-setnames(main, "value", "sd_w")
-setkeyv(main, c(namesperc, "namesY1"))
-setkeyv(res, c(namesperc, "namesY1"))
-res <- merge(res, main, all=TRUE)
-
-main <- melt(DTx[, c(namesperc, paste0("sd_nw__", namesY1)), with=FALSE],  id=namesperc)
-main[, namesY1:=substr(variable, 8, nchar(trim(as.character(variable))))] 
-main[, variable:=NULL]
-setnames(main, "value", "sd_nw")
-setkeyv(main, c(namesperc, "namesY1"))
-setkeyv(res, c(namesperc, "namesY1"))
-res <- merge(res, main, all=TRUE)
-
-main <- melt(DTx[, c(namesperc, paste0("pop_", names_size1)), with=FALSE],  id=namesperc)
-if (!is.null(namesDom)) main[, Dom:=substr(variable, 11, nchar(trim(as.character(variable))))] 
-main[, variable:=NULL]
-setnames(main, "value", "pop")
-if (is.null(namesDom)) nds <- namesperc else nds <- c(namesperc, "Dom")
-setkeyv(main, nds)
-setkeyv(res, nds)
-res <- merge(res, main, all.x=TRUE)
-
-main <- melt(DTx[, c(namesperc, paste0("samp_", names_size1)), with=FALSE],  id=namesperc)
-if (!is.null(namesDom)) main[, Dom:=substr(variable, 12, nchar(trim(as.character(variable))))] 
-main[, variable:=NULL]
-setnames(main, "value", "sampl_siz")
-setkeyv(main, nds)
-setkeyv(res, nds)
-res <- merge(res, main, all=TRUE)
-
-res[, stderr_nw:=100*sqrt((1-(sample_size/pop_size))/pop_size * sd_nw * sd_nw/sample_size )]
-res[, stderr_w:=100*sqrt((1-(sample_size/pop_size))/pop_size * sd_w * sd_w/sample_size )]
-
-DT <- DTw <- DTx <- DTs <- DTsd <- sd1 <- nds <-NULL
-
-
-res[, namesY1:=NULL]
-if (!is.null(namesZ1)) res[, namesZ1:=NULL]
-res[, N:=NULL]
-res[, se:=sqrt(var)]
-res[, rse:=se/estim]
-res[, cv:=rse*100]
-tsad <- qnorm(0.5*(1+confidence))
-res[, absolute_margin_of_error:=tsad*se]
-res[, relative_margin_of_error:=tsad*cv]
-res[, CI_lower:=estim - tsad*se]
-res[, CI_upper:=estim + tsad*se]
-
-main <- namesperc 
-if (!is.null(namesDom))  main <- c(main, namesDom)
-main <- c(main, "namesY")
-if (!is.null(res$namesZ)) main <- c(main, "namesZ")
-main <- c(main, "sample_size", "pop_size", "estim", "se", 
-          "var", "rse", "cv", "absolute_margin_of_error",
-          "relative_margin_of_error", "CI_lower", "CI_upper", 
-          "sd_w", "sd_nw", "pop", "sampl_siz", "stderr_nw",
-          "stderr_w")
-res <- res[, main, with=FALSE]
-list(data_net_changes=DT1, var_grad=res1, results=res)
+  main <- namesperc 
+  if (!is.null(namesDom))  main <- c(main, namesDom)
+  main <- c(main, "namesY")
+  if (!is.null(res$namesZ)) main <- c(main, "namesZ")
+  main <- c(main, "sample_size", "pop_size", "estim", "se", 
+            "var", "rse", "cv", "absolute_margin_of_error",
+            "relative_margin_of_error", "CI_lower", "CI_upper", 
+            "sd_w", "sd_nw", "pop", "sampl_siz", "stderr_nw",
+            "stderr_w")
+  res <- res[, main, with=FALSE]
+  list(data_net_changes=DTnet, var_grad=res1, results=res)
 }   
 
 

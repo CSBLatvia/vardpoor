@@ -1,6 +1,16 @@
  
-domain <- function(Y, D) {
-  
+domain <- function(Y, D, dataset=NULL) { 
+
+   if(!is.null(dataset)) {
+        dataset <- data.table(dataset)
+        if (min(Y %in% names(dataset))!=1) stop("'Y' does not exist in 'dataset'!")
+        if (min(Y %in% names(dataset))==1) Y <- dataset[, Y, with=FALSE] 
+    
+    if (!is.null(D)) {
+        if (min(D %in% names(dataset))!=1) stop("'D' does not exist in 'data'!")
+        if (min(D %in% names(dataset))==1) D <- dataset[, D, with=FALSE] }
+   }
+
   name.Y <- substitute(Y)
   name.D <- substitute(D)
   

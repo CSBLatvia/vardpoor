@@ -31,11 +31,12 @@ vardom <- function(Y, H, PSU, w_final,
                    outp_res = FALSE) {
  
   ### Checking
-  if (!is.logical(fh_zero)) stop("'fh_zero' must be the logical value")
-  if (!is.logical(PSU_level)) stop("'PSU_level' must be the logical value")
-
-  if(!is.numeric(confidence) || length(confidence) != 1 || confidence[1] < 0 || confidence[1] > 1) {
-          stop("'confidence' must be a numeric value in [0,1]")  }
+  if (length(fh_zero) != 1 | !any(is.logical(fh_zero))) stop("'fh_zero' must be the logical value")
+  if (length(PSU_level) != 1 | !any(is.logical(PSU_level))) stop("'PSU_level' must be the logical value")
+  if (length(outp_lin) != 1 | !any(is.logical(outp_lin))) stop("'outp_lin' must be the logical value")
+  if (length(outp_res) != 1 | !any(is.logical(outp_res))) stop("'outp_res' must be the logical value")
+  if(length(confidence) != 1 | any(!is.numeric(confidence) | confidence < 0 | confidence > 1)) {
+         stop("'confidence' must be a numeric value in [0, 1]")  }
 
   if(!is.null(dataset)) {
       dataset <- data.table(dataset)
@@ -126,7 +127,10 @@ vardom <- function(Y, H, PSU, w_final,
   if (nrow(id) != n) stop("'id' length must be equal with 'Y' row count")
   if (is.null(names(id))||(names(id)=="id")) setnames(id,names(id),"ID")
   if (is.null(period)){ if (any(duplicated(id))) stop("'id' are duplicate values") 
-                       } else if (any(duplicated(data.table(period, id)))) stop("'id' by period are duplicate values")
+                       } else {dd <- data.table(period, id)
+                                  if (any(duplicated(dd, by=names(dd)))) stop("'id' by period are duplicate values")
+                                  dd <- NULL}
+
 
   # N_h
   if (!is.null(N_h)) {
@@ -305,6 +309,10 @@ vardom <- function(Y, H, PSU, w_final,
   } else Y3 <- Y2
   Y2 <- NULL
 
+  
+  dataset = NULL
+  Y = Y3
+  
   var_est <- variance_est(Y = Y3, H = H, PSU = PSU,
                           w_final = w_final, N_h = N_h,
                           fh_zero = fh_zero,

@@ -13,39 +13,43 @@ vardchanges(Y, H, PSU, w_final, id,
             period1, period2,
             linratio = FALSE,
             use.estVar = FALSE,
-            confidence=0.95)}
+            confidence=0.95,
+            change_type = "absolute")}
 
 \arguments{
 
-\item{Y}{Variables of interest. Object convertible to \code{data.table} or variable names as character, column numbers or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset}).}
+\item{Y}{Variables of interest. Object convertible to \code{data.table} or variable names as character, column numbers.}
 
-\item{H}{The unit stratum variable. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset1}).}
+\item{H}{The unit stratum variable. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.}
 
-\item{PSU}{Primary sampling unit variable. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset1}).}
+\item{PSU}{Primary sampling unit variable. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.}
 
-\item{w_final}{Weight variable. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset}).}
+\item{w_final}{Weight variable. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.}
 
-\item{id}{variable for unit ID codes (for household surveys - secondary unit id number). One dimensional object convertible to one-column \code{data.table} or variable name as character, column number or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset}).}
+\item{id}{variable for unit ID codes (for household surveys - secondary unit id number). One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.}
 
-\item{Dom}{Optional variables used to define population domains. If supplied, variables are calculated for each domain. An object convertible to \code{data.table} or variable names as character vector, column numbers or logical vector (length of the vector has to be the same as the column count of \code{dataset}).}
+\item{Dom}{Optional variables used to define population domains. If supplied, variables are calculated for each domain. An object convertible to \code{data.table} or variable names as character vector, column numbers.}
 
-\item{Z}{Optional variables of denominator for ratio estimation. If supplied, the ratio estimation is computed. Object convertible to \code{data.table} or variable names as character, column numbers or logical vector (length of the vector has to be the same as the column count of \code{dataset}). This variable is \code{NULL} by default.}
+\item{Z}{Optional variables of denominator for ratio estimation. If supplied, the ratio estimation is computed. Object convertible to \code{data.table} or variable names as character, column numbers. This variable is \code{NULL} by default.}
 
-\item{country}{Variable for the survey countries. The values for each country are computed independently. Object convertible to \code{data.table} or variable names as character, column numbers or logical vector (length of the vector has to be the same as the column count of \code{dataset}).}
+\item{country}{Variable for the survey countries. The values for each country are computed independently. Object convertible to \code{data.table} or variable names as character, column numbers.}
 
-\item{periods}{Variable for the all survey periods. The values for each period are computed independently. Object convertible to \code{data.table} or variable names as character, column numbers or logical vector (length of the vector has to be the same as the column count of \code{dataset}).}
+\item{periods}{Variable for the all survey periods. The values for each period are computed independently. Object convertible to \code{data.table} or variable names as character, column numbers.}
 
 \item{dataset}{Optional survey data object convertible to \code{data.table}.}
 
-\item{period1}{The vector of the one row from variable \code{periods} describes the first period.}
+\item{period1}{The vector of periods from variable \code{periods} describes the first period.}
 
-\item{period2}{The vector of the one row from variable \code{periods} describes the second period.}
+\item{period2}{The vector of periods from variable \code{periods} describes the second period.}
 
 \item{linratio}{Logical value. If value is \code{TRUE}, then the linearized variables for the ratio estimator is used for variance estimation. If value is \code{FALSE}, then the gradients is used for variance estimation.}
 
 \item{use.estVar}{Logical value. If value is \code{TRUE}, then \code{R} function \code{estVar} is used for the  estimation of covariance matrix of the residuals. If value is \code{FALSE}, then \code{R} function \code{estVar} is not used for the  estimation of covariance matrix of the residuals.}
 
 \item{confidence}{optional; either a positive value for confidence interval. This variable by default is 0.95 .}
+
+\item{change_type}{character value net changes type - absolute or relative.}
+
 }
 
 \value{
@@ -56,6 +60,8 @@ vardchanges(Y, H, PSU, w_final, id,
     
        \code{period} -  survey periods, \cr
        \code{country} - survey countries, \cr
+        \code{namesY} - variable with names of variables of interest, \cr
+        \code{namesZ} - optional variable with names of denominator for ratio estimation, \cr
        \code{sample_size} - the sample size (in numbers of individuals), \cr
        \code{pop_size} - the population size (in numbers of individuals), \cr
        \code{total} - the estimated totals, \cr
@@ -75,16 +81,19 @@ vardchanges(Y, H, PSU, w_final, id,
        \code{CI_upper} - the estimated confidence interval upper bound.}
 
   \item{changes_results}{ A \code{data.table} containing
-
+        \code{country} - survey countries, \cr
+        \code{period} - period1 and period2 together, \cr
+        \code{Dom} - period1 and period2 together, \cr
+        \code{namesY} - variable with names of variables of interest, \cr
+        \code{namesZ} - optional variable with names of denominator for ratio estimation, \cr
+        \code{estim_1} - the estimated value for period1, \cr
+        \code{estim_2} - the estimated value for period2, \cr
         \code{estim} - the estimated value, \cr
         \code{var} - the estimated variance, \cr
         \code{se} - the estimated standard error, \cr
-        \code{rse} - the estimated relative standard error (coefficient of variation), \cr
-        \code{cv} - the estimated relative standard error (coefficient of variation) in percentage, \cr
-        \code{absolute_margin_of_error} - the estimated absolute margin of error, \cr
-        \code{relative_margin_of_error} - the estimated relative margin of error, \cr
         \code{CI_lower} - the estimated confidence interval lower bound, \cr
         \code{CI_upper} - the estimated confidence interval upper bound.}
+
 }
 
 \references{

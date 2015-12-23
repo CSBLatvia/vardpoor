@@ -16,17 +16,17 @@ linqsr(Y, id=NULL, weight=NULL, sort = NULL,
 
 \arguments{
 
-  \item{Y}{Study variable (for example equalized disposable income). One dimensional object convertible to one-column \code{data.table} or variable name as character, column number or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset}).}
+  \item{Y}{Study variable (for example equalized disposable income). One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.}
 
-  \item{id}{Optional variable for unit ID codes. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset}).}
+  \item{id}{Optional variable for unit ID codes. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.}
 
-  \item{weight}{Optional weight variable. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset}).}
+  \item{weight}{Optional weight variable. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.}
 
-  \item{sort}{Optional variable to be used as tie-breaker for sorting. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset}).}
+  \item{sort}{Optional variable to be used as tie-breaker for sorting. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.}
 
-  \item{Dom}{Optional variables used to define population domains. If supplied, linearization of the income quintile share ratio is done for each domain. An object convertible to \code{data.table} or variable names as character vector, column numbers or logical vector (length of the vector has to be the same as the column count of \code{dataset}).}
+  \item{Dom}{Optional variables used to define population domains. If supplied, linearization of the income quintile share ratio is done for each domain. An object convertible to \code{data.table} or variable names as character vector, column numbers.}
 
-  \item{period}{Optional variable for survey period. If supplied, linearization of the income quintile share ratio is done for each time period. Object convertible to \code{data.table} or variable names as character, column numbers or logical vector (length of the vector has to be the same as the column count of \code{dataset}).}
+  \item{period}{Optional variable for survey period. If supplied, linearization of the income quintile share ratio is done for each time period. Object convertible to \code{data.table} or variable names as character, column numbers.}
 
   \item{dataset}{Optional survey data object convertible to \code{data.table}.}
 

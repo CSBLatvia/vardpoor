@@ -18,8 +18,8 @@ linqsr <- function(Y, id=NULL, weight=NULL, sort = NULL,
    if (min(dim(as.data.frame(var_name))==1)!=1) {
        stop("'var_name' must have defined name of the linearized variable")}
 
-   if(!is.numeric(alpha) || length(alpha) != 1 || alpha[1] < 0 || alpha[1] > 100) {
-          stop("'alpha' must be a numeric value in [0,100]")  }
+   if(length(alpha) != 1 | any(!is.numeric(alpha) | alpha < 0 | alpha > 100)) {
+          stop("'alpha' must be a numeric value in [0, 100]")  }
 
    if(!is.null(dataset)) {
        dataset <- data.table(dataset) 

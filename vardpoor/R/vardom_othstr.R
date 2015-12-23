@@ -15,8 +15,10 @@
  
   ### Checking
 
-  if(!is.numeric(confidence) || length(confidence) != 1 || confidence[1] < 0 || confidence[1] > 1) {
-          stop("'confidence' must be a numeric value in [0,1]")  }
+  if (length(outp_lin) != 1 | !any(is.logical(outp_lin))) stop("'outp_lin' must be the logical value")
+  if (length(outp_res) != 1 | !any(is.logical(outp_res))) stop("'outp_res' must be the logical value")
+  if(length(confidence) != 1 | any(!is.numeric(confidence) | confidence < 0 | confidence > 1)) {
+         stop("'confidence' must be a numeric value in [0, 1]")  }
 
   if(!is.null(dataset)) {
       dataset <- data.table(dataset)
@@ -130,7 +132,7 @@
              if (names(H) != names(N_h)[1]) stop("Strata titles for 'H' and 'N_h' is not equal")
              if (any(is.na(merge(unique(H), N_h, by=names(H), all.x = TRUE)))) stop("'N_h' is not defined for all stratas")
              if (any(duplicated(N_h[, head(names(N_h),-1), with=FALSE]))) stop("Strata values for 'N_h' must be unique")
-       } else { pH <- data.frame(period, H)
+       } else { pH <- data.table(period, H)
                 if (any(names(pH) != names(N_h)[c(1:(1+np))])) stop("Strata titles for 'period' with 'H' and 'N_h' is not equal")
                 nperH <- names(period)
                 if (pH[, class(get(nperH))]!=N_h[, class(get(nperH))]) 

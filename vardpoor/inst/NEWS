@@ -1,3 +1,7 @@
+Changes in vardpoor version 0.4.8
+
+    + Corrected mistake in function vardom, vardomh, varpood when used period variable
+
 Changes in vardpoor version 0.4.6
 
     + Corrected mistakes in function linrmir

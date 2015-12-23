@@ -32,24 +32,27 @@ vardcrospoor <- function(Y,
 
   # check 'p'
   p <- percentage
-  if(!is.numeric(p) || length(p) != 1 || p[1] < 0 || p[1] > 100) {
-         stop("'percentage' must be a numeric value in [0,100]")
+  if(length(p) != 1 | any(!is.numeric(p) | p < 0 | p > 100)) {
+         stop("'percentage' must be a numeric value in [0, 100]")
      } else p <- percentage[1]
 
   # check 'order_quant'
 
   oq <- order_quant
-  if(!is.numeric(oq) || length(oq) != 1 || oq[1] < 0 || oq[1] > 100) {
-         stop("'order_quant' must be a numeric value in [0,100]")
-     } else order_quant <- order_quant[1]
+   if(length(oq) != 1 | any(!is.numeric(oq) | oq < 0 | oq > 100)) {
+          stop("'order_quant' must be a numeric value in [0, 100]")
+      } else order_quant <- order_quant[1]
 
-  if(!is.numeric(alpha) || length(alpha) != 1 || alpha[1] < 0 || alpha[1] > 100) {
-         stop("'alpha' must be a numeric value in [0,100]")  }
+  if(length(alpha) != 1 | any(!is.numeric(alpha) | alpha < 0 | alpha > 100)) {
+         stop("'alpha' must be a numeric value in [0, 100]")  }
+ 
+  if (length(netchanges) != 1 | !any(is.logical(netchanges))) stop("'netchanges' must be the logical value")
+  if (length(withperiod) != 1 | !any(is.logical(withperiod))) stop("'withperiod' must be the logical value")
+  if (length(use.estVar) != 1 | !any(is.logical(use.estVar))) stop("'use.estVar' must be the logical value")
+ 
+  if(length(confidence) != 1 | any(!is.numeric(confidence) | confidence < 0 | confidence > 1)) {
+         stop("'confidence' must be a numeric value in [0, 1]")  }
 
-  if (!is.logical(withperiod)) stop("'withperiod' must be logical")
-  if (!is.logical(netchanges)) stop("'netchanges' must be logical")
-  if(!is.numeric(confidence) || length(confidence) != 1 || confidence[1] < 0 || confidence[1] > 1) {
-          stop("'confidence' must be a numeric value in [0,1]")  }
 
   if(!is.null(dataset)) {
       dataset <- data.table(dataset)
@@ -248,148 +251,143 @@ vardcrospoor <- function(Y,
     namesDom <- names(Dom)
     if (is.null(namesDom)) stop("'Dom' must be colnames")
     Dom[, (namesDom):=lapply(.SD, as.character)]
-    Dom1 <- Dom[, lapply(namesDom, function(x) make.names(paste0(x, ".", get(x))))]
-    Dom1 <- Dom1[, Dom := Reduce(function(x, y) paste(x, y, sep="__"), .SD)]
-    Dom <- data.table(Dom, Dom1[, "Dom", with=FALSE])
   }
     
- # Calculation
- Dom1 <- n_h <- stratasf <- name1 <- nhcor <- n_h <- var <- NULL
- num <- count_respondents <- value <- estim <- pop_size <- NULL
- N <- se <- rse <- cv <- namesY <- H_sk <- NULL
+  # Calculation
+  Dom1 <- n_h <- stratasf <- name1 <- nhcor <- n_h <- var <- NULL
+  num <- count_respondents <- value <- estim <- pop_size <- NULL
+  period_country <- N <- se <- rse <- cv <- namesY <- H_sk <- NULL 
 
- estim <- c()
- countryper <- copy(country)
- if (!is.null(periods)) countryper <- data.table(periods, countryper)
- idper <- data.table(id, countryper)
+  estim <- c()
+  countryper <- copy(country)
+  if (!is.null(periods)) countryper <- data.table(periods, countryper)
+  idper <- data.table(id, countryper)
 
- size <- copy(countryper)
- if (!is.null(namesDom)) size <- data.table(size, Dom)
- names_size <- names(size)
- size <- data.table(size, sk=1, w_final)
- size <- size[, lapply(.SD, sum), keyby=names_size,
-                 .SDcols=c("sk", "w_final")]
- setnames(size, c("sk", "w_final"), c("count_respondents", "pop_size"))
+  size <- copy(countryper)
+  if (!is.null(namesDom)) size <- data.table(size, Dom)
+  names_size <- names(size)
+  size <- data.table(size, sk=1, w_final)
+  size <- size[, .(count_respondents=.N,
+                  pop_size=sum(w_final)), keyby=names_size]
  
- Y1 <- data.table(idper)
- Y1$period_country <- do.call("paste", c(as.list(Y1[,names(countryper),with=FALSE]), sep="_"))
- Y1 <- data.table(Y1, H, PSU, w_final, check.names=TRUE)
- namesY1 <- names(Y1)
- setkeyv(Y1, names(idper))
- Dom <- Dom[, "Dom", with=FALSE]
+  Y1 <- data.table(idper)
+  Y1$period_country <- do.call("paste", c(as.list(Y1[,names(countryper),with=FALSE]), sep="_"))
+  Y1 <- data.table(Y1, H, PSU, w_final, check.names=TRUE)
+  namesY1 <- names(Y1)
+  setkeyv(Y1, names(idper)) 
 
- if ("linarpt" %in% type) {
-       varpt <- linarpt(Y=Y, id=id, weight=w_final,
-                        sort=sort, Dom=Dom,
-                        period=countryper,
-                        dataset=NULL, percentage=percentage,
-                        order_quant=order_quant, var_name="lin_arpt")
-       Y1 <- merge(Y1, varpt$lin, all.x=TRUE)
-       esti <- data.table("ARPT", varpt$value, NA)
-       setnames(esti, names(esti)[c(1, -1:0+ncol(esti))],
-                                  c("type", "value", "value_eu"))
-       estim <- rbind(estim, esti)
-       varpt <- esti <- NULL
-     }
- if ("linarpr" %in% type) {
-       varpr <- linarpr(Y=Y, id=id, weight=w_final,
-                        Y_thres=Y_thres,
-                        wght_thres=wght_thres, sort=sort, 
-                        Dom=Dom, period=countryper,
-                        dataset=NULL, 
-                        percentage=percentage,
-                        order_quant=order_quant,
-                        var_name="lin_arpr")
-       Y1 <- merge(Y1, varpr$lin, all.x=TRUE)
-       esti <- data.table("ARPR", varpr$value, NA)  
-       setnames(esti, names(esti)[c(1, -1:0+ncol(esti))],
-                                  c("type", "value", "value_eu"))
-       estim <- rbind(estim, esti)
-       varpr <- esti <- NULL
-     }
-  if (("lingpg" %in% type)&&(!is.null(gender))) {
-        vgpg <- lingpg(Y=Y, gender=gender, id=id,
-                       weight=w_final, sort=sort,
-                       Dom=Dom, period=countryper,
-                       dataset=NULL, var_name="lin_gpg")
-        Y1 <- merge(Y1, vgpg$lin, all.x=TRUE)
-        esti <- data.table("GPG", vgpg$value, NA)  
-        setnames(esti, names(esti)[c(1, -1:0+ncol(esti))],
-                                  c("type", "value", "value_eu"))
-        estim <- rbind(estim, esti)
-        vgpg <- esti <- NULL
-     }
-  if ("linpoormed" %in% type) {
-        vporm <- linpoormed(Y=Y, id=id, weight=w_final,
-                            sort=sort, Dom=Dom, period=countryper, 
-                            dataset=NULL, percentage=percentage,
-                            order_quant=order_quant, var_name="lin_poormed")
-        Y1 <- merge(Y1, vporm$lin, all.x=TRUE)
-        esti <- data.table("POORMED", vporm$value, NA)  
-        setnames(esti, names(esti)[c(1, -1:0+ncol(esti))],
-                                  c("type", "value", "value_eu"))
-        estim <- rbind(estim, esti)
-        vporm <- esti <- NULL
-     }
-  if ("linrmpg" %in% type) {
-        vrmpg <- linrmpg(Y=Y, id=id, weight=w_final,
-                         sort=sort, Dom=Dom, period=countryper,
+  if ("linarpt" %in% type) {
+        varpt <- linarpt(Y=Y, id=id, weight=w_final,
+                         sort=sort, Dom=Dom,
+                         period=countryper,
                          dataset=NULL, percentage=percentage,
-                         order_quant=order_quant, var_name="lin_rmpg")
-        Y1 <- merge(Y1, vrmpg$lin, all.x=TRUE)
-        esti <- data.table("RMPG", vrmpg$value, NA)  
+                         order_quant=order_quant, var_name="lin_arpt")
+        Y1 <- merge(Y1, varpt$lin, all.x=TRUE)
+        esti <- data.table("ARPT", varpt$value, NA)
         setnames(esti, names(esti)[c(1, -1:0+ncol(esti))],
-                                  c("type", "value", "value_eu")) 
+                                   c("type", "value", "value_eu"))
         estim <- rbind(estim, esti)
-        vrmpg <- esti <- NULL
+        varpt <- esti <- NULL
+     }
+  if ("linarpr" %in% type) {
+        varpr <- linarpr(Y=Y, id=id, weight=w_final,
+                         Y_thres=Y_thres,
+                         wght_thres=wght_thres, sort=sort, 
+                         Dom=Dom, period=countryper,
+                         dataset=NULL, 
+                         percentage=percentage,
+                         order_quant=order_quant,
+                         var_name="lin_arpr")
+        Y1 <- merge(Y1, varpr$lin, all.x=TRUE)
+        esti <- data.table("ARPR", varpr$value, NA)  
+        setnames(esti, names(esti)[c(1, -1:0+ncol(esti))],
+                                   c("type", "value", "value_eu"))
+        estim <- rbind(estim, esti)
+        varpr <- esti <- NULL
       }
-  if ("linqsr" %in% type) {
-       vqsr <- linqsr(Y=Y, id=id, weight=w_final, 
-                      sort=sort, Dom=Dom, period=countryper,
-                      dataset=NULL, alpha=alpha, var_name="lin_qsr") 
-       Y1 <- merge(Y1, vqsr$lin, all.x=TRUE)
-       esti <- data.table("QSR", vqsr$value)  
-       setnames(esti, names(esti)[c(1, -1:0+ncol(esti))],
-                                  c("type", "value", "value_eu"))
-       estim <- rbind(estim, esti)
-       vqsr <- esti <- NULL
-    }
-  if ("lingini" %in% type) {
-       vgini <- lingini(Y=Y, id=id, weight=w_final,
-                        sort=sort, Dom=Dom, period=countryper,
-                        dataset=NULL, var_name="lin_gini")
-       Y1 <- merge(Y1, vgini$lin, all.x=TRUE)
-       esti <- data.table("GINI", vgini$value)  
-       setnames(esti, names(esti)[c(1, -1:0+ncol(esti))],
-                                  c("type", "value", "value_eu"))
-       estim <- rbind(estim, esti)
-       vgini <- vginia <- esti <- NULL
-     }
-  if ("lingini2" %in% type) {
-       vgini2 <- lingini2(Y=Y, id=id, weight=w_final,
+   if (("lingpg" %in% type)&&(!is.null(gender))) {
+         vgpg <- lingpg(Y=Y, gender=gender, id=id,
+                        weight=w_final, sort=sort,
+                        Dom=Dom, period=countryper,
+                        dataset=NULL, var_name="lin_gpg")
+         Y1 <- merge(Y1, vgpg$lin, all.x=TRUE)
+         esti <- data.table("GPG", vgpg$value, NA)  
+         setnames(esti, names(esti)[c(1, -1:0+ncol(esti))],
+                                    c("type", "value", "value_eu"))
+         estim <- rbind(estim, esti)
+         vgpg <- esti <- NULL
+      }
+   if ("linpoormed" %in% type) {
+         vporm <- linpoormed(Y=Y, id=id, weight=w_final,
+                             sort=sort, Dom=Dom, period=countryper, 
+                             dataset=NULL, percentage=percentage,
+                             order_quant=order_quant, var_name="lin_poormed")
+         Y1 <- merge(Y1, vporm$lin, all.x=TRUE)
+         esti <- data.table("POORMED", vporm$value, NA)  
+         setnames(esti, names(esti)[c(1, -1:0+ncol(esti))],
+                                    c("type", "value", "value_eu"))
+         estim <- rbind(estim, esti)
+         vporm <- esti <- NULL
+      }
+   if ("linrmpg" %in% type) {
+         vrmpg <- linrmpg(Y=Y, id=id, weight=w_final,
                           sort=sort, Dom=Dom, period=countryper,
-                          dataset=NULL, var_name="lin_gini2")
-       Y1 <- merge(Y1, vgini2$lin, all.x=TRUE)
-       esti <- data.table("GINI2", vgini2$value)  
-       setnames(esti, names(esti)[c(1, -1:0+ncol(esti))],
-                                  c("type", "value", "value_eu"))
-       estim <- rbind(estim, esti)
-       vgini2 <- esti <- NULL
-     }
-  if (("linrmir" %in% type)&&(!is.null(age))) {
-       vrmir <- linrmir(Y=Y, id=id, age=age, weight=w_final, 
-                      sort=sort, Dom=Dom, period=countryper,
-                      dataset=NULL, order_quant=order_quant,
-                      var_name="lin_rmir") 
-       Y1 <- merge(Y1, vrmir$lin, all.x=TRUE)
-
-       esti <- data.table("RMIR", vrmir$value, NA)  
-       setnames(esti, names(esti)[c(1, -1:0+ncol(esti))],
-                                  c("type", "value", "value_eu"))
-       estim <- rbind(estim, esti)
-       vrmir <-  esti <- NULL
-    }
-  if (("linarr" %in% type)&&(!is.null(age))
+                          dataset=NULL, percentage=percentage,
+                          order_quant=order_quant, var_name="lin_rmpg")
+         Y1 <- merge(Y1, vrmpg$lin, all.x=TRUE)
+         esti <- data.table("RMPG", vrmpg$value, NA)  
+         setnames(esti, names(esti)[c(1, -1:0+ncol(esti))],
+                                    c("type", "value", "value_eu")) 
+         estim <- rbind(estim, esti)
+         vrmpg <- esti <- NULL
+      }
+   if ("linqsr" %in% type) {
+        vqsr <- linqsr(Y=Y, id=id, weight=w_final, 
+                       sort=sort, Dom=Dom, period=countryper,
+                       dataset=NULL, alpha=alpha, var_name="lin_qsr") 
+        Y1 <- merge(Y1, vqsr$lin, all.x=TRUE)
+        esti <- data.table("QSR", vqsr$value)  
+        setnames(esti, names(esti)[c(1, -1:0+ncol(esti))],
+                                   c("type", "value", "value_eu"))
+        estim <- rbind(estim, esti)
+        vqsr <- esti <- NULL
+      }
+   if ("lingini" %in% type) {
+        vgini <- lingini(Y=Y, id=id, weight=w_final,
+                         sort=sort, Dom=Dom, period=countryper,
+                         dataset=NULL, var_name="lin_gini")
+        Y1 <- merge(Y1, vgini$lin, all.x=TRUE)
+        esti <- data.table("GINI", vgini$value)  
+        setnames(esti, names(esti)[c(1, -1:0+ncol(esti))],
+                                   c("type", "value", "value_eu"))
+        estim <- rbind(estim, esti)
+        vgini <- vginia <- esti <- NULL
+      }
+   if ("lingini2" %in% type) {
+        vgini2 <- lingini2(Y=Y, id=id, weight=w_final,
+                           sort=sort, Dom=Dom, period=countryper,
+                           dataset=NULL, var_name="lin_gini2")
+        Y1 <- merge(Y1, vgini2$lin, all.x=TRUE)
+        esti <- data.table("GINI2", vgini2$value)  
+        setnames(esti, names(esti)[c(1, -1:0+ncol(esti))],
+                                   c("type", "value", "value_eu"))
+        estim <- rbind(estim, esti)
+        vgini2 <- esti <- NULL
+      }
+   if (("linrmir" %in% type)&&(!is.null(age))) {
+        vrmir <- linrmir(Y=Y, id=id, age=age, weight=w_final, 
+                       sort=sort, Dom=Dom, period=countryper,
+                       dataset=NULL, order_quant=order_quant,
+                       var_name="lin_rmir") 
+        Y1 <- merge(Y1, vrmir$lin, all.x=TRUE)
+ 
+        esti <- data.table("RMIR", vrmir$value, NA)  
+        setnames(esti, names(esti)[c(1, -1:0+ncol(esti))],
+                                   c("type", "value", "value_eu"))
+        estim <- rbind(estim, esti)
+        vrmir <-  esti <- NULL
+      } 
+   if (("linarr" %in% type)&&(!is.null(age))
                 &&(!is.null(pl085))&&(!is.null(month_at_work))) {
 
        varr <- linarr(Y=Y, Y_den=Y_den, id=id, age=age, pl085=pl085, 
@@ -404,109 +402,112 @@ vardcrospoor <- function(Y,
                                   c("type", "value", "value_eu"))
        estim <- rbind(estim, esti)
        varr <- esti <- NULL
-    }
+     }
 
 
-  setnames(estim, "value", "estim")
-  estim$period_country <- do.call("paste", c(as.list(estim[,names(countryper),with=FALSE]), sep="_"))
-  nams <- names(countryper)
-  if (!is.null(namesDom)) nams <- c(nams, "Dom")
-  setkeyv(estim, nams)
-  setkeyv(size, nams)
-  estim <- merge(estim, size, all=TRUE)
+   setnames(estim, "value", "estim")
+   estim$period_country <- do.call("paste", c(as.list(estim[,names(countryper),with=FALSE]), sep="_"))
+   nams <- names(countryper)
+   if (!is.null(namesDom)) nams <- c(nams, namesDom)
+   estim <- merge(estim, size, all=TRUE, by=nams)
 
-  namesY2 <- names(Y1)[!(names(Y1) %in% namesY1)]
-  namesY2w <- paste0(namesY2, "w")
-  Y1[, (namesY2w):=lapply(namesY2, function(x) get(x)*w_final)]
+   namesY2 <- names(Y1)[!(names(Y1) %in% namesY1)]
+   namesY2w <- paste0(namesY2, "w")
+   Y1[, (namesY2w):=lapply(namesY2, function(x) get(x)*w_final)]
 
-  DT1 <- copy(Y1)
-  names_id <- names(id)
-  names_H <- names(H)
-  names_PSU <- names(PSU)
+   DT1 <- copy(Y1)
+   names_id <- names(id)
+   names_H <- names(H)
+   names_PSU <- names(PSU)
 
-  namesperc <- c("period_country", names(countryper))
-  namesDT1k <- c(namesperc, names_H, names_PSU)
+   namesperc <- c("period_country", names(countryper))
+   namesDT1k <- c(namesperc, names_H, names_PSU)
 
-  size <- id <- Dom <- country <-  NULL
-  H <- PSU <- nh <- nh_cor <- NULL
- 
-  #--------------------------------------------------------*
-  # AGGREGATION AT PSU LEVEL ("ULTIMATE CLUSTER" APPROACH) |
-  #--------------------------------------------------------*
+   size <- id <- Dom <- country <-  NULL
+   H <- PSU <- nh <- nh_cor <- NULL
+  
+   #--------------------------------------------------------*
+   # AGGREGATION AT PSU LEVEL ("ULTIMATE CLUSTER" APPROACH) |
+   #--------------------------------------------------------*
 
-  DT3 <- DT1[, lapply(.SD, sum, na.rm=TRUE), keyby=namesDT1k, .SDcols = namesY2w]
-  setnames(DT3, namesY2w, namesY2)
-  DT1 <- copy(DT3)
-  DT1[, ("period_country"):=NULL]
-  if (!netchanges) DT1 <- NULL
+   DTY2 <- Y1[, lapply(.SD, sum, na.rm=TRUE), keyby=namesDT1k, .SDcols = namesY2w]
+   setnames(DTY2, namesY2w, namesY2)
+   DT1 <- copy(DTY2)
+   DT1[, period_country:=NULL]
+   if (!netchanges) DT1 <- NULL
 
-  # NUMBER OF PSUs PER STRATUM
-  setkeyv(DT3, c(namesperc, names_H))
-  DT3[, nh:=.N, by=c(namesperc, names_H)]
+   # NUMBER OF PSUs PER STRATUM
+   setkeyv(DTY2, c(namesperc, names_H))
+   DTY2[, nh:=.N, by=c(namesperc, names_H)]
 
- #--------------------------------------------------------------------------*
- # MULTIVARIATE REGRESSION APPROACH USING STRATUM DUMMIES AS REGRESSORS AND |
- # STANDARD ERROR ESTIMATION 						      |
- #--------------------------------------------------------------------------*
+   #--------------------------------------------------------------------------*
+   # MULTIVARIATE REGRESSION APPROACH USING STRATUM DUMMIES AS REGRESSORS AND |
+   # STANDARD ERROR ESTIMATION 						      |
+   #--------------------------------------------------------------------------*
 
- DT3H <- DT3[[names_H]]
- DT3H <- factor(DT3H)
- if (length(levels(DT3H))==1) { DT3[, stratasf:=1]
-                                DT3H <- "stratasf"
-                      }  else { DT3H <- data.table(model.matrix( ~ DT3H-1))
-                                DT3 <- cbind(DT3, DT3H)
-                                DT3H <- names(DT3H) }
+   DTY2H <- DTY2[[names_H]]
+   DTY2H <- factor(DTY2H)
+   if (length(levels(DTY2H))==1) { DTY2[, stratasf:=1]
+                                   DTY2H <- "stratasf"
+                          } else { DTY2H <- data.table(model.matrix( ~ DTY2H-1))
+                                   DTY2 <- cbind(DTY2, DTY2H)
+                                   DTY2H <- names(DTY2H) }
+   namesY2m <-  make.names(namesY2)
+   setnames(DTY2, namesY2, namesY2m)
 
- fits <-lapply(1:length(namesY2), function(i) {
-         fitss <- lapply(split(DT3, DT3$period_country), function(DT3c) {
-                  	y <- namesY2[i]
-                        funkc <- as.formula(paste("cbind(", trim(toString(y)), ")~",
-                                       paste(c(-1, DT3H), collapse= "+")))
-                   	res1 <- lm(funkc, data=DT3c)
-
-           	            if (use.estVar==TRUE) {res1 <- data.table(crossprod(res1$res))
-                                } else res1 <- data.table(res1$res)
-                        setnames(res1, names(res1)[1], "num") 
-                        res1[, namesY:=y]
-
-                        if (use.estVar==TRUE) {
-                              setnames(res1, "num", "var") 
-                              res1 <- data.table(res1[1], DT3c[1])
-                          } else {
-                              res1 <- data.table(res1, DT3c)
-                              res1[, nhcor:=ifelse(nh==1,1, nh/(nh-1))]
-                              res1[, var:=nhcor * num * num]
-                            }
-                        fits <- res1[, lapply(.SD, sum), 
-                                       keyby=c(namesperc, "namesY"),
-                                       .SDcols="var"]
-                        return(fits)
-                    })
+   fits <-lapply(1:length(namesY2), function(i) {
+             fitss <- lapply(split(DTY2, DTY2$period_country), function(DTY2c) {
+                          y <- namesY2m[i]
+                          funkc <- as.formula(paste("cbind(", trim(toString(y)), ")~",
+                                         paste(c(-1, DTY2H), collapse= "+")))
+                   	  res1 <- lm(funkc, data=DTY2c)
+                            
+           	          if (use.estVar==TRUE) {res1 <- data.table(crossprod(res1$res))
+                                 } else res1 <- data.table(res1$res)
+                          setnames(res1, names(res1)[1], "num") 
+                          res1[, namesY:=y]
+                           
+                          if (use.estVar==TRUE) {
+                                setnames(res1, "num", "var") 
+                                res1 <- data.table(res1[1], DTY2c[1])
+                            } else {
+                                res1 <- data.table(res1, DTY2c)
+                                res1[, nhcor:=ifelse(nh==1,1, nh/(nh-1))]
+                                res1[, var:=nhcor * num * num]
+                              }
+                          fits <- res1[, lapply(.SD, sum), 
+                                         keyby=c(namesperc, "namesY"),
+                                         .SDcols="var"]
+                          return(fits)
+                     })
             return(rbindlist(fitss))
-        })
-  res <- rbindlist(fits)    
-  estim[, namesY:=paste0("lin_", tolower(type))]
-  if (!is.null(namesDom)) estim[, namesY:=paste0(namesY, "__Dom.", Dom)]
+      })
+   res <- rbindlist(fits)
+   
+   estim[, namesY:=paste0("lin_", tolower(type))]
+   if (!is.null(namesDom)) {
+        Dom1 <- estim[, lapply(namesDom, function(x) make.names(paste0(x, ".", get(x))))]
+        Dom1 <- Dom1[, Dom := Reduce(function(x, y) paste(x, y, sep="__"), .SD)]    
+        estim <- data.table(estim, Dom1=Dom1[,Dom])
+        estim[, namesY:=paste0(namesY, "__", Dom1)]
+     }
   
-  setkeyv(res, c(namesperc, "namesY"))
-  setkeyv(estim, c(namesperc, "namesY"))
-  res[, res:=1]
-  estim[, estim:=1]
-  res <- merge(estim, res, all=TRUE)
+   res <- merge(estim, res, all=TRUE, 
+                 by=names(res)[!(names(res) %in% "var")])
 
-  estim <- DT3H <- NULL
-  res[, Dom:="1"]
-  res[, (c("namesY", "Dom", "period_country")):=NULL]
+   Dom1 <- estim <- DT3H <- NULL
+   if (is.null(res$Dom1)) res[, Dom1:="1"]
+   res[, (c("namesY", "Dom1", "period_country")):=NULL]
 
-  res[, se:=sqrt(var)]
-  res[, rse:=se/estim]
-  res[, cv:=rse*100]
-  
-  res <- res[, c(names(countryper), namesDom, "type", "count_respondents",
-                 "pop_size", "estim", "se", "var", "rse", "cv"), with=FALSE]
+   res[, se:=sqrt(var)]
+   res[, rse:=se/estim]
+   res[, cv:=rse*100]
+   
+   res <- res[, c(names(countryper), namesDom, "type", "count_respondents",
+                  "pop_size", "estim", "se", "var", "rse", "cv"), with=FALSE]
 
-  list(data_net_changes=DT1, results=res)
-}   
+   list(data_net_changes=DT1, results=res)
+ }   
 
 
 

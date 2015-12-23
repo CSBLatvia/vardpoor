@@ -1,5 +1,4 @@
 \name{variance_othstr}
-
 \alias{variance_othstr}
 
 \title{Variance estimation for sample surveys by the new stratification}

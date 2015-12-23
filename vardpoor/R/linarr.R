@@ -19,11 +19,9 @@ linarr <- function(Y, Y_den, id=NULL, age, pl085, month_at_work, weight=NULL,  s
        stop("'var_name' must have defined one name of the linearized variable")}
 
    # check 'order_quant'
-
    oq <- order_quant
-   if(!is.numeric(oq) || length(oq) != 1 || oq[1] < 0 || oq[1] > 100) {
-          stop("'order_quant' must be a numeric value in [0,100]")
-      } else order_quant <- order_quant[1]
+   if(length(oq) != 1 | any(!is.numeric(oq) | oq < 0 | oq > 100)) {
+          stop("'order_quant' must be a numeric value in [0, 100]")  }
 
    if(!is.null(dataset)) {
        dataset <- data.table(dataset)

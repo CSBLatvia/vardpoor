@@ -32,8 +32,10 @@ varpoord <- function(Y, w_final,
 
   ### Checking
 
-  if (!is.logical(fh_zero)) stop("'fh_zero' must be the logical value")
-  if (!is.logical(PSU_level)) stop("'PSU_level' must be the logical value")
+  if (length(fh_zero) != 1 | !any(is.logical(fh_zero))) stop("'fh_zero' must be the logical value")
+  if (length(PSU_level) != 1 | !any(is.logical(PSU_level))) stop("'PSU_level' must be the logical value")
+  if (length(outp_lin) != 1 | !any(is.logical(outp_lin))) stop("'outp_lin' must be the logical value")
+  if (length(outp_res) != 1 | !any(is.logical(outp_res))) stop("'outp_res' must be the logical value")
 
   all_choices <- c("linarpr","linarpt","lingpg","linpoormed",
                    "linrmpg","lingini","lingini2", "linqsr", "linrmir", "linarr")
@@ -44,22 +46,19 @@ varpoord <- function(Y, w_final,
 
   # check 'p'
   p <- percentage
-  if(!is.numeric(p) || length(p) != 1 || p[1] < 0 || p[1] > 100) {
-         stop("'percentage' must be a numeric value in [0,100]")
-     } else p <- percentage[1]
+   if(length(p) != 1 |  any(!is.numeric(p) | p < 0 | p > 100)) {
+          stop("'percentage' must be a numeric value in [0, 100]")  }
 
   # check 'order_quant'
-
   oq <- order_quant
-  if(!is.numeric(oq) || length(oq) != 1 || oq[1] < 0 || oq[1] > 100) {
-         stop("'order_quant' must be a numeric value in [0,100]")
-     } else order_quant <- order_quant[1]
+   if(length(oq) != 1 | any(!is.numeric(oq) | oq < 0 | oq > 100)) {
+          stop("'order_quant' must be a numeric value in [0, 100]")  }
 
-  if(!is.numeric(alpha) || length(alpha) != 1 || alpha[1] < 0 || alpha[1] > 100) {
+  if(length(alpha) != 1 | any(!is.numeric(alpha) | alpha < 0 | alpha > 100)) {
          stop("'alpha' must be a numeric value in [0,100]")  }
 
-  if(!is.numeric(confidence) || length(confidence) != 1 || confidence[1] < 0 || confidence[1] > 1) {
-         stop("'confidence' must be a numeric value in [0,1]")  }
+  if(length(confidence) != 1 | any(!is.numeric(confidence) | confidence < 0 | confidence > 1)) {
+         stop("'confidence' must be a numeric value in [0, 1]")  }
 
   if(!is.null(dataset)) {
       dataset <- data.table(dataset)
@@ -171,7 +170,9 @@ varpoord <- function(Y, w_final,
   if (nrow(id) != n) stop("'id' must be the same length as 'Y'")
   if (is.null(names(id))||(names(id)=="id")) setnames(id,names(id),"ID")
   if (is.null(period)){ if (any(duplicated(id))) stop("'id' are duplicate values") 
-                       } else if (any(duplicated(data.table(period, id)))) stop("'id' by period are duplicate values")
+                       } else {dd <- data.table(period, id)
+                                  if (any(duplicated(dd, by=names(dd)))) stop("'id' by period are duplicate values")
+                                  dd <- NULL}
 
   # age
   if (!is.null(age)) {
@@ -276,7 +277,7 @@ varpoord <- function(Y, w_final,
              if (names(H) != names(N_h)[1]) stop("Strata titles for 'H' and 'N_h' is not equal")
              if (any(is.na(merge(unique(H), N_h, by=names(H), all.x = T)))) stop("'N_h' is not defined for all stratas")
              if (any(duplicated(N_h[, head(names(N_h),-1), with=F]))) stop("Strata values for 'N_h' must be unique")
-       } else { pH <- data.frame(period, H)
+       } else { pH <- data.table(period, H)
                 if (any(names(pH) != names(N_h)[c(1:(1+np))])) stop("Strata titles for 'period' with 'H' and 'N_h' is not equal")
                 nperH <- names(period)
                 if (pH[, class(get(nperH))]!=N_h[, class(get(nperH))]) 

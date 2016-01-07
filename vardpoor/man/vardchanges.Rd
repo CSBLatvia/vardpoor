@@ -12,6 +12,7 @@ vardchanges(Y, H, PSU, w_final, id,
             country, periods, dataset = NULL,
             period1, period2,
             linratio = FALSE,
+            percentratio = 1,
             use.estVar = FALSE,
             confidence=0.95,
             change_type = "absolute")}
@@ -44,6 +45,8 @@ vardchanges(Y, H, PSU, w_final, id,
 
 \item{linratio}{Logical value. If value is \code{TRUE}, then the linearized variables for the ratio estimator is used for variance estimation. If value is \code{FALSE}, then the gradients is used for variance estimation.}
 
+\item{percentratio}{Positive integer value. All linearized variables are multiplied with \code{percentratio} value, by default - 1.}
+
 \item{use.estVar}{Logical value. If value is \code{TRUE}, then \code{R} function \code{estVar} is used for the  estimation of covariance matrix of the residuals. If value is \code{FALSE}, then \code{R} function \code{estVar} is not used for the  estimation of covariance matrix of the residuals.}
 
 \item{confidence}{optional; either a positive value for confidence interval. This variable by default is 0.95 .}
@@ -60,8 +63,9 @@ vardchanges(Y, H, PSU, w_final, id,
     
        \code{period} -  survey periods, \cr
        \code{country} - survey countries, \cr
-        \code{namesY} - variable with names of variables of interest, \cr
-        \code{namesZ} - optional variable with names of denominator for ratio estimation, \cr
+       \code{Dom} - optional variable of the population domains, \cr
+       \code{namesY} - variable with names of variables of interest, \cr
+       \code{namesZ} - optional variable with names of denominator for ratio estimation, \cr
        \code{sample_size} - the sample size (in numbers of individuals), \cr
        \code{pop_size} - the population size (in numbers of individuals), \cr
        \code{total} - the estimated totals, \cr
@@ -79,11 +83,38 @@ vardchanges(Y, H, PSU, w_final, id,
        \code{relative_margin_of_error} - the estimated relative margin of error, \cr
        \code{CI_lower} - the estimated confidence interval lower bound, \cr
        \code{CI_upper} - the estimated confidence interval upper bound.}
+ 
+ \item{crossectional_var_grad}{ A \code{data.table} containing
+        \code{period} - period1 and period2 together, \cr
+        \code{country} - survey countries, \cr
+        \code{Dom} - optional variable of the population domains, \cr
+        \code{namesY} - variable with names of variables of interest, \cr
+        \code{namesZ} - optional variable with names of denominator for ratio estimation, \cr
+        \code{grad} - the estimated gradient, \cr
+        \code{var} - the estimated a design-based variance.}
+
+  \item{rho}{ A \code{data.table} containing
+        \code{period} - period1 and period2 together, \cr
+        \code{country} - survey countries, \cr
+        \code{Dom} - optional variable of the population domains, \cr
+        \code{namesY} - variable with names of variables of interest, \cr
+        \code{namesZ} - optional variable with names of denominator for ratio estimation, \cr
+        \code{nams} - the variable names in correlation matrix, \cr
+        \code{rho} - the estimated correlation matrix.}
+
+  \item{var_tau}{ A \code{data.table} containing
+        \code{period} - period1 and period2 together, \cr
+        \code{country} - survey countries, \cr
+        \code{Dom} - optional variable of the population domains, \cr
+        \code{namesY} - variable with names of variables of interest, \cr
+        \code{namesZ} - optional variable with names of denominator for ratio estimation, \cr
+        \code{nams} - the variable names in correlation matrix, \cr
+        \code{var_tau} - the estimated covariance matrix.}
 
   \item{changes_results}{ A \code{data.table} containing
         \code{country} - survey countries, \cr
         \code{period} - period1 and period2 together, \cr
-        \code{Dom} - period1 and period2 together, \cr
+        \code{Dom} - optional variable of the population domains, \cr
         \code{namesY} - variable with names of variables of interest, \cr
         \code{namesZ} - optional variable with names of denominator for ratio estimation, \cr
         \code{estim_1} - the estimated value for period1, \cr
@@ -123,9 +154,7 @@ data[age<0, age:=0]
 PSU <- data[,.N, keyby="db030"]
 PSU[, N:=NULL]
 PSU[, PSU:=trunc(runif(nrow(PSU), 0, 5))]
-setkeyv(PSU, "db030")
-setkeyv(data, "db030")
-data <- merge(data, PSU, all=TRUE)
+data <- merge(data, PSU, all=TRUE, by="db030")
 PSU <- eusilc <- NULL
 data[, strata:=c("XXXX")]
 data[, strata:=as.character(strata)]
@@ -142,7 +171,8 @@ result <- vardchanges(Y="pov",
                    country="country", periods="year",
                    dataset=data,
                    period1=2010, period2=2011,
-                   use.estVar=FALSE)
+                   use.estVar=FALSE,
+                   change_type="absolute")
  
 \dontrun{
 data("eusilc")
@@ -187,7 +217,8 @@ result <- vardchanges(Y=c("pov", "dep", "lwi", "arope"),
                    country="country", periods="year",
                    dataset=data,
                    period1=2010, period2=2011,
-                   use.estVar=FALSE)
+                   use.estVar=FALSE,
+                   change_type="absolute")
 }
 }
 

@@ -100,6 +100,7 @@ For example, to compute poverty threshold equal to some percentage of median inc
   \item{results}{ A \code{data.table} containing
        \code{period} -  survey periods, \cr
        \code{country} - survey countries, \cr
+       \code{Dom} - optional variable of the population domains, \cr
        \code{type} - type variable, \cr
        \code{count_respondents} - the count of respondents, \cr
        \code{pop_size} - the population size (in numbers of individuals), \cr
@@ -138,9 +139,7 @@ PSU <- data[,.N, keyby="db030"]
 PSU[, N:=NULL]
 PSU[, PSU:=trunc(runif(nrow(PSU), 0, 100))]
 PSU$inc <- runif(nrow(PSU), 20, 100000)
-setkeyv(PSU, "db030")
-setkeyv(data, "db030")
-data <- merge(data, PSU, all=TRUE)
+data <- merge(data, PSU, all=TRUE, by="db030")
 PSU <- eusilc <- NULL
 data[, strata:=c("XXXX")]
 data[, strata:=as.character(strata)]

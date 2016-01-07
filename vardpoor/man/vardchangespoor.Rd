@@ -26,7 +26,8 @@ vardchangespoor(Y,
                      period1, period2,
                      use.estVar = FALSE,
                      confidence=0.95,
-                     type="linrmpg")}
+                     type="linrmpg",
+                     change_type="absolute")}
 
 \arguments{
 
@@ -86,7 +87,11 @@ For example, to compute poverty threshold equal to some percentage of median inc
 
 \item{type}{a character vector (of length one unless several.ok is TRUE), example "linarpr","linarpt", "lingpg", "linpoormed", "linrmpg",
    "lingini", "lingini2", "linqsr", "linarr", "linrmir", "all_choices".}
+
+\item{change_type}{character value net changes type - absolute or relative.}
+
 }
+
 
 \value{
   
@@ -96,6 +101,7 @@ For example, to compute poverty threshold equal to some percentage of median inc
     
        \code{period} -  survey periods, \cr
        \code{country} - survey countries, \cr
+       \code{Dom} - optional variable of the population domains, \cr
        \code{type} - type variable, \cr
        \code{count_respondents} - the count of respondents, \cr
        \code{pop_size} - the population size (in numbers of individuals), \cr
@@ -109,14 +115,15 @@ For example, to compute poverty threshold equal to some percentage of median inc
  
        \code{period} -  survey periods, \cr
        \code{country} - survey countries, \cr
+       \code{Dom} - optional variable of the population domains, \cr
        \code{type} - type variable, \cr
-        \code{estim_1} - the estimated value for period1, \cr
-        \code{estim_2} - the estimated value for period2, \cr
-        \code{estim} - the estimated value, \cr
-        \code{se} - the estimated standard error, \cr
-        \code{var} - the estimated variance, \cr
-        \code{rse} - the estimated relative standard error (coefficient of variation), \cr
-        \code{cv} - the estimated relative standard error (coefficient of variation) in percentage.}
+       \code{estim_1} - the estimated value for period1, \cr
+       \code{estim_2} - the estimated value for period2, \cr
+       \code{estim} - the estimated value, \cr
+       \code{se} - the estimated standard error, \cr
+       \code{var} - the estimated variance, \cr
+       \code{rse} - the estimated relative standard error (coefficient of variation), \cr
+       \code{cv} - the estimated relative standard error (coefficient of variation) in percentage.}
 }
 
 \references{

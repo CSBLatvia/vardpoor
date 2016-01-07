@@ -10,7 +10,7 @@
 vardcros(Y, H, PSU, w_final, id, Dom = NULL,
          Z = NULL, country, periods,
          dataset = NULL, linratio=FALSE,
-         use.estVar = FALSE,
+         percentratio = 1, use.estVar = FALSE,
          household_level_max=TRUE,
          withperiod=TRUE, netchanges=TRUE,
          confidence = .95)}
@@ -39,6 +39,8 @@ vardcros(Y, H, PSU, w_final, id, Dom = NULL,
 
 \item{linratio}{Logical value. If value is \code{TRUE}, then the linearized variables for the ratio estimator is used for variance estimation. If value is \code{FALSE}, then the gradients is used for variance estimation.}
 
+\item{percentratio}{Positive integer value. All linearized variables are multiplied with \code{percentratio} value, by default - 1.}
+
 \item{use.estVar}{Logical value. If value is \code{TRUE}, then \code{R} function \code{estVar} is used for the  estimation of covariance matrix of the residuals. If value is \code{FALSE}, then \code{R} function \code{estVar} is not used for the estimation of covariance matrix of the residuals.}
  
 \item{household_level_max}{Logical value. If value is \code{TRUE}, then the size of sample for variance under simple random sampling is taken as maximum value of size in household . If value is \code{FALSE}, then the size of sample for variance under simple random sampling is taken as count of persons in household.}
@@ -56,11 +58,13 @@ vardcros(Y, H, PSU, w_final, id, Dom = NULL,
 
   \item{data_net_changes}{ A \code{data.table} containing aggregation of weighted data by period (if available), country, strata, PSU.}
 
-  \item{var_grad}{ A \code{data.table} containing estimation for Y, the variance, gradient for numerator and denominator by country and period (if available).}
+  \item{var_grad}{ A \code{data.table} containing estimation for Y, the variance, gradient for numerator and
+                      denominator by period, country and population domains (if available).}
 
   \item{results}{ A \code{data.table} containing
      \code{period} -  survey periods, \cr
      \code{country} - survey countries, \cr
+     \code{Dom} - optional variable of the population domains, \cr
      \code{namesY} - names of variables of interest, \cr
      \code{namesZ} - optional variable for names of denominator for ratio estimation, \cr
      \code{sample_size} - the sample size (in numbers of individuals), \cr
@@ -223,9 +227,7 @@ thres <- data.table(rb020=as.character(rep("AT",4)),
                     thres= c(11406, 11931, 12371, 12791),
                     rb010=2008:2011)
 setnames(thres, names(thres), tolower(names(thres)))
-setkeyv(data, c("rb010", "rb020"))
-setkeyv(thres, c("rb010", "rb020"))
-data <- merge(data, thres, all.x=TRUE)
+data <- merge(data, thres, all.x=TRUE, by=c("rb010", "rb020"))
 data[is.na(u), u:=0]
 data <- data[u==1]
 setkeyv(data, c("rb020", "rb030"))

@@ -6,7 +6,7 @@
 
 \description{Computes linearized variable for the ratio estimator.}
 
-\usage{lin.ratio(Y, Z, weight, Dom=NULL)}
+\usage{lin.ratio(Y, Z, weight, Dom = NULL, percentratio = 1)}
 
 \arguments{
 
@@ -14,9 +14,12 @@
 
 \item{Z}{Matrix of denominator variables. Any object convertible to \code{data.table} with numeric values, \code{NA} values are not allowed.}
 
-\item{weight}{Weight variable. One dimensional object convertible to one-column \code{data.frame}}
+\item{weight}{Weight variable. One dimensional object convertible to one-column \code{data.table}.}
 
-\item{Dom}{Optional variables used to define population domains. If supplied, the linearized variables are computed for each domain. An object convertible to \code{data.table}}
+\item{Dom}{Optional variables used to define population domains. If supplied, the linearized variables are computed for each domain. An object convertible to \code{data.table}.}
+
+\item{percentratio}{Positive integer value. All linearized variables are multiplied with percentratio value, by default - 1.}
+
 }
 
 \value{The function returns the \code{data.table} of the linearized variables for the ratio estimator.}
@@ -36,6 +39,9 @@ lin.ratio(Y, Z, weights)
   \code{\link{domain}},
   \code{\link{vardom}},
   \code{\link{vardomh}},
+  \code{\link{vardcros}},
+  \code{\link{vardchanges}},
+  \code{\link{vardchangannual}}
 }
 
 \keyword{survey}

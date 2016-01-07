@@ -1,5 +1,8 @@
 
-lin.ratio <- function(Y, Z, weight, Dom=NULL) {
+lin.ratio <- function(Y, Z, weight, Dom = NULL, percentratio = 1) {
+  
+  if (length(percentratio) != 1 | !any(is.integer(percentratio) | percentratio > 0)) stop("'percentratio' must be the positive integer value")
+ 
   # Y
   Y <- data.table(Y, check.names = TRUE) 
   if (!all(sapply(Y, is.numeric))) stop("'Y' must be numerical")
@@ -27,6 +30,7 @@ lin.ratio <- function(Y, Z, weight, Dom=NULL) {
   Z_est <- colSums(Zd * weight)
   R_est <- Y_est / Z_est
 
-  U <- t((1 / Z_est) * t(Yd - t(R_est * t(Zd))))
+  percentratio <- as.integer(percentratio)
+  U <- (1 +  99 * percentratio) * t((1 / Z_est) * t(Yd - t(R_est * t(Zd))))
   return(data.table(U))
 }

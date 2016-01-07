@@ -12,8 +12,10 @@
                N_h = NULL, fh_zero = FALSE, PSU_level = TRUE,
                Z = NULL, dataset = NULL,
                X = NULL, periodX = NULL, X_ID_household = NULL,
-               ind_gr = NULL, g = NULL, q = NULL, datasetX = NULL,
-              confidence = .95,  outp_lin = FALSE, outp_res = FALSE)}
+               ind_gr = NULL, g = NULL, q = NULL,
+               datasetX = NULL, confidence = .95,  
+               percentratio = 1, outp_lin = FALSE,
+               outp_res = FALSE)}
 
 \arguments{
 
@@ -58,6 +60,8 @@
 \item{datasetX}{Optional survey data object in household level convertible to \code{data.table}.}
 
 \item{confidence}{Optional positive value for confidence interval. This variable by default is 0.95.}
+
+\item{percentratio}{Positive integer value. All linearized variables are multiplied with \code{percentratio} value, by default - 1.}
 
 \item{outp_lin}{Logical value. If \code{TRUE} linearized values of the ratio estimator will be printed out.}
 

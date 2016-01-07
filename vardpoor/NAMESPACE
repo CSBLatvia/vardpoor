@@ -24,6 +24,7 @@ export("vardcros")
 export("vardchanges")
 export("vardcrospoor")
 export("vardchangespoor")
+export("vardchangannual")
 
 
 import("stringr")

@@ -4,6 +4,7 @@ vardcros <- function(Y, H, PSU, w_final, id,
                      country, periods,
                      dataset = NULL,
                      linratio = FALSE,
+                     percentratio=1,
                      use.estVar = FALSE,
                      household_level_max = TRUE,
                      withperiod = TRUE,
@@ -12,6 +13,7 @@ vardcros <- function(Y, H, PSU, w_final, id,
  
   ### Checking
   if (length(linratio) != 1 | !any(is.logical(linratio))) stop("'linratio' must be the logical value")
+  if (length(percentratio) != 1 | !any(is.integer(percentratio) | percentratio > 0)) stop("'percentratio' must be the positive integer value")
   if (length(netchanges) != 1 | !any(is.logical(netchanges))) stop("'netchanges' must be the logical value")
   if (length(withperiod) != 1 | !any(is.logical(withperiod))) stop("'withperiod' must be the logical value")
   if (length(use.estVar) != 1 | !any(is.logical(use.estVar))) stop("'use.estVar' must be the logical value")
@@ -180,7 +182,8 @@ vardcros <- function(Y, H, PSU, w_final, id,
        if (linratio){ 
                    sorts <- unlist(split(Y1[, .I], period_country))
                    lin1 <- lapply(split(Y1[, .I], period_country), 
-                                  function(i) lin.ratio(Y1[i], Z1[i], w_final[i], Dom=NULL))
+                                  function(i) lin.ratio(Y1[i], Z1[i], w_final[i],
+                                                        Dom=NULL, percentratio=percentratio))
                    Y2 <- rbindlist(lin1)[sorts]
                    if (any(is.na(Y2))) print("Results are calculated, but there are cases where Z = 0")
                   } else Y2 <- data.table(copy(Y1), copy(Z1))
@@ -266,22 +269,24 @@ vardcros <- function(Y, H, PSU, w_final, id,
   DT2 <- DT1[, lapply(.SD, sum, na.rm=TRUE),
             keyby=namesperc, .SDcols = namesY2]
   varsYZ <- list(namesY1)
-  if (!is.null(namesZ1)) varsYZ <- list(namesY1, namesZ1)
-  DT2 <- melt(DT2, id=namesperc,
-                       measure=varsYZ,
-                       variable.factor=FALSE)
-  setnames(DT2, "value1", "valueY1")
-  if (!is.null(namesZ1))  setnames(DT2, "value2", "valueZ1")
+  if (!is.null(namesZ1) & !linratio) varsYZ <- list(namesY1, namesZ1)
 
+  DT2 <- melt(DT2, id=namesperc,
+                       measure=namesY1,
+                       variable.factor=FALSE)
+  if (!is.null(namesZ1) & !linratio){ setnames(DT2, c("value1", "value2"),
+                                                    c("valueY1", "valueZ1"))
+                     } else setnames(DT2, "value", "valueY1")
   
-  if (!is.null(namesZ1)) { vars <- data.table(variable=1:length(namesY1))
+  if (!is.null(namesZ1) & !linratio) {
+                   vars <- data.table(variable=1:length(namesY1))
                        } else vars <- data.table(variable=namesY1)
 
   if (!is.null(namesDom)) { vars <- data.table(vars, nameY1=namesY1,
                                                t(data.frame(strsplit(namesY1, "__"))))
                             setnames(vars, names(vars)[3:length(vars)], 
                                         c("namesY", paste0(namesDom, "_new")))
-                     } else {vars <- data.table(vars, nameY1=namesY1, namesY1=namesY1) }
+                     } else {vars <- data.table(vars, nameY1=namesY1, namesY=namesY1) }
                            
   if (!is.null(namesZ1)) { vars <- data.table(vars, nameZ1=namesZ1)
                            if (!is.null(namesDom)) {
@@ -291,7 +296,7 @@ vardcros <- function(Y, H, PSU, w_final, id,
                                                     c("namesZ", paste0(namesDom, "_new"))) 
                                       varsZ[, (paste0(namesDom, "_new")):=NULL] 
                                       vars <- merge(vars, varsZ, by="nameZ1") 
-                               } else vars[, namesZ1:=nameZ1]  }
+                               } else vars[, namesZ:=nameZ1]  }
 
   vars <- vars[, lapply(vars, as.character)]
 
@@ -391,13 +396,14 @@ vardcros <- function(Y, H, PSU, w_final, id,
                                                   (grad2*grad2*den1)+
                                                 2*(grad1*grad2*num_den1)] 
   res[, estim:=totalY]
-  if (!is.null(res$totalZ)) res[, estim:=totalY/totalZ] 
+  if (!is.null(res$totalZ)) res[, estim:=totalY/totalZ * percentratio] 
   
   main <- c(namesperc, namesDom, "namesY", "nameY1")
   if (!is.null(namesDom)) main <- c(main, paste0(namesDom, "_new"))
   if (!is.null(res$namesZ)) main <- c(main, "namesZ", "nameZ1") 
   main2 <- c(main, "estim", "totalY", "valueY1")
-  if (!is.null(res$namesZ)) main <- c(main, "totalZ") 
+  if (!is.null(res$namesZ)) main <- c(main, "totalZ")
+  if (!is.null(res$namesZ)) main2 <- c(main2, "totalZ")
   if (!is.null(namesZ1) & !linratio) main2 <- c(main2, "valueZ1")
   main2 <- c(main2, "num1")
   if (!is.null(namesZ1) & !linratio) main2 <- c(main2, "den1", "grad1", "grad2")
@@ -406,7 +412,7 @@ vardcros <- function(Y, H, PSU, w_final, id,
                                      paste0(namesDom, "_new"), "nameZ1"))], with=FALSE]                  
                   } else res1 <- NULL
 
-  main <- c(main, "sample_size", "pop_size", "estim", "var")
+  main <- c(main, "totalY", "sample_size", "pop_size", "estim", "var")
   res <- res[, main, with=FALSE]
 
   #-------------------------------------------------------------------------*
@@ -430,11 +436,12 @@ vardcros <- function(Y, H, PSU, w_final, id,
 
   # Linearised variables
 
-  if (!is.null(namesZ1)) {
+  if (!is.null(namesZ1) & !linratio) {
                    lin1 <- lapply(split(DTs[, .I], DTs$period_country), function(i) 
                                 lin.ratio(Y=DTs[i, namesY1, with=FALSE],
                                           Z=DTs[i, namesZ1, with=FALSE],
-                                          weight=DTs[["w_final"]][i], Dom=NULL))
+                                          weight=DTs[["w_final"]][i], Dom=NULL,
+                                          percentratio=percentratio))
                    Y2a <- rbindlist(lin1)
                    setnames(Y2a, names(Y2a), paste0("lin___", namesY1))
                    DTs <- data.table(DTs, Y2a)

@@ -27,12 +27,14 @@ vardom <- function(Y, H, PSU, w_final,
                    q = NULL,
                    dataset = NULL, 
                    confidence = .95,
+                   percentratio=1,
                    outp_lin = FALSE,
                    outp_res = FALSE) {
  
   ### Checking
   if (length(fh_zero) != 1 | !any(is.logical(fh_zero))) stop("'fh_zero' must be the logical value")
   if (length(PSU_level) != 1 | !any(is.logical(PSU_level))) stop("'PSU_level' must be the logical value")
+  if (length(percentratio) != 1 | !any(is.integer(percentratio) | percentratio > 0)) stop("'percentratio' must be the positive integer value")
   if (length(outp_lin) != 1 | !any(is.logical(outp_lin))) stop("'outp_lin' must be the logical value")
   if (length(outp_res) != 1 | !any(is.logical(outp_res))) stop("'outp_res' must be the logical value")
   if(length(confidence) != 1 | any(!is.numeric(confidence) | confidence < 0 | confidence > 1)) {
@@ -282,9 +284,11 @@ vardom <- function(Y, H, PSU, w_final,
         } else {
             periodap <- do.call("paste", c(as.list(period), sep="_"))
             sorts <- unlist(split(Y1[, .I], periodap))
-            lin1 <- lapply(split(Y1[, .I], periodap), function(i) lin.ratio(Y1[i], Z1[i], w_final[i], Dom=NULL))
+            lin1 <- lapply(split(Y1[, .I], periodap), function(i) lin.ratio(Y1[i], Z1[i], w_final[i],
+                                                                            Dom=NULL, percentratio=percentratio))
             Y2 <- rbindlist(lin1)[sorts]          
-            lin2 <- lapply(split(Y1[, .I], periodap), function(i) lin.ratio(Y1[i], Z1[i], w_design[i], Dom=NULL))
+            lin2 <- lapply(split(Y1[, .I], periodap), function(i) lin.ratio(Y1[i], Z1[i], w_design[i],
+                                                                            Dom=NULL, percentratio=percentratio))
             Y2a <- rbindlist(lin2)[sorts]
         }
     if (any(is.na(Y2))) print("Results are calculated, but there are cases where Z = 0")
@@ -308,10 +312,6 @@ vardom <- function(Y, H, PSU, w_final,
       if (outp_res) res_outp <- data.table(idper, PSU, Y3)
   } else Y3 <- Y2
   Y2 <- NULL
-
-  
-  dataset = NULL
-  Y = Y3
   
   var_est <- variance_est(Y = Y3, H = H, PSU = PSU,
                           w_final = w_final, N_h = N_h,
@@ -406,7 +406,7 @@ vardom <- function(Y, H, PSU, w_final,
   Z_nov <- hY <- hZ <- YZnames <- dati <- NULL                          
 
   all_result[, estim:=Y_nov]
-  if (!is.null(all_result$Z_nov)) all_result[, estim:=Y_nov/Z_nov] 
+  if (!is.null(all_result$Z_nov)) all_result[, estim:=Y_nov/Z_nov * percentratio] 
 
   if (nrow(all_result[var_est < 0])>0) stop("Estimation of variance are negative!")
  

@@ -1,6 +1,6 @@
 vardchangespoor <- function(Y,
                      age=NULL,
-                      pl085=NULL,
+                     pl085=NULL,
                      month_at_work=NULL,
                      Y_den=NULL,
                      Y_thres = NULL,
@@ -12,20 +12,22 @@ vardchangespoor <- function(Y,
                      gender = NULL,
                      percentage=60,
                      order_quant=50,
-                     alpha = 20,
+                     alpha = 20, 
                      dataset = NULL,
                      period1, period2,
                      use.estVar = FALSE,
                      confidence=0.95,
-                     type="linrmpg") {
+                     type="linrmpg",
+                     change_type="absolute") {
  
   ### Checking
+  if (!change_type %in% c("absolute", "relative")) stop("'change_type' must be 'absolute' or 'relative'")
 
   if (length(use.estVar) != 1 | !any(is.logical(use.estVar))) stop("'use.estVar' must be the logical value")
  
   all_choices <- c("linarpr","linarpt","lingpg",
-                            "linpoormed",  "linrmpg","lingini",
-                            "lingini2","linqsr", "linrmir", "linarr")
+                   "linpoormed",  "linrmpg","lingini",
+                   "lingini2","linqsr", "linrmir", "linarr")
   choices <- c("all_choices", all_choices)
   type <- tolower(type)
 
@@ -39,7 +41,7 @@ vardchangespoor <- function(Y,
 
   # check 'order_quant'
   oq <- order_quant
-   if(length(oq) != 1 | any(!is.numeric(oq) | oq < 0 | oq > 100)) {
+  if(length(oq) != 1 | any(!is.numeric(oq) | oq < 0 | oq > 100)) {
           stop("'order_quant' must be a numeric value in [0, 100]")  }
 
   if(length(alpha) != 1 | any(!is.numeric(alpha) | alpha < 0 | alpha > 100)) {
@@ -295,9 +297,10 @@ vardchangespoor <- function(Y,
 
   N <- namesY <- w_final <- ind <- dataset <- rot <- NULL
   rot_1 <- rot_2 <- stratasf <- name1 <- num1 <- num1num1 <-NULL
-  num2num2 <- num1num2 <- num2 <- num1_1 <- C13 <- NULL
+  num2num2 <- num1num2 <- num2 <- num1_1 <- V12 <- NULL
   grad1 <- grad2 <- num1_2 <- estim <- estim_1 <- NULL
   var_1 <- var_2 <- typs <- estim_2 <- se  <- NULL
+  rho <- q_1 <- q_2 <- sum1 <- sum2 <- NULL
 
   var_grad <- copy(crossectional_results)
   var_grad <- var_grad[, c(per, sar, "estim", "var"), with=FALSE]
@@ -312,11 +315,12 @@ vardchangespoor <- function(Y,
   var_grad <- merge(var_grad1, var_grad2, all=TRUE, by=c("ind", sar))
   var_grad1 <- var_grad2 <- NULL
 
-  data <- data$data_net_changes
+  data <- data.table(data$data_net_changes, check.names=TRUE)
   data[, rot:=1]
   data1 <- merge(period1, data, all.x=TRUE, by=names(periods))
   data2 <- merge(period2, data, all.x=TRUE, by=names(periods))
   
+
   sard <- names(data)[!(names(data) %in% sarp)]
 
   setnames(data1, sard, paste0(sard, "_1"))
@@ -343,6 +347,7 @@ vardchangespoor <- function(Y,
          fitd <- lapply(split(data, data[["ind"]]), function(data1) {
 
                  fits <- lapply(split(data1, data1[[country]]), function(DT3c) {
+
                            y1 <- paste0(sard[i], "_1")
                            y2 <- paste0(sard[i], "_2")
 
@@ -354,12 +359,13 @@ vardchangespoor <- function(Y,
                                                                                 "rot_1*rot_2*", toString(x))))),
                                                                                 collapse= "+"))) 
                            res <- lm(funkc, data=DT3c)
-                       
+                           ssumas <- DT3c[, .(sum1=sum(get(y1)), sum2=sum(get(y2)))]
+
                            if (use.estVar) { res <- data.table(estVar(res))
                                         } else res <- data.table(lm(funkc, data=DT3c)$res)
                            setnames(res, names(res), c("num1", "num2"))
                            res[, namesY:=sard[i]]
-
+                          
                            if (use.estVar) { 
                                res[, num1num1:=res[["num1"]][1]]
                                res[, num2num2:=res[["num2"]][2]]
@@ -374,6 +380,7 @@ vardchangespoor <- function(Y,
                            keynames <- c(country, "ind", paste0(per, "_1"), paste0(per, "_2"), "namesY")
                            fits <- res[, lapply(.SD, sum), keyby=keynames,
                                       .SDcols=c("num1num1", "num2num2", "num1num2")]
+                           fits <- data.table(fits, ssumas)
                           return(fits)
                       })
                rbindlist(fits)
@@ -399,11 +406,23 @@ vardchangespoor <- function(Y,
    res <- fit <- var_gr <- NULL
    data[, (c("namesY", "typs", paste0(Dom, "_ss"))):=NULL]
 
-   data[, C13:=sqrt(var_1*var_2/(num1num1*num2num2))*num1num2]
+   data[, rho:=num1num2/sqrt(num1num1*num2num2)]
+   data[, V12:=num1num2*sqrt(var_1*var_2/(num1num1*num2num2))]
 
-   data[, estim:=estim_1 - estim_2]
-   data[, var:=var_1 + var_2 - 2 * C13]
-   data[, se:=sqrt(var)]
+   if (change_type=="relative") {
+        data[, q_1:=-sum2/sum1^2]
+        data[, q_2:=1/sum1]
+      } else {
+         data[, q_1:=-1]
+         data[, q_2:=1]
+       }
+
+   if (change_type=="relative") {
+        data[, estim:=estim_2/estim_1]
+     } else data[, estim:=estim_2 - estim_1]
+   data[, var:=q_1*q_1*var_1 + 2*q_1*q_2*V12 + q_2*q_2*var_2]
+
+   data[var>=0, se:=sqrt(var)]
   
    CI_lower <- CI_upper <- NULL
    tsad <- qnorm(0.5*(1+confidence))
@@ -413,9 +432,11 @@ vardchangespoor <- function(Y,
    changes_results <- data[, c(country, paste0(per, "_1"),
                                paste0(per, "_2"), Dom, 
                                "type", "estim_1", "estim_2",
-                               "estim", "var", "se",
+                               "rho", "estim", "var", "se",
                                "CI_lower", "CI_upper"), with=FALSE]
   data <- NULL
 
   list(crossectional_results=crossectional_results, changes_results=changes_results)
 }   
+
+

@@ -168,6 +168,7 @@ vardchangannual <- function(Y, H, PSU, w_final, id,
    namesDom <- names(Dom)
 
    apst <- lapply(1:nrow(year1), function(i) {
+
                  atsyear <- rbindlist(list(year1[i], year2[i]))
                  atsyear <- merge(atsyear, sarak, all.x=TRUE, by=yearm, sort = FALSE)
                  yr12 <- data.table(year1=year1[i][[1]], year2=year2[i][[1]])
@@ -237,7 +238,7 @@ vardchangannual <- function(Y, H, PSU, w_final, id,
                                rho1[, cros_se:=sqrt(num1)]
                                X <- rho1[["cros_se"]]
                         
-                               annual_var <- data.table(rho0, yr12, (t(X)%*% A_matrix) %*% X/subn^2)
+                               annual_var <- data.table(rho0, yr12, 1/(subn)^2 * (t(X)%*% A_matrix) %*% X)
                                setnames(annual_var, "V1", "var")
                          
                                A_matrix <- data.table(rho0, yr12, cols=paste0("V", 1:nrow(A_matrix)), A_matrix)

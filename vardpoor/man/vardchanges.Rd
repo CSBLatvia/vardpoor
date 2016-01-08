@@ -85,7 +85,7 @@ vardchanges(Y, H, PSU, w_final, id,
        \code{CI_upper} - the estimated confidence interval upper bound.}
  
  \item{crossectional_var_grad}{ A \code{data.table} containing
-        \code{period} - period1 and period2 together, \cr
+        \code{periods} -  survey periods, \cr
         \code{country} - survey countries, \cr
         \code{Dom} - optional variable of the population domains, \cr
         \code{namesY} - variable with names of variables of interest, \cr
@@ -94,7 +94,8 @@ vardchanges(Y, H, PSU, w_final, id,
         \code{var} - the estimated a design-based variance.}
 
   \item{rho}{ A \code{data.table} containing
-        \code{period} - period1 and period2 together, \cr
+        \code{periods_1} -  survey periods of \code{periods1}, \cr
+        \code{periods_2} -  survey periods of \code{periods2}, \cr
         \code{country} - survey countries, \cr
         \code{Dom} - optional variable of the population domains, \cr
         \code{namesY} - variable with names of variables of interest, \cr
@@ -103,7 +104,8 @@ vardchanges(Y, H, PSU, w_final, id,
         \code{rho} - the estimated correlation matrix.}
 
   \item{var_tau}{ A \code{data.table} containing
-        \code{period} - period1 and period2 together, \cr
+        \code{periods_1} -  survey periods of \code{periods1}, \cr
+        \code{periods_2} -  survey periods of \code{periods2}, \cr
         \code{country} - survey countries, \cr
         \code{Dom} - optional variable of the population domains, \cr
         \code{namesY} - variable with names of variables of interest, \cr
@@ -112,8 +114,9 @@ vardchanges(Y, H, PSU, w_final, id,
         \code{var_tau} - the estimated covariance matrix.}
 
   \item{changes_results}{ A \code{data.table} containing
+        \code{periods_1} -  survey periods of \code{periods1}, \cr
+        \code{periods_2} -  survey periods of \code{periods2}, \cr
         \code{country} - survey countries, \cr
-        \code{period} - period1 and period2 together, \cr
         \code{Dom} - optional variable of the population domains, \cr
         \code{namesY} - variable with names of variables of interest, \cr
         \code{namesZ} - optional variable with names of denominator for ratio estimation, \cr

@@ -391,13 +391,15 @@ vardcros <- function(Y, H, PSU, w_final, id,
 
   DTagg <- total <- NULL
 	
-  res[, var:=num1]
-  if (!is.null(res$totalZ) & !linratio) res[, var:=(grad1*grad1*num1)+
-                                                  (grad2*grad2*den1)+
-                                                2*(grad1*grad2*num_den1)] 
   res[, estim:=totalY]
-  if (!is.null(res$totalZ)) res[, estim:=totalY/totalZ * percentratio] 
-  
+  res[, var:=num1]
+  if (!is.null(res$totalZ) & !linratio) { 
+                    res[, estim:=totalY/totalZ * percentratio]
+                    res[, var:= (grad1 * grad1 * num1) +
+                                (grad2 * grad2 * den1) +
+                              2*(grad1 * grad2 * num_den1)] 
+                    res[, var:=var * (percentratio)^2] }
+    
   main <- c(namesperc, namesDom, "namesY", "nameY1")
   if (!is.null(namesDom)) main <- c(main, paste0(namesDom, "_new"))
   if (!is.null(res$namesZ)) main <- c(main, "namesZ", "nameZ1") 

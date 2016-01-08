@@ -418,9 +418,10 @@ vardchangespoor <- function(Y,
        }
 
    if (change_type=="relative") {
-        data[, estim:=estim_2/estim_1]
+        data[, estim:=estim_2/estim_1*100]
      } else data[, estim:=estim_2 - estim_1]
    data[, var:=q_1*q_1*var_1 + 2*q_1*q_2*V12 + q_2*q_2*var_2]
+   if (change_type=="relative") data[, var:=var*10000]
 
    data[var>=0, se:=sqrt(var)]
   

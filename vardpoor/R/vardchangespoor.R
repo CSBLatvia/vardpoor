@@ -116,14 +116,14 @@ vardchangespoor <- function(Y,
   if (!is.numeric(Y)) stop("'Y' must be numerical")
   if (any(is.na(Y))) stop("'Y' has unknown values")
   
- if (!is.null(Y_den)) {
+  if (!is.null(Y_den)) {
           Y_den <- data.frame(Y_den)
           if (ncol(Y_den) != 1) stop("'Y_den' must be vector or 1 column data.frame, matrix, data.table")
           if (nrow(Y_den) != n) stop("'Y_den' must be the same length as 'Y'")
           Y_den <- Y_den[,1]
           if(!is.numeric(Y_den)) stop("'Y_den' must be numerical")
           if (any(is.na(Y_den))) stop("'Y_den' has unknown values")
-  }
+   }
 
   # age
   if (!is.null(age)) {
@@ -234,7 +234,6 @@ vardchangespoor <- function(Y,
   periods <- data.table(periods, check.names=TRUE)
   if (any(is.na(periods))) stop("'periods' has unknown values")
   if (nrow(periods) != n) stop("'periods' length must be equal with 'Y' row count")
-  if (nrow(periods[,.N, by=names(periods)])!=2) stop("'periods' must be two periods")
 
   # Dom
   if (!is.null(Dom)) {
@@ -300,32 +299,45 @@ vardchangespoor <- function(Y,
   num2num2 <- num1num2 <- num2 <- num1_1 <- V12 <- NULL
   grad1 <- grad2 <- num1_2 <- estim <- estim_1 <- NULL
   var_1 <- var_2 <- typs <- estim_2 <- se  <- NULL
-  rho <- q_1 <- q_2 <- sum1 <- sum2 <- NULL
+  significant <- rho <- q_1 <- q_2 <- sum1 <- sum2 <- NULL
 
   var_grad <- copy(crossectional_results)
   var_grad <- var_grad[, c(per, sar, "estim", "var"), with=FALSE]
   period1[, ind:=.I]
-  period2[, ind:=.I]  
+  period2[, ind:=.I]
+  per1 <- paste0(per, "_1")
+  per2 <- paste0(per, "_2")  
+  setnames(period1, per, per1)
+  setnames(period2, per, per2)
+  period1 <- merge(period1, period2, by="ind")
+  period2 <- NULL
 
-  var_grad1 <- merge(period1, var_grad, all.x=TRUE, by=names(periods))
-  var_grad2 <- merge(period2, var_grad, all.x=TRUE, by=names(periods))
-  setnames(var_grad1, c(per, "estim", "var"), paste0(c(per, "estim", "var"), "_1"))
-  setnames(var_grad2, c(per, "estim", "var"), paste0(c(per, "estim", "var"), "_2"))
+  var_grad1 <- merge(period1, var_grad, all.x=TRUE,
+                              by.x=per1, by.y=per,
+                              allow.cartesian=TRUE)
+  var_grad2 <- merge(period1, var_grad, all.x=TRUE,
+                              by.x=per2, by.y=per,
+                              allow.cartesian=TRUE)
+  setnames(var_grad1, c("estim", "var"), paste0(c("estim", "var"), "_1"))
+  setnames(var_grad2, c("estim", "var"), paste0(c("estim", "var"), "_2"))
 
-  var_grad <- merge(var_grad1, var_grad2, all=TRUE, by=c("ind", sar))
+  var_grad <- merge(var_grad1, var_grad2, all=TRUE, by=c("ind", per1, per2, sar))
   var_grad1 <- var_grad2 <- NULL
 
   data <- data.table(data$data_net_changes, check.names=TRUE)
   data[, rot:=1]
-  data1 <- merge(period1, data, all.x=TRUE, by=names(periods))
-  data2 <- merge(period2, data, all.x=TRUE, by=names(periods))
-  
+  data1 <- merge(period1, data, all.x=TRUE,
+                    by.x=per1, by.y=per,
+                    allow.cartesian=TRUE)
+  data2 <- merge(period1, data, all.x=TRUE, 
+                    by.x=per2, by.y=per,
+                    allow.cartesian=TRUE)  
 
-  sard <- names(data)[!(names(data) %in% sarp)]
+  sard <- names(data)[!(names(data) %in% c(sarp, per))]
 
   setnames(data1, sard, paste0(sard, "_1"))
   setnames(data2, sard, paste0(sard, "_2"))
-  data <- merge(data1, data2, all=TRUE, by=c("ind", sarp))
+  data <- merge(data1, data2, all=TRUE, by=c("ind", per1, per2, sarp))
   data1 <- data2 <- NULL
 
   recode.NA <- function(DT, cols = seq_len(ncol(DT))) {
@@ -343,7 +355,7 @@ vardchangespoor <- function(Y,
                                   dataH <- names(dataH) }
 
 
-  fit <- lapply(2:(length(sard)-1), function(i) {
+  fit <- lapply(1:(length(sard)-1), function(i) {
          fitd <- lapply(split(data, data[["ind"]]), function(data1) {
 
                  fits <- lapply(split(data1, data1[[country]]), function(DT3c) {
@@ -391,6 +403,7 @@ vardchangespoor <- function(Y,
 
    set(res, j=country, value=as.character(res[[country]]))
 
+   var_grad[, namesY:=paste0("lin_", tolower(type))]
    if (!is.null(Dom)) {
           var_grad[, paste0(Dom, "_ss"):=lapply(Dom, function(x) make.names(paste0(x,".", get(x))))]
           var_grad[, paste0(Dom[1], "_ss"):=paste0(get(paste0(Dom[1], "_ss")))]
@@ -398,13 +411,14 @@ vardchangespoor <- function(Y,
           var_grad[, namesY:=Reduce(function(x, y)
                                       paste(x, y, sep = "__"), .SD),
                                      .SDcols=c("typs", paste0(Dom, "_ss"))]
+         var_grad[, (c("typs", paste0(Dom, "_ss"))):=NULL]
        }
 
-   setkeyv(res, c(country, "ind", paste0(per, "_1"), paste0(per, "_2"), "namesY"))
-   setkeyv(var_grad, c(country, "ind", paste0(per, "_1"), paste0(per, "_2"), "namesY"))
+   setkeyv(res, c(country, "ind", per1, per2, "namesY"))
+   setkeyv(var_grad, c(country, "ind", per1, per2, "namesY"))
    data <- merge(res, var_grad, all=TRUE)
    res <- fit <- var_gr <- NULL
-   data[, (c("namesY", "typs", paste0(Dom, "_ss"))):=NULL]
+   data[, namesY:=NULL]
 
    data[, rho:=num1num2/sqrt(num1num1*num2num2)]
    data[, V12:=num1num2*sqrt(var_1*var_2/(num1num1*num2num2))]
@@ -418,10 +432,9 @@ vardchangespoor <- function(Y,
        }
 
    if (change_type=="relative") {
-        data[, estim:=estim_2/estim_1*100]
+        data[, estim:=estim_2/estim_1]
      } else data[, estim:=estim_2 - estim_1]
    data[, var:=q_1*q_1*var_1 + 2*q_1*q_2*V12 + q_2*q_2*var_2]
-   if (change_type=="relative") data[, var:=var*10000]
 
    data[var>=0, se:=sqrt(var)]
   
@@ -430,12 +443,21 @@ vardchangespoor <- function(Y,
    data[, CI_lower:=estim - tsad*se]
    data[, CI_upper:=estim + tsad*se]
 
-   changes_results <- data[, c(country, paste0(per, "_1"),
-                               paste0(per, "_2"), Dom, 
+   var_grad <- data[, c(country, per1, per2, Dom, 
+                               "type", "q_1", "q_2",
+                               "rho", "var_1", "var_2"), with=FALSE]
+
+   changes_results <- data[, c(country, per1, per2, Dom, 
                                "type", "estim_1", "estim_2",
-                               "rho", "estim", "var", "se",
+                               "estim", "var", "se",
                                "CI_lower", "CI_upper"), with=FALSE]
-  data <- NULL
+   data <- NULL
+
+   changes_results[, significant:=TRUE]
+   boundss <- as.numeric(change_type=="relative")
+   changes_results[CI_lower<=boundss & CI_upper>=boundss, significant:=FALSE]
+   changes_results[significant==TRUE]
+
 
   list(crossectional_results=crossectional_results, changes_results=changes_results)
 }   

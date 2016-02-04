@@ -115,11 +115,12 @@ Jean-Claude Deville (1999). Variance estimation for complex statistics and estim
 data(eusilc)
 dataset <- data.table(IDd=1:nrow(eusilc), eusilc)
 
-aa<-vardom(Y="eqIncome", H="db040", PSU="db030",
+aa <- vardom(Y="eqIncome", H="db040", PSU="db030",
            w_final="rb050", id="rb030", Dom = "db040",
            period = NULL, N_h = NULL, Z = NULL,
            X = NULL, g = NULL, q = NULL, dataset = dataset,
-           confidence = .95, outp_lin = TRUE, outp_res = TRUE)
+           confidence = .95, percentratio = 100, 
+           outp_lin = TRUE, outp_res = TRUE)
 }
 \seealso{
 \code{\link{domain}},   \code{\link{lin.ratio}},  \code{\link{residual_est}},

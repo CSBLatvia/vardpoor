@@ -168,17 +168,16 @@ linpoormed <- function(Y, id=NULL, weight=NULL, sort=NULL, Dom=NULL,
               poor_people_medlin <- rbindlist(lapply(poor_medl, function(x) x[[2]]))
 
               setnames(poor_people_medlin, names(poor_people_medlin), c(names(poor_med_id), var_nams))
-              setkeyv(poor_people_medlin, names(poor_med_id))
-              setkeyv(poor_med_m, names(poor_med_id))
-              poor_med_m <- merge(poor_med_m, poor_people_medlin, all.x=T)
+              poor_med_m <- merge(poor_med_m, poor_people_medlin,
+                                  all.x=TRUE, by=names(poor_med_id))
               poor_med_v <- rbind(poor_med_v, poor_people_med) 
            }
  
      } else { poormed_l <- lapply(1:nrow(period1_agg), function(j) {
                            if (!is.null(period)) { 
                                          rown <- period_agg[j]
-                                         setkeyv(rown, names(rown))
-                                         rown <- merge(rown, quantile, all.x=TRUE)
+                                         rown <- merge(rown, quantile, all.x=TRUE,
+                                                         by=names(rown))
                                        } else rown <- quantile
                            indj <- (rowSums(period1 == period1_agg[j,][ind0,]) == ncol(period1))
       

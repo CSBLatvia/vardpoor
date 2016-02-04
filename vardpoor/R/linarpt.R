@@ -145,6 +145,7 @@ linarpt <- function(Y, id = NULL, weight = NULL, sort = NULL,
                                if (!is.null(period)) { 
                                        rown <- cbind(period_agg[j], Dom_agg[i])
                                        } else rown <- Dom_agg[i]
+
                                setkeyv(rown, names(rown))
                                rown2 <- copy(rown)
                                rown <- merge(rown, quantile, all.x=TRUE)
@@ -160,9 +161,7 @@ linarpt <- function(Y, id = NULL, weight = NULL, sort = NULL,
                                })
              arptl <- rbindlist(arpt_l)
              setnames(arptl, names(arptl), c(names(arpt_id), var_nams))
-             setkeyv(arpt_m, names(arpt_id))
-             setkeyv(arptl, names(arpt_id))
-             arpt_m <- merge(arpt_m, arptl, all.x=TRUE)
+             arpt_m <- merge(arpt_m, arptl, all.x=TRUE, by=names(arpt_id))
           }
       } else { arptl <- lapply(1:nrow(period1_agg), function(j) {
                            if (!is.null(period)) { 

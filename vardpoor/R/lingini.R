@@ -127,24 +127,21 @@ lingini <- function(Y, id = NULL, weight = NULL, sort = NULL,
                indj <- ((rowSums(period1 == period1_agg[j,][ind0,]) == ncol(period1))&(indi))
                if (!is.null(period)) { rown <- cbind(period_agg[j], Dom_agg[i])
                                      } else rown <- Dom_agg[i] 
-               if (!all(indj)) {
-                    ginil <- linginiCalc(Y[indj], gini_id[indj], weight[indj], sort[indj])
-                    list(data.table(rown, ginil$Gini), ginil$lin)
-                   }  else list(data.table(rown, Gini=0, Gini_eu=0),                                            
-                                lin=data.table(lin=gini_id[indi], lin=0))
+               ginil <- linginiCalc(x=Y[indj], ids=gini_id[indj],
+                                    weights=weight[indj], sort=sort[indj])
+               list(data.table(rown, ginil$Gini), ginil$lin)
               })
 
             giniv <- rbindlist(lapply(gini_l, function(x) x[[1]]))
             ginilin <- rbindlist(lapply(gini_l, function(x) x[[2]]))
             setnames(ginilin, names(ginilin), c(names(gini_id), var_nams))
-            setkeyv(ginilin, names(gini_id))
-            setkeyv(gini_m, names(gini_id))
-            gini_m <- merge(gini_m, ginilin, all=TRUE)
+            gini_m <- merge(gini_m, ginilin, all=TRUE, by=names(gini_id))
             Gini <- rbind(Gini, giniv)
          }
      } else { gini_l <- lapply(1:nrow(period1_agg), function(j) {
                            indj <- (rowSums(period1 == period1_agg[j,][ind0,]) == ncol(period1))
-                           ginil <- linginiCalc(Y[indj], gini_id[indj], weight[indj], sort[indj])                                                 
+                           ginil <- linginiCalc(x=Y[indj], ids=gini_id[indj],
+                                                weights=weight[indj], sort=sort[indj])                                                 
                            if (!is.null(period)) {
                                   list(data.table(period_agg[j], ginil$Gini), ginil$lin)
                                 }  else ginil
@@ -192,8 +189,11 @@ linginiCalc <- function(x, ids, weights = NULL, sort = NULL) {
     # LINEARIZED VARIABLE OF THE GINI COEFFICIENT (IN %)
 
     lin <- 100*(2*(T-G+wx+N*(x*F))-x-(Gini+1)*(T+N*x))/(N*T)
+
+    if (is.nan(Gini))  Gini_pr <- lin <- 0
     
     Gini_pr <- data.table(Gini=Gini_pr, Gini_eu=Gini_eu)
+
     lin_id <- data.table(ids,lin)
 
     return(list(Gini=Gini_pr, lin=lin_id))

@@ -196,16 +196,14 @@ linarpr <- function(Y, id=NULL, weight=NULL, Y_thres=NULL, wght_thres=NULL,
                  arprlin <- rbindlist(lapply(arprl, function(x) x[[2]]))
 
                  setnames(arprlin, names(arprlin), c(names(arpr_id), var_nams))
-                 setkeyv(arpr_m, names(arpr_id))
-                 setkeyv(arprlin, names(arpr_id))
-                 arpr_m <- merge(arpr_m, arprlin, all.x=TRUE)
+                 arpr_m <- merge(arpr_m, arprlin, all.x=TRUE, by=names(arpr_id))
                  arpr_v <- rbind(arpr_v, arprs) 
            }
      } else { arprl <- lapply(1:nrow(period1_agg), function(j) {
                            if (!is.null(period)) { 
                                          rown <- period_agg[j]
-                                         setkeyv(rown, names(rown))
-                                         rown <- merge(rown, quantile, all.x=TRUE)
+                                         rown <- merge(rown, quantile, all.x=TRUE,
+                                                       by=names(rown))
                                        } else rown <- quantile
                            ind2 <- (rowSums(period1 == period1_agg[j,][ind0,]) == ncol(period1))
       

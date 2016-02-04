@@ -130,24 +130,21 @@ linqsr <- function(Y, id=NULL, weight=NULL, sort = NULL,
 
               QSR_l <- lapply(1:nrow(period1_agg), function(j) {
                                indj <- (rowSums(period1 == period1_agg[j,][ind0,]) == ncol(period1))
-
                                QSR_l <- linQSRCalc(income=Y[indj],
                                                    ids=QSR_id[indj],
                                                    weights=weight[indj],
                                                    sort=sort[indj],
                                                    ind=ind[indj],
                                                    alpha=alpha) 
-                                if (!is.null(period)) { 
-                                       list(QSR=data.table(period_agg[j], Dom_agg[i], QSR_l$QSR), lin=QSR_l$lin)
-                                  } else list(QSR=data.table(Dom_agg[i], QSR_l$QSR), lin=QSR_l$lin)                               
+                               if (!is.null(period)) { 
+                                     list(QSR=data.table(period_agg[j], Dom_agg[i], QSR_l$QSR), lin=QSR_l$lin)
+                                   } else list(QSR=data.table(Dom_agg[i], QSR_l$QSR), lin=QSR_l$lin)
                          })
                  QSRs <- rbindlist(lapply(QSR_l, function(x) x[[1]]))
                  QSRlin <- rbindlist(lapply(QSR_l, function(x) x[[2]]))
 
                  setnames(QSRlin, names(QSRlin), c(names(QSR_id), var_nams))
-                 setkeyv(QSR_m, names(QSR_id))
-                 setkeyv(QSRlin, names(QSR_id))
-                 QSR_m <- merge(QSR_m, QSRlin, all.x=T)
+                 QSR_m <- merge(QSR_m, QSRlin, all.x=TRUE, by=names(QSR_id))
                  QSR_v <- rbind(QSR_v, QSRs)
            }
     } else { QSRl <- lapply(1:nrow(period1_agg), function(j) {
@@ -179,83 +176,90 @@ linQSRCalc<-function(income, ids, weights=NULL, sort=NULL, ind=NULL, alpha) {
    if (is.null(ind)) ind <- data.frame(ind=rep.int(1,length(ids)))
 
    alpha2 <- 100 - alpha
-   quantile <- incPercentile(Y=income, weights=weights,
-                             sort=sort, Dom=data.table(ind),
-                             period=NULL, k=c(alpha,alpha2),
-                             dataset=NULL) 
-   quant_inf <- quantile[ind==1][[paste0("x", alpha)]] 
-   quant_sup <- quantile[ind==1][[paste0("x", alpha2)]] 
+   
+   if (sum(weights)>0 & sum(ind)>0) {                                   
 
-   wght <- weights * ind
-   v <- weights * income * ind
+        quantile <- incPercentile(Y=income, weights=weights,
+                                  sort=sort, Dom=data.table(ind),
+                                  period=NULL, k=c(alpha,alpha2),
+                                  dataset=NULL) 
+        quant_inf <- quantile[ind==1][[paste0("x", alpha)]] 
+        quant_sup <- quantile[ind==1][[paste0("x", alpha2)]] 
 
-   indinf <- (income <= quant_inf)
-   indsup <- (income > quant_sup)
+        wght <- weights * ind
+        v <- weights * income * ind
 
-   num_eu <- sum(v*indsup)/sum(wght[indsup]) # Numerator 
-   den_eu <- sum(v*indinf)/sum(wght[indinf]) # Denominator 
+        indinf <- (income <= quant_inf)
+        indsup <- (income > quant_sup)
 
-   num <- sum(v*indsup) # Numerator 
-   den <- sum(v*indinf) # Denominator 
+        num_eu <- sum(v*indsup)/sum(wght[indsup]) # Numerator 
+        den_eu <- sum(v*indinf)/sum(wght[indinf]) # Denominator 
+
+        num <- sum(v*indsup) # Numerator 
+        den <- sum(v*indinf) # Denominator 
     
-   QSR <- num/den
-   QSR_eu <- num_eu/den_eu   
+        QSR <- num/den
+        QSR_eu <- num_eu/den_eu   
 
-#**********************************************************************
-#*          LINEARIZATION OF THE INCOME QUANTILE SHARE RATIO          *
-#**********************************************************************
+   #**********************************************************************
+   #*          LINEARIZATION OF THE INCOME QUANTILE SHARE RATIO          *
+   #**********************************************************************
 
-#----------------------------------------------
-#----- LINEARIZATION OF THE TWO QUANTILES -----
-#----------------------------------------------
+   #----------------------------------------------
+   #----- LINEARIZATION OF THE TWO QUANTILES -----
+   #----------------------------------------------
 
-   N <- sum(wght) # Estimated (sub)population size  
-   h <- sqrt((sum(wght*income*income)-sum(wght*income)*sum(wght*income)/sum(wght))/sum(wght))/exp(0.2*log(sum(wght))) 
-   # h=S/N^(1/5) 
+       N <- sum(wght) # Estimated (sub)population size  
+       h <- sqrt((sum(wght*income*income)-sum(wght*income)*sum(wght*income)/sum(wght))/sum(wght))/exp(0.2*log(sum(wght))) 
+       # h=S/N^(1/5) 
 
-   # 1. Linearization of the bottom quantile 
+       # 1. Linearization of the bottom quantile 
  
-   u1 <- (quant_inf-income)/h;
-   vect_f1 <- exp(-(u1^2)/2)/sqrt(2*pi)
-   f_quant1 <- sum(vect_f1*wght)/(N*h) 
+       u1 <- (quant_inf-income)/h;
+       vect_f1 <- exp(-(u1^2)/2)/sqrt(2*pi)
+       f_quant1 <- sum(vect_f1*wght)/(N*h) 
 
-   lin_inf <- -(1/N)*((income<=quant_inf)-alpha/100)/f_quant1
+       lin_inf <- -(1/N)*((income<=quant_inf)-alpha/100)/f_quant1
 
 
-   # 2. Linearization of the top quantile 
+       # 2. Linearization of the top quantile 
  
-   u2 <- (quant_sup-income)/h
-   vect_f2 <- exp(-(u2^2)/2)/sqrt(2*pi)
-   f_quant2 <- sum(vect_f2*wght)/(N*h)
+       u2 <- (quant_sup-income)/h
+       vect_f2 <- exp(-(u2^2)/2)/sqrt(2*pi)
+       f_quant2 <- sum(vect_f2*wght)/(N*h)
 
-   lin_sup <- -(1/N)*((income<=quant_sup)-alpha2/100)/f_quant2 
+       lin_sup <- -(1/N)*((income<=quant_sup)-alpha2/100)/f_quant2 
 
 
-   # 3. Linearization of the total income for the top quintile
+       # 3. Linearization of the total income for the top quintile
   
-   u3 <- (quant_sup-income)/h
-   vect_f3 <- exp(-(u3^2)/2)/sqrt(2*pi)
-   f_quant3 <- sum(vect_f3*v)/h
+       u3 <- (quant_sup-income)/h
+       vect_f3 <- exp(-(u3^2)/2)/sqrt(2*pi)
+       f_quant3 <- sum(vect_f3*v)/h
  
-   lin_num <- income-income*(income<=quant_sup)-f_quant3*lin_sup
+       lin_num <- income-income*(income<=quant_sup)-f_quant3*lin_sup
  
 
-   # 4. Linearization of the total income for the bottom quintile 
+       # 4. Linearization of the total income for the bottom quintile 
   
-   u4 <- (quant_inf-income)/h
-   vect_f4 <- exp(-(u4^2)/2)/sqrt(2*pi)
-   f_quant4 <- sum(vect_f4*v)/h
+       u4 <- (quant_inf-income)/h
+       vect_f4 <- exp(-(u4^2)/2)/sqrt(2*pi)
+       f_quant4 <- sum(vect_f4*v)/h
  
-   lin_den <- income*(income<=quant_inf)+f_quant4*lin_inf
+       lin_den <- income*(income<=quant_inf)+f_quant4*lin_inf
 
- #****************************************************************************
- #                 LINEARIZED VARIABLE OF THE QUANTILE SHARE RATIO                  
- #****************************************************************************
+      #****************************************************************************
+      #                 LINEARIZED VARIABLE OF THE QUANTILE SHARE RATIO                  
+      #****************************************************************************
 
-   lin <- (den*lin_num-num*lin_den)/(den*den)
-
-   lin_id <- data.table(ids, lin)
+      lin <- (den*lin_num-num*lin_den)/(den*den)
+    } else { QSR <- lin <- 0
+             QSR_eu <- NaN }
+   
+    if (is.nan(QSR)) QSR <- lin <- 0
+   
+   lin_id <- data.table(ids, lin=lin)
    QSR <- data.table(QSR=QSR, QSR_eu=QSR_eu)
-  return(list(QSR=QSR, lin=lin_id))
-}
+   return(list(QSR=QSR, lin=lin_id))
+ }
 

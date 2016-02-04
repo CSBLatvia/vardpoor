@@ -143,7 +143,8 @@ vardchangannual(Y, H, PSU, w_final, id,
         \code{var} - the estimated variance, \cr
         \code{se} - the estimated standard error, \cr
         \code{CI_lower} - the estimated confidence interval lower bound, \cr
-        \code{CI_upper} - the estimated confidence interval upper bound.}
+        \code{CI_upper} - the estimated confidence interval upper bound, \cr
+        \code{significant} - is the the difference significant}
 
  \item{X_annual}{ A \code{data.table} containing
         \code{year_1} -  survey years of \code{years1}, \cr
@@ -189,7 +190,8 @@ vardchangannual(Y, H, PSU, w_final, id,
         \code{var} - the estimated variance, \cr
         \code{se} - the estimated standard error, \cr
         \code{CI_lower} - the estimated confidence interval lower bound, \cr
-        \code{CI_upper} - the estimated confidence interval upper bound.}
+        \code{CI_upper} - the estimated confidence interval upper bound, \cr
+        \code{significant} - is the the difference significant}
 
 }
 

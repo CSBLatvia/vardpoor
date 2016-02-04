@@ -178,9 +178,8 @@ linarr <- function(Y, Y_den, id=NULL, age, pl085, month_at_work, weight=NULL,  s
     setnames(quantile2, names(quantile2)[ncol(quantile2)], "quantile_50_59mo")
     sk <- length(names(quantile2))-1
     if (sk > 0) {
-               setkeyv(quantile1, names(quantile1)[1:sk])
-               setkeyv(quantile2, names(quantile2)[1:sk])
-               quantile <- merge(quantile1, quantile2, all=TRUE)
+               quantile <- merge(quantile1, quantile2, all=TRUE,
+                                 by=names(quantile1)[1:sk])
         } else quantile <- data.table(quantile1, quantile2)
     
     arr_id <- id
@@ -228,29 +227,27 @@ linarr <- function(Y, Y_den, id=NULL, age, pl085, month_at_work, weight=NULL,  s
                  arrlin <- rbindlist(lapply(arrl, function(x) x[[2]]))
 
                  setnames(arrlin, names(arrlin), c(names(arr_id), var_nams))
-                 setkeyv(arr_m, names(arr_id))
-                 setkeyv(arrlin, names(arr_id))
-                 arr_m <- merge(arr_m, arrlin, all.x=TRUE)
+                 arr_m <- merge(arr_m, arrlin, all.x=TRUE, by=names(arr_id))
                  arr_v <- rbind(arr_v, arrs) 
            }
      } else { arrl <- lapply(1:nrow(period1_agg), function(j) {  
          
              if (!is.null(period)) { rown <- period_agg[j]
-                                     setkeyv(rown, names(rown))
-                                     rown <- merge(rown, quantile, all.x=TRUE)
+                                     rown <- merge(rown, quantile, all.x=TRUE, 
+                                                   by=names(rown))
                                  } else rown <- quantile
                            ind2 <- (rowSums(period1 == period1_agg[j,][ind0,]) == ncol(period1))
       
                            arr_l <- arrlinCalc(Y_num=Y[ind2],
-                                                        Y_den=Y_den[ind2],
-                                                        ids=arr_id[ind2],
-                                                        wght=weight[ind2],
-                                                        indicator=ind0[ind2],
-                                                        order_quants=order_quant,
-                                                        age_65_74pl=age_65_74pl[ind2],
-                                                        age_50_59mo=age_50_59mo[ind2],
-                                                        quant_65_74pls=rown[["quantile_65_74pl"]],
-                                                        quant_50_59mon=rown[["quantile_50_59mo"]])
+                                                       Y_den=Y_den[ind2],
+                                                       ids=arr_id[ind2],
+                                                       wght=weight[ind2],
+                                                       indicator=ind0[ind2],
+                                                       order_quants=order_quant,
+                                                       age_65_74pl=age_65_74pl[ind2],
+                                                       age_50_59mo=age_50_59mo[ind2],
+                                                       quant_65_74pls=rown[["quantile_65_74pl"]],
+                                                       quant_50_59mon=rown[["quantile_50_59mo"]])
 
                           if (!is.null(period)) { 
                                    arrs <- data.table(period_agg[j], arr=arr_l$arr_val)

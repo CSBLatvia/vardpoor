@@ -148,7 +148,6 @@ linrmpg <- function(Y, id=NULL, weight=NULL, sort=NULL, Dom=NULL,
                  var_nams <- do.call(paste, as.list(c(g, sep="__")))
                  ind <- as.integer(rowSums(Dom == Dom_agg[i,][ind0,]) == ncol(Dom))
                  
-
                  rmpgapl <- lapply(1:nrow(period1_agg), function(j) {
                       if (!is.null(period)) { 
                                rown <- cbind(period_agg[j], Dom_agg[i])
@@ -177,9 +176,7 @@ linrmpg <- function(Y, id=NULL, weight=NULL, sort=NULL, Dom=NULL,
               rmpgaplin <- rbindlist(lapply(rmpgapl, function(x) x[[2]]))
 
               setnames(rmpgaplin, names(rmpgaplin), c(names(rmpgap_id), var_nams))
-              setkeyv(rmpgap_m, names(rmpgap_id))
-              setkeyv(rmpgaplin, names(rmpgap_id))
-              rmpgap_m <- merge(rmpgap_m, rmpgaplin, all.x=T)
+              rmpgap_m <- merge(rmpgap_m, rmpgaplin, all.x=TRUE, by=names(rmpgap_id))
               rmpgap_v <- rbind(rmpgap_v, rmpgaps) 
            }
  } else {rmpgap_l <- lapply(1:nrow(period1_agg), function(j) {

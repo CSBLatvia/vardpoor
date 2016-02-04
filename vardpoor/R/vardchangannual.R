@@ -320,6 +320,10 @@ vardchangannual <- function(Y, H, PSU, w_final, id,
   annual_changes[, CI_lower:= estim - tsad * se]
   annual_changes[, CI_upper:= estim + tsad * se]
 
+  significant <- NULL
+  annual_changes[, significant:=TRUE]
+  annual_changes[CI_lower<=0 & CI_upper>=0, significant:=FALSE]
+
   list(crossectional_results=crossectional_results,
        crossectional_var_grad=crossectional_var_grad,
        vardchanges_grad_var=grad_var,

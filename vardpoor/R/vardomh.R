@@ -90,7 +90,7 @@ vardomh <- function(Y, H, PSU, w_final,
                      if (length(q)!=nrow(datasetX))  stop("'q' does not exist in 'datasetX'!") }
           if (min(q %in% names(datasetX))==1) q <- datasetX[, q, with=FALSE] } 
      }
-  dataset <- datasetX <- NULL
+  N <- dataset <- datasetX <- NULL
 
   # Y
   Y <- data.table(Y, check.names=TRUE)
@@ -240,7 +240,7 @@ vardomh <- function(Y, H, PSU, w_final,
     if (!is.null(periodX)) {X_ID_household <- data.table(periodX, X_ID_household)
                            IDh <- data.table(unique(data.table(period, ID_household)))}
  
-    if (any(duplicated(X_ID_household))) stop("'X_ID_household' have duplicates")
+    if (nrow(X_ID_household[,.N,by=names(X_ID_household)][N>1])>0) stop("'X_ID_household' have duplicates")
     setkeyv(X_ID_household, names(X_ID_household))
     setkeyv(IDh, names(IDh))
     nperIDh <- names(IDh)
@@ -359,8 +359,8 @@ vardomh <- function(Y, H, PSU, w_final,
   if (!is.null(Z)) {
      if (!is.null(Dom)) Z1 <- domain(Z, Dom) else Z1 <- Z
      if (is.null(period)) {
-          Y2 <- lin.ratio(Y1, Z1, w_final, Dom=NULL)
-          Y2a <- lin.ratio(Y1, Z1, w_design, Dom=NULL)
+          Y2 <- lin.ratio(Y1, Z1, w_final, Dom=NULL, percentratio=percentratio)
+          Y2a <- lin.ratio(Y1, Z1, w_design, Dom=NULL, percentratio=percentratio)
         } else {
           periodap <- do.call("paste", c(as.list(period), sep="_"))
           sorts <- unlist(split(Y1[, .I], periodap))

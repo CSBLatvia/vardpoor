@@ -189,7 +189,7 @@ vardchanges <- function(Y, H, PSU, w_final, id,
   ids_nr <- rot <- grad2_2 <- se <-  CI_lower <-  NULL
   valueY1_1 <- valueZ1_1 <- valueY1_2 <- valueZ1_2 <- NULL
   period_country_1 <- period_country_2 <- NULL
-  id_nams <- nams <- ids_nr <- NULL
+  significant <- id_nams <- nams <- ids_nr <- NULL
 
   var_grad <- datas$var_grad
   cros_var_grad <- copy(var_grad)
@@ -217,7 +217,7 @@ vardchanges <- function(Y, H, PSU, w_final, id,
   var_grad[, ids_nr:=1:.N]
 
   if (change_type=="relative"){
-        if (linratio==FALSE){
+        if (!linratio & !is.null(Z)){
              var_grad[, grad1_1:=-valueY1_2*valueZ1_1/(valueZ1_2*(valueY1_1)^2)]
              var_grad[, grad1_2:=valueY1_2/(valueZ1_2*valueY1_1)]
              var_grad[, grad2_1:=valueZ1_1/(valueZ1_2*valueY1_1)]
@@ -449,7 +449,7 @@ vardchanges <- function(Y, H, PSU, w_final, id,
    matricas <- rbindlist(lapply(dat, function(x) x[[1]]))              
    datas <- rbindlist(lapply(dat, function(x) x[[2]]))
 
-   if (change_type=="relative" | (!is.null(res$totalZ) & !linratio)) { 
+   if (change_type=="relative" | (!is.null(datas$namesZ) & !linratio)) { 
                   datas[, var:=var * (percentratio)^2] }
 
    datas[var>=0, se:=sqrt(var)]
@@ -466,10 +466,15 @@ vardchanges <- function(Y, H, PSU, w_final, id,
 
    namesYZ <- c("namesY", "namesZ")
    namesYZ <- names(datas)[(names(datas) %in% namesYZ)]
+   
 
    changes_results <- datas[, c(paste0(per,"_", c(1, 2)), country, Dom,
                                 namesYZ, "estim_1",  "estim_2", "estim", 
                                 "var", "se", "CI_lower", "CI_upper"), with=FALSE]
+
+   changes_results[, significant:=TRUE]
+   boundss <- as.numeric(change_type=="relative")
+   changes_results[CI_lower<=boundss & CI_upper>=boundss, significant:=FALSE]
 
    list(crossectional_results=crossectional_results,
         crossectional_var_grad=cros_var_grad,

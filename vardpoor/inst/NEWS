@@ -1,3 +1,11 @@
+Changes in vardpoor version 0.5.4
+
+    + Corrected mistake in function lin.ratio using percentratio
+
+    + Corrected mistake in function varchanganges using relative changes
+
+    + Add variable which detect significance level in vardhanges, vardchangannual
+
 Changes in vardpoor version 0.5.2
 
     + Corrected mistake in function varchanganges

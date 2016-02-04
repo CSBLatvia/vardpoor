@@ -272,11 +272,11 @@ vardcros <- function(Y, H, PSU, w_final, id,
   if (!is.null(namesZ1) & !linratio) varsYZ <- list(namesY1, namesZ1)
 
   DT2 <- melt(DT2, id=namesperc,
-                       measure=namesY1,
-                       variable.factor=FALSE)
+                      measure=varsYZ,
+                      variable.factor=FALSE)
   if (!is.null(namesZ1) & !linratio){ setnames(DT2, c("value1", "value2"),
                                                     c("valueY1", "valueZ1"))
-                     } else setnames(DT2, "value", "valueY1")
+                     } else setnames(DT2, "value1", "valueY1")
   
   if (!is.null(namesZ1) & !linratio) {
                    vars <- data.table(variable=1:length(namesY1))

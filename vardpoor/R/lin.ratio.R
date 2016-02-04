@@ -31,6 +31,6 @@ lin.ratio <- function(Y, Z, weight, Dom = NULL, percentratio = 1) {
   R_est <- Y_est / Z_est
 
   percentratio <- as.integer(percentratio)
-  U <- (1 +  99 * percentratio) * t((1 / Z_est) * t(Yd - t(R_est * t(Zd))))
+  U <- percentratio * t((1 / Z_est) * t(Yd - t(R_est * t(Zd))))
   return(data.table(U))
 }

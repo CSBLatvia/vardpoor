@@ -279,8 +279,8 @@ vardom <- function(Y, H, PSU, w_final,
   if (!is.null(Z)) {
     if (!is.null(Dom)) Z1 <- domain(Z, Dom) else Z1 <- Z
     if (is.null(period)) {
-          Y2 <- lin.ratio(Y1, Z1, w_final, Dom=NULL)
-          Y2a <- lin.ratio(Y1, Z1, w_design, Dom=NULL)
+          Y2 <- lin.ratio(Y1, Z1, w_final, Dom=NULL, percentratio=percentratio)
+          Y2a <- lin.ratio(Y1, Z1, w_design, Dom=NULL, percentratio=percentratio)
         } else {
             periodap <- do.call("paste", c(as.list(period), sep="_"))
             sorts <- unlist(split(Y1[, .I], periodap))

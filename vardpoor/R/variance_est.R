@@ -113,15 +113,6 @@ variance_est <- function(Y, H, PSU, w_final, N_h=NULL, fh_zero=FALSE, PSU_level=
   n_h <- n_h[,.N, keyby=c(names(n_h)[1:(1+np)])]
   setnames(n_h, "N", "n_h")
 
-
-  if (any(n_h$n_h == 1)) {
-    print("There is stratas, where n_h == 1")
-    print("Not possible to estimate the variance in these stratas!")
-    print("At these stratas estimation of variance was not calculated")
-    nh <- n_h[, 2+np, with=FALSE]==1 
-    print(data.frame(n_h)[nh,])
-  }
-  
   # var_z_hi
   var_z_hi <- z_hi[, lapply(.SD, var, na.rm=FALSE), keyby = c(names(z_hi)[1:(1+np)]),
     .SDcols = names(z_hi)[-(1:(2+np))]]
@@ -131,10 +122,18 @@ variance_est <- function(Y, H, PSU, w_final, N_h=NULL, fh_zero=FALSE, PSU_level=
   F_h[, f_h:=n_h/N_h]
   f_h <- F_h[,"f_h", with=FALSE]
 
-  if (any(f_h > 1)) {    
+  if (nrow(F_h[n_h==1 & f_h != 1])>0) {
+    print("There is stratas, where n_h == 1 and f_h <> 1")
+    print("Not possible to estimate the variance in these stratas!")
+    print("At these stratas estimation of variance was not calculated")
+    nh <- F_h[n_h==1 & f_h != 1]
+    print(nh)
+  }
+  
+  if (nrow(F_h[f_h > 1])>0) {    
      print("There is stratas, where f_h > 1")
      print("At these stratas estimation of variance will be 0")
-     print(data.frame(F_h)[f_h > 1, ])
+     print(F_h[f_h > 1])
      f_h[f_h > 1] <- 1
    }
 

@@ -185,16 +185,14 @@ linrmir <- function(Y, id=NULL, age, weight=NULL, sort=NULL,
                  rmirlin <- rbindlist(lapply(rmirl, function(x) x[[2]]))
 
                  setnames(rmirlin, names(rmirlin), c(names(rmir_id), var_nams))
-                 setkeyv(rmir_m, names(rmir_id))
-                 setkeyv(rmirlin, names(rmir_id))
-                 rmir_m <- merge(rmir_m, rmirlin, all.x=TRUE)
+                 rmir_m <- merge(rmir_m, rmirlin, all.x=TRUE, by=names(rmir_id))
                  rmir_v <- rbind(rmir_v, rmirs) 
            }
      } else { rmirl <- lapply(1:nrow(period1_agg), function(j) {
                            if (!is.null(period)) { 
                                          rown <- period_agg[j]
-                                         setkeyv(rown, names(rown))
-                                         rown <- merge(rown, quantile, all.x=TRUE)
+                                         rown <- merge(rown, quantile, all.x=TRUE,
+                                                        by=names(rown))
                                        } else rown <- quantile
                            ind2 <- (rowSums(period1 == period1_agg[j,][ind0,]) == ncol(period1))
       

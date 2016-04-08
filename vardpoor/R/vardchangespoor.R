@@ -22,8 +22,6 @@ vardchangespoor <- function(Y,
  
   ### Checking
   if (!change_type %in% c("absolute", "relative")) stop("'change_type' must be 'absolute' or 'relative'")
-
-  if (length(use.estVar) != 1 | !any(is.logical(use.estVar))) stop("'use.estVar' must be the logical value")
  
   all_choices <- c("linarpr","linarpt","lingpg",
                    "linpoormed",  "linrmpg","lingini",
@@ -179,7 +177,8 @@ vardchangespoor <- function(Y,
   if (ncol(H) != 1) stop("'H' must be 1 column data.frame, matrix, data.table")
   if (any(is.na(H))) stop("'H' has unknown values")
   if (is.null(names(H))) stop("'H' must be colnames")
-  
+  H[, (names(H)):=lapply(.SD, as.character)]
+
   # id
   if (is.null(id)) id <- 1:n
   id <- data.table(id)
@@ -298,7 +297,7 @@ vardchangespoor <- function(Y,
   rot_1 <- rot_2 <- stratasf <- name1 <- num1 <- num1num1 <-NULL
   num2num2 <- num1num2 <- num2 <- num1_1 <- V12 <- NULL
   grad1 <- grad2 <- num1_2 <- estim <- estim_1 <- NULL
-  var_1 <- var_2 <- typs <- estim_2 <- se  <- NULL
+  nh <- nhcor <- var_1 <- var_2 <- typs <- estim_2 <- se  <- NULL
   significant <- rho <- q_1 <- q_2 <- sum1 <- sum2 <- NULL
 
   var_grad <- copy(crossectional_results)
@@ -345,7 +344,7 @@ vardchangespoor <- function(Y,
       set(DT, which(is.na(DT[[j]])), j, ifelse(is.integer(DT[[j]]), 0L, 0))
    }
   recode.NA(data, c(paste0(sard,"_1"), paste0(sard,"_2")))
-  
+
   dataH <- data[[H]]
   dataH <- factor(dataH)
   if (length(levels(dataH))==1) { data[, stratasf:= 1]
@@ -366,9 +365,9 @@ vardchangespoor <- function(Y,
                            funkc <- as.formula(paste0("cbind(", trim(toString(y1)), ", ", 
                                                                 trim(toString(y2)), ")~-1+",
                                                                 paste(t(unlist(lapply(dataH, function(x) 
-                                                                         paste0("rot_1*", toString(x), "+",
-                                                                                "rot_2*", toString(x), "+",
-                                                                                "rot_1*rot_2*", toString(x))))),
+                                                                         paste0("rot_1:", toString(x), "+",
+                                                                                "rot_2:", toString(x), "+",
+                                                                                "rot_1:rot_2:", toString(x))))),
                                                                                 collapse= "+"))) 
                            res <- lm(funkc, data=DT3c)
                            ssumas <- DT3c[, .(sum1=sum(get(y1)), sum2=sum(get(y2)))]

@@ -81,9 +81,9 @@ For example, to compute poverty threshold equal to some percentage of median inc
 
 \item{period2}{The vector from variable \code{periods} describes the second period.}
 
-\item{use.estVar}{Logical value. If value is \code{TRUE}, then \code{R} function \code{estVar} is used for the  estimation of covariance matrix of the residuals. If value is \code{FALSE}, then \code{R} function \code{estVar} is not used for the  estimation of covariance matrix of the residuals.}
-
-\item{confidence}{optional; either a positive value for confidence interval. This variable by default is 0.95 .}
+\item{use.estVar}{Logical value. If value is \code{TRUE}, then \code{R} function \code{estVar} is used for the  estimation of covariance matrix of the residuals. If value is \code{FALSE}, then \code{R} function \code{estVar} is not used for the estimation of covariance matrix of the residuals.}
+ 
+\item{confidence}{optional; either a positive value for confidence interval. This variable by default is 0.95.}
 
 \item{type}{a character vector (of length one unless several.ok is TRUE), example "linarpr","linarpt", "lingpg", "linpoormed", "linrmpg",
    "lingini", "lingini2", "linqsr", "linarr", "linrmir", "all_choices".}
@@ -132,7 +132,7 @@ Guillaume Osier,  Yves Berger,  Tim Goedeme, (2013), Standard error estimation f
 Eurostat Methodologies and Working papers, Handbook on precision requirements and variance estimation for ESS household surveys, 2013, URL \url{http://ec.europa.eu/eurostat/documents/3859598/5927001/KS-RA-13-029-EN.PDF}. \cr
 
 Yves G. Berger, Tim Goedeme, Guillame Osier (2013). Handbook on standard error estimation and other related sampling issues in EU-SILC,
-URL \url{http://www.cros-portal.eu/content/handbook-standard-error-estimation-and-other-related-sampling-issues-ver-29072013} \cr
+URL \url{https://ec.europa.eu/eurostat/cros/content/handbook-standard-error-estimation-and-other-related-sampling-issues-ver-29072013_en} \cr
 }
 
 \examples{
@@ -173,7 +173,6 @@ result <- vardchangespoor(Y="inc", age="age",
                      alpha = 20, dataset = data,
                      period1=c(2010, 2011),
                      period2=c(2011, 2010),
-                     use.estVar = FALSE,
                      confidence=0.95,
                      type="linrmpg")
 

@@ -92,8 +92,10 @@ vardcros <- function(Y, H, PSU, w_final, id,
   if (nrow(H) != n) stop("'H' length must be equal with 'Y' row count")
   if (ncol(H) != 1) stop("'H' must be 1 column data.frame, matrix, data.table")
   if (any(is.na(H))) stop("'H' has unknown values")
-  if (is.null(names(H))) stop("'H' must be colnames")
-  
+  if (is.null(names(H))) stop("'H' must be colname")
+  if (names(H)=="dataH_stratas") stop("'H' must be different colname")
+  H[, (names(H)):=lapply(.SD, as.character)]
+
   # id
   id <- data.table(id)
   if (any(is.na(id))) stop("'id' has unknown values")
@@ -325,37 +327,42 @@ vardcros <- function(Y, H, PSU, w_final, id,
   DT1[, nh:=.N, by=c(namesperc2, names_H)]
 
 
+
  #--------------------------------------------------------------------------*
  # MULTIVARIATE REGRESSION APPROACH USING STRATUM DUMMIES AS REGRESSORS AND |
  # STANDARD ERROR ESTIMATION 						      |
  #--------------------------------------------------------------------------*
 
+
   DT1H <- DT1[[names_H]]
   DT1H <- factor(DT1H)
   if (length(levels(DT1H))==1) { DT1[, stratasf:=1]
                                  DT1H <- "stratasf"
-
-                       }  else { DT1H <- data.table(model.matrix( ~ DT1H-1))
+                       }  else { DT1H <- data.table(model.matrix( ~ DT1H-1, DT1H,  contrasts = "contr.SAS"))
                                  DT1 <- cbind(DT1, DT1H)
                                  DT1H <- names(DT1H) }
 
   fits <-lapply(1:length(namesY1), function(i) {
            fitss <- lapply(split(DT1, DT1$period_country), function(DT1c) {
-                   	y <- namesY1[i]
-                        if ((!is.null(namesZ1))&(!linratio)) z <- paste0(",", toString(namesZ1[i])) else z <- ""
-                        funkc <- as.formula(paste("cbind(", trim(toString(y)), z, ")~",
-                                       paste(c(-1, DT1H), collapse= "+")))
-                   	res1 <- lm(funkc, data=DT1c)
 
-           	            if (use.estVar==TRUE) {res1 <- data.table(crossprod(res1$res))
+                        y <- namesY1[i]
+                        if ((!is.null(namesZ1))&(!linratio)) z <- paste0(",", toString(namesZ1[i])) else z <- ""
+
+                        funkc <- as.formula(paste("cbind(", trim(toString(y)), z, ")~ 0 + ",
+                                       paste(c(0, DT1H), collapse= "+")))
+
+                        res1 <- lm(funkc, data=DT1c)
+                        if (use.estVar==TRUE) {res1 <- data.table(crossprod(res1$res))
                                 } else res1 <- data.table(res1$res)
                         setnames(res1, names(res1)[1], "num") 
                         res1[, nameY1:=y]
                         if (!is.null(namesZ1) & !linratio) {
                               setnames(res1, names(res1)[2], "den")
-                              res1[, nameZ1:=namesZ1[i]]}
+                              res1[, nameZ1:=namesZ1[i]]
+                            }
 
-                        if (use.estVar==TRUE) {
+
+                        if (use.estVar==TRUE) {    
                               setnames(res1, "num", "num1") 
                               if (!is.null(namesZ1) & !linratio) {
                                        res1[, num_den1:=res1[["den"]][1]]
@@ -363,16 +370,17 @@ vardcros <- function(Y, H, PSU, w_final, id,
                               res1 <- data.table(res1[1], DT1c[1])
                           } else {
                               res1 <- data.table(res1, DT1c)
-                              res1[, nhcor:=ifelse(nh==1,1, nh/(nh-1))]
+                              res1[, nhcor:=ifelse(nh>1, nh/(nh-1), 1)]
                               res1[, num1:=nhcor * num * num]
                               if (!is.null(namesZ1) & !linratio) {
-                                  res1[, num_den1:=nhcor * num * den]
-                                  res1[, den1:=nhcor * den * den]
+                                   res1[, num_den1:=nhcor * num * den]
+                                   res1[, den1:=nhcor * den * den]
                                }}
-                        namep <- c("nameY1", "nameZ1")
-                        namep <- namep[namep %in% names(res1)]
-                        varsp <- c("num1", "den1", "num_den1")
-                        varsp <- varsp[varsp %in% names(res1)]
+                         namep <- c("nameY1", "nameZ1")
+                         namep <- namep[namep %in% names(res1)]
+                         varsp <- c("num1", "den1", "num_den1")
+                         varsp <- varsp[varsp %in% names(res1)]
+
                         fits <- res1[, lapply(.SD, sum), 
                                        keyby=c("period_country",
                                                namesperc, namep),
@@ -509,8 +517,8 @@ vardcros <- function(Y, H, PSU, w_final, id,
   if (is.null(namesDom)) nds <- namesperc else nds <- c(namesperc, "Dom")
   res <- merge(res, main, all=TRUE, by=nds)
 
-  res[, stderr_nw:=100*sqrt((1-(sample_size/pop_size))/pop_size * sd_nw * sd_nw/sample_size)]
-  res[, stderr_w:=100*sqrt((1-(sample_size/pop_size))/pop_size * sd_w * sd_w/sample_size)]
+  res[sample_size<pop_size, stderr_nw:=100*sqrt((1-(sample_size/pop_size))/pop_size * sd_nw * sd_nw/sample_size)]
+  res[sample_size<pop_size, stderr_w:=100*sqrt((1-(sample_size/pop_size))/pop_size * sd_w * sd_w/sample_size)]
 
   DT <- DTw <- DTx <- DTs <- DTsd <- sd1 <- nds <- NULL
 
@@ -527,11 +535,13 @@ vardcros <- function(Y, H, PSU, w_final, id,
   if (!is.null(namesDom))  main <- c(main, namesDom)
   main <- c(main, "namesY")
   if (!is.null(res$namesZ)) main <- c(main, "namesZ")
+
   main <- c(main, "sample_size", "pop_size", "estim", "se", 
             "var", "rse", "cv", "absolute_margin_of_error",
             "relative_margin_of_error", "CI_lower", "CI_upper", 
             "sd_w", "sd_nw", "pop", "sampl_siz", "stderr_nw",
             "stderr_w")
+  main <- main[main %in% names(res)]
   res <- res[, main, with=FALSE]
   list(data_net_changes=DTnet, var_grad=res1, results=res)
 }   

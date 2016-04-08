@@ -11,6 +11,7 @@ vardchanges(Y, H, PSU, w_final, id,
             Dom = NULL, Z = NULL,
             country, periods, dataset = NULL,
             period1, period2,
+            annual = FALSE,
             linratio = FALSE,
             percentratio = 1,
             use.estVar = FALSE,
@@ -42,6 +43,8 @@ vardchanges(Y, H, PSU, w_final, id,
 \item{period1}{The vector of periods from variable \code{periods} describes the first period.}
 
 \item{period2}{The vector of periods from variable \code{periods} describes the second period.}
+
+\item{annual}{Logical value. If value is TRUE, then calculate for annual net changes.}
 
 \item{linratio}{Logical value. If value is \code{TRUE}, then the linearized variables for the ratio estimator is used for variance estimation. If value is \code{FALSE}, then the gradients is used for variance estimation.}
 
@@ -137,7 +140,7 @@ Guillaume Osier,  Yves Berger,  Tim Goedeme, (2013), Standard error estimation f
 Eurostat Methodologies and Working papers, Handbook on precision requirements and variance estimation for ESS household surveys, 2013, URL \url{http://ec.europa.eu/eurostat/documents/3859598/5927001/KS-RA-13-029-EN.PDF}. \cr
 
 Yves G. Berger, Tim Goedeme, Guillame Osier (2013). Handbook on standard error estimation and other related sampling issues in EU-SILC,
-URL \url{http://www.cros-portal.eu/content/handbook-standard-error-estimation-and-other-related-sampling-issues-ver-29072013} \cr
+URL \url{https://ec.europa.eu/eurostat/cros/content/handbook-standard-error-estimation-and-other-related-sampling-issues-ver-29072013_en} \cr
 }
 
 \examples{
@@ -175,7 +178,6 @@ result <- vardchanges(Y="pov",
                    country="country", periods="year",
                    dataset=data,
                    period1=2010, period2=2011,
-                   use.estVar=FALSE,
                    change_type="absolute")
  
 \dontrun{
@@ -221,7 +223,6 @@ result <- vardchanges(Y=c("pov", "dep", "lwi", "arope"),
                    country="country", periods="year",
                    dataset=data,
                    period1=2010, period2=2011,
-                   use.estVar=FALSE,
                    change_type="absolute")
 }
 }

@@ -1,10 +1,25 @@
+Changes in vardpoor version 0.5.9
+
+    + Return back variable use.estVar in function vardchanges, vardchangespoor.
+
+Changes in vardpoor version 0.5.8
+
+    + Corrected small mistake in function vardchanges, vardchangespoor.
+
+Changes in vardpoor version 0.5.6
+
+    + Removed variable use.estVar from function vardchanges, vardcros.
+
+    + Corrected mistake in function variance_othstr, when Nh in strata is larger nh, variance is zero in these strata.
+      Print out information about those strata.
+
 Changes in vardpoor version 0.5.4
 
     + Corrected mistake in function lin.ratio using percentratio
 
     + Corrected mistake in function varchanganges using relative changes
 
-    + Add variable which detect significance level in vardhanges, vardchangannual
+    + Add variable which detect significance level in vardchanges, vardchangannual
 
 Changes in vardpoor version 0.5.2
 

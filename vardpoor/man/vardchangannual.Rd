@@ -46,8 +46,8 @@ vardchangannual(Y, H, PSU, w_final, id,
 
 \item{percentratio}{Positive integer value. All linearized variables are multiplied with \code{percentratio} value, by default - 1.}
 
-\item{use.estVar}{Logical value. If value is \code{TRUE}, then \code{R} function \code{estVar} is used for the  estimation of covariance matrix of the residuals. If value is \code{FALSE}, then \code{R} function \code{estVar} is not used for the  estimation of covariance matrix of the residuals.}
-
+\item{use.estVar}{Logical value. If value is \code{TRUE}, then \code{R} function \code{estVar} is used for the  estimation of covariance matrix of the residuals. If value is \code{FALSE}, then \code{R} function \code{estVar} is not used for the estimation of covariance matrix of the residuals.}
+ 
 \item{confidence}{optional; either a positive value for confidence interval. This variable by default is 0.95 .}
 
 }
@@ -203,7 +203,7 @@ Guillaume Osier,  Yves Berger,  Tim Goedeme, (2013), Standard error estimation f
 Eurostat Methodologies and Working papers, Handbook on precision requirements and variance estimation for ESS household surveys, 2013, URL \url{http://ec.europa.eu/eurostat/documents/3859598/5927001/KS-RA-13-029-EN.PDF}. \cr
 
 Yves G. Berger, Tim Goedeme, Guillame Osier (2013). Handbook on standard error estimation and other related sampling issues in EU-SILC,
-URL \url{http://www.cros-portal.eu/content/handbook-standard-error-estimation-and-other-related-sampling-issues-ver-29072013} \cr
+URL \url{https://ec.europa.eu/eurostat/cros/content/handbook-standard-error-estimation-and-other-related-sampling-issues-ver-29072013_en} \cr
 }
 
 \examples{
@@ -242,7 +242,6 @@ result <- vardchangannual(Y="employed", H="strata",
                           dataset=data,
                           year1=2010, year2=2011,
                           percentratio = 100,
-                          use.estVar = FALSE,
                           confidence=0.95)
 
 \dontrun{
@@ -254,7 +253,6 @@ result <- vardchangannual(Y="unemployed", H="strata",
                           dataset=data,
                           year1=2010, year2=2011,
                           percentratio = 100,
-                          use.estVar = FALSE,
                           confidence=0.95) }
 }
 

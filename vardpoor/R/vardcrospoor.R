@@ -49,7 +49,7 @@ vardcrospoor <- function(Y,
   if (length(netchanges) != 1 | !any(is.logical(netchanges))) stop("'netchanges' must be the logical value")
   if (length(withperiod) != 1 | !any(is.logical(withperiod))) stop("'withperiod' must be the logical value")
   if (length(use.estVar) != 1 | !any(is.logical(use.estVar))) stop("'use.estVar' must be the logical value")
- 
+
   if(length(confidence) != 1 | any(!is.numeric(confidence) | confidence < 0 | confidence > 1)) {
          stop("'confidence' must be a numeric value in [0, 1]")  }
 
@@ -472,7 +472,7 @@ vardcrospoor <- function(Y,
                                 res1 <- data.table(res1[1], DTY2c[1])
                             } else {
                                 res1 <- data.table(res1, DTY2c)
-                                res1[, nhcor:=ifelse(nh==1,1, nh/(nh-1))]
+                                res1[, nhcor:=ifelse(nh>1, nh/(nh-1), 1)]
                                 res1[, var:=nhcor * num * num]
                               }
                           fits <- res1[, lapply(.SD, sum), 

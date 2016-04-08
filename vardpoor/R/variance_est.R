@@ -92,8 +92,7 @@ variance_est <- function(Y, H, PSU, w_final, N_h=NULL, fh_zero=FALSE, PSU_level=
   } else {
     Nh <- data.table(H, w_final)
     if (!is.null(period)) Nh <- data.table(period, Nh)
-    setkeyv(Nh, names(Nh)[c(1:(1+np))])
-    N_h <- Nh[, list(N_h = sum(w_final, na.rm = TRUE)), keyby=c(names(Nh)[1:(1+np)])]
+    N_h <- Nh[, .(N_h = sum(w_final, na.rm=TRUE)), keyby=c(names(Nh)[1:(1+np)])]
   }
   pH <- NULL  
 
@@ -120,7 +119,6 @@ variance_est <- function(Y, H, PSU, w_final, N_h=NULL, fh_zero=FALSE, PSU_level=
   # f_h
   F_h <- merge(N_h, n_h, by = names(hpY)[c(1:(1+np))], sort=TRUE)
   F_h[, f_h:=n_h/N_h]
-  f_h <- F_h[,"f_h", with=FALSE]
 
   if (nrow(F_h[n_h==1 & f_h != 1])>0) {
     print("There is stratas, where n_h == 1 and f_h <> 1")
@@ -134,19 +132,19 @@ variance_est <- function(Y, H, PSU, w_final, N_h=NULL, fh_zero=FALSE, PSU_level=
      print("There is stratas, where f_h > 1")
      print("At these stratas estimation of variance will be 0")
      print(F_h[f_h > 1])
-     f_h[f_h > 1] <- 1
+     F_h[f_h > 1, f_h:=1]
    }
 
   # fh1
   if (!(PSU_level)) {
-     n_h1 <- NULL
-     fh1 <- data.table(hpY[, c(1:(1+np)), with=FALSE], w_final)
-     fh1[, n_h1:=1]
-     fh1 <- fh1[, lapply(.SD, sum, na.rm=TRUE), keyby = c(names(fh1)[c(1:(1+np))]),
-	   .SDcols = c("n_h1", "w_final")]
-     fh1[, fh1:=n_h1/w_final]
-     f_h <- fh1[,"fh1", with=FALSE]
-   }
+       n_h1 <- NULL
+       fh1 <- data.table(hpY[, c(1:(1+np)), with=FALSE], w_final)
+       fh1[, n_h1:=1]
+       fh1 <- fh1[, lapply(.SD, sum, na.rm=TRUE), keyby = c(names(fh1)[c(1:(1+np))]),
+	           .SDcols = c("n_h1", "w_final")]
+       fh1[, fh1:=n_h1/w_final]
+       f_h <- fh1[, "fh1", with=FALSE]
+     } else  f_h <- F_h[,"f_h", with=FALSE]
 
   # var_h
   var_h <- data.table(matrix((1 - f_h*(1-fh_zero)) * n_h$n_h) * var_z_hi[, -c(1:(1+np)), with=FALSE])

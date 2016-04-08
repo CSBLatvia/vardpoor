@@ -72,7 +72,7 @@ Eurostat Methodologies and Working papers, Standard error estimation for the EU-
 
 Yves G. Berger, Tim Goedeme, Guillame Osier (2013). Handbook on standard
 error estimation and other related sampling issues in EU-SILC,
-URL \url{http://www.cros-portal.eu/content/handbook-standard-error-estimation-and-other-related-sampling-issues-ver-29072013}    \cr
+URL \url{https://ec.europa.eu/eurostat/cros/content/handbook-standard-error-estimation-and-other-related-sampling-issues-ver-29072013_en}    \cr
 
 Eurostat Methodologies and Working papers, Handbook on precision requirements and variance estimation for ESS household surveys, 2013, URL \url{http://ec.europa.eu/eurostat/documents/3859598/5927001/KS-RA-13-029-EN.PDF}. \cr
 }

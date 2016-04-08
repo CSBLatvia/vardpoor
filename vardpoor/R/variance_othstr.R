@@ -95,9 +95,9 @@ variance_othstr <- function(Y, H, H2, w_final, N_h=NULL, N_h2, period=NULL, data
   } else {
     Nh <- data.table(H, w_final)
     if (!is.null(period)) Nh <- data.table(period, Nh)
-    setkeyv(Nh, names(Nh)[c(1:(1+np))])
-    N_h <- Nh[, list(N_h = sum(w_final, na.rm = F)), Nh[, c(1:(1+np)), with=FALSE]]
+    N_h <- Nh[, .(N_h = sum(w_final, na.rm=TRUE)), keyby=c(names(Nh)[1:(1+np)])]
   }
+  Nh1 <- names(N_h)[ncol(N_h)]
 
 
   # N_h2
@@ -120,21 +120,18 @@ variance_othstr <- function(Y, H, H2, w_final, N_h=NULL, N_h2, period=NULL, data
                 } 
     setkeyv(N_h2, names(N_h2)[c(1:(1+np))])
   } else stop ("N_h2 is not defined!")
-
+  Nh2 <- names(N_h2)[ncol(N_h2)]
 
   if (all(names(H)==names(H2))) {
-      if (!is.null(N_h2))  setnames(N_h2, names(N_h2), paste0(names(N_h2),"2"))  
-     setnames(H2, names(H2), paste0(names(H), "2"))  }
-
-
-
+      if (!is.null(N_h2))  setnames(N_h2, names(H), paste0(names(H), "2"))  
+      setnames(H2, names(H2), paste0(names(H), "2"))  }
 
 
 
   ### Calculation
   
   # z_hi
-  .SD <- .N <- NULL
+  f_h1 <- .SD <- .N <- NULL
   Ys <- copy(Y)
   Ys[, paste0(names(Y),"_sa") := lapply(Y, function(x) w_final * x^2)]
   Ys[, paste0(names(Y),"_sb") := lapply(Y, function(x) x * w_final)]
@@ -149,49 +146,49 @@ variance_othstr <- function(Y, H, H2, w_final, N_h=NULL, N_h2, period=NULL, data
   # n_h1
   n_h1 <- data.table(H)
   if (!is.null(period))   n_h1 <- data.table(period, n_h1)
-  n_h1 <- n_h1[,.N, keyby=c(names(n_h1))]
-  setnames(n_h1,"N","n_h1")
+  n_h1 <- n_h1[, .(n_h1=.N), keyby=c(names(n_h1))]
 
+  F_h1 <- merge(N_h, n_h1, keyby = c(names(N_h)[1:(1+np)]))
+  F_h1[, f_h1:=n_h1/get(Nh1)]
 
-  if (any(n_h1$n_h1 == 1)) {
-    print("There is stratas, where n_h1 == 1")
+  if (nrow(F_h1[n_h1==1 & f_h1 != 1])>0) {
+    print("There is stratas, where n_h1 == 1 and f_h1 <> 1")
     print("Not possible to estimate the variance in these stratas!")
     print("At these stratas estimation of variance was not calculated")
-    nh1 <- n_h1[, 2+np, with=F]==1 
-    print(data.frame(n_h1)[nh1,])
+    nh1 <- F_h1[n_h1==1 & f_h1 != 1]
+    print(nh1)
   }
-
 
   # n_h2
   n_h2 <- data.table(H2)
   if (!is.null(period)) n_h2 <- data.table(period, n_h2)
   nn_h2 <- names(n_h2)
-  n_h2 <- n_h2[,.N, keyby=nn_h2]
-  setnames(n_h2,"N","n_h2")
+  n_h2 <- n_h2[, .(n_h2=.N), keyby=nn_h2]
 
+  F_h2 <- merge(N_h2, n_h2, keyby=nn_h2)
+  F_h2[, f_h2:=n_h2/get(Nh2)]
 
-  if (any(n_h2$n_h2 == 1)) {
-    print("There is stratas, where n_h2 == 1")
+  if (nrow(F_h2[n_h2==1 & f_h2 != 1])>0) {
+    print("There is stratas, where n_h2 == 1 and f_h2 <> 1")
     print("Not possible to estimate the variance in these stratas!")
     print("At these stratas estimation of variance was not calculated")
-    nh2 <- n_h2[, 2+np, with=F]==1 
-    print(data.frame(n_h2)[nh2,])
+    nh2 <- F_h2[n_h2==1 & f_h2 != 1]
+    print(nh2)
   }
-
+  
+  if (nrow(F_h2[f_h2 > 1])>0) {    
+      print("There is stratas, where f_h2 > 1")
+      print("At these stratas estimation of variance will be 0")
+      print(F_h2[f_h2 > 1])
+      F_h2[f_h2 > 1, f_h2:=1]
+   }
 
   z_h_h2 <- Ys[, lapply(.SD, sum, na.rm=TRUE), keyby = c(names(Ys)[1:(2+np)]),
                       .SDcols = names(Ys)[-(0:(ncol(Y)+2+np))]]
 
+  z_h_h2 <- merge(z_h_h2, F_h1, keyby = names(z_h_h2)[c(1:(1+np))])
 
-  setkeyv(z_h_h2, names(z_h_h2)[c(1:(1+np))]) 
-
-
-  z_h_h2 <- merge(z_h_h2, n_h1)
-  z_h_h2 <- merge(z_h_h2, N_h)
-
-
-  pop <- z_h_h2[[names(N_h)[ncol(N_h)]]]
-
+  pop <- z_h_h2[[Nh1]]
 
   z_h_h2[, paste0(names(Y),"_sc") := lapply(.SD[, 
            paste0(names(Y),"_sc"), with=FALSE], function(x)
@@ -214,23 +211,10 @@ variance_othstr <- function(Y, H, H2, w_final, N_h=NULL, N_h2, period=NULL, data
                       .SDcols = names(z_h_h2)[-(1:(2+np))]] 
 
 
-  F_h2 <- merge(N_h2, n_h2)
-  f_h2 <- F_h2[, np+3, with=F] / F_h2[, np+2, with=FALSE]
-  setnames(f_h2, "n_h2", "f_h2")
-
-
-  if (any(f_h2 > 1)) {    
-    print("There is stratas, where f_h2 > 1")
-    print("At these stratas estimation of variance will be 0")
-    print(data.frame(F_h2)[f_h2 > 1, ])
-    f_h2[f_h2 > 1] <- 1
-  }
-
-
-  zh2 <- merge(zh2, F_h2)
+  zh2 <- merge(zh2, F_h2, by=nn_h2)
   pop2 <- zh2[[names(N_h2)[ncol(N_h2)]]]
-  nh2 <- zh2[[names(n_h2)[ncol(n_h2)]]]
-
+  nh2 <- zh2[["n_h2"]]
+  f_h2 <- zh2[["f_h2"]]
 
   # s2
   s2_g <- zh2[,mapply(function(sa, sb, sc, sd) sa/(pop2-1)-pop2/(pop2-1)*((sb/pop2)^2-(sc-sd)/pop2^2),
@@ -245,15 +229,11 @@ variance_othstr <- function(Y, H, H2, w_final, N_h=NULL, N_h2, period=NULL, data
   s2_g <- data.table(s2_g)
   setnames(s2_g, names(s2_g), names(Y))
 
-
   s2g <- data.table(zh2[, nn_h2, with=FALSE], s2_g)
 
-
-  s2_g <- pop2^2*(1/nh2-1/pop2) * s2_g
-
+  s2_g <- matrix(pop2^2 * 1/nh2 * (1 - f_h2)) * s2_g
 
   if (np>0) s2_g <- data.table(zh2[, names(period), with=FALSE], s2_g)
-
 
   # Variance_est
   if (np==0) {var_est <- data.table(t(colSums(s2_g, na.rm=TRUE)))

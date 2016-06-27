@@ -3,7 +3,8 @@
 \title{Variance estimation for sample surveys by the ultimate cluster method}
 \description{Computes the variance estimation by the ultimate cluster method.}
 \usage{variance_est(Y, H, PSU, w_final, N_h=NULL, fh_zero=FALSE,
-                    PSU_level=TRUE, period=NULL, dataset=NULL)}
+                    PSU_level=TRUE, PSU_sort=NULL,
+                    period=NULL, dataset=NULL, msg="")}
 \arguments{
 \item{Y}{Variables of interest. Object convertible to \code{data.table} or variable names as character, column numbers.}
 
@@ -19,9 +20,13 @@
 
 \item{PSU_level}{by default TRUE; if PSU_level is true, in each strata fh is calculated as division of count of PSU in sample (n_h) and count of PSU in frame (N_h). if PSU_level is false, in each strata fh is calculated as division of count of units in sample (n_h) and count of units in frame (N_h), which calculated as sum of weights.}
 
+\item{PSU_sort}{optional; if PSU_sort is defined, then variance is calculated for systematic sample.}
+
 \item{period}{Optional variable for the survey periods. If supplied, the values for each period are computed independently. Object convertible to \code{data.table} or variable names as character, column numbers.}
 
 \item{dataset}{an optional name of the individual dataset  \code{data.table}.}
+
+\item{msg}{an optional printed text, when function print error.}
 
 }
 \value{a \code{data.table} containing the  values of the

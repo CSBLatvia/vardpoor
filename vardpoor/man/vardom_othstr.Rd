@@ -9,7 +9,8 @@
        Dom = NULL, period=NULL, N_h = NULL,
        N_h2, Z = NULL,
        X = NULL, g = NULL, q = NULL, dataset = NULL, 
-       confidence = .95,  outp_lin=FALSE, outp_res=FALSE)}
+       confidence = .95,  percentratio=1, 
+       outp_lin=FALSE, outp_res=FALSE)}
 
 \arguments{
 
@@ -29,9 +30,9 @@
 
 \item{period}{Optional variable for survey period. If supplied, residual estimation of calibration is done independently for each time period. One dimensional object convertible to one-column \code{data.table}.}
 
-\item{N_h}{optional; either a \code{data.table} giving the first column - stratum, but the second column - the total of the population in each stratum.}
+\item{N_h}{optional data object convertible to \code{data.table}. If period is supplied, the time period is at the beginning of the object and after time period in the object is stratum. If period is not supplied, the first column in the object is stratum. In the last column is the total of the population in each stratum.}
 
-\item{N_h2}{optional; either a \code{data.frame} giving the first column - new stratum, but the second column - the total of the population in each new stratum.}
+\item{N_h2}{optional data object convertible to \code{data.table}. If period is supplied, the time period is at the beginning of the object and after time period in the object is new stratum. If period is not supplied, the first column in the object is new stratum. In the last column is the total of the population in each stratum.}
 
 \item{Z}{optional variables of denominator for ratio estimation. Object convertible to \code{data.table} or variable names as character, column numbers.}
 
@@ -44,6 +45,8 @@
 \item{dataset}{Optional survey data object convertible to \code{data.table}.}
 
 \item{confidence}{Optional positive value for confidence interval. This variable by default is 0.95.}
+
+\item{percentratio}{Positive numeric value. All linearized variables are multiplied with \code{percentratio} value, by default - 1.}
 
 \item{outp_lin}{Logical value. If \code{TRUE} linearized values of the ratio estimator will be printed out.}
 
@@ -72,7 +75,7 @@
        \code{rse} - the estimated relative standard error (coefficient of variation), \cr
        \code{cv} - the estimated relative standard error (coefficient of variation) in percentage, \cr
        \code{absolute_margin_of_error} - the estimated absolute margin of error, \cr
-       \code{relative_margin_of_error} - the estimated relative margin of error, \cr
+       \code{relative_margin_of_error} - the estimated relative margin of error in percentage, \cr
        \code{CI_lower} - the estimated confidence interval lower bound, \cr
        \code{CI_upper} - the estimated confidence interval upper bound, \cr
        \code{var_srs_HT} - the estimated variance of the HT estimator under SRS, \cr
@@ -80,8 +83,7 @@
        \code{var_srs_ca} - the estimated variance of the calibrated estimator under SRS, \cr
        \code{deff_sam} - the estimated design effect of sample design, \cr
        \code{deff_est} - the estimated design effect of estimator, \cr
-       \code{deff} - the overall estimated design effect of sample design and estimator, \cr
-       \code{n_eff} - the effective sample size.}
+       \code{deff} - the overall estimated design effect of sample design and estimator}
 
 }
 

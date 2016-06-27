@@ -285,17 +285,17 @@ arrlinCalc <- function(Y_num, Y_den, ids, wght, indicator, order_quants,
 
     #---- 1. Linearization of the median income of people aged below 65 ----
 
-    u1 <- (quant_65_74pls - Y_num) * dom1/h1
+    u1 <- (quant_65_74pls - Y_num)/h1
     vect_f1 <- exp(-(u1^2)/2)/sqrt(2 * pi)
-    f_quant1 <- sum(vect_f1 * wght)/(N1 * h1)   # Estimate of F'(quantile)
+    f_quant1 <- sum(vect_f1 * wght * dom1)/(N1 * h1)   # Estimate of F'(quantile)
 
     lin_quant_65_74pl <- -(1/N1) * dom1 * ((Y_num<=quant_65_74pls) - order_quants/100)/f_quant1  # Linearized variable
 
     #---- 2. Linearization of the median income of people aged above 65 -----
 
-    u2 <- (quant_50_59mon - Y_den) * dom2/h2
+    u2 <- (quant_50_59mon - Y_den)/h2
     vect_f2 <- exp(-(u2^2)/2)/sqrt(2 * pi)
-    f_quant2 <- sum(vect_f2 * wght)/(N2 * h2)   # Estimate of F'(quantile)
+    f_quant2 <- sum(vect_f2 * wght * dom2)/(N2 * h2)   # Estimate of F'(quantile)
 
     lin_quant_50_59mon <- -(1/N2) * dom2 * ((Y_den<=quant_50_59mon) - order_quants/100)/f_quant2  # Linearized variable
 

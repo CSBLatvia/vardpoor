@@ -10,6 +10,7 @@
                    q = NULL,
                    dataset = NULL, 
                    confidence = .95, 
+                   percentratio = 1,
                    outp_lin = FALSE,
                    outp_res = FALSE) {
  
@@ -17,6 +18,7 @@
 
   if (length(outp_lin) != 1 | !any(is.logical(outp_lin))) stop("'outp_lin' must be the logical value")
   if (length(outp_res) != 1 | !any(is.logical(outp_res))) stop("'outp_res' must be the logical value")
+  if (length(percentratio) != 1 | !any(is.numeric(percentratio) | percentratio > 0)) stop("'percentratio' must be the positive numeric value")
   if(length(confidence) != 1 | any(!is.numeric(confidence) | confidence < 0 | confidence > 1)) {
          stop("'confidence' must be a numeric value in [0, 1]")  }
 
@@ -261,7 +263,7 @@
   linratio_outp <- per <- variableZ <- estim <- deff_sam <- NULL
   deff_est <- deff <- var_est2 <- se <- rse <- cv <- NULL
   absolute_margin_of_error <- relative_margin_of_error <- NULL
-  CI_lower <- CI_upper <- variable <- n_eff <- NULL
+  sar_nr <- CI_lower <- CI_upper <- variable <- n_eff <- NULL
 
   idper <- id
   if (!is.null(period)) idper <- data.table(idper, period)
@@ -274,11 +276,20 @@
           Y2a <- lin.ratio(Y1, Z1, w_design, Dom=NULL)
         } else {
             periodap <- do.call("paste", c(as.list(period), sep="_"))
-            sorts <- unlist(split(Y1[, .I], periodap))
-            lin1 <- lapply(split(Y1[, .I], periodap), function(i) lin.ratio(Y1[i], Z1[i], w_final[i], Dom=NULL))
-            Y2 <- rbindlist(lin1)[sorts]          
-            lin2 <- lapply(split(Y1[, .I], periodap), function(i) lin.ratio(Y1[i], Z1[i], w_design[i], Dom=NULL))
-            Y2a <- rbindlist(lin2)[sorts]
+            lin1 <- lapply(split(Y1[, .I], periodap), function(i)
+                            data.table(sar_nr=i, 
+                                   lin.ratio(Y1[i], Z1[i], w_final[i],
+                                     Dom=NULL, percentratio=percentratio)))
+            Y2 <- rbindlist(lin1)
+            setkeyv(Y2, "sar_nr")
+            lin2 <- lapply(split(Y1[, .I], periodap), function(i)
+                            data.table(sar_nr=i, 
+                                       lin.ratio(Y1[i], Z1[i], w_design[i],
+                                       Dom=NULL, percentratio=percentratio)))
+            Y2a <- rbindlist(lin2)
+            setkeyv(Y2a, "sar_nr")
+            Y2[, sar_nr:=NULL]
+            Y2a[, sar_nr:=NULL]
         }
     if (any(is.na(Y2))) print("Results are calculated, but there are cases where Z = 0")
     if (outp_lin) linratio_outp <- data.table(idper, PSU, Y2) 
@@ -294,11 +305,13 @@
         ind_gr <- data.table(nsk=rep(1, nrow(X)))
         if (!is.null(period)) ind_gr <- data.table(ind_gr, period)
         ind_gr <- do.call("paste", c(as.list(ind_gr), sep="_"))
-        sortcal <- unlist(split(Y1[, .I], ind_gr))
- 
-        lin1 <- lapply(split(Y2[, .I], ind_gr), function(i) 
-                    residual_est(Y=Y2[i], X=X[i], weight=w_design[i], q=q[i]))
-        Y3 <- rbindlist(lin1)[sortcal]  
+
+        lin1 <- lapply(split(Y2[,.I], ind_gr), function(i) 
+                        data.table(sar_nr=i, residual_est(Y=Y2[i],
+                                    X=X[i], weight=w_design[i], q=q[i])))
+        Y3 <- rbindlist(lin1)
+        setkeyv(Y3, "sar_nr")
+        Y3[, sar_nr:=NULL] 
       if (outp_res) res_outp <- data.table(idper, PSU, Y3)
   } else Y3 <- Y2
   Y2 <- NULL
@@ -460,11 +473,10 @@
                          } else { all_result[, respondent_count:=nhs$respondent_count]
                                   all_result[, pop_size:=nhs$pop_size]} 
 
- all_result[, n_eff:=deff/respondent_count]
   variab <- c("respondent_count", "n_nonzero", "pop_size", "estim", "var", "se", 
               "rse", "cv", "absolute_margin_of_error", "relative_margin_of_error",
               "CI_lower", "CI_upper", "var_srs_HT",  "var_cur_HT", 
-              "var_srs_ca", "deff_sam", "deff_est", "deff",  "n_eff")
+              "var_srs_ca", "deff_sam", "deff_est", "deff")
 
   setkeyv(all_result, c("nr_names", names(Dom), names(period)))
   all_result <- all_result[, c("variable", names(Dom), names(period), variab), with=FALSE]

@@ -412,11 +412,11 @@ varpoord <- function(Y, w_final,
 
   # Design weights
   if (!is.null(X)) {
-             idh <- data.frame(ID_household)
+             idh <- data.table(ID_household)
              if (!is.null(period)) idh <- data.table(period, idh)
              idhx <- data.table(X_ID_household, g)
              setnames(idhx, names(idhx)[c(1:(ncol(idhx)-1))], names(idh))
-             idg <- data.table(merge(idh, idhx, by=names(idh), sort=FALSE))
+             idg <- merge(idh, idhx, by=names(idh), sort=FALSE)
              w_design <- w_final / idg[[ncol(idg)]]
              idg <- data.table(idg, w_design=w_design)
              idh <- idg[, .N, keyby=c(names(idh), "w_design")]
@@ -425,7 +425,7 @@ varpoord <- function(Y, w_final,
       } else w_design <- w_final
 
   ### Calculation
-  respondent_count <- pop_size <- n_nonzero <- NULL
+  sar_nr <- respondent_count <- pop_size <- n_nonzero <- NULL
   nhs <- data.table(respondent_count=1, pop_size=w_final, 
                                n_nonzero=as.integer(abs(Y)> .Machine$double.eps))
   if (!is.null(period)) nhs <- data.table(period, nhs)
@@ -686,21 +686,23 @@ varpoord <- function(Y, w_final,
        ind_gr <- D1[, np+2, with=FALSE]
        if (!is.null(period)) ind_gr <- data.table(D1[, names(periodX), with=FALSE], ind_gr)
        ind_period <- do.call("paste", c(as.list(ind_gr), sep="_"))
-       sorts <- unlist(split(Y3[, .I], ind_period))
     
        lin1 <- lapply(split(Y3[, .I], ind_period), function(i) 
-                   residual_est(Y=Y3[i],
-                                X=D1[i,(np+5):ncol(D1),with=FALSE],
-                                weight=w_design2[i],
-                                q=D1[i, np+3, with=FALSE]))
-
-       Y4 <- rbindlist(lin1)[sorts]
+                      data.table(sar_nr=i, 
+                             residual_est(Y=Y3[i],
+                                          X=D1[i, (np+5):ncol(D1), with=FALSE],
+                                          weight=w_design2[i],
+                                          q=D1[i, np+3, with=FALSE])))
+       Y4 <- rbindlist(lin1)
+       setkeyv(Y4, "sar_nr")
+       Y4[, sar_nr:=NULL]
        if (outp_res) res_outp <- data.table(IDh, PSU, w_final2, Y4)
    } else Y4 <- Y3
 
   var_est <- variance_est(Y=Y4, H=H, PSU=PSU, w_final=w_final2,
                           N_h=N_h, fh_zero=fh_zero, PSU_level=PSU_level,
-                          period=period, dataset=NULL)   
+                          period=period, dataset=NULL, 
+                          msg="Current variance estimation")
   var_est <- transpos(var_est, is.null(period), "var_est", names(period))
   all_result <- var_est
 
@@ -708,7 +710,8 @@ varpoord <- function(Y, w_final,
   # Variance of HT estimator under current design
   var_cur_HT <- variance_est(Y=Y3a, H=H, PSU=PSU, w_final=w_design2, 
                              N_h=N_h, fh_zero=fh_zero, PSU_level=PSU_level,
-                             period=period, dataset=NULL)                          
+                             period=period, dataset=NULL,
+                             msg="Variance of HT estimator under current design")                          
   var_cur_HT <- transpos(var_cur_HT, is.null(period), "var_cur_HT", names(period))
   all_result <- merge(all_result, var_cur_HT)
   var_est <- var_cur_HT <- NULL
@@ -806,14 +809,12 @@ varpoord <- function(Y, w_final,
                                   all_result[, pop_size:=nhs$pop_size]
                                   all_result[, n_nonzero:=nhs$n_nonzero]} 
 
-  all_result[, n_eff:=ifelse(is.na(deff) | deff==0, NA, respondent_count/deff)]
   variabl <- c("respondent_count", "n_nonzero", "pop_size", 
                       "value", "value_eu", "var", "se", "rse",
                       "cv", "absolute_margin_of_error",
                       "relative_margin_of_error", "CI_lower",  
                       "CI_upper", "var_srs_HT", "var_cur_HT", 
-                      "var_srs_ca", "deff_sam",
-                      "deff_est", "deff", "n_eff")
+                      "var_srs_ca", "deff_sam", "deff_est", "deff")
 
   type <- "type"
   if (!is.null(period)) type <- c(type, names(period))

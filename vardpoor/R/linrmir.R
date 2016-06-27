@@ -241,17 +241,17 @@ rmirlinCalc <- function(Y1, ids, wght, indicator, order_quants, age_under_65, qu
 
     #---- 1. Linearization of the median income of people aged below 65 ----
 
-    u1 <- (quant_under_65-Y1) * dom1/h
+    u1 <- (quant_under_65-Y1)/h
     vect_f1 <- exp(-(u1^2)/2)/sqrt(2*pi)
-    f_quant1 <- sum(vect_f1*wght)/(N1*h)   # Estimate of F'(quantile)
+    f_quant1 <- sum(vect_f1*wght*dom1)/(N1*h)   # Estimate of F'(quantile)
 
     lin_quant_under_65 <- -(1/N1)*dom1*((Y1<=quant_under_65)-order_quants/100)/f_quant1  # Linearized variable
 
     #---- 2. Linearization of the median income of people aged above 65 -----
 
-    u2 <- (quant_over_65-Y1) * dom2/h
+    u2 <- (quant_over_65-Y1)/h
     vect_f2 <- exp(-(u2^2)/2)/sqrt(2*pi)
-    f_quant2 <- sum(vect_f2*wght)/(N2*h)   # Estimate of F'(quantile)
+    f_quant2 <- sum(vect_f2*wght * dom2)/(N2*h)   # Estimate of F'(quantile)
 
     lin_quant_over_65 <- -(1/N2)*dom2*((Y1<=quant_over_65)-order_quants/100)/f_quant2  # Linearized variable
 

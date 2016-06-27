@@ -17,6 +17,7 @@ vardom <- function(Y, H, PSU, w_final,
                    id = NULL,  
                    Dom = NULL,
                    period = NULL,
+                   PSU_sort=NULL, 
                    N_h = NULL,
                    fh_zero=FALSE,
                    PSU_level=TRUE,
@@ -34,7 +35,7 @@ vardom <- function(Y, H, PSU, w_final,
   ### Checking
   if (length(fh_zero) != 1 | !any(is.logical(fh_zero))) stop("'fh_zero' must be the logical value")
   if (length(PSU_level) != 1 | !any(is.logical(PSU_level))) stop("'PSU_level' must be the logical value")
-  if (length(percentratio) != 1 | !any(is.integer(percentratio) | percentratio > 0)) stop("'percentratio' must be the positive integer value")
+  if (length(percentratio) != 1 | !any(is.numeric(percentratio) | percentratio > 0)) stop("'percentratio' must be the positive numeric value")
   if (length(outp_lin) != 1 | !any(is.logical(outp_lin))) stop("'outp_lin' must be the logical value")
   if (length(outp_res) != 1 | !any(is.logical(outp_res))) stop("'outp_res' must be the logical value")
   if(length(confidence) != 1 | any(!is.numeric(confidence) | confidence < 0 | confidence > 1)) {
@@ -76,7 +77,10 @@ vardom <- function(Y, H, PSU, w_final,
           if (min(q %in% names(dataset))==1) q <- dataset[, q, with=FALSE] } 
       if (!is.null(Dom)) {
           if (min(Dom %in% names(dataset))!=1) stop("'Dom' does not exist in 'dataset'!")
-          if (min(Dom %in% names(dataset))==1) Dom <- dataset[, Dom, with=FALSE] }   
+          if (min(Dom %in% names(dataset))==1) Dom <- dataset[, Dom, with=FALSE] } 
+       if (!is.null(PSU_sort)) {
+            if (min(PSU_sort %in% names(dataset))!=1) stop("'PSU_sort' does not exist in 'dataset'!")
+            if (min(PSU_sort %in% names(dataset))==1) PSU_sort <- dataset[, PSU_sort, with=FALSE] }  
      }
 
   # Y
@@ -121,6 +125,22 @@ vardom <- function(Y, H, PSU, w_final,
   } 
   np <- sum(ncol(period))
  
+  # PSU_sort
+  if (!is.null(PSU_sort)) {
+          PSU_sort <- data.frame(PSU_sort)
+          if (nrow(PSU_sort) != n) stop("'PSU_sort' must be equal with 'Y' row count")
+          if (ncol(PSU_sort) != 1) stop("'PSU_sort' must be vector or 1 column data.frame, matrix, data.table")
+          PSU_sort <- PSU_sort[, 1]
+          if (!is.numeric(PSU_sort)) stop("'PSU_sort' must be numerical")
+          if (any(is.na(PSU_sort))) stop("'PSU_sort' has unknown values")
+
+          psuag <- data.table(PSU, PSU_sort)
+          if (!is.null(period)) hpY <- data.table(period, psuag)
+          psuag <- psuag[,.N, by=names(psuag)][,N:=NULL]
+          psuag <- psuag[,.N, by=c(names(period), names(PSU))]
+          if (nrow(psuag[N>1])>0) stop("'PSU_sort' must be equal for each 'PSU'")
+  }
+
   # id
   if (is.null(id)) id <- 1:n
   id <- data.table(id)
@@ -160,7 +180,7 @@ vardom <- function(Y, H, PSU, w_final,
   }
 
   # Dom
-  namesDom <- NULL  
+  N <- namesDom <- NULL  
   if (!is.null(Dom)) {
     Dom <- data.table(Dom)
     namesDom <- names(Dom)
@@ -252,7 +272,7 @@ vardom <- function(Y, H, PSU, w_final,
                                                           sum(as.integer(abs(x)> .Machine$double.eps))),
                                                          .SDcols = names(Y1)]
 
-  respondent_count <- pop_size <- NULL
+  sar_nr <- respondent_count <- pop_size <- NULL
   nhs <- data.table(respondent_count=1, pop_size=w_final)
   if (!is.null(period)) nhs <- data.table(period, nhs)
   if (!is.null(Dom)) nhs <- data.table(Dom, nhs)
@@ -283,13 +303,20 @@ vardom <- function(Y, H, PSU, w_final,
           Y2a <- lin.ratio(Y1, Z1, w_design, Dom=NULL, percentratio=percentratio)
         } else {
             periodap <- do.call("paste", c(as.list(period), sep="_"))
-            sorts <- unlist(split(Y1[, .I], periodap))
-            lin1 <- lapply(split(Y1[, .I], periodap), function(i) lin.ratio(Y1[i], Z1[i], w_final[i],
-                                                                            Dom=NULL, percentratio=percentratio))
-            Y2 <- rbindlist(lin1)[sorts]          
-            lin2 <- lapply(split(Y1[, .I], periodap), function(i) lin.ratio(Y1[i], Z1[i], w_design[i],
-                                                                            Dom=NULL, percentratio=percentratio))
-            Y2a <- rbindlist(lin2)[sorts]
+            lin1 <- lapply(split(Y1[, .I], periodap), function(i)
+                            data.table(sar_nr=i, 
+                                   lin.ratio(Y1[i], Z1[i], w_final[i],
+                                     Dom=NULL, percentratio=percentratio)))
+            Y2 <- rbindlist(lin1)
+            setkeyv(Y2, "sar_nr")
+            lin2 <- lapply(split(Y1[, .I], periodap), function(i)
+                            data.table(sar_nr=i, 
+                                       lin.ratio(Y1[i], Z1[i], w_design[i],
+                                       Dom=NULL, percentratio=percentratio)))
+            Y2a <- rbindlist(lin2)
+            setkeyv(Y2a, "sar_nr")
+            Y2[, sar_nr:=NULL]
+            Y2a[, sar_nr:=NULL]
         }
     if (any(is.na(Y2))) print("Results are calculated, but there are cases where Z = 0")
     if (outp_lin) linratio_outp <- data.table(idper, PSU, Y2) 
@@ -304,12 +331,14 @@ vardom <- function(Y, H, PSU, w_final,
   if (!is.null(X)) {
         if (!is.null(period)) ind_gr <- data.table(ind_gr, period)
         ind_gr <- do.call("paste", c(as.list(ind_gr), sep="_"))
-        sortcal <- unlist(split(Y1[, .I], ind_gr))
- 
-        lin1 <- lapply(split(Y2[, .I], ind_gr), function(i) 
-                    residual_est(Y=Y2[i], X=X[i], weight=w_design[i], q=q[i]))
-        Y3 <- rbindlist(lin1)[sortcal]  
-      if (outp_res) res_outp <- data.table(idper, PSU, Y3)
+
+        lin1 <- lapply(split(Y2[,.I], ind_gr), function(i) 
+                        data.table(sar_nr=i, residual_est(Y=Y2[i],
+                                    X=X[i], weight=w_design[i], q=q[i])))
+        Y3 <- rbindlist(lin1)
+        setkeyv(Y3, "sar_nr")
+        Y3[, sar_nr:=NULL]
+        if (outp_res) res_outp <- data.table(idper, PSU, Y3)
   } else Y3 <- Y2
   Y2 <- NULL
   
@@ -317,8 +346,10 @@ vardom <- function(Y, H, PSU, w_final,
                           w_final = w_final, N_h = N_h,
                           fh_zero = fh_zero,
                           PSU_level = PSU_level,
+                          PSU_sort = PSU_sort,
                           period = period,
-                          dataset = NULL)
+                          dataset = NULL,
+                          msg="Current variance estimation")
   var_est <- transpos(var_est, is.null(period), "var_est", names(period))
   all_result <- var_est
     
@@ -330,8 +361,10 @@ vardom <- function(Y, H, PSU, w_final,
                              w_final = w_design, N_h = N_h, 
                              fh_zero = fh_zero,
                              PSU_level = PSU_level,
+                             PSU_sort = PSU_sort,
                              period = period,
-                             dataset = NULL)
+                             dataset = NULL,
+                             msg="Variance of HT estimator under current design")
   var_cur_HT <- transpos(var_cur_HT, is.null(period), "var_cur_HT", names(period))
   all_result <- merge(all_result, var_cur_HT, all=TRUE)
   n_nonzero <- var_est <- var_cur_HT <- NULL
@@ -470,7 +503,7 @@ vardom <- function(Y, H, PSU, w_final,
                          } else { all_result[, respondent_count:=nhs$respondent_count]
                                   all_result[, pop_size:=nhs$pop_size]} 
 
-  all_result[, n_eff:=ifelse(is.na(deff) | deff==0, NA, respondent_count/deff)]
+  all_result[, n_eff:=ifelse(is.na(deff) | deff<.Machine$double.eps, NA, respondent_count/deff)]
   variab <- c("respondent_count", "n_nonzero", "pop_size", "estim", "var", "se", 
               "rse", "cv", "absolute_margin_of_error", "relative_margin_of_error",
               "CI_lower", "CI_upper", "var_srs_HT",  "var_cur_HT", 

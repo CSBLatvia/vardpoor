@@ -1,4 +1,4 @@
- 
+   
 domain <- function(Y, D, dataset=NULL) { 
 
    if(!is.null(dataset)) {

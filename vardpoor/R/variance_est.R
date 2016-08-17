@@ -6,8 +6,8 @@ variance_est <- function(Y, H, PSU, w_final, N_h=NULL, fh_zero=FALSE, PSU_level=
 
   ### Checking
 
-    if (!is.logical(fh_zero)) stop("'fh_zero' must be the logical value")
-    if (!is.logical(PSU_level)) stop("'PSU_level' must be the logical value")
+    if (!is.logical(fh_zero)) stop("'fh_zero' must be logical")
+    if (!is.logical(PSU_level)) stop("'PSU_level' must be logical")
 
     if(!is.null(dataset)) {
       dataset <- data.table(dataset)

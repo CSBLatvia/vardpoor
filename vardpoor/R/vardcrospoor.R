@@ -46,9 +46,9 @@ vardcrospoor <- function(Y,
   if(length(alpha) != 1 | any(!is.numeric(alpha) | alpha < 0 | alpha > 100)) {
          stop("'alpha' must be a numeric value in [0, 100]")  }
  
-  if (length(netchanges) != 1 | !any(is.logical(netchanges))) stop("'netchanges' must be the logical value")
-  if (length(withperiod) != 1 | !any(is.logical(withperiod))) stop("'withperiod' must be the logical value")
-  if (length(use.estVar) != 1 | !any(is.logical(use.estVar))) stop("'use.estVar' must be the logical value")
+  if (length(netchanges) != 1 | !any(is.logical(netchanges))) stop("'netchanges' must be logical")
+  if (length(withperiod) != 1 | !any(is.logical(withperiod))) stop("'withperiod' must be logical")
+  if (length(use.estVar) != 1 | !any(is.logical(use.estVar))) stop("'use.estVar' must be logical")
 
   if(length(confidence) != 1 | any(!is.numeric(confidence) | confidence < 0 | confidence > 1)) {
          stop("'confidence' must be a numeric value in [0, 1]")  }

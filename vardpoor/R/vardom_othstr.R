@@ -16,8 +16,8 @@
  
   ### Checking
 
-  if (length(outp_lin) != 1 | !any(is.logical(outp_lin))) stop("'outp_lin' must be the logical value")
-  if (length(outp_res) != 1 | !any(is.logical(outp_res))) stop("'outp_res' must be the logical value")
+  if (length(outp_lin) != 1 | !any(is.logical(outp_lin))) stop("'outp_lin' must be logical")
+  if (length(outp_res) != 1 | !any(is.logical(outp_res))) stop("'outp_res' must be logical")
   if (length(percentratio) != 1 | !any(is.numeric(percentratio) | percentratio > 0)) stop("'percentratio' must be the positive numeric value")
   if(length(confidence) != 1 | any(!is.numeric(confidence) | confidence < 0 | confidence > 1)) {
          stop("'confidence' must be a numeric value in [0, 1]")  }

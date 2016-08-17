@@ -45,7 +45,7 @@ vardchangespoor <- function(Y,
   if(length(alpha) != 1 | any(!is.numeric(alpha) | alpha < 0 | alpha > 100)) {
          stop("'alpha' must be a numeric value in [0, 100]")  }
 
-  if (!is.logical(use.estVar)) stop("'use.estVar' must be the logical value")
+  if (!is.logical(use.estVar)) stop("'use.estVar' must be logical")
 
   if(length(confidence) != 1 | any(!is.numeric(confidence) | confidence < 0 | confidence > 1)) {
          stop("'confidence' must be a numeric value in [0,1]")  }

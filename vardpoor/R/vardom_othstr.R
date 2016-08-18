@@ -1,4 +1,4 @@
- vardom_othstr <- function(Y, H, H2, PSU, w_final,
+vardom_othstr <- function(Y, H, H2, PSU, w_final,
                    id = NULL,  
                    Dom = NULL,
                    period = NULL,
@@ -16,8 +16,8 @@
  
   ### Checking
 
-  if (length(outp_lin) != 1 | !any(is.logical(outp_lin))) stop("'outp_lin' must be the logical value")
-  if (length(outp_res) != 1 | !any(is.logical(outp_res))) stop("'outp_res' must be the logical value")
+  if (length(outp_lin) != 1 | !any(is.logical(outp_lin))) stop("'outp_lin' must be logical")
+  if (length(outp_res) != 1 | !any(is.logical(outp_res))) stop("'outp_res' must be logical")
   if (length(percentratio) != 1 | !any(is.numeric(percentratio) | percentratio > 0)) stop("'percentratio' must be the positive numeric value")
   if(length(confidence) != 1 | any(!is.numeric(confidence) | confidence < 0 | confidence > 1)) {
          stop("'confidence' must be a numeric value in [0, 1]")  }
@@ -180,8 +180,9 @@
            stop("'Dom' are duplicate column names: ", 
                  paste(names(Dom)[duplicated(names(Dom))], collapse = ","))
     if (nrow(Dom) != n) stop("'Dom' and 'Y' must be equal row count")
-    if (any(is.na(Dom))) stop("'Dom' has unknown values")
     if (is.null(names(Dom))) stop("'Dom' must be colnames")
+    if (any(is.na(Dom))) stop("'Dom' has unknown values")
+    if (any(sapply(Dom, is.factor))) stop("'Dom' must be character or numeric values")
     Dom[, (names(Dom)):=lapply(.SD, as.character)]
     namesDom <- names(Dom)
   }
@@ -338,14 +339,14 @@
 
   # Variance of HT estimator under SRS
   if (is.null(period)) {
-           var_srs_HT <- var_srs(Y2a, w = w_design)
+           var_srs_HT <- var_srs(Y2a, w = w_design)$varsrs
        } else {
            period_agg <- unique(period)
            lin1 <- lapply(1:nrow(period_agg), function(i) {
                           per <- period_agg[i,][rep(1, nrow(Y2a)),]
                           ind <- (rowSums(per == period) == ncol(period))
                           data.table(period_agg[i,], 
-                                     var_srs(Y2a[ind], w = w_design[ind]))
+                                     var_srs(Y2a[ind], w = w_design[ind])$varsrs)
                         })
            var_srs_HT <- rbindlist(lin1)
       }
@@ -355,14 +356,14 @@
 
   # Variance of calibrated estimator under SRS
   if (is.null(period)) {
-           var_srs_ca <- var_srs(Y3, w = w_final)
+           var_srs_ca <- var_srs(Y3, w = w_final)$varsrs
       } else {
            period_agg <- unique(period)
            lin1 <- lapply(1:nrow(period_agg), function(i) {
                           per <- period_agg[i,][rep(1, nrow(Y2a)),]
                           ind <- (rowSums(per == period) == ncol(period))
                           data.table(period_agg[i,], 
-                                     var_srs(Y3[ind], w = w_final[ind]))
+                                     var_srs(Y3[ind], w = w_final[ind])$varsrs)
                         })
            var_srs_ca <- rbindlist(lin1)
         }
@@ -374,7 +375,7 @@
   # Total estimation
   Y_nov <- Z_nov <- .SD <- NULL
 
-  hY <- data.table(Y1*w_final)
+  hY <- data.table(Y1 * w_final)
   if (is.null(period)) { Y_nov <- hY[, lapply(.SD, sum, na.rm=TRUE), .SDcols = names(Y1)]
                 } else { hY <- data.table(period, hY)
                          Y_nov <- hY[, lapply(.SD, sum, na.rm=TRUE), keyby=names(period), .SDcols = names(Y1)]

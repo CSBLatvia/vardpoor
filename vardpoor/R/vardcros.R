@@ -12,12 +12,12 @@ vardcros <- function(Y, H, PSU, w_final, id,
                      confidence = .95) {
  
   ### Checking
-  if (length(linratio) != 1 | !any(is.logical(linratio))) stop("'linratio' must be the logical value")
+  if (length(linratio) != 1 | !any(is.logical(linratio))) stop("'linratio' must be logical")
   if (length(percentratio) != 1 | !any(is.numeric(percentratio) | percentratio > 0)) stop("'percentratio' must be the positive numeric value")
-  if (length(netchanges) != 1 | !any(is.logical(netchanges))) stop("'netchanges' must be the logical value")
-  if (length(withperiod) != 1 | !any(is.logical(withperiod))) stop("'withperiod' must be the logical value")
-  if (length(use.estVar) != 1 | !any(is.logical(use.estVar))) stop("'use.estVar' must be the logical value")
-  if (length(household_level_max) != 1 | !any(is.logical(household_level_max))) stop("'household_level_max' must be the logical value")
+  if (length(netchanges) != 1 | !any(is.logical(netchanges))) stop("'netchanges' must be logical")
+  if (length(withperiod) != 1 | !any(is.logical(withperiod))) stop("'withperiod' must be logical")
+  if (length(use.estVar) != 1 | !any(is.logical(use.estVar))) stop("'use.estVar' must be logical")
+  if (length(household_level_max) != 1 | !any(is.logical(household_level_max))) stop("'household_level_max' must be logical")
   if(length(confidence) != 1 | any(!is.numeric(confidence) |  confidence < 0 | confidence > 1)) {
           stop("'confidence' must be a numeric value in [0,1]")  }
   if (is.null(Z)==linratio & linratio==TRUE) stop("'linratio' must be FALSE")
@@ -124,7 +124,6 @@ vardcros <- function(Y, H, PSU, w_final, id,
   if (ncol(country) != 1) stop("'country' has more than 1 column")
   if (!is.character(country[[names(country)]])) stop("'country' must be character")
 
-
   # periods
   if (withperiod) {
         periods <- data.table(periods)
@@ -142,8 +141,10 @@ vardcros <- function(Y, H, PSU, w_final, id,
     if (nrow(Dom) != n) stop("'Dom' and 'Y' must be equal row count")
     if (any(is.na(Dom))) stop("'Dom' has unknown values")
     if (is.null(names(Dom))) stop("'Dom' must be colnames")
+    if (any(is.na(Dom))) stop("'Dom' has unknown values")
+    if (any(sapply(Dom, is.factor))) stop("'Dom' must be character or numeric values")
     namesDom <- names(Dom)
-    Dom <- Dom[, lapply(.SD, as.character), .SDcols = namesDom]
+    Dom[, (namesDom):=lapply(.SD, as.character)]
     Dom_agg <- Dom[,.N, keyby=namesDom][,N:=NULL]
     Dom_agg1 <- Dom_agg[, lapply(namesDom, function(x) make.names(paste0(x,".", get(x))))]
     Dom_agg1[, Dom := Reduce(function(x, y) paste(x, y, sep="__"), .SD)]

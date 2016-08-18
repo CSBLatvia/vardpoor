@@ -99,6 +99,8 @@ lingini2 <- function(Y, id = NULL, weight = NULL, sort = NULL,
                       paste(names(Dom)[duplicated(names(Dom))], collapse = ","))
              if (is.null(names(Dom))) stop("'Dom' must be colnames")
              if (nrow(Dom) != n) stop("'Dom' must be the same length as 'Y'")
+             if (any(is.na(Dom))) stop("'Dom' has unknown values")
+             if (any(sapply(Dom, is.factor))) stop("'Dom' must be character or numeric values")
              Dom[, (names(Dom)):=lapply(.SD, as.character)]
        }
          

@@ -1,5 +1,5 @@
 
-var_srs <- function(Y, w) {
+var_srs <- function(Y, w = rep(1, length(Y))){
  
   ### Checking
   # Y
@@ -21,19 +21,10 @@ var_srs <- function(Y, w) {
 
   # N
   Nn <- sum(w)
-  
   konst <- Nn^2 * (1 - n/Nn) / n
+  s2p <- Y[, lapply(.SD, function(x) s2(x, w))]
 
-  wyN <- as.numeric(Y[, lapply(.SD, function(x) sum(x*w)/Nn)])
-
-  varsrs <- data.table(t(as.numeric(konst*Y[, mapply(function(x, x.vid) sum(w * (x - x.vid)^2),
-           .SD, wyN)] / (Nn - 1))))
-  setnames(varsrs, names(varsrs), names(Y))
-
-  varsrs2 <- data.table(t(as.numeric(konst*(Y[, lapply(.SD, function(x) sum(w * x^2))] / (Nn - 1) -
-    Nn / (Nn - 1) * (wyN)^2))))
-  setnames(varsrs2, names(varsrs2), names(Y))
-
- return(varsrs2)
+  varsrs <- konst * s2p
+  return(list(S2p = s2p, varsrs = varsrs))
 }
 

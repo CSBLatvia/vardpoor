@@ -46,9 +46,9 @@ vardcrospoor <- function(Y,
   if(length(alpha) != 1 | any(!is.numeric(alpha) | alpha < 0 | alpha > 100)) {
          stop("'alpha' must be a numeric value in [0, 100]")  }
  
-  if (length(netchanges) != 1 | !any(is.logical(netchanges))) stop("'netchanges' must be the logical value")
-  if (length(withperiod) != 1 | !any(is.logical(withperiod))) stop("'withperiod' must be the logical value")
-  if (length(use.estVar) != 1 | !any(is.logical(use.estVar))) stop("'use.estVar' must be the logical value")
+  if (length(netchanges) != 1 | !any(is.logical(netchanges))) stop("'netchanges' must be logical")
+  if (length(withperiod) != 1 | !any(is.logical(withperiod))) stop("'withperiod' must be logical")
+  if (length(use.estVar) != 1 | !any(is.logical(use.estVar))) stop("'use.estVar' must be logical")
 
   if(length(confidence) != 1 | any(!is.numeric(confidence) | confidence < 0 | confidence > 1)) {
          stop("'confidence' must be a numeric value in [0, 1]")  }
@@ -247,9 +247,10 @@ vardcrospoor <- function(Y,
            stop("'Dom' are duplicate column names: ", 
                  paste(names(Dom)[duplicated(names(Dom))], collapse = ","))
     if (nrow(Dom) != n) stop("'Dom' and 'Y' must be equal row count")
-    if (any(is.na(Dom))) stop("'Dom' has unknown values")
     namesDom <- names(Dom)
     if (is.null(namesDom)) stop("'Dom' must be colnames")
+    if (any(is.na(Dom))) stop("'Dom' has unknown values")
+    if (any(sapply(Dom, is.factor))) stop("'Dom' must be character or numeric values")
     Dom[, (namesDom):=lapply(.SD, as.character)]
   }
     

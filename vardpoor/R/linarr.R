@@ -142,6 +142,8 @@ linarr <- function(Y, Y_den, id=NULL, age, pl085, month_at_work, weight=NULL,  s
                       paste(names(Dom)[duplicated(names(Dom))], collapse = ","))
              if (is.null(names(Dom))) stop("'Dom' must be colnames")
              if (nrow(Dom) != n) stop("'Dom' must be the same length as 'Y'")
+             if (any(is.na(Dom))) stop("'Dom' has unknown values")
+             if (any(sapply(Dom, is.factor))) stop("'Dom' must be character or numeric values")
              Dom[, (names(Dom)):=lapply(.SD, as.character)]
        }
 

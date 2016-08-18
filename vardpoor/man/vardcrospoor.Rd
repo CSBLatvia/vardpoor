@@ -2,7 +2,7 @@
 
 \alias{vardcrospoor}
 
-\title{Variance estimation for cross-sectional, longitudinal measures for indicators on social exclusion and poverty.}
+\title{Variance estimation for cross-sectional, longitudinal measures for indicators on social exclusion and poverty}
 
 \description{Computes the variance estimation for cross-sectional and longitudinal measures for indicators on social exclusion and poverty.}
 

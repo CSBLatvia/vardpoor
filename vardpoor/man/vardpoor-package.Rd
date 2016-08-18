@@ -32,10 +32,10 @@ Generation of domain variables,
 \details{
 \tabular{ll}{
 Package: \tab vardpoor\cr
-Version: \tab 0.7.0\cr
-Date: \tab 2016-06-27\cr
+Version: \tab 0.7.3\cr
+Date: \tab 2016-08-04\cr
 Depends: \tab R (>= 3.2.3), data.table (>= 1.9.6), laeken, stringr\cr
-Imports: \tab reshape, foreach, plyr, gdata, MASS, stats, utils\cr
+Imports: \tab reshape, foreach, plyr, gdata, MASS, stats, utils, surveyplanning\cr
 License: \tab GPL (>= 2)\cr
 URL: \tab https://github.com/CSBLatvia/vardpoor/ \cr
 BugReports: \tab https://github.com/CSBLatvia/vardpoor/issues/ \cr
@@ -46,8 +46,8 @@ Index:
 domain                  Split data variables by domains
 incPercentile           Weighted income percentile
 lin.ratio               Linearization of the ratio estimator
-linarr    	              Linearization of the aggregate replacement ratio
-linrmi                       Linearization of the relative median income ratio
+linarr                  Linearization of the aggregate replacement ratio
+linrmi                  Linearization of the relative median income ratio
 linarpr                 Linearization of the at-risk-of-poverty rate
 linarpt                 Linearization of the at-risk-of-poverty
                         threshold
@@ -56,25 +56,21 @@ lingini2                Linearization of the GINI coefficient II
 lingpg                  Linearization of the gender pay (wage) gap
 linpoormed              Linearization of the median income below the
                         at-risk-of-poverty gap
-linqsr                  Linearization of the income quintile share
-                        ratio
+linqsr                  Linearization of the income quintile share ratio
 linrmpg                 Linearization of the relative median
                         at-risk-of-poverty gap
 residual_est            Residual estimation of calibration
-var_srs                 The estimation of the simple random sampling.
+var_srs                 The estimation of the simple random sampling
 vardchanges             Variance estimation for measures of change for
-                        single and multistage stage cluster sampling
-                        designs
-
-vardchangespoor        Variance estimation for measures of change for sample
-                                   surveys for indicators on social exclusion and poverty
-
+                        single and multistage stage cluster sampling designs
+vardchangespoor         Variance estimation for measures of change for sample
+                        surveys for indicators on social exclusion and poverty
 vardcros                Variance estimation for cross-sectional and
                         longitudinal measures for single and multistage
                         stage cluster sampling designs
-
-vardcrospoor	Variance estimation for cross-sectional, longitudinal measures for indicators on social exclusion and poverty
-
+vardcrospoor            Variance estimation for cross-sectional,
+                        longitudinal measures for indicators on
+                        social exclusion and poverty
 vardom                  Estimation of the variance in domain by the ultimate
                         cluster method
 vardom_othstr           Variance estimation for sample surveys in domain 

@@ -1,4 +1,3 @@
-
 vardomh <- function(Y, H, PSU, w_final,
                    ID_household,
                    id = NULL,   
@@ -23,11 +22,11 @@ vardomh <- function(Y, H, PSU, w_final,
                    outp_res = FALSE) {
  
   ### Checking
-  if (length(fh_zero) != 1 | !any(is.logical(fh_zero))) stop("'fh_zero' must be the logical value")
-  if (length(PSU_level) != 1 | !any(is.logical(PSU_level))) stop("'PSU_level' must be the logical value")
-  if (length(percentratio) != 1 | !any(is.numeric(percentratio) | percentratio > 0)) stop("'percentratio' must be the positive numeric value")
-  if (length(outp_lin) != 1 | !any(is.logical(outp_lin))) stop("'outp_lin' must be the logical value")
-  if (length(outp_res) != 1 | !any(is.logical(outp_res))) stop("'outp_res' must be the logical value")
+  if (length(fh_zero) != 1 | !any(is.logical(fh_zero))) stop("'fh_zero' must be logical")
+  if (length(PSU_level) != 1 | !any(is.logical(PSU_level))) stop("'PSU_level' must be logical")
+  if (length(percentratio) != 1 | !any(is.numeric(percentratio) | percentratio > 0)) stop("'percentratio' must be positive numeric value")
+  if (length(outp_lin) != 1 | !any(is.logical(outp_lin))) stop("'outp_lin' must be logical")
+  if (length(outp_res) != 1 | !any(is.logical(outp_res))) stop("'outp_res' must be logical")
 
   if(length(confidence) != 1 | any(!is.numeric(confidence) | confidence < 0 | confidence > 1)) {
          stop("'confidence' must be a numeric value in [0, 1]")  }
@@ -209,8 +208,9 @@ vardomh <- function(Y, H, PSU, w_final,
           stop("'Dom' are duplicate column names: ", 
                paste(names(Dom)[duplicated(names(Dom))], collapse = ","))
     if (nrow(Dom) != n) stop("'Dom' and 'Y' must be equal row count")
-    if (any(is.na(Dom))) stop("'Dom' has unknown values")
     if (is.null(names(Dom))) stop("'Dom' must be colnames")
+    if (any(is.na(Dom))) stop("'Dom' has unknown values")
+    if (any(sapply(Dom, is.factor))) stop("'Dom' must be character or numeric values")
     Dom[, (names(Dom)):=lapply(.SD, as.character)]
     namesDom <- names(Dom)
   }
@@ -366,12 +366,11 @@ vardomh <- function(Y, H, PSU, w_final,
       } else w_design <- w_final
       
   # Ratio of two totals
-  sar_nr <- Z1 <- persort <- linratio_outp <- NULL 
-  estim <- var_est2 <- se <- rse <- NULL
-  cv <- absolute_margin_of_error <- NULL
-  relative_margin_of_error <- CI_lower <- NULL
-  CI_upper <- variable <- variableZ <- .SD <- NULL
-  deff_sam <- deff_est <- deff <- n_eff <- NULL
+  sar_nr <- Z1 <- persort <- linratio_outp <- estim <- NULL 
+  var_est2 <- se <- rse <- cv <- absolute_margin_of_error <- NULL
+  relative_margin_of_error <- CI_lower <- S2_y_HT <- NULL
+  S2_y_ca <- S2_res <- CI_upper <- variable <- variableZ <- NULL
+  .SD <- deff_sam <- deff_est <- deff <- n_eff <- NULL
   
   aH <- names(H)
   idper <- id
@@ -382,7 +381,6 @@ vardomh <- function(Y, H, PSU, w_final,
      if (!is.null(Dom)) Z1 <- domain(Z, Dom) else Z1 <- Z
      if (is.null(period)) {
           Y2 <- lin.ratio(Y1, Z1, w_final, Dom=NULL, percentratio=percentratio)
-          Y2a <- lin.ratio(Y1, Z1, w_design, Dom=NULL, percentratio=percentratio)
         } else {
           periodap <- do.call("paste", c(as.list(period), sep="_"))
           lin1 <- lapply(split(Y1[, .I], periodap), function(i)
@@ -390,21 +388,13 @@ vardomh <- function(Y, H, PSU, w_final,
                               lin.ratio(Y1[i], Z1[i], w_final[i],
                                   Dom=NULL, percentratio=percentratio)))
           Y2 <- rbindlist(lin1)
-         
-          lin2 <- lapply(split(Y1[, .I], periodap), function(i)
-                          data.table(sar_nr=i, 
-                                     lin.ratio(Y1[i], Z1[i], w_design[i],
-                                     Dom=NULL, percentratio=percentratio)))
-          Y2a <- rbindlist(lin2)
-          setkeyv(Y2a, "sar_nr")
+          setkeyv(Y2, "sar_nr")
           Y2[, sar_nr:=NULL]
-          Y2a[, sar_nr:=NULL]
         }
      if (any(is.na(Y2))) print("Results are calculated, but there are cases where Z = 0")
      if (outp_lin) linratio_outp <- data.table(idper, PSU, Y2) 
     } else {
             Y2 <- Y1
-            Y2a <- Y1
           }
   lin1 <- lin2 <- NULL
 
@@ -412,15 +402,10 @@ vardomh <- function(Y, H, PSU, w_final,
 
   YY <- data.table(idper, ID_household, H, PSU)
   if (!is.null(PSU_sort)) YY <- data.table(YY, PSU_sort)
-  YYa <- data.table(YY, w_design, Y2a)
-  YY <- data.table(YY, w_final, Y2)
+  YY <- data.table(YY, w_design, w_final, Y2)
 
-
-
-  YY2 <- YY[, lapply(.SD, sum, na.rm=TRUE), by=c(names(YY)[c(2:(5+np+psusn))]), .SDcols=names(YY)[-(1:(5+np+psusn))]]
-  YY2a <- YYa[, lapply(.SD, sum, na.rm=TRUE), by=c(names(YYa)[c(2:(5+np+psusn))]), .SDcols=names(YYa)[-(1:(5+np+psusn))]]
-  Y3 <- YY2[, c(-(1:(4+np+psusn))), with=FALSE]
-  Y3a <- YY2a[, c(-(1:(4+np+psusn))), with=FALSE]
+  YY2 <- YY[, lapply(.SD, sum, na.rm=TRUE), by=c(names(YY)[c(2:(6+np+psusn))]), .SDcols=names(YY)[-(1:(6+np+psusn))]]
+  Y3 <- YY2[, c(-(1:(5+np+psusn))), with=FALSE]
 
   period <- NULL
   if (np>0) period <- YY2[, c(1:np), with=FALSE]
@@ -434,9 +419,9 @@ vardomh <- function(Y, H, PSU, w_final,
 
   if (!is.null(PSU_sort)) PSU_sort <- YY2[[np+4]]
 
-  w_final2 <- YY2[[np+4+psusn]]
-  w_design2 <- YY2a[[np+4+psusn]]    
-  YY <- YYa <- YY2 <- YY2a <- NULL
+  w_design2 <- YY2[[np+4+psusn]]    
+  w_final2 <- YY2[[np+5+psusn]]
+  YY <- YY2 <- NULL
 
   # Calibration
   res_outp <- NULL
@@ -461,8 +446,7 @@ vardomh <- function(Y, H, PSU, w_final,
        Y4[, sar_nr:=NULL]
        if (outp_res) res_outp <- data.table(IDh, PSU, w_final2, Y4)
    } else Y4 <- Y3
-  Y3 <- NULL
-                                
+                               
   var_est <- variance_est(Y=Y4, H=H, PSU=PSU,
                           w_final=w_final2,
                           N_h=N_h, fh_zero=fh_zero, 
@@ -477,7 +461,7 @@ vardomh <- function(Y, H, PSU, w_final,
   all_result <- merge(all_result, n_nonzero, all=TRUE)
  
   # Variance of HT estimator under current design
-  var_cur_HT <- variance_est(Y=Y3a, H=H, PSU=PSU,
+  var_cur_HT <- variance_est(Y=Y3, H=H, PSU=PSU,
                              w_final=w_design2,
                              N_h=N_h, fh_zero=fh_zero, 
                              PSU_level=PSU_level,
@@ -491,42 +475,60 @@ vardomh <- function(Y, H, PSU, w_final,
 
   # Variance of HT estimator under SRS
   if (is.null(period)) {
-           var_srs_HT <- var_srs(Y3a, w = w_design2)
+           varsrs <- var_srs(Y = Y3, w = w_design2)
+           S2_y_HT <- varsrs$S2p
+           S2_y_ca <- var_srs(Y = Y3, w = w_final2)$S2p
+           var_srs_HT <- varsrs$varsrs
        } else {
            period_agg <- unique(period)
            lin1 <- lapply(1:nrow(period_agg), function(i) {
-                          per <- period_agg[i,][rep(1, nrow(Y3a)),]
+                          per <- period_agg[i,][rep(1, nrow(Y3)),]
                           ind <- (rowSums(per == period) == ncol(period))
-                          data.table(period_agg[i,], 
-                                     var_srs(Y3a[ind], w = w_design2[ind]))
+                          varsrs <- var_srs(Y = Y3[ind], w = w_design2[ind])
+                          varsca <- var_srs(Y = Y3[ind], w = w_final2[ind])
+                          list(S2p = data.table(period_agg[i,], varsrs$S2p),
+                               varsrs = data.table(period_agg[i,], varsrs$varsrs),
+                               S2ca = data.table(period_agg[i,], varsca$S2p))
                         })
-           var_srs_HT <- rbindlist(lin1)
+           S2_y_HT <- rbindlist(lapply(lin1, function(x) x[[1]]))
+           var_srs_HT <- rbindlist(lapply(lin1, function(x) x[[2]]))
+           S2_y_ca <- rbindlist(lapply(lin1, function(x) x[[3]]))
       }
   var_srs_HT <- transpos(var_srs_HT, is.null(period), "var_srs_HT", names(period))
-  all_result <- merge(all_result, var_srs_HT)
+  all_result <- merge(all_result, var_srs_HT, all=TRUE)
+  S2_y_HT <- transpos(S2_y_HT, is.null(period), "S2_y_HT", names(period))
+  all_result <- merge(all_result, S2_y_HT, all=TRUE)
+  S2_y_ca <- transpos(S2_y_ca, is.null(period), "S2_y_ca", names(period))
+  all_result <- merge(all_result, S2_y_ca, all=TRUE)
 
   # Variance of calibrated estimator under SRS
   if (is.null(period)) {
-           var_srs_ca <- var_srs(Y4, w = w_final2)
+           varsres <- var_srs(Y4, w = w_final2)
+           S2_res <- varsres$S2p
+           var_srs_ca <- varsres$varsrs
       } else {
            period_agg <- unique(period)
            lin1 <- lapply(1:nrow(period_agg), function(i) {
-                          per <- period_agg[i,][rep(1, nrow(Y3a)),]
+                          per <- period_agg[i,][rep(1, nrow(Y4)),]
                           ind <- (rowSums(per == period) == ncol(period))
-                          data.table(period_agg[i,], 
-                                     var_srs(Y4[ind], w = w_final2[ind]))
+                          varsres <- var_srs(Y = Y4[ind], w = w_final2[ind])
+                          list(S2p = data.table(period_agg[i,], varsres$S2p),
+                               varsrs = data.table(period_agg[i,], varsres$varsrs))
                         })
-           var_srs_ca <- rbindlist(lin1)
+           S2_res <- rbindlist(lapply(lin1, function(x) x[[1]]))
+           var_srs_ca <- rbindlist(lapply(lin1, function(x) x[[2]]))
         }
-  var_srs_ca <- transpos(var_srs_ca, is.null(period), "var_srs_ca", names(period))
-  all_result <- merge(all_result, var_srs_ca)
-  var_srs_HT <-  var_srs_ca <- NULL
-  Y3a <- Y4 <- NULL
+  var_srs_ca <- transpos(var_srs_ca, is.null(period), "var_srs_ca", names(period), "variable")
+  all_result <- merge(all_result, var_srs_ca, all=TRUE)
+  S2_res <- transpos(S2_res, is.null(period), "S2_res", names(period), "variable")
+  all_result <- merge(all_result, S2_res, all=TRUE)
+  Y3 <- S2_y_HT <- S2_y_ca <- S2_res <- var_srs_HT <- NULL
+  var_srs_ca <- Y4 <- NULL
 
   # Total estimation
   Y_nov <- Z_nov <- .SD <- NULL
 
-  hY <- data.table(Y1*w_final)
+  hY <- data.table(Y1 * w_final)
   if (is.null(period)) { Y_nov <- hY[, lapply(.SD, sum, na.rm=TRUE), .SDcols = names(Y1)]
                 } else { hY <- data.table(period0, hY)
                          Y_nov <- hY[, lapply(.SD, sum, na.rm=TRUE), keyby=names(period), .SDcols = names(Y1)]
@@ -628,8 +630,8 @@ vardomh <- function(Y, H, PSU, w_final,
 
   variab <- c("respondent_count", "n_nonzero", "pop_size", "estim", "var", "se", 
               "rse", "cv", "absolute_margin_of_error", "relative_margin_of_error",
-              "CI_lower", "CI_upper", "var_srs_HT",  "var_cur_HT", 
-              "var_srs_ca", "deff_sam", "deff_est", "deff")
+              "CI_lower", "CI_upper", "S2_y_HT", "S2_y_ca", "S2_res", "var_srs_HT",
+              "var_cur_HT", "var_srs_ca", "deff_sam", "deff_est", "deff")
 
   setkeyv(all_result, c("nr_names", names(Dom), names(period)))
   all_result <- all_result[, c("variable", names(Dom), names(period), variab), with=FALSE]

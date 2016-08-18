@@ -1,3 +1,9 @@
+Changes in vardpoor version 0.7.2
+
+    + Add new output argument S2_y_HT, S2_y_ca in functions vardom, vardomh, varpoord
+
+Corrected mistakes in linearization functions linrmir and linarr.
+
 Changes in vardpoor version 0.7.0
 
     + Corrected mistakes in linearization functions linrmir and linarr.

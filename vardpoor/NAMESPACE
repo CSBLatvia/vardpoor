@@ -36,4 +36,5 @@ import("stats")
 importFrom("gdata","trim")
 import("data.table")
 import("MASS")
+import("surveyplanning")
 

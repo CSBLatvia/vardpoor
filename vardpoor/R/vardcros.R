@@ -13,7 +13,7 @@ vardcros <- function(Y, H, PSU, w_final, id,
  
   ### Checking
   if (length(linratio) != 1 | !any(is.logical(linratio))) stop("'linratio' must be logical")
-  if (length(percentratio) != 1 | !any(is.numeric(percentratio) | percentratio > 0)) stop("'percentratio' must be the positive numeric value")
+  if (length(percentratio) != 1 | !any(is.numeric(percentratio) | percentratio > 0)) stop("'percentratio' must be a positive numeric value")
   if (length(netchanges) != 1 | !any(is.logical(netchanges))) stop("'netchanges' must be logical")
   if (length(withperiod) != 1 | !any(is.logical(withperiod))) stop("'withperiod' must be logical")
   if (length(use.estVar) != 1 | !any(is.logical(use.estVar))) stop("'use.estVar' must be logical")

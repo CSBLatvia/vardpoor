@@ -139,12 +139,10 @@ vardcros <- function(Y, H, PSU, w_final, id,
            stop("'Dom' are duplicate column names: ", 
                  paste(names(Dom)[duplicated(names(Dom))], collapse = ","))
     if (nrow(Dom) != n) stop("'Dom' and 'Y' must be equal row count")
-    if (any(is.na(Dom))) stop("'Dom' has unknown values")
     if (is.null(names(Dom))) stop("'Dom' must be colnames")
-    if (any(is.na(Dom))) stop("'Dom' has unknown values")
-    if (any(sapply(Dom, is.factor))) stop("'Dom' must be character or numeric values")
     namesDom <- names(Dom)
     Dom[, (namesDom):=lapply(.SD, as.character)]
+    if (any(is.na(Dom))) stop("'Dom' has unknown values")
     Dom_agg <- Dom[,.N, keyby=namesDom][,N:=NULL]
     Dom_agg1 <- Dom_agg[, lapply(namesDom, function(x) make.names(paste0(x,".", get(x))))]
     Dom_agg1[, Dom := Reduce(function(x, y) paste(x, y, sep="__"), .SD)]

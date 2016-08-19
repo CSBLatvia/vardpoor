@@ -26,9 +26,8 @@ domain <- function(Y, D, dataset=NULL) {
     stop(name.D, " has duplicate column names: ",
          paste(names(D)[duplicated(names(D))], collapse = ", "))
   if (nrow(D) != n) stop(name.Y, " and ", name.D ," have different row count")
+  D[, (names(D)):=lapply(.SD, as.character)]
   if (any(is.na(D))) stop("'D' has unknown values")
-  if (any(sapply(D, is.factor))) stop("'D' must be character or numeric values")
-  D <- D[, lapply(.SD, as.character), .SDcols = names(D)]
 
   Dom_agg <- unique(D)
   setkeyv(Dom_agg, names(Dom_agg))

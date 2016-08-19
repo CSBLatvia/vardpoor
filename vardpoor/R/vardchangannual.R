@@ -124,9 +124,8 @@ vardchangannual <- function(Y, H, PSU, w_final, id,
                  paste(names(Dom)[duplicated(names(Dom))], collapse = ","))
     if (nrow(Dom) != n) stop("'Dom' and 'Y' must be equal row count")
     if (is.null(names(Dom))) stop("'Dom' must be colnames")
-    if (any(is.na(Dom))) stop("'Dom' has unknown values")
-    if (any(sapply(Dom, is.factor))) stop("'Dom' must be character or numeric values")
     Dom[, (names(Dom)):=lapply(.SD, as.character)]
+    if (any(is.na(Dom))) stop("'Dom' has unknown values")
   }
   
   namesZ <- NULL

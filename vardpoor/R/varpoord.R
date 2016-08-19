@@ -304,9 +304,8 @@ varpoord <- function(Y, w_final,
                  paste(names(Dom)[duplicated(names(Dom))], collapse = ","))
     if (nrow(Dom) != n) stop("'Dom' and 'Y' have different row count")
     if (is.null(names(Dom))) stop("'Dom' must be colnames")
+    Dom[, (names(Dom)):=lapply(.SD, as.character)]
     if (any(is.na(Dom))) stop("'Dom' has unknown values")
-    if (any(sapply(Dom, is.factor))) stop("'Dom' must be character or numeric values")
-    Dom <- Dom[, lapply(.SD, as.character), .SDcols = names(Dom)]
   }
 
   # X

@@ -79,7 +79,7 @@ incPercentile <- function(Y, weights = NULL, sort = NULL,
                  stop("'period' are duplicate column names: ", 
                       paste(names(period)[duplicated(names(period))], collapse = ","))
        if (nrow(period) != n) stop("'period' must be the same length as 'Y'")
-       period[, (period):=lapply(.SD, as.character)]
+       period[, (names(period)):=lapply(.SD, as.character)]
        if(any(is.na(period))) stop("'period' has missing values")  
    }
 

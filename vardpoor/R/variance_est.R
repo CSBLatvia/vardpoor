@@ -125,7 +125,7 @@ variance_est <- function(Y, H, PSU, w_final, N_h=NULL, fh_zero=FALSE, PSU_level=
   namY <- names(Y)
 
   # z_hi
-  nhc <- f_h <- .SD <- N <- NULL
+  ids <- nhc <- f_h <- .SD <- N <- NULL
   hpY <- data.table(H, PSU, Y*w_final)
   if (!is.null(PSU_sort)) hpY <- data.table(H, PSU, PSU_sort, Y*w_final)
   if (!is.null(period)) hpY <- data.table(period, hpY)

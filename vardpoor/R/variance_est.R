@@ -75,6 +75,7 @@ variance_est <- function(Y, H, PSU, w_final, N_h=NULL, fh_zero=FALSE, PSU_level=
   np <- sum(ncol(period))
   vars <- names(period)
 
+
   # PSU_sort
   if (!is.null(PSU_sort)) {
           PSU_sort <- data.frame(PSU_sort)
@@ -195,12 +196,12 @@ variance_est <- function(Y, H, PSU, w_final, N_h=NULL, fh_zero=FALSE, PSU_level=
   if (!is.null(PSU_sort)) {
          var_z_hi[, nhc:=ifelse(n_h>1, 1/(2*n_h*(n_h-1)), NA)]
     } else var_z_hi[, nhc:=n_h]
-  
+
+  var_z_hi[, ids:=1:.N]
   var_z_hi[, (paste0("var_", namY)):=lapply(.SD[, namY, with=FALSE],
-                                         function(x) (1 - f_h*(1-fh_zero))*nhc*x)]
-  
+                                         function(x) (1 - f_h*(1-fh_zero))*nhc*x), by="ids"]
   # Variance_est 
-   
+  
   var_est <- var_z_hi[, lapply(.SD, sum, na.rm=TRUE), 
                                   keyby = vars, .SDcols = paste0("var_", namY)]
   setnames(var_est, paste0("var_", namY), namY)

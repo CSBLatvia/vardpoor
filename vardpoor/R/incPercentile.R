@@ -53,22 +53,22 @@ incPercentile <- function(Y, weights = NULL, sort = NULL,
    n <- nrow(Y)
    if (ncol(Y) != 1) stop("'Y' must be a vector or 1 column data.frame, matrix, data.table")
    Y <- Y[, 1]
-   if(!is.numeric(Y)) stop("'Y' must be numerical")
-   if (any(is.na(Y))) stop("'Y' has unknown values")
+   if(!is.numeric(Y)) stop("'Y' must be numeric")
+   if (any(is.na(Y))) stop("'Y' has missing values")
 
    # weights
    weights <- data.table(weights)
    if (nrow(weights) != n) stop("'weights' must be the same length as 'Y'")
-   if (ncol(weights) != 1) stop("'weights' must be vector or 1 column data.frame, matrix, data.table")
+   if (ncol(weights) != 1) stop("'weights' must be a vector or 1 column data.frame, matrix, data.table")
    weights <- weights[[1]]
-   if(!is.numeric(weights)) stop("'weights' must be numerical")
-   if (any(is.na(weights))) stop("'weights' has unknown values")
+   if(!is.numeric(weights)) stop("'weights' must be numeric")
+   if (any(is.na(weights))) stop("'weights' has missing values")
 
    # sort  
    if(!is.null(sort)) {
          sort <- data.frame(sort)
          if (nrow(sort) != n) stop("'sort' must be the same length as 'Y'")
-         if (ncol(sort) != 1) stop("'sort' must be vector or 1 column data.frame, matrix, data.table")
+         if (ncol(sort) != 1) stop("'sort' must be a vector or 1 column data.frame, matrix, data.table")
          sort <- sort[, 1]
    }
 
@@ -79,7 +79,8 @@ incPercentile <- function(Y, weights = NULL, sort = NULL,
                  stop("'period' are duplicate column names: ", 
                       paste(names(period)[duplicated(names(period))], collapse = ","))
        if (nrow(period) != n) stop("'period' must be the same length as 'Y'")
-       if(any(is.na(period))) stop("'period' has unknown values")  
+       period[, (period):=lapply(.SD, as.character)]
+       if(any(is.na(period))) stop("'period' has missing values")  
    }
 
    # Dom
@@ -87,9 +88,10 @@ incPercentile <- function(Y, weights = NULL, sort = NULL,
    if(!is.null(Dom)) {
              Dom <- data.table(Dom)
              namesDom <- names(Dom)
-             if (is.null(names(Dom))) stop("'Dom' must be colnames")
+             if (is.null(names(Dom))) stop("'Dom' must have column names")
              if (nrow(Dom) != n) stop("'Dom' must be the same length as 'Y'")
-             Dom[, (namesDom):=lapply(.SD, as.character)]
+             Dom[, (names(Dom)):=lapply(.SD, as.character)]
+             if (any(is.na(Dom))) stop("'Dom' has missing values")
        }
     
     if (!is.null(period)) {

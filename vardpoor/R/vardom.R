@@ -86,32 +86,32 @@ vardom <- function(Y, H, PSU, w_final,
   Y <- data.table(Y, check.names=TRUE)
   n <- nrow(Y)
   m <- ncol(Y)
-  if (any(is.na(Y))) stop("'Y' has unknown values")
+  if (any(is.na(Y))) stop("'Y' has missing values")
   if (!all(sapply(Y, is.numeric))) stop("'Y' must be numeric values")
-  if (is.null(names(Y))) stop("'Y' must be colnames")
+  if (is.null(names(Y))) stop("'Y' must have column names")
   
   # H
   H <- data.table(H)
   if (nrow(H) != n) stop("'H' length must be equal with 'Y' row count")
   if (ncol(H) != 1) stop("'H' must be 1 column data.frame, matrix, data.table")
-  if (any(is.na(H))) stop("'H' has unknown values")
-  if (is.null(names(H))) stop("'H' must be colnames")
+  if (any(is.na(H))) stop("'H' has missing values")
+  if (is.null(names(H))) stop("'H' must have column names")
   H[, (names(H)):=lapply(.SD, as.character)]
   
   # PSU
   PSU <- data.table(PSU)
-  if (any(is.na(PSU))) stop("'PSU' has unknown values")
   if (nrow(PSU) != n) stop("'PSU' length must be equal with 'Y' row count")
   if (ncol(PSU) != 1) stop("'PSU' has more than 1 column")
   PSU[, (names(PSU)):=lapply(.SD, as.character)]
+  if (any(is.na(PSU))) stop("'PSU' has missing values")
 
   # w_final 
   w_final <- data.frame(w_final)
   if (nrow(w_final) != n) stop("'w_final' must be equal with 'Y' row count")
-  if (ncol(w_final) != 1) stop("'w_final' must be vector or 1 column data.frame, matrix, data.table")
+  if (ncol(w_final) != 1) stop("'w_final' must be a vector or 1 column data.frame, matrix, data.table")
   w_final <- w_final[,1]
-  if (!is.numeric(w_final)) stop("'w_final' must be numerical")
-  if (any(is.na(w_final))) stop("'w_final' has unknown values") 
+  if (!is.numeric(w_final)) stop("'w_final' must be numeric")
+  if (any(is.na(w_final))) stop("'w_final' has missing values") 
 
   # period     
   if (!is.null(period)) {
@@ -119,8 +119,9 @@ vardom <- function(Y, H, PSU, w_final,
       if (any(duplicated(names(period)))) 
                 stop("'period' are duplicate column names: ", 
                      paste(names(period)[duplicated(names(period))], collapse = ","))
-      if (nrow(period) != n) stop("'period' must be the same length as 'inc'")
-      if(any(is.na(period))) stop("'period' has unknown values")
+      if (nrow(period) != n) stop("'period' must be the same length as 'Y'")
+      period[, (names(period)):=lapply(.SD, as.character)]
+      if(any(is.na(period))) stop("'period' has missing values")
   } 
   np <- sum(ncol(period))
  
@@ -128,10 +129,10 @@ vardom <- function(Y, H, PSU, w_final,
   if (!is.null(PSU_sort)) {
           PSU_sort <- data.frame(PSU_sort)
           if (nrow(PSU_sort) != n) stop("'PSU_sort' must be equal with 'Y' row count")
-          if (ncol(PSU_sort) != 1) stop("'PSU_sort' must be vector or 1 column data.frame, matrix, data.table")
+          if (ncol(PSU_sort) != 1) stop("'PSU_sort' must be a vector or 1 column data.frame, matrix, data.table")
           PSU_sort <- PSU_sort[, 1]
-          if (!is.numeric(PSU_sort)) stop("'PSU_sort' must be numerical")
-          if (any(is.na(PSU_sort))) stop("'PSU_sort' has unknown values")
+          if (!is.numeric(PSU_sort)) stop("'PSU_sort' must be numeric")
+          if (any(is.na(PSU_sort))) stop("'PSU_sort' has missing values")
 
           psuag <- data.table(PSU, PSU_sort)
           if (!is.null(period)) hpY <- data.table(period, psuag)
@@ -143,7 +144,7 @@ vardom <- function(Y, H, PSU, w_final,
   # id
   if (is.null(id)) id <- 1:n
   id <- data.table(id)
-  if (any(is.na(id))) stop("'id' has unknown values")
+  if (any(is.na(id))) stop("'id' has missing values")
   if (ncol(id) != 1) stop("'id' must be 1 column data.frame, matrix, data.table")
   if (nrow(id) != n) stop("'id' length must be equal with 'Y' row count")
   if (is.null(names(id))||(names(id)=="id")) setnames(id,names(id),"ID")
@@ -157,21 +158,20 @@ vardom <- function(Y, H, PSU, w_final,
   if (!is.null(N_h)) {
       N_h <- data.table(N_h)
       if (ncol(N_h) != np+2) stop(paste0("'N_h' should be ",toString(np+2)," columns"))
-      if (!is.numeric(N_h[[ncol(N_h)]])) stop("The last column of 'N_h' should be numerical")
-      if (any(is.na(N_h))) stop("'N_h' has unknown values") 
-      if (is.null(names(N_h))) stop("'N_h' must be colnames")
+      if (!is.numeric(N_h[[ncol(N_h)]])) stop("The last column of 'N_h' should be numeric")
+      if (any(is.na(N_h))) stop("'N_h' has missing values") 
+      if (is.null(names(N_h))) stop("'N_h' must have column names")
       if (all(names(H) %in% names(N_h))) {N_h[, (names(H)):=lapply(.SD, as.character), .SDcols=names(H)]
              } else stop("All strata titles of 'H' have not in 'N_h'")
       if (is.null(period)) {
              if (names(H) != names(N_h)[1]) stop("Strata titles for 'H' and 'N_h' is not equal")
-             if (any(is.na(merge(unique(H), N_h, by=names(H), all.x = TRUE)))) stop("'N_h' is not defined for all stratas")
+             if (any(is.na(merge(unique(H), N_h, by=names(H), all.x = TRUE)))) stop("'N_h' is not defined for all strata")
              if (any(duplicated(N_h[, head(names(N_h),-1), with=F]))) stop("Strata values for 'N_h' must be unique")
        } else { pH <- data.table(period, H)
                 if (any(names(pH) != names(N_h)[c(1:(1+np))])) stop("Strata titles for 'period' with 'H' and 'N_h' is not equal")
                 nperH <- names(period)
-                if (pH[, class(get(nperH))]!=N_h[, class(get(nperH))]) 
-                                                       stop("Period class for 'period' and 'N_h' is not equal ")
-                if (any(is.na(merge(unique(pH), N_h, by=names(pH), all.x=TRUE)))) stop("'N_h' is not defined for all stratas and periods")
+                N_h[, (nperH):=as.character(get(nperH))]
+                if (any(is.na(merge(unique(pH), N_h, by=names(pH), all.x=TRUE)))) stop("'N_h' is not defined for all strata and periods")
                 if (any(duplicated(N_h[, head(names(N_h),-1), with=FALSE]))) stop("Strata values for 'N_h' must be unique in all periods")
                 pH <- NULL
      }
@@ -187,9 +187,9 @@ vardom <- function(Y, H, PSU, w_final,
            stop("'Dom' are duplicate column names: ", 
                  paste(names(Dom)[duplicated(names(Dom))], collapse = ","))
     if (nrow(Dom) != n) stop("'Dom' and 'Y' must be equal row count")
-    if (is.null(namesDom)) stop("'Dom' must be colnames")
+    if (is.null(namesDom)) stop("'Dom' must have column names")
     Dom[, (namesDom):=lapply(.SD, as.character)]
-    if (any(is.na(Dom))) stop("'Dom' has unknown values")
+    if (any(is.na(Dom))) stop("'Dom' has missing values")
   }
   
   # Z
@@ -198,8 +198,8 @@ vardom <- function(Y, H, PSU, w_final,
     if (nrow(Z) != n) stop("'Z' and 'Y' must be equal row count")
     if (ncol(Z) != m) stop("'Z' and 'Y' must be equal column count")
     if (!all(sapply(Z, is.numeric))) stop("'Z' must be numeric values")
-    if (any(is.na(Z))) stop("'Z' has unknown values")
-    if (is.null(names(Z))) stop("'Z' must be colnames")
+    if (any(is.na(Z))) stop("'Z' has missing values")
+    if (is.null(names(Z))) stop("'Z' must have column names")
   }
       
   # X
@@ -215,7 +215,7 @@ vardom <- function(Y, H, PSU, w_final,
      ind_gr <- data.table(ind_gr)
      if (nrow(ind_gr) != nrow(X)) stop("'ind_gr' length must be equal with 'X' row count")
      if (ncol(ind_gr) != 1) stop("'ind_gr' must be 1 column data.frame, matrix, data.table")
-     if (any(is.na(ind_gr))) stop("'ind_gr' has unknown values")
+     if (any(is.na(ind_gr))) stop("'ind_gr' has missing values")
    }
 
   # X
@@ -228,7 +228,7 @@ vardom <- function(Y, H, PSU, w_final,
        X1 <- X2[, .N, keyby=names(ind_gr1)][[ncol(ind_gr1)+1]]
        X2 <- X2[,lapply(.SD, function(x) sum(!is.na(x))), keyby=names(ind_gr1), .SDcols=nX1]
        X2 <- X2[, !(names(X2) %in% names(ind_gr1)), with=F]
-       if (!all(X2==0 | X1==X2)) stop("X has unknown values")
+       if (!all(X2==0 | X1==X2)) stop("X has missing values")
        ind_gr1 <- nX1 <- X1 <- X2 <- NULL
    }
 
@@ -239,8 +239,8 @@ vardom <- function(Y, H, PSU, w_final,
     if (nrow(g) != nrow(X)) stop("'g' length must be equal with 'X' row count")
     if (ncol(g) != 1) stop("'g' must be 1 column data.frame, matrix, data.table")
     g <- g[,1]
-    if (!is.numeric(g)) stop("'g' must be numerical")
-    if (any(is.na(g))) stop("'g' has unknown values")
+    if (!is.numeric(g)) stop("'g' must be numeric")
+    if (any(is.na(g))) stop("'g' has missing values")
     if (any(g == 0)) stop("'g' value can not be 0")
    }
     
@@ -252,8 +252,8 @@ vardom <- function(Y, H, PSU, w_final,
     if (nrow(q) != nrow(X)) stop("'q' length must be equal with 'X' row count")
     if (ncol(q) != 1) stop("'q' must be 1 column data.frame, matrix, data.table")
     q <- q[,1]
-    if (!is.numeric(q)) stop("'q' must be numerical")
-    if (any(is.na(q))) stop("'q' has unknown values")
+    if (!is.numeric(q)) stop("'q' must be numeric")
+    if (any(is.na(q))) stop("'q' has missing values")
     if (any(is.infinite(q))) stop("'q' value can not be infinite")
   }
 

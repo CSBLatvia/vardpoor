@@ -139,18 +139,18 @@ varpoord <- function(Y, w_final,
   # Y
   Y <- data.frame(Y)
   n <- nrow(Y)
-  if (ncol(Y) != 1) stop("'Y' must have vector or 1 column data.frame, matrix, data.table")
+  if (ncol(Y) != 1) stop("'Y' must be vector or 1 column data.frame, matrix, data.table")
   Y <- Y[,1]
-  if (!is.numeric(Y)) stop("'Y' must be numerical")
-  if (any(is.na(Y))) stop("'Y' has unknown values")
+  if (!is.numeric(Y)) stop("'Y' must be numeric")
+  if (any(is.na(Y))) stop("'Y' has missing values")
   
    if (!is.null(Y_den)) {
           Y_den <- data.frame(Y_den)
           if (ncol(Y_den) != 1) stop("'Y_den' must be vector or 1 column data.frame, matrix, data.table")
           if (nrow(Y_den) != n) stop("'Y_den' must be the same length as 'Y'")
           Y_den <- Y_den[,1]
-          if(!is.numeric(Y_den)) stop("'Y_den' must be numerical")
-          if (any(is.na(Y_den))) stop("'Y_den' has unknown values")
+          if(!is.numeric(Y_den)) stop("'Y_den' must be numeric")
+          if (any(is.na(Y_den))) stop("'Y_den' has missing values")
   }
  
   # period     
@@ -160,14 +160,14 @@ varpoord <- function(Y, w_final,
                 stop("'period' are duplicate column names: ", 
                      paste(names(period)[duplicated(names(period))], collapse = ","))
       if (nrow(period) != n) stop("'period' must be the same length as 'Y'")
-      if(any(is.na(period))) stop("'period' has unknown values")  
+      if(any(is.na(period))) stop("'period' has missing values")  
   } 
   np <- sum(ncol(period))
 
   # id
   if (is.null(id)) id <- 1:n
   id <- data.table(id)
-  if (any(is.na(id))) stop("'id' has unknown values")
+  if (any(is.na(id))) stop("'id' has missing values")
   if (ncol(id) != 1) stop("'id' must be 1 column data.frame, matrix, data.table")
   if (nrow(id) != n) stop("'id' must be the same length as 'Y'")
   if (is.null(names(id))||(names(id)=="id")) setnames(id,names(id),"ID")
@@ -182,8 +182,8 @@ varpoord <- function(Y, w_final,
        if (nrow(age) != n) stop("'age' must be the same length as 'Y'")
        if (ncol(age) != 1) stop("'age' must be vector or 1 column data.frame, matrix, data.table")
       age <- age[, 1]
-      if (!is.numeric(age)) stop("'age' must be numerical")
-      if (any(is.na(age))) stop("'age' has unknown values")
+      if (!is.numeric(age)) stop("'age' must be numeric")
+      if (any(is.na(age))) stop("'age' has missing values")
    }
 
    # pl085
@@ -192,8 +192,8 @@ varpoord <- function(Y, w_final,
        if (nrow(pl085) != n) stop("'pl085' must be the same length as 'Y'")
        if (ncol(pl085) != 1) stop("'pl085' must be vector or 1 column data.frame, matrix, data.table")
        pl085 <- pl085[, 1]
-       if (!is.numeric(pl085)) stop("'pl085' must be numerical")
-       if (any(is.na(pl085))) stop("'pl085' has unknown values")
+       if (!is.numeric(pl085)) stop("'pl085' must be numeric")
+       if (any(is.na(pl085))) stop("'pl085' has missing values")
    }
 
    # month_at_work
@@ -202,8 +202,8 @@ varpoord <- function(Y, w_final,
         if (nrow(month_at_work) != n) stop("'month_at_work' must be the same length as 'Y'")
         if (ncol(month_at_work) != 1) stop("'month_at_work' must be vector or 1 column data.frame, matrix, data.table")
         month_at_work <- month_at_work[, 1]
-        if (!is.numeric(pl085)) stop("'month_at_work' must be numerical")
-        if (any(is.na(pl085))) stop("'month_at_work' has unknown values")
+        if (!is.numeric(pl085)) stop("'month_at_work' must be numeric")
+        if (any(is.na(pl085))) stop("'month_at_work' has missing values")
   }
 
   # ID_household
@@ -219,8 +219,8 @@ varpoord <- function(Y, w_final,
   if (nrow(w_final) != n) stop("'w_final' must have the same length as 'Y'")
   if (ncol(w_final) != 1) stop("'w_final' must have vector or 1 column data.frame, matrix, data.table")
   w_final <- w_final[,1]
-  if (!is.numeric(w_final)) stop("'w_final' must be numerical")
-  if (any(is.na(w_final))) stop("'w_final' has unknown values") 
+  if (!is.numeric(w_final)) stop("'w_final' must be numeric")
+  if (any(is.na(w_final))) stop("'w_final' has missing values") 
   
   # Y_thres
   if (!is.null(Y_thres)) {
@@ -228,8 +228,8 @@ varpoord <- function(Y, w_final,
        if (nrow(Y_thres) != n) stop("'Y_thres' must have the same length as 'Y'")
        if (ncol(Y_thres) != 1) stop("'Y_thres' must have vector or 1 column data.frame, matrix, data.table")
        Y_thres <- Y_thres[,1]
-       if (!is.numeric(Y_thres)) stop("'Y_thres' must be numerical")
-       if (any(is.na(Y_thres))) stop("'Y_thres' has unknown values") 
+       if (!is.numeric(Y_thres)) stop("'Y_thres' must be numeric")
+       if (any(is.na(Y_thres))) stop("'Y_thres' has missing values") 
      } else Y_thres <- Y
 
   # wght_thres
@@ -244,15 +244,15 @@ varpoord <- function(Y, w_final,
   H <- data.table(H)
   if (nrow(H) != n) stop("'H' must have the same length as 'Y'")
   if (ncol(H) != 1) stop("'H' must have 1 column data.frame, matrix, data.table")
-  if (any(is.na(H))) stop("'H' has unknown values")
-  if (is.null(names(H))) stop("'H' must be colnames")
+  if (any(is.na(H))) stop("'H' has missing values")
+  if (is.null(names(H))) stop("'H' must have column names")
   H[, (names(H)):=lapply(.SD, as.character)]
 
   # PSU
   PSU <- data.table(PSU)
   if (nrow(PSU) != n) stop("'PSU' must have the same length as 'Y'")
   if (ncol(PSU) != 1) stop("'PSU' must have vector or 1 column data.frame, matrix, data.table")
-  if (any(is.na(PSU))) stop("'PSU' has unknown values")
+  if (any(is.na(PSU))) stop("'PSU' has missing values")
   PSU[, (names(PSU)):=lapply(.SD, as.character)]
 
   # gender
@@ -261,7 +261,7 @@ varpoord <- function(Y, w_final,
       if (nrow(gender) != n) stop("'gender' must be the same length as 'Y'")
       if (ncol(gender) != 1) stop("'gender' must be vector or 1 column data.frame, matrix, data.table")
       gender <- gender[,1]
-      if (!is.numeric(gender)) stop("'gender' must be numerical")
+      if (!is.numeric(gender)) stop("'gender' must be numeric")
       if (length(unique(gender)) != 2) stop("'gender' must be exactly two values")
       if (!all.equal(unique(gender),c(1, 2))) stop("'gender' must be value 1 for male, 2 for females")
    }
@@ -270,21 +270,21 @@ varpoord <- function(Y, w_final,
   if (!is.null(N_h)) {
       N_h <- data.table(N_h)
       if (ncol(N_h) != np+2) stop(paste0("'N_h' should be ", np+2, " columns"))
-      if (!is.numeric(N_h[[ncol(N_h)]])) stop("The last column of 'N_h' should be numerical")
-      if (any(is.na(N_h))) stop("'N_h' has unknown values") 
-      if (is.null(names(N_h))) stop("'N_h' must be colnames")
+      if (!is.numeric(N_h[[ncol(N_h)]])) stop("The last column of 'N_h' should be numeric")
+      if (any(is.na(N_h))) stop("'N_h' has missing values") 
+      if (is.null(names(N_h))) stop("'N_h' must have column names")
       if (all(names(H) %in% names(N_h))) {N_h[, (names(H)):=lapply(.SD, as.character), .SDcols=names(H)]
              } else stop("All strata titles of 'H' have not in 'N_h'")
       if (is.null(period)) {
              if (names(H) != names(N_h)[1]) stop("Strata titles for 'H' and 'N_h' is not equal")
-             if (any(is.na(merge(unique(H), N_h, by=names(H), all.x = T)))) stop("'N_h' is not defined for all stratas")
+             if (any(is.na(merge(unique(H), N_h, by=names(H), all.x = T)))) stop("'N_h' is not defined for all strata")
              if (any(duplicated(N_h[, head(names(N_h),-1), with=F]))) stop("Strata values for 'N_h' must be unique")
        } else { pH <- data.table(period, H)
                 if (any(names(pH) != names(N_h)[c(1:(1+np))])) stop("Strata titles for 'period' with 'H' and 'N_h' is not equal")
                 nperH <- names(period)
                 if (pH[, class(get(nperH))]!=N_h[, class(get(nperH))]) 
                                                        stop("Period class for 'period' and 'N_h' is not equal ")
-                if (any(is.na(merge(unique(pH), N_h, by=names(pH), all.x = TRUE)))) stop("'N_h' is not defined for all stratas and periods")
+                if (any(is.na(merge(unique(pH), N_h, by=names(pH), all.x = TRUE)))) stop("'N_h' is not defined for all strata and periods")
                 if (any(duplicated(N_h[, head(names(N_h),-1), with=FALSE]))) stop("Strata values for 'N_h' must be unique in all periods")
                 pH <- NULL
      }
@@ -303,9 +303,9 @@ varpoord <- function(Y, w_final,
            stop("'Dom' are duplicate column names: ", 
                  paste(names(Dom)[duplicated(names(Dom))], collapse = ","))
     if (nrow(Dom) != n) stop("'Dom' and 'Y' have different row count")
-    if (is.null(names(Dom))) stop("'Dom' must be colnames")
+    if (is.null(names(Dom))) stop("'Dom' must have column names")
     Dom[, (names(Dom)):=lapply(.SD, as.character)]
-    if (any(is.na(Dom))) stop("'Dom' has unknown values")
+    if (any(is.na(Dom))) stop("'Dom' has missing values")
   }
 
   # X
@@ -329,7 +329,7 @@ varpoord <- function(Y, w_final,
         if (nrow(periodX) != nrow(X)) stop("'periodX' length must be equal with 'X' row count")
         if (ncol(periodX) != ncol(period)) stop("'periodX' length must be equal with 'period' column count")
         if (names(periodX) != names(period)) stop("'periodX' must be equal with 'period' names")
-        if (any(is.na(periodX))) stop("'periodX' has unknown values")
+        if (any(is.na(periodX))) stop("'periodX' has missing values")
         if (any(peri != periX)) stop("'unique(period)' and 'unique(periodX)' records have different")
         if (peri[, class(get(names(peri)))]!=periX[, class(get(names(periX)))])  stop("Class for 'periodX' and class for 'period' must be equal")
       } else if (!is.null(period)) stop("'periodX' must be defined")
@@ -341,7 +341,7 @@ varpoord <- function(Y, w_final,
     X_ID_household[, (names(X_ID_household)):=lapply(.SD, as.character)]
     if (nrow(X) != nrow(X_ID_household)) stop("'X' and 'X_ID_household' have different row count")
     if (ncol(X_ID_household) != 1) stop("'X_ID_household' must be 1 column data.frame, matrix, data.table")
-    if (any(is.na(X_ID_household))) stop("'X_ID_household' has unknown values")
+    if (any(is.na(X_ID_household))) stop("'X_ID_household' has missing values")
 
     IDh <- data.table(unique(ID_household))
     if (!is.null(period)) { X_ID_household <- data.table(periodX, X_ID_household)
@@ -369,7 +369,7 @@ varpoord <- function(Y, w_final,
      ind_gr <- data.table(ind_gr, check.names=TRUE)
      if (nrow(ind_gr) != nrow(X)) stop("'ind_gr' length must be equal with 'X' row count")
      if (ncol(ind_gr) != 1) stop("'ind_gr' must be 1 column data.frame, matrix, data.table")
-     if (any(is.na(ind_gr))) stop("'ind_gr' has unknown values")
+     if (any(is.na(ind_gr))) stop("'ind_gr' has missing values")
    }
 
   # X
@@ -382,7 +382,7 @@ varpoord <- function(Y, w_final,
        X1 <- X2[, .N, keyby=names(ind_gr1)][[ncol(ind_gr1)+1]]
        X2 <- X2[,lapply(.SD, function(x) sum(!is.na(x))), keyby=names(ind_gr1), .SDcols=nX1]
        X2 <- X2[, !(names(X2) %in% names(ind_gr)), with=FALSE]
-       if (!all(X2==0 | X1==X2)) stop("X has unknown values")
+       if (!all(X2==0 | X1==X2)) stop("X has missing values")
        ind_gr1 <- nX1 <- X1 <- X2 <- NULL
     }
 
@@ -393,8 +393,8 @@ varpoord <- function(Y, w_final,
     if (nrow(g) != nrow(X)) stop("'g' length must be equal with 'X' row count")
     if (ncol(g) != 1) stop("'g' must be 1 column data.frame, matrix, data.table")
     g <- g[,1]
-    if (!is.numeric(g)) stop("'g' must be numerical")
-    if (any(is.na(g))) stop("'g' has unknown values")
+    if (!is.numeric(g)) stop("'g' must be numeric")
+    if (any(is.na(g))) stop("'g' has missing values")
     if (any(g == 0)) stop("'g' value can not be 0")
    }
     
@@ -406,8 +406,8 @@ varpoord <- function(Y, w_final,
     if (nrow(q) != nrow(X)) stop("'q' length must be equal with 'X' row count")
     if (ncol(q) != 1) stop("'q' must be 1 column data.frame, matrix, data.table")
     q <- q[,1]
-    if (!is.numeric(q)) stop("'q' must be numerical")
-    if (any(is.na(q))) stop("'q' has unknown values")
+    if (!is.numeric(q)) stop("'q' must be numeric")
+    if (any(is.na(q))) stop("'q' has missing values")
     if (any(is.infinite(q))) stop("'q' value can not be infinite")
   }
 

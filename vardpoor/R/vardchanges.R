@@ -63,51 +63,53 @@ vardchanges <- function(Y, H, PSU, w_final, id,
   Y <- data.table(Y, check.names=TRUE)
   n <- nrow(Y)
   m <- ncol(Y)
-  if (!all(sapply(Y, is.numeric))) stop("'Y' must be numerical")
-  if (any(is.na(Y))) stop("'Y' has unknown values")
-  if (is.null(names(Y))) stop("'Y' must be colnames")
+  if (!all(sapply(Y, is.numeric))) stop("'Y' must be numeric")
+  if (any(is.na(Y))) stop("'Y' has missing values")
+  if (is.null(names(Y))) stop("'Y' must have column names")
   
   # H
   H <- data.table(H)
   if (nrow(H) != n) stop("'H' length must be equal with 'Y' row count")
   if (ncol(H) != 1) stop("'H' must be 1 column data.frame, matrix, data.table")
-  if (any(is.na(H))) stop("'H' has unknown values")
   if (is.null(names(H))) stop("'H' must be colname")
   H[, (names(H)):=lapply(.SD, as.character)]
+  if (any(is.na(H))) stop("'H' has missing values")
 
   # id
   id <- data.table(id)
-  if (any(is.na(id))) stop("'id' has unknown values")
+  if (any(is.na(id))) stop("'id' has missing values")
   if (nrow(id) != n) stop("'id' length must be equal with 'Y' row count")
   if (ncol(id) != 1) stop("'id' must be 1 column data.frame, matrix, data.table")
   if (is.null(names(id))||(names(id)=="id")) setnames(id, names(id), "ID")
 
   # PSU
   PSU <- data.table(PSU)
-  if (any(is.na(PSU))) stop("'PSU' has unknown values")
   if (nrow(PSU) != n) stop("'PSU' length must be equal with 'Y' row count")
   if (ncol(PSU) != 1) stop("'PSU' has more than 1 column")
+  PSU[, (names(PSU)):=lapply(.SD, as.character)]
+  if (any(is.na(PSU))) stop("'PSU' has missing values")
   
   # w_final
   w_final <- data.frame(w_final)
   if (nrow(w_final) != n) stop("'w_final' must be equal with 'Y' row count")
-  if (ncol(w_final) != 1) stop("'w_final' must be vector or 1 column data.frame, matrix, data.table")
+  if (ncol(w_final) != 1) stop("'w_final' must be a vector or 1 column data.frame, matrix, data.table")
   w_final <- w_final[,1]
-  if (!is.numeric(w_final)) stop("'w_final' must be numerical")
-  if (any(is.na(w_final))) stop("'w_final' has unknown values") 
+  if (!is.numeric(w_final)) stop("'w_final' must be numeric")
+  if (any(is.na(w_final))) stop("'w_final' has missing values") 
   
   # country
   country <- data.table(country)
-  if (any(is.na(country))) stop("'country' has unknown values")
   if (nrow(country) != n) stop("'country' length must be equal with 'Y' row count")
   if (ncol(country) != 1) stop("'country' must be 1 column")
-  if (!is.character(country[[names(country)]])) stop("'country' must be character")
+  country[, (names(country)):=lapply(.SD, as.character)]
+  if (any(is.na(country))) stop("'country' has missing values")
 
   # periods
   periods <- data.table(periods, check.names=TRUE)
-  if (any(is.na(periods))) stop("'periods' has unknown values")
   if (nrow(periods) != n) stop("'periods' length must be equal with 'Y' row count")
   if (ncol(periods) != 1) stop("'periods' must be 1 column")
+  periods[, (names(periods)):=lapply(.SD, as.character)]
+  if (any(is.na(periods))) stop("'periods' has missing values")
 
   # Dom
   if (!is.null(Dom)) {
@@ -116,9 +118,9 @@ vardchanges <- function(Y, H, PSU, w_final, id,
            stop("'Dom' are duplicate column names: ", 
                  paste(names(Dom)[duplicated(names(Dom))], collapse = ","))
     if (nrow(Dom) != n) stop("'Dom' and 'Y' must be equal row count")
-    if (is.null(names(Dom))) stop("'Dom' must be colnames")
+    if (is.null(names(Dom))) stop("'Dom' must have column names")
     Dom[, (names(Dom)):=lapply(.SD, as.character)]
-    if (any(is.na(Dom))) stop("'Dom' has unknown values")
+    if (any(is.na(Dom))) stop("'Dom' has missing values")
   }
   
   namesZ <- NULL
@@ -126,8 +128,8 @@ vardchanges <- function(Y, H, PSU, w_final, id,
     Z <- data.table(Z, check.names=TRUE)
     if (nrow(Z) != n) stop("'Z' and 'Y' must be equal row count")
     if (ncol(Z) != m) stop("'Z' and 'Y' must be equal column count")
-    if (any(is.na(Z))) stop("'Z' has unknown values")
-    if (is.null(names(Z))) stop("'Z' must be colnames")
+    if (any(is.na(Z))) stop("'Z' has missing values")
+    if (is.null(names(Z))) stop("'Z' must have column names")
     namesZ <- names(Z)
   }
  
@@ -135,7 +137,8 @@ vardchanges <- function(Y, H, PSU, w_final, id,
    period1 <- data.table(period1, check.names=TRUE)
    if (ncol(period1) != 1) stop("'period1' must be 1 column")
    setnames(period1, names(period1), names(periods))
-   if (any(is.na(period1))) stop("'period1' has unknown values")
+   period1[, (names(period1)):=lapply(.SD, as.character)]
+   if (any(is.na(period1))) stop("'period1' has missing values")
    periodss <- copy(periods)
    periodss[, periodss:=1]
 
@@ -148,7 +151,8 @@ vardchanges <- function(Y, H, PSU, w_final, id,
    period2 <- data.table(period2, check.names=TRUE)
    if (ncol(period2) != 1) stop("'period2' must be 1 column")
    setnames(period2, names(period2), names(periods))
-   if (any(is.na(period2))) stop("'period2' has unknown values")
+   period2[, (names(period2)):=lapply(.SD, as.character)]
+   if (any(is.na(period2))) stop("'period2' has missing values")
    if (any(is.na(merge(period2, periodss, all.x=TRUE,
                        by=names(periods), allow.cartesian=TRUE))))
              stop("'period2' row must be exist in 'periods'")

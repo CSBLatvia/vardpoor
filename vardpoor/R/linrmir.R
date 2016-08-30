@@ -51,26 +51,26 @@ linrmir <- function(Y, id=NULL, age, weight=NULL, sort=NULL,
    # Y
    Y <- data.frame(Y)
    n <- nrow(Y)
-   if (ncol(Y) != 1) stop("'Y' must be vector or 1 column data.frame, matrix, data.table")
+   if (ncol(Y) != 1) stop("'Y' must be a vector or 1 column data.frame, matrix, data.table")
    Y <- Y[,1]
-   if(!is.numeric(Y)) stop("'Y' must be numerical")
-   if (any(is.na(Y))) stop("'Y' has unknown values")
+   if(!is.numeric(Y)) stop("'Y' must be numeric")
+   if (any(is.na(Y))) stop("'Y' has missing values")
 
    # weight
    weight <- data.frame(weight)
    if (nrow(weight) != n) stop("'weight' must be the same length as 'Y'")
-   if (ncol(weight) != 1) stop("'weight' must be vector or 1 column data.frame, matrix, data.table")
+   if (ncol(weight) != 1) stop("'weight' must be a vector or 1 column data.frame, matrix, data.table")
    weight <- weight[, 1]
    if (!is.numeric(weight)) stop("'weight' must be numerical")
-   if (any(is.na(weight))) stop("'weight' has unknown values")
+   if (any(is.na(weight))) stop("'weight' has missing values")
    
    # age
    age <- data.frame(age)
    if (nrow(age) != n) stop("'age' must be the same length as 'Y'")
-   if (ncol(age) != 1) stop("'age' must be vector or 1 column data.frame, matrix, data.table")
+   if (ncol(age) != 1) stop("'age' must be a vector or 1 column data.frame, matrix, data.table")
    age <- age[, 1]
-   if (!is.numeric(age)) stop("'age' must be numerical")
-   if (any(is.na(age))) stop("'age' has unknown values")
+   if (!is.numeric(age)) stop("'age' must be numeric")
+   if (any(is.na(age))) stop("'age' has missing values")
    
    # sort
    if (!is.null(sort)) {
@@ -87,13 +87,14 @@ linrmir <- function(Y, id=NULL, age, weight=NULL, sort=NULL,
                  stop("'period' are duplicate column names: ", 
                       paste(names(period)[duplicated(names(period))], collapse = ","))
        if (nrow(period) != n) stop("'period' must be the same length as 'Y'")
-       if(any(is.na(period))) stop("'period' has unknown values")
+       period[, (names(period)):=lapply(.SD, as.character)]
+       if(any(is.na(period))) stop("'period' has missing values")
    }   
    
    # id
    if (is.null(id)) id <- 1:n
    id <- data.table(id)
-   if (any(is.na(id))) stop("'id' has unknown values")
+   if (any(is.na(id))) stop("'id' has missing values")
    if (ncol(id) != 1) stop("'id' must be 1 column data.frame, matrix, data.table")
    if (nrow(id) != n) stop("'id' must be the same length as 'Y'")
    if (is.null(names(id))||(names(id)=="id")) setnames(id,names(id),"ID")
@@ -111,9 +112,8 @@ linrmir <- function(Y, id=NULL, age, weight=NULL, sort=NULL,
                       paste(names(Dom)[duplicated(names(Dom))], collapse = ","))
              if (is.null(names(Dom))) stop("'Dom' must be colnames")
              if (nrow(Dom) != n) stop("'Dom' must be the same length as 'Y'")
-             if (any(is.na(Dom))) stop("'Dom' has unknown values")
-             if (any(sapply(Dom, is.factor))) stop("'Dom' must be character or numeric values")
              Dom[, (names(Dom)):=lapply(.SD, as.character)]
+             if (any(is.na(Dom))) stop("'Dom' has missing values")
        }
 
     ## computations

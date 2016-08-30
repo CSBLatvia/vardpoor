@@ -32,35 +32,32 @@ variance_othstr <- function(Y, H, H2, w_final, N_h=NULL, N_h2, period=NULL, data
   n <- nrow(Y)
   m <- ncol(Y)
   if (!all(sapply(Y, is.numeric))) stop("'Y' must be numeric values")
-  if (any(is.na(Y))) print("'Y' has unknown values")
-  if (is.null(names(Y))) stop("'Y' must be the column names")
+  if (any(is.na(Y))) print("'Y' has missing values")
+  if (is.null(names(Y))) stop("'Y' must have column names")
   
   # H
   H <- data.table(H)
   if (nrow(H) != n) stop("'H' length must be equal with 'Y' row count")
   if (ncol(H) != 1) stop("'H' must be 1 column data.frame, matrix, data.table")
-  if (any(is.na(H))) stop("'H' has unknown values")
-  if (is.null(names(H))) stop("'H' must be colnames")
+  if (is.null(names(H))) stop("'H' must have column names")
   H[, (names(H)):=lapply(.SD, as.character)]
-
+  if (any(is.na(H))) stop("'H' has missing values")
 
   # H2
   H2 <- data.table(H2)
   if (nrow(H2) != n) stop("'H2' length must be equal with 'Y' row count")
   if (ncol(H2) != 1) stop("'H2' must be 1 column data.frame, matrix, data.table")
-  if (any(is.na(H2))) stop("'H2' has unknown values")
-  if (is.null(names(H2))) stop("'H2' must be colnames")
+  if (is.null(names(H2))) stop("'H2' must have column names")
   H2[, (names(H2)):=lapply(.SD, as.character)]
-
+  if (any(is.na(H2))) stop("'H2' has missing values")
 
   # w_final
   w_final <- data.frame(w_final)
   if (nrow(w_final) != n) stop("'w_final' must be equal with 'Y' row count")
   if (ncol(w_final) != 1) stop("'w_final' must be vector or 1 column data.frame, matrix, data.table")
   w_final <- w_final[,1]
-  if (!is.numeric(w_final)) stop("'w_final' must be numerical")
-  if (any(is.na(w_final))) stop("'w_final' has unknown values")
-
+  if (!is.numeric(w_final)) stop("'w_final' must be numeric")
+  if (any(is.na(w_final))) stop("'w_final' has missing values")
 
   # period     
   if (!is.null(period)) {
@@ -69,7 +66,8 @@ variance_othstr <- function(Y, H, H2, w_final, N_h=NULL, N_h2, period=NULL, data
                  stop("'period' are duplicate column names: ", 
                       paste(names(period)[duplicated(names(period))], collapse = ","))
        if (nrow(period) != n) stop("'period' must be the same length as 'Y'")
-       if(any(is.na(period))) stop("'period' has unknown values") 
+       period[, (names(period)):=lapply(.SD, as.character)]
+       if(any(is.na(period))) stop("'period' has missing values") 
   }   
   np <- sum(ncol(period))
   
@@ -78,7 +76,7 @@ variance_othstr <- function(Y, H, H2, w_final, N_h=NULL, N_h2, period=NULL, data
       N_h <- data.table(N_h)
       if (ncol(N_h) != np+2) stop(paste0("'N_h' should be ",toString(np+2)," columns"))
       if (!is.numeric(N_h[[ncol(N_h)]])) stop("The last column of 'N_h' should be numerical")
-      if (any(is.na(N_h))) stop("'N_h' has unknown values") 
+      if (any(is.na(N_h))) stop("'N_h' has missing values") 
       if (is.null(names(N_h))) stop("'N_h' must be colnames")
       if (all(names(H) %in% names(N_h))) {N_h[, (names(H)):=lapply(.SD, as.character), .SDcols=names(H)]
              } else stop("All strata titles of 'H' have not in 'N_h'")
@@ -88,7 +86,7 @@ variance_othstr <- function(Y, H, H2, w_final, N_h=NULL, N_h2, period=NULL, data
        } else { pH <- data.table(period, H)
                 if (any(names(pH) != names(N_h)[c(1:(1+np))])) stop("Strata titles for 'period' with 'H' and 'N_h' is not equal")
                 nperH <- names(period)
-                if (pH[, class(get(nperH))]!=N_h[, class(get(nperH))])  stop("Period class for 'period' and 'N_h' is not equal")
+                N_h[, (nperH):=as.character(get(nperH))]
                 if (any(is.na(merge(unique(pH), N_h, by=names(pH), all.x = TRUE)))) stop("'N_h' is not defined for all stratas and periods")
                } 
      setkeyv(N_h, names(N_h)[c(1:(1+np))])
@@ -105,7 +103,7 @@ variance_othstr <- function(Y, H, H2, w_final, N_h=NULL, N_h2, period=NULL, data
       N_h2 <- data.table(N_h2)
       if (ncol(N_h2) != np+2) stop(paste0("'N_h2' should be ",toString(np+2)," columns"))
       if (!is.numeric(N_h2[[ncol(N_h2)]])) stop("The last column of 'N_h2' should be numerical")
-      if (any(is.na(N_h2))) stop("'N_h2' has unknown values") 
+      if (any(is.na(N_h2))) stop("'N_h2' has missing values") 
       if (is.null(names(N_h2))) stop("'N_h2' must be colnames")
       if (all(names(H2) %in% names(N_h2))) {N_h2[, (names(H2)):=lapply(.SD, as.character), .SDcols=names(H2)]
              } else stop("All strata titles of 'H2' have not in 'N_h2'")
@@ -115,7 +113,7 @@ variance_othstr <- function(Y, H, H2, w_final, N_h=NULL, N_h2, period=NULL, data
        } else { pH2 <- data.table(period, H2)
                 if (any(names(pH2) != names(N_h2)[c(1:(1+np))])) stop("Strata titles for 'period' with 'H2' and 'N_h2' is not equal")
                 nperH <- names(period)
-                if (pH2[, class(get(nperH))]!=N_h2[, class(get(nperH))])  stop("Period class for 'period' and 'N_h2' is not equal")
+                N_h2[, (nperH):=as.character(get(nperH))]
                 if (any(is.na(merge(unique(pH2), N_h2, by=names(pH2), all.x = TRUE)))) stop("'N_h2' is not defined for all stratas and periods")
                 } 
     setkeyv(N_h2, names(N_h2)[c(1:(1+np))])
@@ -152,9 +150,9 @@ variance_othstr <- function(Y, H, H2, w_final, N_h=NULL, N_h2, period=NULL, data
   F_h1[, f_h1:=n_h1/get(Nh1)]
 
   if (nrow(F_h1[n_h1==1 & f_h1 != 1])>0) {
-    print("There is stratas, where n_h1 == 1 and f_h1 <> 1")
-    print("Not possible to estimate the variance in these stratas!")
-    print("At these stratas estimation of variance was not calculated")
+    print("There are strata, where n_h1 == 1 and f_h1 <> 1")
+    print("Not possible to estimate the variance in these strata!")
+    print("At these strata estimation of variance was not calculated")
     nh1 <- F_h1[n_h1==1 & f_h1 != 1]
     print(nh1)
   }
@@ -169,16 +167,16 @@ variance_othstr <- function(Y, H, H2, w_final, N_h=NULL, N_h2, period=NULL, data
   F_h2[, f_h2:=n_h2/get(Nh2)]
 
   if (nrow(F_h2[n_h2==1 & f_h2 != 1])>0) {
-    print("There is stratas, where n_h2 == 1 and f_h2 <> 1")
-    print("Not possible to estimate the variance in these stratas!")
-    print("At these stratas estimation of variance was not calculated")
+    print("There are strata, where n_h2 == 1 and f_h2 <> 1")
+    print("Not possible to estimate the variance in these strata!")
+    print("At these strata estimation of variance was not calculated")
     nh2 <- F_h2[n_h2==1 & f_h2 != 1]
     print(nh2)
   }
   
   if (nrow(F_h2[f_h2 > 1])>0) {    
-      print("There is stratas, where f_h2 > 1")
-      print("At these stratas estimation of variance will be 0")
+      print("There are strata, where f_h2 > 1")
+      print("At these strata estimation of variance will be 0")
       print(F_h2[f_h2 > 1])
       F_h2[f_h2 > 1, f_h2:=1]
    }

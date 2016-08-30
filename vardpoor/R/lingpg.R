@@ -48,17 +48,17 @@ lingpg <- function(Y, gender = NULL, id=NULL, weight=NULL, sort = NULL,
    # Y
    Y <- data.frame(Y)
    n <- nrow(Y)
-   if (ncol(Y) != 1) stop("'Y' must be vector or 1 column data.frame, matrix, data.table")
+   if (ncol(Y) != 1) stop("'Y' must be a vector or 1 column data.frame, matrix, data.table")
    Y <- Y[,1]
    if(!is.numeric(Y)) stop("'Y' must be a numeric vector")                   
-   if (any(is.na(Y))) stop("'Y' has unknown values")
+   if (any(is.na(Y))) stop("'Y' has missing values")
 
    # gender
    gender <- data.frame(gender)
    if (nrow(gender) != n) stop("'gender' must be the same length as 'Y'")
-   if (ncol(gender) != 1) stop("'gender' must be vector or 1 column data.frame, matrix, data.table")
+   if (ncol(gender) != 1) stop("'gender' must be a vector or 1 column data.frame, matrix, data.table")
    gender <- gender[,1]
-   if (!is.numeric(gender)) stop("'gender' must be numerical")
+   if (!is.numeric(gender)) stop("'gender' must be numeric")
    if (length(unique(gender)) != 2) stop("'gender' must be exactly two values")
    if (!all.equal(unique(gender),c(1, 2))) stop("'gender' must be value 1 for male, 2 for females")
  
@@ -66,16 +66,16 @@ lingpg <- function(Y, gender = NULL, id=NULL, weight=NULL, sort = NULL,
    weight <- data.frame(weight)
    if (is.null(weight)) weight <- data.frame(rep.int(1, n))
    if (nrow(weight) != n) stop("'weight' must be the same length as 'Y'")
-   if (ncol(weight) != 1) stop("'weight' must be vector or 1 column data.frame, matrix, data.table")
+   if (ncol(weight) != 1) stop("'weight' must be a vector or 1 column data.frame, matrix, data.table")
    weight <- weight[,1]
-   if (!is.numeric(weight)) stop("'weight' must be a numerical")
-   if (any(is.na(weight))) stop("'weight' has unknown values")
+   if (!is.numeric(weight)) stop("'weight' must be a numeric")
+   if (any(is.na(weight))) stop("'weight' has missing values")
  
    # sort
    if (!is.null(sort)) {
         sort <- data.frame(sort)
         if (length(sort) != n) stop("'sort' must have the same length as 'Y'")
-        if (ncol(sort) != 1) stop("'sort' must be vector or 1 column data.frame, matrix, data.table")
+        if (ncol(sort) != 1) stop("'sort' must be a vector or 1 column data.frame, matrix, data.table")
         sort <- sort[, 1]
    }
  
@@ -87,13 +87,14 @@ lingpg <- function(Y, gender = NULL, id=NULL, weight=NULL, sort = NULL,
                       paste(names(period)[duplicated(names(period))], collapse = ","))
        if (nrow(period) != n) stop("'period' must be the same length as 'Y'")
        if (length(unique(gender)) != 2) stop("'gender' must be exactly two values")
-       if(any(is.na(period))) stop("'period' has unknown values")
+       period[, (names(period)):=lapply(.SD, as.character)]
+       if(any(is.na(period))) stop("'period' has missing values")
    }
 
    # id
    if (is.null(id)) id <- 1:n
    id <- data.table(id)
-   if (any(is.na(id))) stop("'id' has unknown values")
+   if (any(is.na(id))) stop("'id' has missing values")
    if (ncol(id) != 1) stop("'id' must be 1 column data.frame, matrix, data.table")
    if (nrow(id) != n) stop("'id' must be the same length as 'Y'")
    if (is.null(names(id))||(names(id)=="id")) setnames(id,names(id),"ID")
@@ -109,11 +110,10 @@ lingpg <- function(Y, gender = NULL, id=NULL, weight=NULL, sort = NULL,
              if (any(duplicated(names(Dom))))
                  stop("'Dom' are duplicate column names: ",
                       paste(names(Dom)[duplicated(names(Dom))], collapse = ","))
-             if (is.null(names(Dom))) stop("'Dom' must be colnames")
+             if (is.null(names(Dom))) stop("'Dom' must have column names")
              if (nrow(Dom) != n) stop("'Dom' must be the same length as 'Y'")
-             if (any(is.na(Dom))) stop("'Dom' has unknown values")
-             if (any(sapply(Dom, is.factor))) stop("'Dom' must be character or numeric values")
              Dom[, (names(Dom)):=lapply(.SD, as.character)]
+             if (any(is.na(Dom))) stop("'Dom' has missing values")
        }
 
 

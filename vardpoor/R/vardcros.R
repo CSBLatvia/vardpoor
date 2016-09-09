@@ -86,7 +86,7 @@ vardcros <- function(Y, H, PSU, w_final, id,
   if (!all(sapply(Y, is.numeric))) stop("'Y' must be numeric values")
   if (any(is.na(Y))) stop("'Y' has missing values")
   if (is.null(names(Y))) stop("'Y' must have column names")
-  if (any(grepl("__", Y))) stop("'Y' is not allowed column names with '__'")
+  if (any(grepl("__", names(Y)))) stop("'Y' is not allowed column names with '__'")
 
   # H
   H <- data.table(H)
@@ -146,7 +146,7 @@ vardcros <- function(Y, H, PSU, w_final, id,
     namesDom <- names(Dom)
     Dom[, (namesDom):=lapply(.SD, as.character)]
     if (any(is.na(Dom))) stop("'Dom' has missing values")
-    if (any(grepl("__", Dom))) stop("'Dom' is not allowed column names with '__'")
+    if (any(grepl("__", names(Dom)))) stop("'Dom' is not allowed column names with '__'")
     Dom_agg <- Dom[,.N, keyby=namesDom][,N:=NULL]
     Dom_agg1 <- Dom_agg[, lapply(namesDom, function(x) make.names(paste0(x,".", get(x))))]
     Dom_agg1[, Dom := Reduce(function(x, y) paste(x, y, sep="__"), .SD)]
@@ -161,7 +161,7 @@ vardcros <- function(Y, H, PSU, w_final, id,
     if (ncol(Z) != m) stop("'Z' and 'Y' must be equal column count")
     if (any(is.na(Z))) stop("'Z' has missing values")
     if (is.null(names(Z))) stop("'Z' must have column names")
-    if (any(grepl("__", Z))) stop("'Z' is not allowed column names with '__'")
+    if (any(grepl("__", names(Z)))) stop("'Z' is not allowed column names with '__'")
   }
       
   

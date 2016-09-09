@@ -306,6 +306,7 @@ varpoord <- function(Y, w_final,
     if (is.null(names(Dom))) stop("'Dom' must have column names")
     Dom[, (names(Dom)):=lapply(.SD, as.character)]
     if (any(is.na(Dom))) stop("'Dom' has missing values")
+    if (any(grepl("__", Dom))) stop("'Dom' is not allowed column names with '__'")
   }
 
   # X
@@ -723,9 +724,7 @@ varpoord <- function(Y, w_final,
   
   variables <- "variable"
   if (!is.null(period)) variables <- c(variables, names(period))
-  setkeyv(estim, variables)
-  setkeyv(all_result, variables)
-  all_result <- merge(estim, all_result, all=TRUE)
+  all_result <- merge(estim, all_result, all=TRUE, by=variables)
   
   all_result[, variable:=NULL]
   deff_sam <- deff_est <- deff <- n_eff <- var_est2 <- NULL

@@ -108,6 +108,7 @@ linarpt <- function(Y, id = NULL, weight = NULL, sort = NULL,
              if (nrow(Dom) != n) stop("'Dom' must be the same length as 'Y'")
              Dom[, (names(Dom)):=lapply(.SD, as.character)]
              if (any(is.na(Dom))) stop("'Dom' has unknown values")
+             if (any(grepl("__", Dom))) stop("'Dom' is not allowed column names with '__'")
        }
 
     ## computations

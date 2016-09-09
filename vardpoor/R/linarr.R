@@ -145,6 +145,7 @@ linarr <- function(Y, Y_den, id=NULL, age, pl085, month_at_work, weight=NULL,  s
              if (nrow(Dom) != n) stop("'Dom' must be the same length as 'Y'")
              Dom[, (names(Dom)):=lapply(.SD, as.character)]
              if (any(is.na(Dom))) stop("'Dom' has missing values")
+             if (any(grepl("__", Dom))) stop("'Dom' is not allowed column names with '__'")
        }
 
     ## computations

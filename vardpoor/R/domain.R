@@ -18,6 +18,7 @@ domain <- function(Y, D, dataset=NULL) {
   Y <- data.table(Y, check.names = TRUE)
   if (!all(sapply(Y, is.numeric))) stop(name.Y, " must be numeric")
   if (any(is.na(Y))) stop(name.Y, " has missing values")
+  if (any(grepl("__", Y))) stop("Y' is not allowed column names with '__'")
   n <- nrow(Y)
 
   # D
@@ -28,6 +29,7 @@ domain <- function(Y, D, dataset=NULL) {
   if (nrow(D) != n) stop(name.Y, " and ", name.D ," have different row count")
   D[, (names(D)):=lapply(.SD, as.character)]
   if (any(is.na(D))) stop("'D' has missing values")
+  if (any(grepl("__", D))) stop("'D' is not allowed column names with '__'")
 
   Dom_agg <- unique(D)
   setkeyv(Dom_agg, names(Dom_agg))

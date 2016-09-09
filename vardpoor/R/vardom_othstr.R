@@ -70,7 +70,8 @@ vardom_othstr <- function(Y, H, H2, PSU, w_final,
   if (!all(sapply(Y, is.numeric))) stop("'Y' must be numeric values")
   if (any(is.na(Y))) stop("'Y' has missing values")
   if (is.null(names(Y))) stop("'Y' must have column names")
-  
+  if (any(grepl("__", Y))) stop("'Y' is not allowed column names with '__'")
+
   # H
   H <- data.table(H)
   if (nrow(H) != n) stop("'H' length must be equal with 'Y' row count")
@@ -182,6 +183,7 @@ vardom_othstr <- function(Y, H, H2, PSU, w_final,
     if (is.null(names(Dom))) stop("'Dom' must have column names")
     Dom[, (names(Dom)):=lapply(.SD, as.character)]
     if (any(is.na(Dom))) stop("'Dom' has missing values")
+    if (any(grepl("__", Dom))) stop("'Dom' is not allowed column names with '__'")
     namesDom <- names(Dom)
   }
   
@@ -193,6 +195,8 @@ vardom_othstr <- function(Y, H, H2, PSU, w_final,
     if (!all(sapply(Z, is.numeric))) stop("'Z' must be numeric values")
     if (any(is.na(Z))) stop("'Z' has missing values")
     if (is.null(names(Z))) stop("'Z' must have column names")
+    if (any(grepl("__", Z))) stop("'Z' is not allowed column names with '__'")
+
   }
       
   # X

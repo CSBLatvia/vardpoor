@@ -1,3 +1,9 @@
+Changes in vardpoor version 0.7.4
+
+    + Corrected mistake when variable Dom or H is factor variable with NA values.
+
+    + Some error message corrections.
+
 Changes in vardpoor version 0.7.2
 
     + Add new output argument S2_y_HT, S2_y_ca in functions vardom, vardomh, varpoord

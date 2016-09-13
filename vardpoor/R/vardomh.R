@@ -261,24 +261,27 @@ vardomh <- function(Y, H, PSU, w_final,
     if (any(is.na(X_ID_household))) stop("'X_ID_household' has missing values")
 
     IDh <- data.table(unique(ID_household))
-    if (!is.null(periodX)) {X_ID_household <- data.table(periodX, X_ID_household)
+    X_ID_householdh <- copy(X_ID_household)
+    if (!is.null(periodX)) {X_ID_householdh <- data.table(periodX, X_ID_householdh)
                            IDh <- data.table(period, ID_household)
                            IDh <- IDh[, .N, by=names(IDh)][, N:=NULL]}
  
-    if (nrow(X_ID_household[,.N,by=names(X_ID_household)][N>1])>0) stop("'X_ID_household' have duplicates")
-    setkeyv(X_ID_household, names(X_ID_household))
-    setkeyv(IDh, names(IDh))
+    if (nrow(X_ID_householdh[,.N,by=names(X_ID_householdh)][N>1])>0) stop("'X_ID_household' have duplicates")
     nperIDh <- names(IDh)
-    if (any(nperIDh != names(X_ID_household))) stop("'X_ID_household' and 'ID_household' must be equal  names")
-    if (IDh[, class(get(nperIDh))]!=X_ID_household[, class(get(nperIDh))])  stop("Class for 'X_ID_household' and class for 'ID_household' must be equal ")
+    if (any(nperIDh != names(X_ID_householdh))) stop("'X_ID_household' and 'ID_household' must be equal names")
+    if (IDh[, class(get(nperIDh))]!=X_ID_householdh[, class(get(nperIDh))])  stop("Class for 'X_ID_household' and class for 'ID_household' must be equal ")
 
+    setkeyv(X_ID_householdh, names(X_ID_householdh))
+    setkeyv(IDh, names(IDh))
     if (!is.null(period)) {
-        if (nrow(IDh) != nrow(X_ID_household)) stop("'periodX' with 'X_ID_household' and 'unique(period, ID_household)' have different row count")
-        if (any(IDh != X_ID_household)) stop("'periodX' with 'X_ID_household' and 'unique(period, ID_household)' records have different")
+        if (nrow(IDh) != nrow(X_ID_householdh)) stop("'periodX' with 'X_ID_household' and 'unique(period, ID_household)' have different row count")
+        if (any(IDh != X_ID_householdh)) stop("'periodX' with 'X_ID_household' and 'unique(period, ID_household)' records have different")
       } else {
-        if (nrow(IDh) != nrow(X_ID_household)) stop("'X_ID_household' and 'unique(ID_household)' have different row count")
-        if (any(IDh != X_ID_household)) stop("'X_ID_household' and 'unique(ID_household)' records have different")
-    }}
+        if (nrow(IDh) != nrow(X_ID_householdh)) stop("'X_ID_household' and 'unique(ID_household)' have different row count")
+        if (any(IDh != X_ID_householdh)) stop("'X_ID_household' and 'unique(ID_household)' records have different")
+     }
+    X_ID_householdh <- NULL
+  }
 
 
   # ind_gr
@@ -357,7 +360,9 @@ vardomh <- function(Y, H, PSU, w_final,
   # Design weights
   if (!is.null(X)) {
              idh <- data.table(ID_household)
-             if (!is.null(period)) idh <- data.table(period, idh)
+             if (!is.null(period)) { idh <- data.table(period, idh)
+                                     X_ID_household <- data.table(period, X_ID_household)
+                                    }
              idhx <- data.table(X_ID_household, g)
              setnames(idhx, names(idhx)[c(1:(ncol(idhx)-1))], names(idh))
              idg <- merge(idh, idhx, by=names(idh), sort=FALSE)
@@ -432,7 +437,7 @@ vardomh <- function(Y, H, PSU, w_final,
        if (np>0) IDh <- data.table(period, IDh)
        setnames(IDh, names(IDh), names(X_ID_household))
        X0 <- data.table(X_ID_household, ind_gr, q, g, X)
-       D1 <- data.table(merge(IDh, X0, by=names(IDh)))
+       D1 <- merge(IDh, X0, by=names(IDh), sort=FALSE)
 
        ind_gr <- D1[, np+2, with=FALSE]
        if (!is.null(period)) ind_gr <- data.table(D1[, names(periodX), with=FALSE], ind_gr)

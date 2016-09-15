@@ -95,9 +95,9 @@ vardom <- function(Y, H, PSU, w_final,
   H <- data.table(H)
   if (nrow(H) != n) stop("'H' length must be equal with 'Y' row count")
   if (ncol(H) != 1) stop("'H' must be 1 column data.frame, matrix, data.table")
-  if (any(is.na(H))) stop("'H' has missing values")
   if (is.null(names(H))) stop("'H' must have column names")
   H[, (names(H)):=lapply(.SD, as.character)]
+  if (any(is.na(H))) stop("'H' has missing values")
   
   # PSU
   PSU <- data.table(PSU)

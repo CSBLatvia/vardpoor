@@ -135,6 +135,8 @@ vardomh <- function(Y, H, PSU, w_final,
   if (ncol(ID_household) != 1) stop("'ID_household' must be 1 column data.frame, matrix, data.table")
   if (nrow(ID_household) != n) stop("'ID_household' must be the same length as 'Y'")
   if (is.null(names(ID_household))) setnames(ID_household,names(ID_household),"ID_household")
+  ID_household[, (names(ID_household)):=lapply(.SD, as.character)]
+  if (any(is.na(ID_household))) stop("'ID_household' has missing values")
 
   # period     
   if (!is.null(period)) {
@@ -258,6 +260,7 @@ vardomh <- function(Y, H, PSU, w_final,
     X_ID_household <- data.table(X_ID_household)
     if (nrow(X) != nrow(X_ID_household)) stop("'X' and 'X_ID_household' have different row count")
     if (ncol(X_ID_household) != 1) stop("'X_ID_household' must be 1 column data.frame, matrix, data.table")
+    X_ID_household[, (names(X_ID_household)):=lapply(.SD, as.character)]
     if (any(is.na(X_ID_household))) stop("'X_ID_household' has missing values")
 
     IDh <- data.table(unique(ID_household))

@@ -213,6 +213,9 @@ varpoord <- function(Y, w_final,
   if (nrow(ID_household) != n) stop("'ID_household' must be the same length as 'Y'")
   if (is.null(names(ID_household))) setnames(ID_household,names(ID_household),"ID_household")
   if (names(id)==names(ID_household)) setnames(id,names(id),paste(names(id),"_id",sep=""))
+  ID_household[, (names(ID_household)):=lapply(.SD, as.character)]
+  if (any(is.na(ID_household))) stop("'ID_household' has missing values")
+
 
   # w_final 
   w_final <- data.frame(w_final)
@@ -244,16 +247,16 @@ varpoord <- function(Y, w_final,
   H <- data.table(H)
   if (nrow(H) != n) stop("'H' must have the same length as 'Y'")
   if (ncol(H) != 1) stop("'H' must have 1 column data.frame, matrix, data.table")
-  if (any(is.na(H))) stop("'H' has missing values")
   if (is.null(names(H))) stop("'H' must have column names")
   H[, (names(H)):=lapply(.SD, as.character)]
+  if (any(is.na(H))) stop("'H' has missing values")
 
   # PSU
   PSU <- data.table(PSU)
   if (nrow(PSU) != n) stop("'PSU' must have the same length as 'Y'")
   if (ncol(PSU) != 1) stop("'PSU' must have vector or 1 column data.frame, matrix, data.table")
-  if (any(is.na(PSU))) stop("'PSU' has missing values")
   PSU[, (names(PSU)):=lapply(.SD, as.character)]
+  if (any(is.na(PSU))) stop("'PSU' has missing values")
 
   # gender
   if (!is.null(gender)) {
@@ -339,9 +342,9 @@ varpoord <- function(Y, w_final,
  # X_ID_household
   if (!is.null(X)) {
     X_ID_household <- data.table(X_ID_household)
-    X_ID_household[, (names(X_ID_household)):=lapply(.SD, as.character)]
     if (nrow(X) != nrow(X_ID_household)) stop("'X' and 'X_ID_household' have different row count")
     if (ncol(X_ID_household) != 1) stop("'X_ID_household' must be 1 column data.frame, matrix, data.table")
+    X_ID_household[, (names(X_ID_household)):=lapply(.SD, as.character)]
     if (any(is.na(X_ID_household))) stop("'X_ID_household' has missing values")
 
     IDh <- data.table(unique(ID_household))

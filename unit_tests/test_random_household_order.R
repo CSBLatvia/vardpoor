@@ -1,23 +1,27 @@
-# Unit test 001
 # Pārbauda vai vardomh aprēķina pareizi atlikumus, ja dati
 # ir sakārtoti gadījuma secībā
 
-# Atgriež TRUE vai FALSE
+require(vardpoor)
 
-unit.test001 <- function() {
-  require(vardpoor)
+test_unordered_residuals <- function(n = 600, l = 3) {
 
-  n <- 600
-  m <- n / 3
+  # n - personu skaits izlasē
+  # l - personu skaits mājsaimniecībā
+  # m - mājsaimniecību skaits izlasē
 
+  m <- n / l
+
+  # Personu izlases dati
   datY <- data.table(IDp = 1:n,
-                     IDh = rep(1:m, each = 3),
+                     IDh = rep(1:m, each = l),
                      y = sample(0:1, n, replace = T),
                      strata = 1L,
                      rnd = runif(n))
-  datY[, psu := floor((IDh - 1) / 10) + 1L]
-  datY
 
+  # PSU
+  datY[, psu := floor((IDh - 1) / 10) + 1L]
+
+  # Mājsaimniecību dati izlasē
   datX <- data.table(IDh = 1:m,
                      x0 = 1L,
                      x1 = sample(0:3, m, replace = T),
@@ -26,26 +30,24 @@ unit.test001 <- function() {
                      g = rnorm(m, 1, 0.1),
                      q = runif(m),
                      rnd = runif(m))
+
+  # Kalibrētais svars
   datX[, wc := wd * g]
-  datX
 
+  # Pievieno kalibrēto svaru personām
   datY <- merge(datY, datX[, .(IDh, wc)], by = "IDh")
-  datY
 
+  # Y summārās vērtības pa majsaimniecībām
   totY <- datY[, .(y = sum(y)), keyby = IDh]
-  totY
 
   # Sakārtojam gadījuma secībā
   setorder(datX, rnd)
   setorder(datY, rnd)
 
   tmpX <- merge(datX, totY, by = "IDh")
-  tmpX
 
-  tmpX[, yres := residual_est(Y = y,
-                              X = .SD[, .(x0, x1, x2)],
+  tmpX[, yres := residual_est(Y = y, X = .SD[, .(x0, x1, x2)],
                               weight = wd, q = q)]
-  tmpX
 
   res <- vardomh(Y = "y",
                  H = "strata",
@@ -59,12 +61,13 @@ unit.test001 <- function() {
                  q = "q",
                  datasetX = datX,
                  outp_res = T)
-  res$res_out
 
   tmp <- merge(tmpX, res$res_out[, .(IDh, yres2 = y)], by = "IDh")
-  tmp
-
-  is.logical(tmp[, all.equal(yres, yres2)])
+  
+  return(list(tmp[, yres], tmp[, yres2]))
 }
 
-unit.test001()
+test_that("Parbaude vai nejausa datu seciba nerada kludu vardomh atlikumu aprekina",{
+  results <- test_unordered_residuals()
+  expect_equal(results[[1]], results[[2]])
+})

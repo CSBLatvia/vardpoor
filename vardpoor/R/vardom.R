@@ -516,9 +516,10 @@ vardom <- function(Y, H, PSU, w_final,
   all_result[, n_eff:=ifelse(is.na(deff) | deff<.Machine$double.eps, NA, respondent_count/deff)]
   variab <- c("respondent_count", "n_nonzero", "pop_size", "estim", "var", "se", 
               "rse", "cv", "absolute_margin_of_error", "relative_margin_of_error",
-              "CI_lower", "CI_upper", "S2_y_HT", "S2_y_ca", "S2_res", "var_srs_HT",   
-              "var_cur_HT", "var_srs_ca", "deff_sam", "deff_est", "deff", "n_eff")
-
+              "CI_lower", "CI_upper")
+  if (is.null(Dom))  variab <- c(variab, "S2_y_HT", "S2_y_ca", "S2_res") 
+  variab <- c(variab, "var_srs_HT",  "var_cur_HT", "var_srs_ca",
+              "deff_sam", "deff_est", "deff", "n_eff")
   setkeyv(all_result, c("nr_names", names(Dom), names(period)))
   all_result <- all_result[, c("variable", names(Dom), names(period), variab), with=FALSE]
 

@@ -1,8 +1,16 @@
-vardcros <- function(Y, H, PSU, w_final, id,
+vardcrosh <- function(Y, H, PSU, w_final, id,
+                      ID_household,
                      Dom = NULL,
                      Z = NULL, 
                      country, periods,
                      dataset = NULL,
+                     X = NULL,
+                     periodX = NULL,
+                     X_ID_level1 = NULL,
+                     ind_gr = NULL,
+                     g = NULL,
+                     q = NULL,
+                     datasetX = NULL,
                      linratio = FALSE,
                      percentratio=1,
                      use.estVar = FALSE,
@@ -79,6 +87,35 @@ vardcros <- function(Y, H, PSU, w_final, id,
                   names(Dom) <- Dom2 }    }
       }
 
+  if(!is.null(datasetX)) {
+       datasetX <- data.table(datasetX)
+       if (!is.null(periodX)) {
+            if (min(periodX %in% names(datasetX))!=1) stop("'periodX' does not exist in 'datasetX'!")
+            if (min(periodX %in% names(datasetX))==1) periodX <- datasetX[, periodX, with=FALSE] }
+
+      if(!is.null(X_ID_household)) {
+          if (min(X_ID_household %in% names(datasetX))!=1) stop("'X_ID_household' does not exist in 'datasetX'!")
+          if (min(X_ID_household %in% names(datasetX))==1) X_ID_household <- datasetX[, X_ID_household, with=FALSE]  }
+
+      if(!is.null(X)) {
+          if (min(X %in% names(datasetX))!=1) stop("'X' does not exist in 'datasetX'!")
+          if (min(X %in% names(datasetX))==1) X <- datasetX[, X, with=FALSE] }
+
+      if(!is.null(ind_gr)) {
+          if (min(ind_gr %in% names(datasetX))!=1) stop("'ind_gr' does not exist in 'datasetX'!")
+          if (min(ind_gr %in% names(datasetX))==1) ind_gr <- datasetX[, ind_gr, with=FALSE] }     
+              
+      if(!is.null(g)) {
+          if (min(g %in% names(datasetX))!=1) stop("'g' does not exist in 'datasetX'!")
+          if (min(g %in% names(datasetX))==1) g <- datasetX[, g, with=FALSE] }
+
+      if(!is.null(q)) {
+          if (min(q %in% names(datasetX))!=1)  {
+                     if (length(q)!=nrow(datasetX))  stop("'q' does not exist in 'datasetX'!") }
+          if (min(q %in% names(datasetX))==1) q <- datasetX[, q, with=FALSE] } 
+     }
+  N <- dataset <- datasetX <- NULL
+
   # Y
   Y <- data.table(Y, check.names=TRUE)
   n <- nrow(Y)
@@ -86,8 +123,7 @@ vardcros <- function(Y, H, PSU, w_final, id,
   if (!all(sapply(Y, is.numeric))) stop("'Y' must be numeric values")
   if (any(is.na(Y))) stop("'Y' has missing values")
   if (is.null(names(Y))) stop("'Y' must have column names")
-  if (any(grepl("__", names(Y)))) stop("'Y' is not allowed column names with '__'")
-
+  
   # H
   H <- data.table(H)
   if (nrow(H) != n) stop("'H' length must be equal with 'Y' row count")
@@ -96,13 +132,6 @@ vardcros <- function(Y, H, PSU, w_final, id,
   if (names(H)=="dataH_stratas") stop("'H' must have different column name")
   H[, (names(H)):=lapply(.SD, as.character)]
   if (any(is.na(H))) stop("'H' has missing values")
-
-  # id
-  id <- data.table(id)
-  if (any(is.na(id))) stop("'id' has missing values")
-  if (nrow(id) != n) stop("'id' length must be equal with 'Y' row count")
-  if (ncol(id) != 1) stop("'id' must be 1 column data.frame, matrix, data.table")
-  if (is.null(names(id))||(names(id)=="id")) setnames(id, names(id), "h_ID")
 
   # PSU
   PSU <- data.table(PSU)
@@ -116,9 +145,23 @@ vardcros <- function(Y, H, PSU, w_final, id,
   if (nrow(w_final) != n) stop("'w_final' must be equal with 'Y' row count")
   if (ncol(w_final) != 1) stop("'w_final' must be a vector or 1 column data.frame, matrix, data.table")
   w_final <- w_final[,1]
-  if (!is.numeric(w_final)) stop("'w_final' must be numeric")
+  if (!is.numeric(w_final)) stop("'w_final' must be numeric values")
   if (any(is.na(w_final))) stop("'w_final' has missing values") 
   
+  # ID_household
+  if (is.null(ID_household)) stop("'ID_household' must be defined")
+  ID_household <- data.table(ID_household)
+  if (ncol(ID_household) != 1) stop("'ID_household' must be 1 column data.frame, matrix, data.table")
+  if (nrow(ID_household) != n) stop("'ID_household' must be the same length as 'Y'")
+  if (is.null(names(ID_household))) setnames(ID_household,names(ID_household),"ID_household")
+
+  # id
+  id <- data.table(id)
+  if (any(is.na(id))) stop("'id' has missing values")
+  if (nrow(id) != n) stop("'id' length must be equal with 'Y' row count")
+  if (ncol(id) != 1) stop("'id' must be 1 column data.frame, matrix, data.table")
+  if (is.null(names(id))||(names(id)=="id")) setnames(id, names(id), "h_ID")
+
   # country
   country <- data.table(country)
   if (nrow(country) != n) stop("'country' length must be equal with 'Y' row count")
@@ -146,7 +189,6 @@ vardcros <- function(Y, H, PSU, w_final, id,
     namesDom <- names(Dom)
     Dom[, (namesDom):=lapply(.SD, as.character)]
     if (any(is.na(Dom))) stop("'Dom' has missing values")
-    if (any(grepl("__", names(Dom)))) stop("'Dom' is not allowed column names with '__'")
     Dom_agg <- Dom[,.N, keyby=namesDom][,N:=NULL]
     Dom_agg1 <- Dom_agg[, lapply(namesDom, function(x) make.names(paste0(x,".", get(x))))]
     Dom_agg1[, Dom := Reduce(function(x, y) paste(x, y, sep="__"), .SD)]
@@ -161,16 +203,132 @@ vardcros <- function(Y, H, PSU, w_final, id,
     if (ncol(Z) != m) stop("'Z' and 'Y' must be equal column count")
     if (any(is.na(Z))) stop("'Z' has missing values")
     if (is.null(names(Z))) stop("'Z' must have column names")
-    if (any(grepl("__", names(Z)))) stop("'Z' is not allowed column names with '__'")
   }
       
+  if (!is.null(X)) {
+    X <- data.table(X, check.names=TRUE)
+    if (!all(sapply(X, is.numeric))) stop("'X' must be numeric values")
+  }
+
+  # periodX
+  if (!is.null(X)) {
+     if(!is.null(periodX)) {
+        periodX <- data.table(periodX)
+        periX <- data.table(unique(periodX))
+        setkeyv(periX, names(periX))
+        peri <- data.table(unique(period))
+        setkeyv(peri, names(peri))
+        if (any(duplicated(names(periodX)))) 
+                    stop("'periodX' are duplicate column names: ", 
+                         paste(names(periodX)[duplicated(names(periodX))], collapse = ","))
+        if (nrow(periodX) != nrow(X)) stop("'periodX' length must be equal with 'X' row count")
+        if (ncol(periodX) != ncol(period)) stop("'periodX' length must be equal with 'period' column count")
+        if (names(periodX) != names(period)) stop("'periodX' must be equal with 'period' names")
+        if (any(is.na(periodX))) stop("'periodX' has missing values")
+        if (any(peri != periX)) stop("'unique(period)' and 'unique(periodX)' records have different")
+        if (peri[, class(get(names(peri)))]!=periX[, class(get(names(periX)))])  stop("Class for 'periodX' and class for 'period' must be equal")
+      } else if (!is.null(period)) stop("'periodX' must be defined")
+   } 
+
+ # X_ID_household
+  if (!is.null(X)) {
+    X_ID_household <- data.table(X_ID_household)
+    if (nrow(X) != nrow(X_ID_household)) stop("'X' and 'X_ID_household' have different row count")
+    if (ncol(X_ID_household) != 1) stop("'X_ID_household' must be 1 column data.frame, matrix, data.table")
+    if (any(is.na(X_ID_household))) stop("'X_ID_household' has missing values")
+
+    IDh <- data.table(unique(ID_household))
+    if (!is.null(periodX)) {X_ID_household <- data.table(periodX, X_ID_household)
+                           IDh <- data.table(period, ID_household)
+                           IDh <- IDh[, .N, by=names(IDh)][, N:=NULL]}
+ 
+    if (nrow(X_ID_household[,.N,by=names(X_ID_household)][N>1])>0) stop("'X_ID_household' have duplicates")
+    setkeyv(X_ID_household, names(X_ID_household))
+    setkeyv(IDh, names(IDh))
+    nperIDh <- names(IDh)
+    if (any(nperIDh != names(X_ID_household))) stop("'X_ID_household' and 'ID_household' must be equal  names")
+    if (IDh[, class(get(nperIDh))]!=X_ID_household[, class(get(nperIDh))])  stop("Class for 'X_ID_household' and class for 'ID_household' must be equal ")
+
+    if (!is.null(period)) {
+        if (nrow(IDh) != nrow(X_ID_household)) stop("'periodX' with 'X_ID_household' and 'unique(period, ID_household)' have different row count")
+        if (any(IDh != X_ID_household)) stop("'periodX' with 'X_ID_household' and 'unique(period, ID_household)' records have different")
+      } else {
+        if (nrow(IDh) != nrow(X_ID_household)) stop("'X_ID_household' and 'unique(ID_household)' have different row count")
+        if (any(IDh != X_ID_household)) stop("'X_ID_household' and 'unique(ID_household)' records have different")
+    }}
+
+
+  # ind_gr
+  if (!is.null(X)) {
+     if(is.null(ind_gr)) ind_gr <- rep.int(1, nrow(X)) 
+     ind_gr <- data.table(ind_gr)
+     if (nrow(ind_gr) != nrow(X)) stop("'ind_gr' length must be equal with 'X' row count")
+     if (ncol(ind_gr) != 1) stop("'ind_gr' must be 1 column data.frame, matrix, data.table")
+     if (any(is.na(ind_gr))) stop("'ind_gr' has missing values")
+   }
+
+  # X
+  if (!is.null(X)) {
+       X1 <- data.table(X, check.names=TRUE)
+       nX1 <- names(X1)
+       ind_gr1 <- copy(ind_gr) 
+       if (!is.null(periodX)) ind_gr1 <- data.table(periodX, ind_gr1, check.names=TRUE)
+       X2 <- data.table(ind_gr1, X1)
+       X1 <- X2[, .N, keyby=names(ind_gr1)][[ncol(ind_gr1)+1]]
+       X2 <- X2[,lapply(.SD, function(x) sum(!is.na(x))), keyby=names(ind_gr1), .SDcols=nX1]
+       X2 <- X2[, !(names(X2) %in% names(ind_gr1)), with=FALSE]
+
+       if (!all(X2==0 | X1==X2)) stop("X has missing values")
+       ind_gr1 <- nX1 <- nX2 <- X1 <- X2 <- NULL
+    }
+
+  # g
+  if (!is.null(X)) {
+    if (is.null(class(g)) | all(class(g)=="function")) stop("'g' must be numeric")
+    g <- data.frame(g)
+    if (nrow(g) != nrow(X)) stop("'g' length must be equal with 'X' row count")
+    if (ncol(g) != 1) stop("'g' must be 1 column data.frame, matrix, data.table")
+    g <- g[,1]
+    if (!is.numeric(g)) stop("'g' must be numeric")
+    if (any(is.na(g))) stop("'g' has missing values")
+    if (any(g == 0)) stop("'g' value can not be 0")
+   }
+    
+  # q
+  if (!is.null(X)) {
+    if (is.null(q))  q <- rep(1, nrow(X))
+    if (is.null(class(q)) | all(class(q)=="function")) stop("'q' must be numeric")
+    q <- data.frame(q)
+    if (nrow(q) != nrow(X)) stop("'q' length must be equal with 'X' row count")
+    if (ncol(q) != 1) stop("'q' must be 1 column data.frame, matrix, data.table")
+    q <- q[,1]
+    if (!is.numeric(q)) stop("'q' must be numeric")
+    if (any(is.na(q))) stop("'q' has missing values")
+    if (any(is.infinite(q))) stop("'q' value can not be infinite")
+  }
   
+
   # Calculation
       
-  # Domains
   sar_nr <- N <- nameY <- nameZ <- variable <- NULL
   sample_size <- totalY <- totalZ <- Z1 <- NULL
 
+  # Design weights
+  if (!is.null(X)) {
+             idh <- data.table(ID_household)
+             if (!is.null(period)) idh <- data.table(period, idh)
+             idhx <- data.table(X_ID_household, g)
+             setnames(idhx, names(idhx)[c(1:(ncol(idhx)-1))], names(idh))
+             idg <- merge(idh, idhx, by=names(idh), sort=FALSE)
+             w_design <- w_final / idg[[ncol(idg)]]
+             idg <- data.table(idg, w_design=w_design)
+             idh <- idg[, .N, keyby=c(names(idh), "w_design")]
+             if (nrow(X) != nrow(idh))  stop("Aggregated 'w_design' length must the same as matrix 'X'")
+             idg <- idhx <- idh <- NULL
+      } else w_design <- w_final
+
+
+  # Domains
   size <- data.table(size=rep(1, nrow(Y)))
   if (!is.null(Dom)) size1 <- domain(size, Dom) else size1 <- copy(size)
 
@@ -245,7 +403,7 @@ vardcros <- function(Y, H, PSU, w_final, id,
   DTagg <- melt(DTagg, id=c(namesperc, namesDom),
                        measure=varsYZ,
                        variable.factor=FALSE)
-  setnames(DTagg, "value", "totalY")
+  setnames(DTagg, "value1", "totalY")
   if (!is.null(Z)) setnames(DTagg, "value2", "totalZ")
 
   DTagg <- merge(DTagg, vars, by="variable")
@@ -285,7 +443,7 @@ vardcros <- function(Y, H, PSU, w_final, id,
                       variable.factor=FALSE)
   if (!is.null(namesZ1) & !linratio){ setnames(DT2, c("value1", "value2"),
                                                     c("valueY1", "valueZ1"))
-                     } else setnames(DT2, "value", "valueY1")
+                     } else setnames(DT2, "value1", "valueY1")
   
   if (!is.null(namesZ1) & !linratio) {
                    vars <- data.table(variable=1:length(namesY1))

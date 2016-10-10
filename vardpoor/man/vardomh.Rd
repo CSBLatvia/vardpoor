@@ -2,13 +2,13 @@
 
 \alias{vardomh}
 
-\title{Variance estimation for sample surveys in domain for household surveys by the ultimate
+\title{Variance estimation for sample surveys in domain for two stage surveys by the ultimate
                         cluster method}
 
-\description{Computes the variance estimation in domain for household.}
+\description{Computes the variance estimation in domain for ID_level1.}
 
-\usage{vardomh(Y, H, PSU, w_final, ID_household,
-               id = NULL, Dom = NULL, period = NULL,
+\usage{vardomh(Y, H, PSU, w_final, ID_level1 = NULL,
+               ID_level1 = NULL, Dom = NULL, period = NULL,
                N_h = NULL, PSU_sort = NULL,
                fh_zero = FALSE, PSU_level = TRUE,
                Z = NULL, dataset = NULL,
@@ -28,9 +28,9 @@
 
 \item{w_final}{Weight variable. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.}
 
-\item{ID_household}{Variable for household ID codes. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.}
+\item{ID_level1}{Variable for level1 ID codes. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.}
 
-\item{id}{Optional variable for unit ID codes. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.}
+\item{ID_level2}{Optional variable for unit ID codes. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.}
 
 \item{period}{Optional variable for the survey periods. If supplied, the values for each period are computed independently. Object convertible to \code{data.table} or variable names as character, column numbers.}
 
@@ -52,7 +52,7 @@
 
 \item{periodX}{Optional variable of the survey periods. If supplied, residual estimation of calibration is done independently for each time period. Object convertible to \code{data.table} or variable names as character, column numbers.}
 
-\item{X_ID_household}{Variable for household ID codes. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.}
+\item{X_ID_level1}{Variable for level1 ID codes. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.}
 
 \item{ind_gr}{Optional variable by which divided independently X matrix of the auxiliary variables for the calibration. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.}
 
@@ -77,9 +77,9 @@
 
   A list with objects are returned by the function:
 
-  \item{lin_out}{A \code{data.table} containing the linearized values of the ratio estimator with id and PSU.}
+  \item{lin_out}{A \code{data.table} containing the linearized values of the ratio estimator with ID_level2 and PSU.}
 
-  \item{res_out}{A \code{data.table} containing the estimated residuals of calibration with id and PSU.}
+  \item{res_out}{A \code{data.table} containing the estimated residuals of calibration with ID_level2 and PSU.}
 
   \item{all_result}{A \code{data.table}, which containing variables:
        \code{variable} - names of variables of interest, \cr
@@ -134,9 +134,9 @@ data(eusilc)
 dataset <- data.table(IDd=1:nrow(eusilc),eusilc)
 
 aa<-vardomh(Y="eqIncome", H="db040", PSU="db030", w_final="rb050",
-           ID_household="db030", id="rb030", Dom = "db040",
+           ID_level1="db030", ID_level2="rb030", Dom = "db040",
            period = NULL, N_h = NULL, Z = NULL, dataset = dataset, X = NULL,
-           X_ID_household = NULL, g = NULL, datasetX = NULL,
+           X_ID_level1 = NULL, g = NULL, datasetX = NULL,
            q = rep(1, if (is.null(datasetX)) 
                        nrow(as.data.frame(H)) else nrow(datasetX)),
            confidence = .95, percentratio = 1,
@@ -150,9 +150,9 @@ dataset <-data.table(rbind(dataset, dataset2))
 
 # by default without using fh_zero (finite population correction)
 aa2<-vardomh(Y="eqIncome", H="db040", PSU="db030", w_final="rb050",
-           ID_household="db030", id="rb030", Dom = "db040",
+           ID_level1="db030", ID_level2="rb030", Dom = "db040",
            period = "period", N_h = NULL, Z = NULL, dataset = dataset,
-           X=NULL, X_ID_household=NULL, 
+           X=NULL, X_ID_level1=NULL, 
            g=NULL, q=NULL, datasetX=NULL,
            confidence = .95, percentratio = 1,
            outp_lin=TRUE, outp_res=TRUE)
@@ -160,10 +160,10 @@ aa2
 
 # without using fh_zero (finite population correction)
 aa3<-vardomh(Y="eqIncome", H="db040", PSU="db030", w_final="rb050",
-           ID_household="db030", id="rb030", Dom = "db040",
+           ID_level1="db030", ID_level2="rb030", Dom = "db040",
            period = "period", N_h = NULL, fh_zero=FALSE, 
            Z = NULL, dataset = dataset,
-           X = NULL, X_ID_household = NULL, 
+           X = NULL, X_ID_level1 = NULL, 
            g = NULL, datasetX = NULL,
            q = rep(1, if (is.null(datasetX)) 
                        nrow(as.data.frame(H)) else nrow(datasetX)),
@@ -173,10 +173,10 @@ aa3
 
 # with using fh_zero (finite population correction)
 aa4<-vardomh(Y="eqIncome", H="db040", PSU="db030", w_final="rb050",
-           ID_household="db030", id="rb030", Dom = "db040",
+           ID_level1="db030", ID_level2="rb030", Dom = "db040",
            period = "period", N_h = NULL, fh_zero=TRUE, 
            Z = NULL, dataset = dataset,
-           X = NULL, X_ID_household = NULL, 
+           X = NULL, X_ID_level1 = NULL, 
            g = NULL, datasetX = NULL,
            q = rep(1, if (is.null(datasetX)) 
                        nrow(as.data.frame(H)) else nrow(datasetX)),

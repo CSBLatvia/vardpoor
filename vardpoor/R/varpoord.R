@@ -6,7 +6,7 @@ varpoord <- function(Y, w_final,
                      Y_den=NULL,
                      Y_thres = NULL,
                      wght_thres = NULL,                    
-                     ID_household,
+                     ID_level1,
                      id = NULL, 
                      H, PSU, N_h,
                      fh_zero = FALSE,
@@ -772,9 +772,10 @@ varpoord <- function(Y, w_final,
   variabl <- c("respondent_count", "n_nonzero", "pop_size", 
                "value", "value_eu", "var", "se", "rse", "cv", 
                "absolute_margin_of_error", "relative_margin_of_error",
-               "CI_lower", "CI_upper", "S2_y_HT", "S2_y_ca", "S2_res",   
-               "var_srs_HT", "var_cur_HT", "var_srs_ca", "deff_sam",
-               "deff_est", "deff")
+               "CI_lower", "CI_upper")
+  if (is.null(Dom))  variabl <- c(variabl, "S2_y_HT", "S2_y_ca", "S2_res") 
+  variabl <- c(variabl, "var_srs_HT",  "var_cur_HT", "var_srs_ca",
+               "deff_sam", "deff_est", "deff")
 
   type <- "type"
   if (!is.null(period)) type <- c(type, names(period))

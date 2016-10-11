@@ -1,4 +1,4 @@
-# Nodarbināto darbavietas NACE 2 nozares var aprēķināt gan A*21 (burta), gan A*88 (2-zīmju) līmenī
+﻿# Nodarbināto darbavietas NACE 2 nozares var aprēķināt gan A*21 (burta), gan A*88 (2-zīmju) līmenī
 # Dažās nozarēs (D, L, O, U) domēns ir gan vienā, gan otrā līmenī, jo sīkāk netiek sadalīts.
 # Piemēram, A sadalās A.01, A.02, A.03. D kļūst par D.36.
 # Tests pārbauda, vai šādā gadījumā attiecīgajam domēnam ar vardomh tiek iegūti tie paši ticamības intervāli.
@@ -49,12 +49,12 @@ test_domains <- function(n = 600, l = 3) {
                     H = "strata", 
                     PSU = "psu", 
                     w_final = "wc",
-                    ID_household = "IDh",
+                    ID_level1 = "IDh",
                     Dom = "domain_a",
                     ind_gr = "apsek",
                     N_h = n_h,
                     X = paste0("x", 0:2),
-                    X_ID_household = "IDh",
+                    X_ID_level1 = "IDh",
                     g = "g", 
                     q = "q", 
                     dataset = dat_y,
@@ -64,12 +64,12 @@ test_domains <- function(n = 600, l = 3) {
                       H = "strata", 
                       PSU = "psu", 
                       w_final = "wc",
-                      ID_household = "IDh",
+                      ID_level1 = "IDh",
                       Dom = "domain_b",
                       ind_gr = "apsek",
                       N_h = n_h,
                       X = paste0("x", 0:2),
-                      X_ID_household = "IDh",
+                      X_ID_level1 = "IDh",
                       g = "g", 
                       q = "q", 
                       dataset = dat_y,

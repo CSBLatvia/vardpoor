@@ -3,7 +3,7 @@ var_srs <- function(Y, w = rep(1, length(Y))){
  
   ### Checking
   # Y
-  Y <- data.table(Y, check.names=TRUE)
+  Y <- data.table(Y, check.names = TRUE)
   n <- nrow(Y)   
   if (!all(sapply(Y, is.numeric))) stop("'Y' must be numerical")
   if (any(is.na(Y))) print("'Y' has missing values")
@@ -21,7 +21,7 @@ var_srs <- function(Y, w = rep(1, length(Y))){
 
   # N
   Nn <- sum(w)
-  konst <- Nn^2 * (1 - n/Nn) / n
+  konst <- Nn^2 * (1 - n / Nn) / n
   s2p <- Y[, lapply(.SD, function(x) s2(x, w))]
 
   varsrs <- konst * s2p

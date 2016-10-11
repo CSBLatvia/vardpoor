@@ -22,7 +22,7 @@ lin.ratio <- function(Y, Z, weight, Dom = NULL, percentratio = 1) {
   weight <- data.frame(weight)
   if (nrow(weight) != nrow(Y)) stop("'weight' length is not equal with 'Y' row count")
   if (ncol(weight) != 1) stop("'weight' must be a vector or 1 column data frame, data matrix, data table")
-  weight <- weight[,1]
+  weight <- weight[, 1]
   if (!is.numeric(weight)) stop("'weight' must be numeric")
   if (any(is.na(weight))) stop("'weight' has missing values")
  

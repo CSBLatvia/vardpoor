@@ -1,14 +1,14 @@
    
-domain <- function(Y, D, dataset=NULL) { 
+domain <- function(Y, D, dataset = NULL) { 
 
    if(!is.null(dataset)) {
         dataset <- data.table(dataset)
-        if (min(Y %in% names(dataset))!=1) stop("'Y' does not exist in 'dataset'!")
-        if (min(Y %in% names(dataset))==1) Y <- dataset[, Y, with=FALSE] 
+        if (min(Y %in% names(dataset)) != 1) stop("'Y' does not exist in 'dataset'!")
+        if (min(Y %in% names(dataset)) == 1) Y <- dataset[, Y, with = FALSE] 
     
     if (!is.null(D)) {
-        if (min(D %in% names(dataset))!=1) stop("'D' does not exist in 'data'!")
-        if (min(D %in% names(dataset))==1) D <- dataset[, D, with=FALSE] }
+        if (min(D %in% names(dataset)) != 1) stop("'D' does not exist in 'data'!")
+        if (min(D %in% names(dataset)) == 1) D <- dataset[, D, with = FALSE] }
    }
 
   name.Y <- substitute(Y)
@@ -27,7 +27,7 @@ domain <- function(Y, D, dataset=NULL) {
     stop(name.D, " has duplicate column names: ",
          paste(names(D)[duplicated(names(D))], collapse = ", "))
   if (nrow(D) != n) stop(name.Y, " and ", name.D ," have different row count")
-  D[, (names(D)):=lapply(.SD, as.character)]
+  D[, (names(D)):= lapply(.SD, as.character)]
   if (any(is.na(D))) stop("'D' has missing values")
   if (any(grepl("__", names(D)))) stop("'D' is not allowed column names with '__'")
 
@@ -46,7 +46,7 @@ domain <- function(Y, D, dataset=NULL) {
       cc <- paste(names(D), Dom_agg[i, ], sep = ".")
       h[i] <- paste(cc, collapse = "__")
     }
-    foreach(i = 1:ncol(Y), .combine = c) %do% paste(names(Y)[i], h, sep="__")
+    foreach(i = 1 : ncol(Y), .combine = c) %do% paste(names(Y)[i], h, sep="__")
   }
   setnames(domen, namesD(Y, D))
   domen <- data.table(domen, check.names=TRUE)

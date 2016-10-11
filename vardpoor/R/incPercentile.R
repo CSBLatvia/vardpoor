@@ -27,24 +27,24 @@ incPercentile <- function(Y, weights = NULL, sort = NULL,
    
    if(!is.null(dataset)) {
        dataset <- data.table(dataset)
-       if (checker(Y, dataset, "Y")) Y <- dataset[, Y, with=FALSE] 
+       if (checker(Y, dataset, "Y")) Y <- dataset[, Y, with = FALSE] 
 
        if(!is.null(weights)) {
-           if (checker(weights, dataset, "weights")) weights <- dataset[, weights, with=FALSE] }
+           if (checker(weights, dataset, "weights")) weights <- dataset[, weights, with = FALSE] }
      
        if(!is.null(sort)) {
-           if (checker(sort, dataset, "sort")) sort <- dataset[, sort, with=FALSE] }
+           if (checker(sort, dataset, "sort")) sort <- dataset[, sort, with = FALSE] }
 
        if (!is.null(period)) {
             if (min(period %in% names(dataset))!=1) stop("'period' does not exist in 'dataset'!")
             if (min(period %in% names(dataset))==1) {
-                                period <- dataset[, period, with=FALSE]
-                                period[, (names(period)):=lapply(.SD, as.character)] }}
+                                period <- dataset[, period, with = FALSE]
+                                period[, (names(period)):= lapply(.SD, as.character)] }}
 
        if (!is.null(Dom)) {
             if (checker(Dom, dataset, "Dom")) {
-                                Dom <- dataset[, Dom, with=FALSE]
-                                Dom[, (names(Dom)):=lapply(.SD, as.character)] }}
+                                Dom <- dataset[, Dom, with = FALSE]
+                                Dom[, (names(Dom)):= lapply(.SD, as.character)] }}
       }
 
    # check vectors
@@ -79,7 +79,7 @@ incPercentile <- function(Y, weights = NULL, sort = NULL,
                  stop("'period' are duplicate column names: ", 
                       paste(names(period)[duplicated(names(period))], collapse = ","))
        if (nrow(period) != n) stop("'period' must be the same length as 'Y'")
-       period[, (names(period)):=lapply(.SD, as.character)]
+       period[, (names(period)):= lapply(.SD, as.character)]
        if(any(is.na(period))) stop("'period' has missing values")  
    }
 
@@ -90,7 +90,7 @@ incPercentile <- function(Y, weights = NULL, sort = NULL,
              namesDom <- names(Dom)
              if (is.null(names(Dom))) stop("'Dom' must have column names")
              if (nrow(Dom) != n) stop("'Dom' must be the same length as 'Y'")
-             Dom[, (names(Dom)):=lapply(.SD, as.character)]
+             Dom[, (names(Dom)):= lapply(.SD, as.character)]
              if (any(is.na(Dom))) stop("'Dom' has missing values")
        }
     
@@ -110,26 +110,28 @@ incPercentile <- function(Y, weights = NULL, sort = NULL,
                order <- if(is.null(sortind)) order(Yind) else order(Yind, sortind)
                Yind <- Yind[order]
                weightsind <- weightsind[order]  # also works if 'weights' is NULL                               
-               percentile <- weightedQuantile(Yind, weightsind, probs=k/100, sorted=FALSE, na.rm=FALSE)               
+               percentile <- weightedQuantile(Yind, weightsind, probs = k / 100,
+                                              sorted = FALSE, na.rm = FALSE)               
                q <- data.table(Dom[i][1], t(percentile))})
         q <- rbindlist(q1)
-        setnames(q, names(q)[ncol(Dom)+1:length(k)], paste0("x",k))
-        if (!is.null(period)&!is.null(namesDom)) {
-              q1 <-  q[,.N, keyby=namesDom][,N:=NULL]
-              q2 <- q[, .N, by=names(period)][,N:=NULL]
+        setnames(q, names(q)[ncol(Dom) + 1 : length(k)], paste0("x", k))
+        if (!is.null(period) & !is.null(namesDom)) {
+              q1 <-  q[, .N, keyby = namesDom][, N:= NULL]
+              q2 <- q[, .N, by = names(period)][, N:= NULL]
               qrs <- rbindlist(lapply(1:nrow(q2), function(i) {
                                    data.table(q2[i], q1) }))
-              qrs[, (c(paste0("x", k))):=0]
+              qrs[, (c(paste0("x", k))):= 0]
               qrs <- rbind(q, qrs)
-              q <- qrs[,lapply(.SD, sum), keyby=names(Dom), .SDcols=paste0("x", k)]              
+              q <- qrs[, lapply(.SD, sum), keyby = names(Dom), .SDcols = paste0("x", k)]              
             }
          setkeyv(q, names(Dom))
      } else {  order <- if(is.null(sort)) order(Y) else order(Y, sort)
                Y <- Y[order]
                weights <- weights[order]  # also works if 'weights' is NULL
-               percentile <- weightedQuantile(Y, weights, probs=k/100, sorted=TRUE, na.rm=FALSE)
+               percentile <- weightedQuantile(Y, weights, probs = k / 100,
+                                              sorted = TRUE, na.rm = FALSE)
                q <- data.table(t(percentile))
-               setnames(q, names(q)[1:length(k)], paste0("x",k))
+               setnames(q, names(q)[1 : length(k)], paste0("x", k))
      }
      ## return results
     return(q)

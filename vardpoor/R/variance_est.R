@@ -1,9 +1,11 @@
 round2 <- function(x, n) {
-  sign(x) * trunc(abs(x)*10 ^ n + 0.5)/10 ^ n
+  sign(x) * trunc(abs(x) * 10 ^ n + 0.5) / 10 ^ n
 }
 
 
-variance_est <- function(Y, H, PSU, w_final, N_h=NULL, fh_zero=FALSE, PSU_level=TRUE, PSU_sort=NULL, period=NULL, dataset=NULL, msg="") {
+variance_est <- function(Y, H, PSU, w_final, N_h = NULL, fh_zero = FALSE,
+                         PSU_level = TRUE, PSU_sort = NULL, period = NULL, 
+                         dataset = NULL, msg = "") {
 
   ### Checking
 

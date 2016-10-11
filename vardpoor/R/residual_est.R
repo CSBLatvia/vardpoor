@@ -2,7 +2,7 @@
 residual_est <- function (Y, X, weight, q) {
  
   # Y
-  Y <- as.data.frame.matrix(data.table(Y, check.names=TRUE))
+  Y <- as.data.frame.matrix(data.table(Y, check.names = TRUE))
   n <- nrow(Y)
   m <- ncol(Y)
   if (!all(sapply(Y, is.numeric))) stop("'Y' must be numeric")
@@ -13,7 +13,7 @@ residual_est <- function (Y, X, weight, q) {
   if (nrow(X) != n) stop("'X' and 'Y' must be equal row count")
   if (!all(sapply(X, is.numeric))) stop("'X' must be numeric")
 
-  X1 <- data.table(X, check.names=TRUE)
+  X1 <- data.table(X, check.names = TRUE)
   X1 <- X1[, lapply(.SD, function(x) sum(!is.na(x)))]
   if (!all(X1 == n)) stop("X has missing values")
   X1 <- NULL

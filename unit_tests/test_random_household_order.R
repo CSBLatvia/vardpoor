@@ -1,4 +1,4 @@
-# Pārbauda vai vardomh aprēķina pareizi atlikumus, ja dati
+﻿# Pārbauda vai vardomh aprēķina pareizi atlikumus, ja dati
 # ir sakārtoti gadījuma secībā
 
 require(vardpoor)
@@ -53,10 +53,10 @@ test_unordered_residuals <- function(n = 600, l = 3) {
                  H = "strata",
                  PSU = "psu",
                  w_final = "wc",
-                 ID_household = "IDh",
+                 ID_level1 = "IDh",
                  dataset = datY,
                  X = paste0("x", 0:2),
-                 X_ID_household = "IDh",
+                 X_ID_level1 = "IDh",
                  g = "g",
                  q = "q",
                  datasetX = datX,

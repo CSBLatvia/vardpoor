@@ -7,14 +7,14 @@
 \description{Computes the variance estimation for measures of annual net change for single and multistage stage cluster sampling designs.}
 
 \usage{
-vardchangannual(Y, H, PSU, w_final, id,
-            Dom = NULL, Z=NULL, 
+vardchangannual(Y, H, PSU, w_final, ID_level2,
+            Dom = NULL, Z = NULL, 
             country, years, subperiods,
             dataset = NULL,
             year1, year2,
             percentratio = 1,
             use.estVar = FALSE,
-            confidence=0.95) }
+            confidence = 0.95) }
 
 \arguments{
 
@@ -26,7 +26,7 @@ vardchangannual(Y, H, PSU, w_final, id,
 
 \item{w_final}{Weight variable. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.}
 
-\item{id}{variable for unit ID codes (for household surveys - secondary unit id number). One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.}
+\item{ID_level2}{variable for unit ID codes (for household surveys - secondary unit id number). One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.}
 
 \item{Dom}{Optional variables used to define population domains. If supplied, variables are calculated for each domain. An object convertible to \code{data.table} or variable names as character vector, column numbers.}
 
@@ -211,49 +211,43 @@ URL \url{https://ec.europa.eu/eurostat/cros/content/handbook-standard-error-esti
 ### Example 
 data("eusilc")
 set.seed(1)
-eusilc1 <- eusilc[1:100,]
+eusilc1 <- eusilc[1 : 100,]
 set.seed(1)
 data <- data.table(rbind(eusilc1, eusilc1),
-                   year=c(rep(2010, nrow(eusilc1)),
-                          rep(2011, nrow(eusilc1))),
-                   country=c(rep("AT", nrow(eusilc1)),
-                             rep("AT", nrow(eusilc1))))
-data[, quarter:=.I - 4 * trunc((.I - 1)/4)]
-data[age<0, age:=0]
-PSU <- data[,.N, keyby="db030"]
-PSU[, N:=NULL]
-PSU[, PSU:=trunc(runif(nrow(PSU), 0, 5))]
-setkeyv(PSU, "db030")
-setkeyv(data, "db030")
-data <- merge(data, PSU, all=TRUE)
+                   year = c(rep(2010, nrow(eusilc1)),
+                            rep(2011, nrow(eusilc1))),
+                   country = c(rep("AT", nrow(eusilc1)),
+                               rep("AT", nrow(eusilc1))))
+data[, quarter:= .I - 4 * trunc((.I - 1) / 4)]
+data[age<0, age:= 0]
+PSU <- data[, .N, keyby = "db030"]
+PSU[, N:= NULL]
+PSU[, PSU:= trunc(runif(nrow(PSU), 0, 5))]
+data <- merge(data, PSU, all=TRUE, by="db030")
 PSU <- eusilc <- NULL
-data[, strata:=c("XXXX")]
-data[, strata:=as.character(strata)]
+data[, strata:= c("XXXX")]
+data[, strata:= as.character(strata)]
 
-data[, employed:=trunc(runif(nrow(data), 0, 2))]
-data[, unemployed:=trunc(runif(nrow(data), 0, 2))]
-data[, labour_force:=employed + unemployed]
+data[, employed:= trunc(runif(nrow(data), 0, 2))]
+data[, unemployed:= trunc(runif(nrow(data), 0, 2))]
+data[, labour_force:= employed + unemployed]
 
-result <- vardchangannual(Y="employed", H="strata",
-                          PSU="PSU", w_final="rb050",                          
-                          id="db030", Dom=NULL, Z=NULL,
-                          country="country", years="year",
-                          subperiods="quarter",
-                          dataset=data,
-                          year1=2010, year2=2011,
-                          percentratio = 100,
-                          confidence=0.95)
+result <- vardchangannual(Y = "employed", H = "strata",
+                          PSU = "PSU", w_final = "rb050",                          
+                          ID_level2 = "db030", Dom = NULL,
+                          Z = NULL, country = "country",
+                          years = "year", subperiods = "quarter",
+                          dataset = data, year1 = 2010, year2 = 2011,
+                          percentratio = 100, confidence = 0.95)
 
 \dontrun{
-result <- vardchangannual(Y="unemployed", H="strata",
-                          PSU="PSU", w_final="rb050",                          
-                          id="db030", Dom=NULL, Z="labour_force",
-                          country="country", years="year",
-                          subperiods="quarter",
-                          dataset=data,
-                          year1=2010, year2=2011,
-                          percentratio = 100,
-                          confidence=0.95) }
+result <- vardchangannual(Y = "unemployed", H = "strata",
+                          PSU = "PSU", w_final = "rb050",                          
+                          ID_level2 = "db030", Dom = NULL,
+                          Z = "labour_force", country = "country",
+                          years = "year", subperiods = "quarter",
+                          dataset = data, year1 = 2010, year2 = 2011,
+                          percentratio = 100, confidence = 0.95) }
 }
 
 \seealso{

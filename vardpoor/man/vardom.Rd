@@ -9,9 +9,9 @@
 \usage{
 vardom(Y, H, PSU, w_final,
        id = NULL, Dom = NULL,
-       period = NULL, PSU_sort=NULL, 
-       N_h = NULL, fh_zero=FALSE,
-       PSU_level=TRUE, Z = NULL,
+       period = NULL, PSU_sort = NULL, 
+       N_h = NULL, fh_zero = FALSE,
+       PSU_level = TRUE, Z = NULL,
        X = NULL, ind_gr = NULL,
        g = NULL, q = NULL,
        dataset = NULL, 
@@ -121,10 +121,10 @@ Jean-Claude Deville (1999). Variance estimation for complex statistics and estim
 
 \examples{
 data(eusilc)
-dataset <- data.table(IDd=1:nrow(eusilc), eusilc)
+dataset <- data.table(IDd = 1 : nrow(eusilc), eusilc)
 
-aa <- vardom(Y="eqIncome", H="db040", PSU="db030",
-           w_final="rb050", id="rb030", Dom = "db040",
+aa <- vardom(Y = "eqIncome", H = "db040", PSU = "db030",
+           w_final = "rb050", id = "rb030", Dom = "db040",
            period = NULL, N_h = NULL, Z = NULL,
            X = NULL, g = NULL, q = NULL, dataset = dataset,
            confidence = .95, percentratio = 100, 

@@ -29,13 +29,13 @@ Carl-Erik Sarndal, Bengt Swensson, Jan Wretman. Model Assisted Survey Sampling. 
 }
 
 \examples{
-Y <- data.table(Y=rchisq(10, 3))
-Z <- data.table(Z=rchisq(10, 3))
+Y <- data.table(Y = rchisq(10, 3))
+Z <- data.table(Z = rchisq(10, 3))
 weights <- rep(2, 10)
 data.table(Y, Z, weights, 
-           V1=lin.ratio(Y, Z, weights, percentratio=1),
-           V10=lin.ratio(Y, Z, weights, percentratio=10),
-           V100=lin.ratio(Y, Z, weights, percentratio=100))
+           V1 = lin.ratio(Y, Z, weights, percentratio = 1),
+           V10 = lin.ratio(Y, Z, weights, percentratio = 10),
+           V100 = lin.ratio(Y, Z, weights, percentratio = 100))
 }
 
 \seealso{

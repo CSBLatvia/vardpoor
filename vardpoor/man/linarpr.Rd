@@ -10,60 +10,42 @@ Estimates the at-risk-of-poverty rate (defined as the proportion of persons with
 
 
 \usage{
-linarpr(Y, id = NULL,
-  weight = NULL,
-  Y_thres = NULL,
-  wght_thres = NULL,
-  sort = NULL,
-  Dom = NULL,
-  period = NULL,
-  dataset = NULL,
-  percentage = 60,
-  order_quant = 50,
-  var_name = "lin_arpr")
+linarpr(Y, id = NULL, weight = NULL,
+        Y_thres = NULL, wght_thres = NULL,
+        sort = NULL, Dom = NULL, period = NULL,
+        dataset = NULL, percentage = 60,
+        order_quant = 50, var_name = "lin_arpr")
 }
 
 
 \arguments{
-\item{Y}{Study variable (for example equalized disposable income). One dimensional object convertible to one-column \code{data.table} or variable name as character, column number).
-}
+\item{Y}{Study variable (for example equalized disposable income). One dimensional object convertible to one-column \code{data.table} or variable name as character, column number).}
 
-\item{id}{Optional variable for unit ID codes. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number or logical vector).
-}
+\item{id}{Optional variable for unit ID codes. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number or logical vector).}
 
-\item{weight}{Optional weight variable. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number or logical vector).
-}
+\item{weight}{Optional weight variable. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number or logical vector).}
 
-\item{Y_thres}{Variable (for example equalized disposable income) used for computation and linearization of poverty threshold. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number. Variable specified for \code{inc} is used as \code{income_thres} if \code{income_thres} is not defined.
-}
+\item{Y_thres}{Variable (for example equalized disposable income) used for computation and linearization of poverty threshold. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number. Variable specified for \code{inc} is used as \code{income_thres} if \code{income_thres} is not defined.}
 
-\item{wght_thres}{Weight variable used for computation and linearization of poverty threshold. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number or logical vector. Variable specified for \code{weight} is used as \code{wght_thres} if \code{wght_thres} is not defined.
-}
+\item{wght_thres}{Weight variable used for computation and linearization of poverty threshold. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number or logical vector. Variable specified for \code{weight} is used as \code{wght_thres} if \code{wght_thres} is not defined.}
 
-\item{sort}{Optional variable to be used as tie-breaker for sorting. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.
-}
+\item{sort}{Optional variable to be used as tie-breaker for sorting. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.}
 
-\item{Dom}{Optional variables used to define population domains. If supplied, linearization of at-risk-of-poverty threshold is done for each domain. An object convertible to \code{data.table} or variable names as character vector, column numbers as numeric vector.
-}
+\item{Dom}{Optional variables used to define population domains. If supplied, linearization of at-risk-of-poverty threshold is done for each domain. An object convertible to \code{data.table} or variable names as character vector, column numbers as numeric vector.}
 
-\item{period}{Optional variable for survey period. If supplied, linearization of at-risk-of-poverty threshold is done for each survey period. Object convertible to \code{data.table} or variable names as character, column numbers as numeric vector.
-}
+\item{period}{Optional variable for survey period. If supplied, linearization of at-risk-of-poverty threshold is done for each survey period. Object convertible to \code{data.table} or variable names as character, column numbers as numeric vector.}
 
-\item{dataset}{Optional survey data object convertible to \code{data.table}.
-}
+\item{dataset}{Optional survey data object convertible to \code{data.table}.}
 
 \item{percentage}{A numeric value in range \eqn{\left[ 0,100 \right]}{[0,100]} for \eqn{p} in the formula for at-risk-of-poverty threshold computation:
 \deqn{\frac{p}{100} \cdot Z_{\frac{\alpha}{100}}.}{p/100 * Z(\alpha/100).}
-For example, to compute at-risk-of-poverty threshold equal to 60\% of some income quantile, \eqn{p} should be set equal to 60.
-}
+For example, to compute at-risk-of-poverty threshold equal to 60\% of some income quantile, \eqn{p} should be set equal to 60.}
   
 \item{order_quant}{A numeric value in range \eqn{\left[ 0,100 \right]}{[0,100]} for \eqn{\alpha} in the formula for at-risk-of-poverty threshold computation:
 \deqn{\frac{p}{100} \cdot Z_{\frac{\alpha}{100}}.}{p/100 * Z(\alpha/100).}
-For example, to compute at-risk-of-poverty threshold equal to some percentage of median income, \eqn{\alpha} should be set equal to 50.
-}
+For example, to compute at-risk-of-poverty threshold equal to some percentage of median income, \eqn{\alpha} should be set equal to 50.}
 
-\item{var_name}{A character specifying the name of the linearized variable.
-}
+\item{var_name}{A character specifying the name of the linearized variable.}
 
 }
 
@@ -74,17 +56,13 @@ For example, to compute at-risk-of-poverty threshold equal to some percentage of
 \value{
 A list with four objects are returned:
   
-\item{quantile}{A \code{data.table} containing the estimated value of the quintile used for at-risk-of-poverty threshold estimation.
-}
+\item{quantile}{A \code{data.table} containing the estimated value of the quintile used for at-risk-of-poverty threshold estimation.}
   
-\item{threshold}{A \code{data.table} containing the estimated at-risk-of-poverty threshold.
-}
+\item{threshold}{A \code{data.table} containing the estimated at-risk-of-poverty threshold.}
   
-\item{value}{A \code{data.table} containing the estimated at-risk-of-poverty rate (in percentage).
-}
+\item{value}{A \code{data.table} containing the estimated at-risk-of-poverty rate (in percentage).}
   
-\item{lin}{A \code{data.table} containing the linearized variables of the at-risk-of-poverty rate (in percentage).
-}
+\item{lin}{A \code{data.table} containing the linearized variables of the at-risk-of-poverty rate (in percentage).}
 
 }
 
@@ -106,17 +84,21 @@ Jean-Claude Deville (1999). Variance estimation for complex statistics and estim
 \examples{
 data(eusilc)
 
-dati <- data.table(IDd = 1:nrow(eusilc), eusilc)
+dati <- data.table(IDd = 1 : nrow(eusilc), eusilc)
 
 # Full population
-d <- linarpr(Y="eqIncome", id="IDd", weight="rb050", Dom=NULL,
-             dataset=dati, percentage=60, order_quant=50)
+d <- linarpr(Y = "eqIncome", id = "IDd",
+             weight = "rb050", Dom = NULL,
+             dataset = dati, percentage = 60,
+             order_quant = 50)
 d$value
 
 \dontrun{
 # By domains
-dd <- linarpr(Y="eqIncome", id="IDd", weight="rb050", Dom="db040",
-              dataset=dati, percentage=60, order_quant=50)}
+dd <- linarpr(Y = "eqIncome", id = "IDd",
+              weight = "rb050", Dom = "db040",
+              dataset = dati, percentage = 60,
+              order_quant=50)}
 }
 
 \keyword{Linearization}

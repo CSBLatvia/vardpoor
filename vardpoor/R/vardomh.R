@@ -110,7 +110,7 @@ vardomh <- function(Y, H, PSU, w_final,
   if (nrow(H) != n) stop("'H' length must be equal with 'Y' row count")
   if (ncol(H) != 1) stop("'H' must be 1 column data.frame, matrix, data.table")
   if (is.null(names(H))) stop("'H' must have column names")
-  H[, (names(H)):= lapply(.SD, as.character)]
+  H[, (names(H)) := lapply(.SD, as.character)]
   if (any(is.na(H))) stop("'H' has missing values")
   
   # PSU
@@ -118,7 +118,7 @@ vardomh <- function(Y, H, PSU, w_final,
   aPSU <- names(PSU)
   if (nrow(PSU) != n) stop("'PSU' length must be equal with 'Y' row count")
   if (ncol(PSU) != 1) stop("'PSU' has more than 1 column")
-  PSU[, (names(PSU)):= lapply(.SD, as.character)]
+  PSU[, (names(PSU)) := lapply(.SD, as.character)]
   if (any(is.na(PSU))) stop("'PSU' has missing values")
   
   # w_final 
@@ -136,13 +136,13 @@ vardomh <- function(Y, H, PSU, w_final,
                 stop("'period' are duplicate column names: ", 
                      paste(names(period)[duplicated(names(period))], collapse = ","))
       if (nrow(period) != n) stop("'period' must be the same length as 'Y'")
-      period[, (names(period)):= lapply(.SD, as.character)]
+      period[, (names(period)) := lapply(.SD, as.character)]
       if(any(is.na(period))) stop("'period' has missing values")
   } 
   np <- sum(ncol(period))
 
   # ID_level2
-  if (is.null(ID_level2)) ID_level2 <- 1:n
+  if (is.null(ID_level2)) ID_level2 <- 1 : n
   ID_level2 <- data.table(ID_level2)
   if (any(is.na(ID_level2))) stop("'ID_level2' has missing values")
   if (ncol(ID_level2) != 1) stop("'ID_level2' must be 1 column data.frame, matrix, data.table")
@@ -151,7 +151,7 @@ vardomh <- function(Y, H, PSU, w_final,
   if (names(ID_level2) == names(ID_level1)) setnames(ID_level2,names(ID_level2),paste(names(ID_level2),"_id",sep=""))
   if (is.null(period)){ if (any(duplicated(ID_level2))) stop("'ID_level2' are duplicate values") 
                        } else {dd <- data.table(period, ID_level2)
-                               if (any(duplicated(dd, by=names(dd)))) stop("'ID_level2' by period are duplicate values")
+                               if (any(duplicated(dd, by = names(dd)))) stop("'ID_level2' by period are duplicate values")
                                dd <- NULL}
 
   # ID_level1
@@ -161,7 +161,7 @@ vardomh <- function(Y, H, PSU, w_final,
   if (ncol(ID_level1) != 1) stop("'ID_level1' must be 1 column data.frame, matrix, data.table")
   if (nrow(ID_level1) != n) stop("'ID_level1' must be the same length as 'Y'")
   if (is.null(names(ID_level1))) setnames(ID_level1, names(ID_level1), "ID_level1")
-  ID_level1[, (names(ID_level1)):= lapply(.SD, as.character)]
+  ID_level1[, (names(ID_level1)) := lapply(.SD, as.character)]
   if (any(is.na(ID_level1))) stop("'ID_level1' has missing values")
 
 
@@ -176,7 +176,7 @@ vardomh <- function(Y, H, PSU, w_final,
 
           psuag <- data.table(PSU, PSU_sort)
           if (!is.null(period)) hpY <- data.table(period, psuag)
-          psuag <- psuag[,.N, by = names(psuag)][,N:= NULL]
+          psuag <- psuag[,.N, by = names(psuag)][,N := NULL]
           psuag <- psuag[,.N, by = c(names(period), names(PSU))]
           if (nrow(psuag[N > 1]) > 0) stop("'PSU_sort' must be equal for each 'PSU'")
   }
@@ -185,11 +185,11 @@ vardomh <- function(Y, H, PSU, w_final,
   # N_h
   if (!is.null(N_h)) {
       N_h <- data.table(N_h)
-      if (ncol(N_h) != np + 2) stop(paste0("'N_h' should be ", np+2, " columns"))
+      if (ncol(N_h) != np + 2) stop(paste0("'N_h' should be ", np + 2, " columns"))
       if (!is.numeric(N_h[[ncol(N_h)]])) stop("The last column of 'N_h' should be numeric")
       if (any(is.na(N_h))) stop("'N_h' has missing values") 
       if (is.null(names(N_h))) stop("'N_h' must have column names")
-      if (all(names(H) %in% names(N_h))) {N_h[, (names(H)):=lapply(.SD, as.character), .SDcols=names(H)]
+      if (all(names(H) %in% names(N_h))) {N_h[, (names(H)) := as.character(get(names(H)))]
              } else stop("All strata titles of 'H' have not in 'N_h'")
       if (is.null(period)) {
              if (names(H) != names(N_h)[1]) stop("Strata titles for 'H' and 'N_h' is not equal")
@@ -198,7 +198,7 @@ vardomh <- function(Y, H, PSU, w_final,
        } else { pH <- data.table(period, H)
                 if (any(names(pH) != names(N_h)[c(1 : (1 + np))])) stop("Strata titles for 'period' with 'H' and 'N_h' is not equal")
                 nperH <- names(period)
-                N_h[, (nperH):= as.character(get(nperH))]
+                N_h[, (nperH) := as.character(get(nperH))]
                 if (any(is.na(merge(unique(pH), N_h, by = names(pH), all.x = TRUE)))) stop("'N_h' is not defined for all strata and periods")
                 if (any(duplicated(N_h[, head(names(N_h), -1), with = FALSE]))) stop("Strata values for 'N_h' must be unique in all periods")
                 pH <- NULL
@@ -215,7 +215,7 @@ vardomh <- function(Y, H, PSU, w_final,
                paste(names(Dom)[duplicated(names(Dom))], collapse = ","))
     if (nrow(Dom) != n) stop("'Dom' and 'Y' must be equal row count")
     if (is.null(names(Dom))) stop("'Dom' must have column names")
-    Dom[, (names(Dom)):= lapply(.SD, as.character)]
+    Dom[, (names(Dom)) := lapply(.SD, as.character)]
     if (any(is.na(Dom))) stop("'Dom' has missing values")
     if (any(grepl("__", names(Dom)))) stop("'Dom' is not allowed column names with '__'")
     namesDom <- names(Dom)
@@ -262,16 +262,16 @@ vardomh <- function(Y, H, PSU, w_final,
     X_ID_level1 <- data.table(X_ID_level1)
     if (nrow(X) != nrow(X_ID_level1)) stop("'X' and 'X_ID_level1' have different row count")
     if (ncol(X_ID_level1) != 1) stop("'X_ID_level1' must be 1 column data.frame, matrix, data.table")
-    X_ID_level1[, (names(X_ID_level1)):=lapply(.SD, as.character)]
+    X_ID_level1[, (names(X_ID_level1)) := lapply(.SD, as.character)]
     if (any(is.na(X_ID_level1))) stop("'X_ID_level1' has missing values")
 
     ID_level1h <- data.table(unique(ID_level1))
     X_ID_level1h <- copy(X_ID_level1)
     if (!is.null(periodX)) {X_ID_level1h <- data.table(periodX, X_ID_level1h)
                            ID_level1h <- data.table(period, ID_level1)
-                           ID_level1h <- ID_level1h[, .N, by=names(ID_level1h)][, N:=NULL]}
+                           ID_level1h <- ID_level1h[, .N, by = names(ID_level1h)][, N := NULL]}
  
-    if (nrow(X_ID_level1h[,.N,by=names(X_ID_level1h)][N>1])>0) stop("'X_ID_level1' have duplicates")
+    if (nrow(X_ID_level1h[,.N,by=names(X_ID_level1h)][N > 1]) > 0) stop("'X_ID_level1' have duplicates")
     nperIDh <- names(ID_level1h)
     if (any(nperIDh != names(X_ID_level1h))) stop("'X_ID_level1' and 'ID_level1' must be equal names")
     if (ID_level1h[, class(get(nperIDh))] != X_ID_level1h[, class(get(nperIDh))])  stop("Class for 'X_ID_level1' and class for 'ID_level1' must be equal ")
@@ -402,7 +402,7 @@ vardomh <- function(Y, H, PSU, w_final,
                                         Dom = NULL, percentratio = percentratio)))
           Y2 <- rbindlist(lin1)
           setkeyv(Y2, "sar_nr")
-          Y2[, sar_nr:= NULL]
+          Y2[, sar_nr := NULL]
         }
      if (any(is.na(Y2))) print("Results are calculated, but there are cases where Z = 0")
      if (outp_lin) linratio_outp <- data.table(idper, PSU, Y2) 
@@ -417,8 +417,8 @@ vardomh <- function(Y, H, PSU, w_final,
   if (!is.null(PSU_sort)) YY <- data.table(YY, PSU_sort)
   YY <- data.table(YY, w_design, w_final, Y2)
 
-  YY2 <- YY[, lapply(.SD, sum, na.rm = TRUE), by=c(names(YY)[c(2 : (6 + np + psusn))]),
-                                             .SDcols=names(YY)[-(1 : (6 + np + psusn))]]
+  YY2 <- YY[, lapply(.SD, sum, na.rm = TRUE), by = c(names(YY)[c(2 : (6 + np + psusn))]),
+                                             .SDcols = names(YY)[-(1 : (6 + np + psusn))]]
   Y3 <- YY2[, c(-(1 : (5 + np + psusn))), with = FALSE]
 
   period <- NULL
@@ -452,12 +452,12 @@ vardomh <- function(Y, H, PSU, w_final,
        lin1 <- lapply(split(Y3[, .I], ind_period), function(i) 
                  data.table(sar_nr=i, 
                             residual_est(Y = Y3[i],
-                                         X = D1[i,(np+5):ncol(D1), with = FALSE],
+                                         X = D1[i, (np + 5) : ncol(D1), with = FALSE],
                                          weight = w_design2[i],
                                          q = D1[i, np + 3, with = FALSE])))
        Y4 <- rbindlist(lin1)
        setkeyv(Y4, "sar_nr")
-       Y4[, sar_nr:= NULL]
+       Y4[, sar_nr := NULL]
        if (outp_res) res_outp <- data.table(ID_level1h, PSU, w_final2, Y4)
    } else Y4 <- Y3
                                
@@ -495,7 +495,7 @@ vardomh <- function(Y, H, PSU, w_final,
            var_srs_HT <- varsrs$varsrs
        } else {
            period_agg <- unique(period)
-           lin1 <- lapply(1:nrow(period_agg), function(i) {
+           lin1 <- lapply(1 : nrow(period_agg), function(i) {
                           per <- period_agg[i,][rep(1, nrow(Y3)),]
                           ind <- (rowSums(per == period) == ncol(period))
                           varsrs <- var_srs(Y = Y3[ind], w = w_design2[ind])
@@ -522,7 +522,7 @@ vardomh <- function(Y, H, PSU, w_final,
            var_srs_ca <- varsres$varsrs
       } else {
            period_agg <- unique(period)
-           lin1 <- lapply(1:nrow(period_agg), function(i) {
+           lin1 <- lapply(1 : nrow(period_agg), function(i) {
                           per <- period_agg[i,][rep(1, nrow(Y4)),]
                           ind <- (rowSums(per == period) == ncol(period))
                           varsres <- var_srs(Y = Y4[ind], w = w_final2[ind])
@@ -543,9 +543,9 @@ vardomh <- function(Y, H, PSU, w_final,
   Y_nov <- Z_nov <- .SD <- NULL
 
   hY <- data.table(Y1 * w_final)
-  if (is.null(period)) { Y_nov <- hY[, lapply(.SD, sum, na.rm=TRUE), .SDcols = names(Y1)]
+  if (is.null(period)) { Y_nov <- hY[, lapply(.SD, sum, na.rm = TRUE), .SDcols = names(Y1)]
                 } else { hY <- data.table(period0, hY)
-                         Y_nov <- hY[, lapply(.SD, sum, na.rm=TRUE), keyby=names(period), .SDcols = names(Y1)]
+                         Y_nov <- hY[, lapply(.SD, sum, na.rm = TRUE), keyby = names(period), .SDcols = names(Y1)]
                        }
   Y_nov <- transpos(Y_nov, is.null(period), "Y_nov", names(period))
   all_result <- merge(all_result, Y_nov)
@@ -567,41 +567,39 @@ vardomh <- function(Y, H, PSU, w_final,
       }
 
   vars <- data.table(variable = names(Y1), nr_names = 1 : ncol(Y1))
-  setkey(vars, "variable")
-  setkey(all_result, "variable")
-  all_result <- merge(vars, all_result)
+  all_result <- merge(vars, all_result, by="variable")
                         
   vars <- idper <- Y1 <- Z1 <- Y_nov <- NULL
   Z_nov <- period0 <- hY <- hZ <- NULL
   YZnames <- dati <- NULL
 
-  all_result[, estim:= Y_nov]   
-  if (!is.null(all_result$Z_nov)) all_result[, estim:= Y_nov / Z_nov * percentratio]
+  all_result[, estim := Y_nov]   
+  if (!is.null(all_result$Z_nov)) all_result[, estim := Y_nov / Z_nov * percentratio]
 
   if (nrow(all_result[var_est < 0]) > 0) stop("Estimation of variance are negative!")
  
   # Design effect of sample design
-  all_result[, deff_sam:= var_cur_HT / var_srs_HT]
+  all_result[, deff_sam := var_cur_HT / var_srs_HT]
   
   # Design effect of estimator
-  all_result[, deff_est:= var_est / var_cur_HT]
+  all_result[, deff_est := var_est / var_cur_HT]
   
   # Overall effect of sample design and estimator
-  all_result[, deff:= deff_sam * deff_est]
+  all_result[, deff := deff_sam * deff_est]
 
-  all_result[, var_est2:= var_est]
-  all_result[xor(is.na(var_est2), var_est2 < 0), var_est2:= NA]
-  all_result[, se:= sqrt(var_est2)]
-  all_result[(estim != 0) & !is.nan(estim), rse:= se / estim]
-  all_result[estim == 0 | is.nan(estim), rse:=NA]
-  all_result[, cv:= rse * 100]
+  all_result[, var_est2 := var_est]
+  all_result[xor(is.na(var_est2), var_est2 < 0), var_est2 := NA]
+  all_result[, se := sqrt(var_est2)]
+  all_result[(estim != 0) & !is.nan(estim), rse := se / estim]
+  all_result[estim == 0 | is.nan(estim), rse := NA]
+  all_result[, cv := rse * 100]
 
 
   tsad <- qnorm(0.5 * (1 + confidence))
-  all_result[, absolute_margin_of_error:= tsad * se]
-  all_result[, relative_margin_of_error:= tsad * cv]
-  all_result[, CI_lower:= estim - tsad * se]
-  all_result[, CI_upper:= estim + tsad * se]
+  all_result[, absolute_margin_of_error := tsad * se]
+  all_result[, relative_margin_of_error := tsad * cv]
+  all_result[, CI_lower := estim - tsad * se]
+  all_result[, CI_upper := estim + tsad * se]
 
   setnames(all_result, c("variable", "var_est"), c("variableD", "var"))
   if (!is.null(all_result$Z_nov)) {
@@ -609,9 +607,7 @@ vardomh <- function(Y, H, PSU, w_final,
                          nosrZ <- nosrZ[!duplicated(nosrZ)]
                          nosrZ1 <- data.table(variableZ = t(data.frame(strsplit(nosrZ, "__")))[, c(1)])
                          nosrZ <- data.table(variableDZ = nosrZ, nosrZ1)
-                         setkeyv(nosrZ, "variableDZ")
-                         setkeyv(all_result, "variableDZ")
-                         all_result <- merge(all_result, nosrZ)
+                         all_result <- merge(all_result, nosrZ, by="variableDZ")
                          nosrZ <- nosrZ1 <- NULL
                       }
 
@@ -623,23 +619,20 @@ vardomh <- function(Y, H, PSU, w_final,
   namesDom1 <- namesDom
   if (!is.null(Dom)) {
        setnames(nosr, names(nosr)[3 : ncol(nosr)], paste0(namesDom, "_new"))
-       nhs[, (paste0(namesDom, "_new")):= lapply(namesDom, function(x) make.names(paste0(x,".", get(x))))]
+       nhs[, (paste0(namesDom, "_new")) := lapply(namesDom, function(x) make.names(paste0(x,".", get(x))))]
        namesDom1 <- paste0(namesDom, "_new")
     }
 
-  setkeyv(nosr, "variableD")
-  setkeyv(all_result, "variableD")
-  all_result <- merge(nosr, all_result)
+  all_result <- merge(nosr, all_result, by="variableD")
   namesDom <- nosr <- NULL
   
   if (!is.null(all_result$Z_nov)) { 
-       all_result[, variable:= paste("R", get("variable"), get("variableZ"), sep="__")] }
-  setkeyv(all_result, c(namesDom1, names(period)))
-  setkeyv(nhs, c(namesDom1, names(period)))
+       all_result[, variable := paste("R", get("variable"), get("variableZ"), sep="__")] }
 
-  if (!is.null(c(Dom, period))) { all_result <- merge(all_result, nhs, all = TRUE)
-                         } else { all_result[, respondent_count:= nhs$respondent_count]
-                                  all_result[, pop_size:= nhs$pop_size]} 
+  if (!is.null(c(Dom, period))) { all_result <- merge(all_result, nhs,
+                                                      all = TRUE, by = c(namesDom1, names(period)))
+                         } else { all_result[, respondent_count := nhs$respondent_count]
+                                  all_result[, pop_size := nhs$pop_size]} 
 
   variab <- c("respondent_count", "n_nonzero", "pop_size", "estim", "var", "se", 
               "rse", "cv", "absolute_margin_of_error", "relative_margin_of_error",

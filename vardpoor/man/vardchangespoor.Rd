@@ -7,27 +7,16 @@
 \description{Computes the variance estimation for measures of change for indicators on social exclusion and poverty.}
 
 \usage{
-vardchangespoor(Y, 
-                     age=NULL,
-                     pl085 = NULL,
-                     month_at_work = NULL,
-                     Y_den = NULL,
-                     Y_thres = NULL,
-                     wght_thres = NULL,
-                     H, PSU, w_final, id,
-                     Dom = NULL, 
-                     country, periods,
-                     sort=NULL,
-                     gender = NULL,
-                     percentage=60,
-                     order_quant=50,
-                     alpha = 20,
-                     dataset = NULL,
-                     period1, period2,
-                     use.estVar = FALSE,
-                     confidence=0.95,
-                     type="linrmpg",
-                     change_type="absolute")}
+vardchangespoor(Y, age = NULL, pl085 = NULL,
+                month_at_work = NULL, Y_den = NULL,
+                Y_thres = NULL, wght_thres = NULL,
+                H, PSU, w_final, id, Dom = NULL, 
+                country, periods, sort = NULL,
+                gender = NULL, percentage=60,
+                order_quant=50, alpha = 20,
+                dataset = NULL, period1, period2,
+                use.estVar = FALSE, confidence=0.95,
+                type="linrmpg", change_type="absolute")}
 
 \arguments{
 
@@ -37,11 +26,9 @@ vardchangespoor(Y,
 
 \item{pl085}{Retirement variable (Number of months spent in retirement or early retirement). One dimensional object convertible to one-column \code{data.table} or variable name as character, column number. }
 
-\item{month_at_work}{Variable for total number of month at work (sum of the number of months spent at full-time work as employee, number of months spent at part-time work as employee, number of months spent at full-time work as self-employed (including family worker), number of months spent at part-time work as self-employed (including family worker)).  One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.
-}
+\item{month_at_work}{Variable for total number of month at work (sum of the number of months spent at full-time work as employee, number of months spent at part-time work as employee, number of months spent at full-time work as self-employed (including family worker), number of months spent at part-time work as self-employed (including family worker)).  One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.}
 
-\item{Y_den}{Denominator variable (for example gross individual earnings). One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.
-}
+\item{Y_den}{Denominator variable (for example gross individual earnings). One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.}
 
 \item{Y_thres}{Variable (for example equalized disposable income) used for computation and linearization of poverty threshold. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number. Variable specified for \code{inc} is used as \code{income_thres} if \code{income_thres} is  not defined.}
 
@@ -143,25 +130,23 @@ data(eusilc)
 set.seed(1)
 
 data <- data.table(rbind(eusilc, eusilc),
-                   year=c(rep(2010, nrow(eusilc)),
-                          rep(2011, nrow(eusilc))),
-                   country=c(rep("AT", nrow(eusilc)),
-                             rep("AT", nrow(eusilc))))
-data[age<0, age:=0]
-PSU <- data[,.N, keyby="db030"]
-PSU[, N:=NULL]
-PSU[, PSU:=trunc(runif(nrow(PSU), 0, 100))]
+                   year = c(rep(2010, nrow(eusilc)),
+                            rep(2011, nrow(eusilc))),
+                   country = c(rep("AT", nrow(eusilc)),
+                               rep("AT", nrow(eusilc))))
+data[age<0, age:= 0]
+PSU <- data[, .N, keyby = "db030"]
+PSU[, N:= NULL]
+PSU[, PSU:= trunc(runif(nrow(PSU), 0, 100))]
 PSU$inc <- runif(nrow(PSU), 20, 100000)
-setkeyv(PSU, "db030")
-setkeyv(data, "db030")
-data <- merge(data, PSU, all=TRUE)
+data <- merge(data, PSU, all=TRUE, by="db030")
 PSU <- eusilc <- NULL
 data[, strata:=c("XXXX")]
 data[, strata:=as.character(strata)]
-data$pl085 <- 12*trunc(runif(nrow(data),0,2))
-data$month_at_work <- 12*trunc(runif(nrow(data),0,2))
+data$pl085 <- 12 * trunc(runif(nrow(data), 0, 2))
+data$month_at_work <- 12 * trunc(runif(nrow(data), 0, 2))
 
-result <- vardchangespoor(Y="inc", age="age",
+result <- vardchangespoor(Y = "inc", age = "age",
                      pl085="pl085", month_at_work="month_at_work",
                      Y_den="inc", Y_thres="inc",
                      wght_thres="rb050",  H="strata", 

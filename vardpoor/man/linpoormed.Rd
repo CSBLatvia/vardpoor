@@ -11,17 +11,17 @@ Estimation of the median income of individuals below At Risk of Poverty Threshol
 }
 
 \usage{
-linpoormed(Y, id = NULL, weight=NULL, sort=NULL,
-           Dom=NULL, period=NULL, dataset = NULL,
-           percentage=60, order_quant=50,
-           var_name="lin_poormed")
+linpoormed(Y, ID_level2 = NULL, weight = NULL,
+           sort = NULL, Dom = NULL, period = NULL,
+           dataset = NULL, percentage = 60,
+           order_quant = 50, var_name = "lin_poormed")
 }
 
 \arguments{
 
   \item{Y}{Study variable (for example equalized disposable income). One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.}
 
-  \item{id}{Optional variable for unit ID codes. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.}
+  \item{ID_level2}{Optional variable for unit ID codes. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.}
 
   \item{weight}{Optional weight variable. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.}
 
@@ -66,13 +66,17 @@ data(eusilc)
 dati=data.table(IDd=1:nrow(eusilc),eusilc)
 
 # Full population
-d <- linpoormed(Y="eqIncome", id="IDd", weight = "rb050", Dom=NULL,
-                dataset=dati, percentage=60, order_quant=50)
+d <- linpoormed(Y = "eqIncome", ID_level2 = "IDd",
+                weight = "rb050", Dom = NULL,
+                dataset = dati, percentage = 60,
+                order_quant = 50)
 
 \dontrun{
 # Domains by location of houshold
-dd <- linpoormed(Y="eqIncome", id="IDd", weight="rb050", Dom="db040",
-                dataset=dati, percentage=60, order_quant=50)
+dd <- linpoormed(Y = "eqIncome", ID_level2 = "IDd",
+                 weight = "rb050", Dom = "db040",
+                 dataset = dati, percentage = 60,
+                 order_quant = 50)
 
 }
 }

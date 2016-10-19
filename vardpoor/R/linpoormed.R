@@ -82,7 +82,7 @@ linpoormed <- function(Y, id = NULL, weight = NULL,
                  stop("'period' are duplicate column names: ", 
                       paste(names(period)[duplicated(names(period))], collapse = ","))
        if (nrow(period) != n) stop("'period' must be the same length as 'Y'")
-       period[, (names(period)):=lapply(.SD, as.character)]
+       period[, (names(period)) := lapply(.SD, as.character)]
        if(any(is.na(period))) stop("'period' has missing values")
        }
    
@@ -107,7 +107,7 @@ linpoormed <- function(Y, id = NULL, weight = NULL,
                       paste(names(Dom)[duplicated(names(Dom))], collapse = ","))
              if (is.null(names(Dom))) stop("'Dom' must have column names")
              if (nrow(Dom) != n) stop("'Dom' must be the same length as 'Y'")
-             Dom[, (names(Dom)):= lapply(.SD, as.character)]
+             Dom[, (names(Dom)) := lapply(.SD, as.character)]
              if (any(is.na(Dom))) stop("'Dom' has missing values")
              if (any(grepl("__", names(Dom)))) stop("'Dom' is not allowed column names with '__'")
       }
@@ -134,8 +134,8 @@ linpoormed <- function(Y, id = NULL, weight = NULL,
     setnames(quantile, names(quantile)[ncol(quantile)], "quantile")
     if (ncol(quantile) > 1) setkeyv(quantile, head(names(quantile), -1))
     threshold <- copy(quantile)
-    threshold[, threshold:= p / 100 * quantile]
-    threshold[, quantile:=NULL]
+    threshold[, threshold := p / 100 * quantile]
+    threshold[, quantile := NULL]
 
     poor_med_id <- id
     if (!is.null(period))  poor_med_id <- data.table(poor_med_id, period)

@@ -27,7 +27,7 @@ domain <- function(Y, D, dataset = NULL) {
     stop(name.D, " has duplicate column names: ",
          paste(names(D)[duplicated(names(D))], collapse = ", "))
   if (nrow(D) != n) stop(name.Y, " and ", name.D ," have different row count")
-  D[, (names(D)):= lapply(.SD, as.character)]
+  D[, (names(D)) := lapply(.SD, as.character)]
   if (any(is.na(D))) stop("'D' has missing values")
   if (any(grepl("__", names(D)))) stop("'D' is not allowed column names with '__'")
 
@@ -35,7 +35,7 @@ domain <- function(Y, D, dataset = NULL) {
   setkeyv(Dom_agg, names(Dom_agg))
   
   i <- k <- NULL 	
-  domen <- foreach(i = 1:ncol(Y), .combine = data.table) %:%
+  domen <- foreach(i = 1 : ncol(Y), .combine = data.table) %:%
     foreach(k = 1:nrow(Dom_agg), .combine = data.table) %do%
       ifelse(rowSums(D == Dom_agg[k, ][rep(1, n), ]) == ncol(D), Y[[i]], 0)
   

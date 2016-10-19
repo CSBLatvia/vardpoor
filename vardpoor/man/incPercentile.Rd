@@ -10,7 +10,7 @@ The function computes the estimates of weighted percentiles.
 
 \usage{
 incPercentile(Y, weights = NULL, sort = NULL,
-              Dom = NULL,  period=NULL,
+              Dom = NULL,  period = NULL,
               k = c(20, 80), dataset = NULL)
 }
 
@@ -42,7 +42,7 @@ Working group on Statistics on Income and Living Conditions (2004) Common cross-
 
 \examples{
 data(eusilc)
-incPercentile(Y="eqIncome", weights = "rb050", Dom="db040", data=eusilc)
+incPercentile(Y = "eqIncome", weights = "rb050", Dom = "db040", data = eusilc)
 }
 
 \seealso{

@@ -87,7 +87,7 @@ lingpg <- function(Y, gender = NULL, id = NULL,
                       paste(names(period)[duplicated(names(period))], collapse = ","))
        if (nrow(period) != n) stop("'period' must be the same length as 'Y'")
        if (length(unique(gender)) != 2) stop("'gender' must be exactly two values")
-       period[, (names(period)):= lapply(.SD, as.character)]
+       period[, (names(period)) := lapply(.SD, as.character)]
        if(any(is.na(period))) stop("'period' has missing values")
    }
 
@@ -112,7 +112,7 @@ lingpg <- function(Y, gender = NULL, id = NULL,
                       paste(names(Dom)[duplicated(names(Dom))], collapse = ","))
              if (is.null(names(Dom))) stop("'Dom' must have column names")
              if (nrow(Dom) != n) stop("'Dom' must be the same length as 'Y'")
-             Dom[, (names(Dom)):= lapply(.SD, as.character)]
+             Dom[, (names(Dom)) := lapply(.SD, as.character)]
              if (any(is.na(Dom))) stop("'Dom' has missing values")
              if (any(grepl("__", names(Dom)))) stop("'Dom' is not allowed column names with '__'")
        }

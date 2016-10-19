@@ -88,7 +88,7 @@ linrmir <- function(Y, id = NULL, age, weight = NULL,
                  stop("'period' are duplicate column names: ", 
                       paste(names(period)[duplicated(names(period))], collapse = ","))
        if (nrow(period) != n) stop("'period' must be the same length as 'Y'")
-       period[, (names(period)):= lapply(.SD, as.character)]
+       period[, (names(period)) := lapply(.SD, as.character)]
        if(any(is.na(period))) stop("'period' has missing values")
    }   
    
@@ -113,7 +113,7 @@ linrmir <- function(Y, id = NULL, age, weight = NULL,
                       paste(names(Dom)[duplicated(names(Dom))], collapse = ","))
              if (is.null(names(Dom))) stop("'Dom' must be colnames")
              if (nrow(Dom) != n) stop("'Dom' must be the same length as 'Y'")
-             Dom[, (names(Dom)):= lapply(.SD, as.character)]
+             Dom[, (names(Dom)) := lapply(.SD, as.character)]
              if (any(is.na(Dom))) stop("'Dom' has missing values")
              if (any(grepl("__", names(Dom)))) stop("'Dom' is not allowed column names with '__'")
        }
@@ -138,8 +138,8 @@ linrmir <- function(Y, id = NULL, age, weight = NULL,
                               k = order_quant,
                               dataset = NULL)
     quantile <- data.table(quantile)
-    quantile_under_65 <- quantile[age_under_65s == 1][, age_under_65s:= NULL]
-    quantile_over_65 <- quantile[age_under_65s == 0][, age_under_65s:= NULL]
+    quantile_under_65 <- quantile[age_under_65s == 1][, age_under_65s := NULL]
+    quantile_over_65 <- quantile[age_under_65s == 0][, age_under_65s := NULL]
     setnames(quantile_under_65, names(quantile_under_65)[ncol(quantile_under_65)], "quantile_under_65")
     setnames(quantile_over_65, names(quantile_over_65)[ncol(quantile_over_65)], "quantile_over_65")
     sk <- length(names(quantile_under_65)) - 1

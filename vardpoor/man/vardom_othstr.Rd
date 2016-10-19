@@ -5,7 +5,7 @@
 
 \description{Computes the variance estimation for sample surveys in domain by the two stratification.}
 
-\usage{vardom_othstr(Y, H, H2, PSU, w_final, id=NULL,
+\usage{vardom_othstr(Y, H, H2, PSU, w_final, id = NULL,
        Dom = NULL, period=NULL, N_h = NULL,
        N_h2, Z = NULL,
        X = NULL, g = NULL, q = NULL, dataset = NULL, 

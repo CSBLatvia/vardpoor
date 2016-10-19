@@ -11,46 +11,32 @@ Estimation of gender pay (wage) gap and computation of linearized variables for 
 
 
 \usage{
-lingpg(Y, gender = NULL,
-  id = NULL, 
-  weight = NULL,
-  sort = NULL,
-  Dom = NULL,
-  period = NULL,
-  dataset = NULL,
-  var_name = "lin_gpg")
+lingpg(Y, gender = NULL, ID_level2 = NULL, 
+       weight = NULL, sort = NULL, Dom = NULL,
+       period = NULL, dataset = NULL,
+       var_name = "lin_gpg")
 }
 
 
 \arguments{
 
-\item{Y}{Study variable (for example the gross hourly earning). One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.
-}
+\item{Y}{Study variable (for example the gross hourly earning). One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.}
 
-\item{gender}{Numerical variable for gender, where 1 is for males, but 2 is for females. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.
-}
+\item{gender}{Numerical variable for gender, where 1 is for males, but 2 is for females. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.}
 
+\item{ID_level2}{Optional variable for unit ID codes. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.}
 
-\item{id}{Optional variable for unit ID codes. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.
-}
+\item{weight}{Optional weight variable. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.}
 
-\item{weight}{Optional weight variable. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.
-}
+\item{sort}{Optional variable to be used as tie-breaker for sorting. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.}
 
-\item{sort}{Optional variable to be used as tie-breaker for sorting. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.
-}
+\item{Dom}{Optional variables used to define population domains. If supplied, estimation and linearization of gender pay (wage) gap is done for each domain. An object convertible to \code{data.table} or variable names as character vector, column numbers.}
 
-\item{Dom}{Optional variables used to define population domains. If supplied, estimation and linearization of gender pay (wage) gap is done for each domain. An object convertible to \code{data.table} or variable names as character vector, column numbers.
-}
+\item{period}{Optional variable for survey period. If supplied, estimation and linearization of gender pay (wage) gap is done for each time period. Object convertible to \code{data.table} or variable names as character, column numbers.}
 
-\item{period}{Optional variable for survey period. If supplied, estimation and linearization of gender pay (wage) gap is done for each time period. Object convertible to \code{data.table} or variable names as character, column numbers.
-}
+\item{dataset}{Optional survey data object convertible to \code{data.table}.}
 
-\item{dataset}{Optional survey data object convertible to \code{data.table}.
-}
-
-\item{var_name}{A character specifying the name of the linearized variable.
-}
+\item{var_name}{A character specifying the name of the linearized variable.}
 
 }
 
@@ -82,28 +68,30 @@ Jean-Claude Deville (1999). Variance estimation for complex statistics and estim
 \examples{
 data(ses)
 
-dati <- data.table(ID = 1:nrow(ses), ses)
+dati <- data.table(ID = 1 : nrow(ses), ses)
 setnames(dati, "sex", "sexf")
-dati[sexf=="male", sex:=1]
-dati[sexf=="female", sex:=2]
+dati[sexf == "male", sex:= 1]
+dati[sexf == "female", sex:= 2]
 
 
 # Full population
-gpgs1 <- lingpg(Y="earningsHour", gender="sex",
-                id="ID", weight="weights", dataset=dati)
+gpgs1 <- lingpg(Y = "earningsHour", gender = "sex",
+                ID_level2 = "ID", weight = "weights",
+                dataset = dati)
 gpgs1$value
 
 \dontrun{
 # Domains by education
-gpgs2 <- lingpg(Y="earningsHour", gender="sex",
-                id="ID", weight="weights",
-                Dom="education", dataset=dati)
+gpgs2 <- lingpg(Y = "earningsHour", gender = "sex",
+                ID_level2 = "ID", weight = "weights",
+                Dom = "education", dataset = dati)
 gpgs2$value
 
 # Sort variable
-gpgs3 <- lingpg(Y="earningsHour", gender="sex",
-                id="ID", weight="weights", sort = "ID",
-                Dom="education", dataset=dati)
+gpgs3 <- lingpg(Y = "earningsHour", gender = "sex",
+                ID_level2 = "ID", weight = "weights",
+                sort = "ID", Dom = "education",
+                dataset = dati)
 gpgs3$value
 
 # Two survey periods
@@ -111,10 +99,10 @@ dati[, year := 2010]
 dati2 <- copy(dati)
 dati2[, year := 2011]
 dati <- rbind(dati, dati2)
-gpgs4 <- lingpg(Y="earningsHour", gender="sex",
-                id="ID", weight="weights", sort = "ID",
-                Dom="education", period = "year",
-                dataset=dati)
+gpgs4 <- lingpg(Y = "earningsHour", gender = "sex",
+                ID_level2 = "ID", weight = "weights", 
+                sort = "ID", Dom = "education",
+                period = "year", dataset = dati)
 gpgs4$value
 names(gpgs4$lin)
 }

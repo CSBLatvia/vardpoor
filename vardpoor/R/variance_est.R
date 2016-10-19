@@ -14,27 +14,27 @@ variance_est <- function(Y, H, PSU, w_final, N_h = NULL, fh_zero = FALSE,
 
     if(!is.null(dataset)) {
       dataset <- data.table(dataset)
-      if (min(Y %in% names(dataset))!=1) stop("'Y' does not exist in 'dataset'!")
-      if (min(Y %in% names(dataset))==1) Y <- dataset[, Y, with=FALSE] 
+      if (min(Y %in% names(dataset)) != 1) stop("'Y' does not exist in 'dataset'!")
+      if (min(Y %in% names(dataset)) == 1) Y <- dataset[, Y, ] 
       if(!is.null(H)) {
-          if (min(H %in% names(dataset))!=1) stop("'H' does not exist in 'dataset'!")
-          if (min(H %in% names(dataset))==1) H <- dataset[, H, with=FALSE] }
+          if (min(H %in% names(dataset)) != 1) stop("'H' does not exist in 'dataset'!")
+          if (min(H %in% names(dataset)) == 1) H <- dataset[, H, with = FALSE] }
       if(!is.null(PSU)) {
-          if (min(PSU %in% names(dataset))!=1) stop("'PSU' does not exist in 'dataset'!")
-          if (min(PSU %in% names(dataset))==1) PSU <- dataset[, PSU, with=FALSE] }
+          if (min(PSU %in% names(dataset)) != 1) stop("'PSU' does not exist in 'dataset'!")
+          if (min(PSU %in% names(dataset)) == 1) PSU <- dataset[, PSU, with = FALSE] }
       if(!is.null(w_final)) {
-          if (min(w_final %in% names(dataset))!=1) stop("'w_final' does not exist in 'dataset'!")
-          if (min(w_final %in% names(dataset))==1) w_final <- dataset[, w_final, with=FALSE] }
+          if (min(w_final %in% names(dataset)) != 1) stop("'w_final' does not exist in 'dataset'!")
+          if (min(w_final %in% names(dataset)) == 1) w_final <- dataset[, w_final, with = FALSE] }
        if (!is.null(period)) {
-            if (min(period %in% names(dataset))!=1) stop("'period' does not exist in 'dataset'!")
-            if (min(period %in% names(dataset))==1) period <- dataset[, period, with=FALSE] }
+            if (min(period %in% names(dataset)) != 1) stop("'period' does not exist in 'dataset'!")
+            if (min(period %in% names(dataset)) == 1) period <- dataset[, period, with = FALSE] }
        if (!is.null(PSU_sort)) {
-            if (min(PSU_sort %in% names(dataset))!=1) stop("'PSU_sort' does not exist in 'dataset'!")
-            if (min(PSU_sort %in% names(dataset))==1) PSU_sort <- dataset[, PSU_sort, with=FALSE] }
+            if (min(PSU_sort %in% names(dataset)) != 1) stop("'PSU_sort' does not exist in 'dataset'!")
+            if (min(PSU_sort %in% names(dataset)) == 1) PSU_sort <- dataset[, PSU_sort, with = FALSE] }
       }
 
   # Y
-  Y <- data.table(Y, check.names=TRUE)
+  Y <- data.table(Y, check.names = TRUE)
   n <- nrow(Y)
   m <- ncol(Y)
   if (!all(sapply(Y, is.numeric))) stop("'Y' must be numeric values")
@@ -46,14 +46,14 @@ variance_est <- function(Y, H, PSU, w_final, N_h = NULL, fh_zero = FALSE,
   if (nrow(H) != n) stop("'H' length must be equal with 'Y' row count")
   if (ncol(H) != 1) stop("'H' must be 1 column data.frame, matrix, data.table")
   if (is.null(names(H))) stop("'H' must have column names")
-  H[, (names(H)):=lapply(.SD, as.character)]
+  H[, (names(H)) := lapply(.SD, as.character)]
   if (any(is.na(H))) stop("'H' has missing values")
   
   # PSU
   PSU <- data.table(PSU)
   if (nrow(PSU) != n) stop("'PSU' length must be equal with 'Y' row count")
   if (ncol(PSU) != 1) stop("'PSU' must be 1 column data.frame, matrix, data.table")
-  PSU[, (names(PSU)):=lapply(.SD, as.character)]
+  PSU[, (names(PSU)) := lapply(.SD, as.character)]
   if (any(is.na(PSU))) stop("'PSU' has missing values")
   
   # w_final
@@ -71,7 +71,7 @@ variance_est <- function(Y, H, PSU, w_final, N_h = NULL, fh_zero = FALSE,
                  stop("'period' are duplicate column names: ", 
                       paste(names(period)[duplicated(names(period))], collapse = ","))
        if (nrow(period) != n) stop("'period' must be the same length as 'inc'")
-       period[, (names(period)):=lapply(.SD, as.character)]
+       period[, (names(period)) := lapply(.SD, as.character)]
        if(any(is.na(period))) stop("'period' has missing values")  
   }   
   np <- sum(ncol(period))
@@ -89,37 +89,37 @@ variance_est <- function(Y, H, PSU, w_final, N_h = NULL, fh_zero = FALSE,
 
           psuag <- data.table(PSU, PSU_sort)
           if (!is.null(period)) hpY <- data.table(period, psuag)
-          psuag <- psuag[,.N, by=names(psuag)][,N:=NULL]
-          psuag <- psuag[,.N, by=c(names(period), names(PSU))]
-          if (nrow(psuag[N>1])>0) stop("'PSU_sort' must be equal for each 'PSU'")
+          psuag <- psuag[, .N, by = names(psuag)][,N := NULL]
+          psuag <- psuag[, .N, by = c(names(period), names(PSU))]
+          if (nrow(psuag[N > 1]) > 0) stop("'PSU_sort' must be equal for each 'PSU'")
   }
 
   # N_h
   if (!is.null(N_h)) {
       N_h <- data.table(N_h)
-      if (ncol(N_h) != np+2) stop(paste0("'N_h' should be ",toString(np+2)," columns"))
+      if (ncol(N_h) != np + 2) stop(paste0("'N_h' should be ", toString(np + 2)," columns"))
       if (!is.numeric(N_h[[ncol(N_h)]])) stop("The last column of 'N_h' should be numeric")
       if (any(is.na(N_h))) stop("'N_h' has missing values") 
       if (is.null(names(N_h))) stop("'N_h' must be colnames")
-      if (all(names(H) %in% names(N_h))) {N_h[, (names(H)):=lapply(.SD, as.character), .SDcols=names(H)]
+      if (all(names(H) %in% names(N_h))) {N_h[, (names(H)) := lapply(.SD, as.character), .SDcols = names(H)]
              } else stop("All strata titles of 'H' have not in 'N_h'")
       if (is.null(period)) {
              if (names(H) != names(N_h)[1]) stop("Strata titles for 'H' and 'N_h' is not equal")
-             if (any(is.na(merge(unique(H), N_h, by=names(H), all.x=TRUE)))) stop("'N_h' is not defined for all strata")
-             if (any(duplicated(N_h[, head(names(N_h),-1), with=FALSE]))) stop("Strata values for 'N_h' must be unique")
+             if (any(is.na(merge(unique(H), N_h, by = names(H), all.x = TRUE)))) stop("'N_h' is not defined for all strata")
+             if (any(duplicated(N_h[, head(names(N_h), -1), with = FALSE]))) stop("Strata values for 'N_h' must be unique")
        } else { pH <- data.table(period, H)
-                if (any(names(pH) != names(N_h)[c(1:(1+np))])) stop("Strata titles for 'period' with 'H' and 'N_h' is not equal")
+                if (any(names(pH) != names(N_h)[c(1 : (1 + np))])) stop("Strata titles for 'period' with 'H' and 'N_h' is not equal")
                 nperH <- names(period)
-                N_h[, (nperH):=as.character(get(nperH))]
-                if (any(is.na(merge(unique(pH), N_h, by=names(pH), all.x=TRUE)))) stop("'N_h' is not defined for all strata and periods")
-                if (any(duplicated(N_h[, head(names(N_h),-1), with=FALSE]))) stop("Strata values for 'N_h' must be unique in all periods")
+                N_h[, (nperH) := as.character(get(nperH))]
+                if (any(is.na(merge(unique(pH), N_h, by = names(pH), all.x = TRUE)))) stop("'N_h' is not defined for all strata and periods")
+                if (any(duplicated(N_h[, head(names(N_h), -1), with = FALSE]))) stop("Strata values for 'N_h' must be unique in all periods")
                 }
     setnames(N_h, names(N_h)[ncol(N_h)], "N_h")
-    setkeyv(N_h, names(N_h)[c(1:(1+np))])
+    setkeyv(N_h, names(N_h)[c(1 : (1 + np))])
   } else {
     Nh <- data.table(H, w_final)
     if (!is.null(period)) Nh <- data.table(period, Nh)
-    N_h <- Nh[, .(N_h = sum(w_final, na.rm=TRUE)), keyby=c(names(Nh)[1:(1+np)])]
+    N_h <- Nh[, .(N_h = sum(w_final, na.rm = TRUE)), keyby = c(names(Nh)[1 : (1 + np)])]
   }
   psuag <- pH <- NULL  
 
@@ -129,82 +129,82 @@ variance_est <- function(Y, H, PSU, w_final, N_h = NULL, fh_zero = FALSE,
   # z_hi
   ids <- nhc <- f_h <- .SD <- N <- NULL
   hpY <- data.table(H, PSU, Y*w_final)
-  if (!is.null(PSU_sort)) hpY <- data.table(H, PSU, PSU_sort, Y*w_final)
+  if (!is.null(PSU_sort)) hpY <- data.table(H, PSU, PSU_sort, Y * w_final)
   if (!is.null(period)) hpY <- data.table(period, hpY)
   psusn <- as.integer(!is.null(PSU_sort))
-  z_hi <- hpY[, lapply(.SD, sum, na.rm=TRUE), 
-                       keyby = c(names(hpY)[1:(2+np+psusn)]),
-                       .SDcols = names(hpY)[-(1:(2+np+psusn))]]
-  setkeyv(z_hi, names(z_hi)[c(1:(1+np))]) 
+  z_hi <- hpY[, lapply(.SD, sum, na.rm = TRUE), 
+                       keyby = c(names(hpY)[1 : (2 + np + psusn)]),
+                       .SDcols = names(hpY)[-(1 : (2 + np + psusn))]]
+  setkeyv(z_hi, names(z_hi)[c(1 : (1 + np))]) 
 
   # n_h
-  n_h <- data.table(z_hi[, c(1:(1+np)), with=FALSE])
-  n_h <- n_h[, .(n_h=.N), keyby=c(names(n_h)[1:(1+np)])]
+  n_h <- data.table(z_hi[, c(1 : (1 + np)), with = FALSE])
+  n_h <- n_h[, .(n_h = .N), keyby = c(names(n_h)[1 : (1 + np)])]
 
   # var_z_hi
-  var_z_hi <- z_hi[, lapply(.SD, var, na.rm=FALSE), keyby = c(names(z_hi)[1:(1+np)]), .SDcols = namY]
+  var_z_hi <- z_hi[, lapply(.SD, var, na.rm = FALSE), keyby = c(names(z_hi)[1 : (1 + np)]), .SDcols = namY]
 
   if (!is.null(PSU_sort)) {
-       setkeyv(z_hi, c(names(z_hi)[c(1:(1+np),3+np)]))
+       setkeyv(z_hi, c(names(z_hi)[c(1:(1 + np),3 + np)]))
        z_hi[, (paste0("lag_", namY)) := lapply(.SD, function(x) shift(x, 1)),
-                               by=c(names(z_hi)[1:(1+np)]), .SDcols=namY]
+                               by=c(names(z_hi)[1 : (1 + np)]), .SDcols = namY]
 
 
        laY <- paste0("lag_", namY[1])
        z_hi <- z_hi[!is.na(get(laY))]
 
        var_z_hi <- z_hi[, lapply(namY, function(x) 
-                                 sum((get(x)-get(paste0("lag_",x)))^2)),
-                                 keyby=c(names(z_hi)[1:(1+np)])]
-       setnames(var_z_hi, names(var_z_hi)[(2+np):ncol(var_z_hi)], namY)
+                                 sum((get(x) - get(paste0("lag_", x)))^2)),
+                                 keyby = c(names(z_hi)[1 : (1 + np)])]
+       setnames(var_z_hi, names(var_z_hi)[(2 + np) : ncol(var_z_hi)], namY)
    }
 
   # f_h
-  F_h <- merge(N_h, n_h, by = names(hpY)[c(1:(1+np))], sort=TRUE)
-  F_h[, N_h:=round2(N_h, 8)]
-  F_h[, f_h:=n_h/N_h]
+  F_h <- merge(N_h, n_h, by = names(hpY)[c(1 : (1 + np))], sort = TRUE)
+  F_h[, N_h := round2(N_h, 8)]
+  F_h[, f_h := n_h / N_h]
 
-  if (nrow(F_h[n_h==1 & f_h != 1])>0) {
+  if (nrow(F_h[n_h == 1 & f_h != 1]) > 0) {
     print(msg)
     print("There are strata, where n_h == 1 and f_h <> 1")
     print("Not possible to estimate the variance in these strata!")
     print("At these strata estimation of variance was not calculated")
-    nh <- F_h[n_h==1 & f_h != 1]
+    nh <- F_h[n_h == 1 & f_h != 1]
     print(nh)
   }
   
-  if (nrow(F_h[f_h > 1])>0) {    
+  if (nrow(F_h[f_h > 1]) > 0) {    
      print(msg)
      print("There are strata, where f_h > 1")
      print("At these strata estimation of variance will be 0")
      print(F_h[f_h > 1])
-     F_h[f_h > 1, f_h:=1]
+     F_h[f_h > 1, f_h := 1]
    }
 
   # fh1
   if (!(PSU_level)) {
        n_h1 <- Nh1 <- NULL
-       fh1 <- data.table(hpY[, c(1:(1+np)), with=FALSE], w_final)
-       fh1 <- fh1[, .(n_h1=.N, Nh1=sum(w_final, na.rm=TRUE)), keyby = c(names(fh1)[1:(1+np)])]
-       F_h <- merge(F_h, fh1, by=c(names(fh1)[1:(1+np)]))
-       F_h[, f_h:=n_h1/Nh1]
+       fh1 <- data.table(hpY[, c(1 : (1 + np)), with = FALSE], w_final)
+       fh1 <- fh1[, .(n_h1 = .N, Nh1 = sum(w_final, na.rm = TRUE)), keyby = c(names(fh1)[1 : (1 + np)])]
+       F_h <- merge(F_h, fh1, by = c(names(fh1)[1 : (1 + np)]))
+       F_h[, f_h := n_h1 / Nh1]
      }
 
-  var_z_hi <- merge(F_h, var_z_hi, by=c(names(F_h)[1:(1+np)]))
+  var_z_hi <- merge(F_h, var_z_hi, by = c(names(F_h)[1 : (1 + np)]))
   fh1 <- F_h <- NULL
 
   # var_h
 
   if (!is.null(PSU_sort)) {
-         var_z_hi[, nhc:=ifelse(n_h>1, 1/(2*n_h*(n_h-1)), NA)]
-    } else var_z_hi[, nhc:=n_h]
+         var_z_hi[, nhc := ifelse(n_h > 1, 1 / (2 * n_h * (n_h - 1)), NA)]
+    } else var_z_hi[, nhc := n_h]
 
-  var_z_hi[, ids:=1:.N]
-  var_z_hi[, (paste0("var_", namY)):=lapply(.SD[, namY, with=FALSE],
-                                         function(x) (1 - f_h*(1-fh_zero))*nhc*x), by="ids"]
+  var_z_hi[, ids:= 1 : .N]
+  var_z_hi[, (paste0("var_", namY)) := lapply(.SD[, namY, with = FALSE],
+                                           function(x) (1 - f_h * (1 - fh_zero)) * nhc * x), by = "ids"]
   # Variance_est 
   
-  var_est <- var_z_hi[, lapply(.SD, sum, na.rm=TRUE), 
+  var_est <- var_z_hi[, lapply(.SD, sum, na.rm = TRUE), 
                                   keyby = vars, .SDcols = paste0("var_", namY)]
   setnames(var_est, paste0("var_", namY), namY)
   return(var_est)

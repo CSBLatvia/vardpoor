@@ -131,57 +131,59 @@ Jean-Claude Deville (1999). Variance estimation for complex statistics and estim
 \examples{
 
 data(eusilc)
-dataset <- data.table(IDd=1:nrow(eusilc),eusilc)
+dataset <- data.table(IDd = 1 : nrow(eusilc), eusilc)
 
-aa<-vardomh(Y="eqIncome", H="db040", PSU="db030", w_final="rb050",
-           ID_level1="db030", ID_level2="rb030", Dom = "db040",
-           period = NULL, N_h = NULL, Z = NULL, dataset = dataset, X = NULL,
-           X_ID_level1 = NULL, g = NULL, datasetX = NULL,
-           q = rep(1, if (is.null(datasetX)) 
-                       nrow(as.data.frame(H)) else nrow(datasetX)),
-           confidence = .95, percentratio = 1,
-           outp_lin=TRUE, outp_res=TRUE)
+aa <- vardomh(Y = "eqIncome", H = "db040", PSU = "db030",
+              w_final = "rb050", ID_level1 = "db030",
+              ID_level2 = "rb030", Dom = "db040", period = NULL,
+              N_h = NULL, Z = NULL, dataset = dataset, X = NULL,
+              X_ID_level1 = NULL, g = NULL, datasetX = NULL,
+              q = rep(1, if (is.null(datasetX)) 
+                           nrow(as.data.frame(H)) else nrow(datasetX)),
+              confidence = 0.95, percentratio = 1,
+              outp_lin = TRUE, outp_res = TRUE)
 
 \dontrun{
 dataset2 <- copy(dataset)
 dataset$period <- 1
 dataset2$period <- 2
-dataset <-data.table(rbind(dataset, dataset2))
+dataset <- data.table(rbind(dataset, dataset2))
 
 # by default without using fh_zero (finite population correction)
-aa2<-vardomh(Y="eqIncome", H="db040", PSU="db030", w_final="rb050",
-           ID_level1="db030", ID_level2="rb030", Dom = "db040",
-           period = "period", N_h = NULL, Z = NULL, dataset = dataset,
-           X=NULL, X_ID_level1=NULL, 
-           g=NULL, q=NULL, datasetX=NULL,
-           confidence = .95, percentratio = 1,
-           outp_lin=TRUE, outp_res=TRUE)
+aa2 <- vardomh(Y = "eqIncome", H = "db040", PSU = "db030",
+               w_final = "rb050", ID_level1 = "db030",
+               ID_level2 = "rb030", Dom = "db040", period = "period",
+               N_h = NULL, Z = NULL, dataset = dataset,
+               X = NULL, X_ID_level1 = NULL,  
+               g = NULL, q = NULL, datasetX = NULL,
+               confidence = .95, percentratio = 1,
+               outp_lin = TRUE, outp_res = TRUE)
 aa2
 
 # without using fh_zero (finite population correction)
-aa3<-vardomh(Y="eqIncome", H="db040", PSU="db030", w_final="rb050",
-           ID_level1="db030", ID_level2="rb030", Dom = "db040",
-           period = "period", N_h = NULL, fh_zero=FALSE, 
-           Z = NULL, dataset = dataset,
-           X = NULL, X_ID_level1 = NULL, 
-           g = NULL, datasetX = NULL,
-           q = rep(1, if (is.null(datasetX)) 
+aa3 <- vardomh(Y = "eqIncome", H = "db040", PSU = "db030",
+               w_final = "rb050", ID_level1 = "db030", 
+               ID_level2 = "rb030", Dom = "db040",
+               period = "period", N_h = NULL, fh_zero=FALSE, 
+               Z = NULL, dataset = dataset, X = NULL,
+               X_ID_level1 = NULL, g = NULL, datasetX = NULL,
+               q = rep(1, if (is.null(datasetX)) 
                        nrow(as.data.frame(H)) else nrow(datasetX)),
-           confidence = .95, percentratio = 1,
-           outp_lin=TRUE, outp_res=TRUE)
+               confidence = .95, percentratio = 1,
+               outp_lin = TRUE, outp_res = TRUE)
 aa3
 
 # with using fh_zero (finite population correction)
-aa4<-vardomh(Y="eqIncome", H="db040", PSU="db030", w_final="rb050",
-           ID_level1="db030", ID_level2="rb030", Dom = "db040",
-           period = "period", N_h = NULL, fh_zero=TRUE, 
-           Z = NULL, dataset = dataset,
-           X = NULL, X_ID_level1 = NULL, 
-           g = NULL, datasetX = NULL,
-           q = rep(1, if (is.null(datasetX)) 
-                       nrow(as.data.frame(H)) else nrow(datasetX)),
-           confidence = .95, percentratio = 1,
-           outp_lin=TRUE, outp_res=TRUE)
+aa4 <- vardomh(Y="eqIncome", H="db040", PSU="db030", w_final="rb050",
+               ID_level1="db030", ID_level2="rb030", Dom = "db040",
+               period = "period", N_h = NULL, fh_zero=TRUE, 
+               Z = NULL, dataset = dataset,
+               X = NULL, X_ID_level1 = NULL, 
+               g = NULL, datasetX = NULL,
+               q = rep(1, if (is.null(datasetX)) 
+                              nrow(as.data.frame(H)) else nrow(datasetX)),
+               confidence = .95, percentratio = 1,
+               outp_lin = TRUE, outp_res = TRUE)
 aa4
 }
 

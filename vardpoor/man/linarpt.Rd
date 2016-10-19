@@ -8,56 +8,39 @@
 Estimates the at-risk-of-poverty threshold (defined as percentage (usualy 60\%) of equalised disposable income after social transfers quantile (usualy median)) and computes linearized variable for variance estimation.
 }
 
-
 \usage{
-linarpt(Y,
-  id = NULL,
-  weight = NULL,
-  sort = NULL,
-  Dom = NULL,
-  period = NULL,
-  dataset = NULL,
-  percentage = 60,
-  order_quant=50,
-  var_name="lin_arpt")
+linarpt(Y, id = NULL, weight = NULL, 
+        sort = NULL, Dom = NULL, period = NULL,
+        dataset = NULL, percentage = 60,
+        order_quant = 50, var_name = "lin_arpt")
 }
 
 
 \arguments{
 
-\item{Y}{Study variable (for example equalised disposable income after social transfers). One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.
-}
+\item{Y}{Study variable (for example equalised disposable income after social transfers). One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.}
 
-\item{id}{Optional variable for unit ID codes. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.
-}
+\item{ID_level2}{Optional variable for unit ID codes. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.}
 
-\item{weight}{Optional weight variable. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.
-}
+\item{weight}{Optional weight variable. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.}
 
-\item{sort}{Optional variable to be used as tie-breaker for sorting. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.
-}
+\item{sort}{Optional variable to be used as tie-breaker for sorting. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.}
   
-\item{Dom}{Optional variables used to define population domains. If supplied, linearization of at-risk-of-poverty threshold is done for each domain. An object convertible to \code{data.table} or variable names as character vector, column numbers as numeric vector.
-}
+\item{Dom}{Optional variables used to define population domains. If supplied, linearization of at-risk-of-poverty threshold is done for each domain. An object convertible to \code{data.table} or variable names as character vector, column numbers as numeric vector.}
 
-\item{period}{Optional variable for survey period. If supplied, linearization of at-risk-of-poverty threshold is done for each survey period. Object convertible to \code{data.table} or variable names as character, column numbers as numeric vector.
-}
+\item{period}{Optional variable for survey period. If supplied, linearization of at-risk-of-poverty threshold is done for each survey period. Object convertible to \code{data.table} or variable names as character, column numbers as numeric vector.}
   
-\item{dataset}{Optional survey data object convertable to \code{data.table}.
-}
+\item{dataset}{Optional survey data object convertable to \code{data.table}.}
 
 \item{percentage}{A numeric value in range \eqn{\left[ 0,100 \right]}{[0,100]} for \eqn{p} in the formula for at-risk-of-poverty threshold computation:
 \deqn{\frac{p}{100} \cdot Z_{\frac{\alpha}{100}}.}{p/100 * Z(\alpha/100).}
-For example, to compute poverty threshold equal to 60\% of some income quantile, \eqn{p} should be set equal to 60.
-}
+For example, to compute poverty threshold equal to 60\% of some income quantile, \eqn{p} should be set equal to 60.}
   
 \item{order_quant}{A numeric value in range \eqn{\left[ 0,100 \right]}{[0,100]} for \eqn{\alpha} in the formula for at-risk-of-poverty threshold computation:
 \deqn{\frac{p}{100} \cdot Z_{\frac{\alpha}{100}}.}{p/100 * Z(\alpha/100).}
-For example, to compute poverty threshold equal to some percentage of median income, \eqn{\alpha} should be set equal to 50.
-}
+For example, to compute poverty threshold equal to some percentage of median income, \eqn{\alpha} should be set equal to 50.}
 
-\item{var_name}{A character specifying the name of the linearized variable.
-}
+\item{var_name}{A character specifying the name of the linearized variable.}
 
 }
 
@@ -69,14 +52,11 @@ For example, to compute poverty threshold equal to some percentage of median inc
 
 A list with three objects are returned:
 
-\item{quantile}{A \code{data.table} containing the estimated value of the quintile used for at-risk-of-poverty threshold estimation.
-}
+\item{quantile}{A \code{data.table} containing the estimated value of the quintile used for at-risk-of-poverty threshold estimation.}
   
-\item{value}{A \code{data.table} containing the estimated at-risk-of-poverty threshold (in percentage).
-}
+\item{value}{A \code{data.table} containing the estimated at-risk-of-poverty threshold (in percentage).}
   
-\item{lin}{A \code{data.table} containing the linearized variables of the at-risk-of-poverty threshold (in percentage).
-}
+\item{lin}{A \code{data.table} containing the linearized variables of the at-risk-of-poverty threshold (in percentage).}
 
 }
 
@@ -101,17 +81,21 @@ Jean-Claude Deville (1999). Variance estimation for complex statistics and estim
 
 data(eusilc)
 
-dati <- data.table(IDd = 1:nrow(eusilc), eusilc)
+dati <- data.table(IDd = 1 : nrow(eusilc), eusilc)
 
 # Full population
-d1 <- linarpt(Y="eqIncome", id="IDd", weight = "rb050", Dom = NULL,
-             dataset = dati, percentage = 60, order_quant=50)
+d1 <- linarpt(Y = "eqIncome", id = "IDd",
+              weight = "rb050", Dom = NULL,
+              dataset = dati, percentage = 60,
+              order_quant = 50)
 d1$value
 
 \dontrun{
 # By domains
-d2 <- linarpt(Y="eqIncome", id="IDd", weight = "rb050", Dom = "db040",
-              dataset = dati, percentage = 60, order_quant=50)
+d2 <- linarpt(Y = "eqIncome", id = "IDd",
+              weight = "rb050", Dom = "db040",
+              dataset = dati, percentage = 60,
+              order_quant = 50)
 d2$value
 } 
 

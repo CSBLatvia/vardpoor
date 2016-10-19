@@ -286,8 +286,8 @@ vardrosannual <- function(Y, H, PSU, w_final, id,
   annual_cros[, cv:=rse*100]
 
   tsad <- qnorm(0.5*(1+confidence))
-  annual_cros[, CI_lower:= estim - tsad * se]
-  annual_cros[, CI_upper:= estim + tsad * se]
+  annual_cros[, CI_lower := estim - tsad * se]
+  annual_cros[, CI_upper := estim + tsad * se]
 
 
   list(crossectional_results=crossectional_results,

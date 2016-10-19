@@ -9,7 +9,7 @@
 }
 
 \usage{
-  domain(Y, D, dataset=NULL)
+  domain(Y, D, dataset = NULL)
 }
 
 \arguments{
@@ -35,7 +35,7 @@ domain(1, "A")
 
 ### Example 1
 
-Y <- as.matrix(1:10)
+Y <- as.matrix(1 : 10)
 colnames(Y) <- "Y1"
 D <- as.matrix(rep(1, 10))
 colnames(D) <- "D1"
@@ -44,28 +44,28 @@ domain(Y, D)
 
 ### Example 2
 
-Y <- matrix(1:20, 10, 2)
-colnames(Y) <- paste0("Y", 1:2)
-D <- matrix(rep(1:2, each = 5), 10, 1)
+Y <- matrix(1 : 20, 10, 2)
+colnames(Y) <- paste0("Y", 1 : 2)
+D <- matrix(rep(1 : 2, each = 5), 10, 1)
 colnames(D) <- "D"
 domain(Y, D)
 
 
 ### Example 3
 
-Y <- matrix(1:20, 10, 2)
-colnames(Y) <- paste0("Y", 1:2)
-D <- matrix(rep(1:4, each = 5), 10, 2)
-colnames(D) <- paste0("D", 1:2)
+Y <- matrix(1 : 20, 10, 2)
+colnames(Y) <- paste0("Y", 1 : 2)
+D <- matrix(rep(1 : 4, each = 5), 10, 2)
+colnames(D) <- paste0("D", 1 : 2)
 domain(Y, D)
 
 
 ### Example 4
 
-Y <- matrix(1:20, 10, 2)
-colnames(Y) <- paste0("Y", 1:2)
-D <- matrix(c(rep(1:2, each = 5), rep(3, 10)), 10, 2)
-colnames(D) <- paste0("D", 1:2)
+Y <- matrix(1 : 20, 10, 2)
+colnames(Y) <- paste0("Y", 1 : 2)
+D <- matrix(c(rep(1 : 2, each = 5), rep(3, 10)), 10, 2)
+colnames(D) <- paste0("D", 1 : 2)
 domain(Y, D)
 }
 

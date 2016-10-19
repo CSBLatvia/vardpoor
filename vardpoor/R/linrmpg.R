@@ -84,7 +84,7 @@ linrmpg <- function(Y, id = NULL, weight = NULL, sort = NULL,
                  stop("'period' are duplicate column names: ", 
                       paste(names(period)[duplicated(names(period))], collapse = ","))
        if (nrow(period) != n) stop("'period' must be th e same length as 'Y'")
-       period[, (names(period)):= lapply(.SD, as.character)]  
+       period[, (names(period)) := lapply(.SD, as.character)]  
        if(any(is.na(period))) stop("'period' has missing values")
    }   
 
@@ -110,7 +110,7 @@ linrmpg <- function(Y, id = NULL, weight = NULL, sort = NULL,
                       paste(names(Dom)[duplicated(names(Dom))], collapse = ","))
              if (is.null(names(Dom))) stop("'Dom' must have column names")
              if (nrow(Dom) != n) stop("'Dom' must be the same length as 'Y'")
-             Dom[, (names(Dom)):=lapply(.SD, as.character)]  
+             Dom[, (names(Dom)) := lapply(.SD, as.character)]  
              if (any(is.na(Dom))) stop("'Dom' has missing values")
              if (any(grepl("__", names(Dom)))) stop("'Dom' is not allowed column names with '__'")
        }
@@ -137,8 +137,8 @@ linrmpg <- function(Y, id = NULL, weight = NULL, sort = NULL,
     setnames(quantile, names(quantile)[ncol(quantile)], "quantile")
     if (ncol(quantile)>1) setkeyv(quantile, head(names(quantile), -1))
     threshold <- copy(quantile)
-    threshold[, threshold:=p / 100 * quantile]
-    threshold[, quantile:=NULL]
+    threshold[, threshold := p / 100 * quantile]
+    threshold[, quantile := NULL]
    
     rmpgap_id <- id
     if (!is.null(period)) rmpgap_id <- data.table(period, rmpgap_id)

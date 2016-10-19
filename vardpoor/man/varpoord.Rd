@@ -6,10 +6,10 @@
 
 \description{Computes the estimation of the variance for indicators on social exclusion and poverty.}
 
-\usage{ varpoord(Y, w_final, age=NULL, pl085=NULL, month_at_work=NULL,
-                     Y_den=NULL, Y_thres = NULL, wght_thres = NULL,
-                 ID_household, id = NULL, H, PSU, N_h, fh_zero = FALSE,
-                 PSU_level=TRUE, sort = NULL, Dom = NULL, period = NULL,
+\usage{ varpoord(Y, w_final, age = NULL, pl085 = NULL, month_at_work = NULL,
+                 Y_den = NULL, Y_thres = NULL, wght_thres = NULL,
+                 ID_level1, ID_level2 = NULL, H, PSU, N_h, fh_zero = FALSE,
+                 PSU_level = TRUE, sort = NULL, Dom = NULL, period = NULL,
                  gender = NULL, dataset = NULL, X = NULL, periodX = NULL,
                  X_ID_household = NULL, ind_gr = NULL, g = NULL, q=NULL, datasetX = NULL,
                  percentage = 60, order_quant = 50, alpha = 20,
@@ -34,9 +34,9 @@
 
 \item{wght_thres}{Weight variable used for computation and linearization of poverty threshold. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number. Variable specified for \code{weight} is used as \code{wght_thres} if \code{wght_thres} is not defined.}
 
-\item{ID_household}{Variable for household ID codes. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.}
+\item{ID_level1}{Variable for level1 ID codes. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.}
 
-\item{id}{Optional variable for unit ID codes. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.}
+\item{ID_level2}{Optional variable for unit ID codes. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.}
 
 \item{H}{The unit stratum variable. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.}
 
@@ -97,9 +97,9 @@ For example, to compute poverty threshold equal to some percentage of median inc
 
   A list with objects are returned by the function:
 
-  \item{lin_out}{A \code{data.table} containing the linearized values of the ratio estimator with id and PSU.}
+  \item{lin_out}{A \code{data.table} containing the linearized values of the ratio estimator with ID_level2 and PSU.}
 
-  \item{res_out}{A \code{data.table} containing the estimated residuals of calibration with id and PSU.}
+  \item{res_out}{A \code{data.table} containing the estimated residuals of calibration with ID_level2 and PSU.}
 
   \item{all_result}{A \code{data.table}, which containing variables:
 
@@ -151,32 +151,33 @@ Working group on Statistics on Income and Living Conditions (2004) Common cross-
 
 \examples{
 data(eusilc)
-dataset <- data.table(IDd=1:nrow(eusilc),eusilc)
-dataset1 <- dataset[1:1000]
+dataset <- data.table(IDd = 1 : nrow(eusilc), eusilc)
+dataset1 <- dataset[1 : 1000]
 
 # use dataset1 by default without using fh_zero (finite population correction)
 aa<-varpoord(Y = "eqIncome", w_final = "rb050",
              Y_thres = NULL, wght_thres = NULL,
-             ID_household = "db030", id = "IDd", 
+             ID_level1 = "db030", ID_level2 = "IDd", 
              H = "db040", PSU = "rb030", N_h = NULL,
              sort = NULL, Dom = NULL,
              gender = NULL, X = NULL,
-             X_ID_household=NULL, g=NULL,
+             X_ID_level1 = NULL, g = NULL,
              q=NULL, datasetX = NULL,             
-             dataset =  dataset1, percentage=60, order_quant=50,
-             alpha = 20, confidence = .95, outp_lin = FALSE,
-             outp_res = FALSE, type="linarpt")
+             dataset = dataset1, percentage = 60,
+             order_quant = 50, alpha = 20, 
+             confidence = .95, outp_lin = FALSE,
+             outp_res = FALSE, type = "linarpt")
 aa
 
 \dontrun{
 # use dataset1 by default without using fh_zero (finite population correction)
 aa1 <-varpoord(Y = "eqIncome", w_final = "rb050",
              Y_thres = NULL, wght_thres = NULL,
-             ID_household = "db030", id = "IDd", 
+             ID_level1 = "db030", ID_level2 = "IDd", 
              H = "db040", PSU = "rb030", N_h = NULL,
-              fh_zero = FALSE, sort = NULL, Dom = "db040",
+             fh_zero = FALSE, sort = NULL, Dom = "db040",
              gender = NULL, X = NULL,
-             X_ID_household = NULL, g = NULL,
+             X_ID_level1 = NULL, g = NULL,
              datasetX = NULL,
              q = rep(1, if (is.null(datasetX)) 
                         nrow(as.data.frame(H)) else nrow(datasetX)),
@@ -189,42 +190,43 @@ aa1$all_result
 # use dataset1 by default with using fh_zero (finite population correction)
 aa2 <-varpoord(Y = "eqIncome", w_final = "rb050",
              Y_thres = NULL, wght_thres = NULL,
-             ID_household = "db030", id = "IDd", 
+             ID_level1 = "db030", ID_level2 = "IDd", 
              H = "db040", PSU = "rb030", N_h = NULL,
-              fh_zero = TRUE, sort = NULL, Dom = "db040",
+             fh_zero = TRUE, sort = NULL, Dom = "db040",
              gender = NULL, X = NULL,
              X_ID_household = NULL, g = NULL,
              datasetX = NULL,
              q = rep(1, if (is.null(datasetX)) 
                         nrow(as.data.frame(H)) else nrow(datasetX)),
-             dataset =  dataset1, percentage=60, order_quant=50,
-             alpha = 20, confidence = .95, outp_lin = FALSE,
-             outp_res = FALSE, type="linarpt")
+             dataset =  dataset1, percentage = 60,
+             order_quant = 50, alpha = 20, 
+             confidence = .95, outp_lin = FALSE,
+             outp_res = FALSE, type = "linarpt")
 aa2
 aa2$all_result
 
 
 # using dataset1
 aa3 <-varpoord(Y = "eqIncome", w_final = "rb050",
-             Y_thres = NULL, wght_thres = NULL,
-             ID_household = "db030", id = "IDd", 
-             H = "db040", PSU = "rb030", N_h = NULL,
-            sort = NULL, Dom = "db040",
-             gender = NULL, X = NULL,
-             X_ID_household = NULL, g = NULL,
-             datasetX = NULL,
-             q = rep(1, if (is.null(datasetX)) 
-                        nrow(as.data.frame(H)) else nrow(datasetX)),
-             dataset =  dataset1, percentage=60, order_quant=50,
-             alpha = 20, confidence = .95, outp_lin = FALSE,
-             outp_res = FALSE, type="all_choices")
+               Y_thres = NULL, wght_thres = NULL,
+               ID_level1 = "db030", ID_level2 = "IDd", 
+               H = "db040", PSU = "rb030", N_h = NULL,
+               sort = NULL, Dom = "db040",
+               gender = NULL, X = NULL,
+               X_ID_level1 = NULL, g = NULL,
+               datasetX = NULL,
+               q = rep(1, if (is.null(datasetX)) 
+                           nrow(as.data.frame(H)) else nrow(datasetX)),
+               dataset =  dataset1, percentage = 60, order_quant = 50,
+               alpha = 20, confidence = .95, outp_lin = FALSE,
+               outp_res = FALSE, type = "all_choices")
 aa3
-aa3$all_result[type=="ARPT"]
+aa3$all_result[type == "ARPT"]
 
 # using dataset
 aa4 <- varpoord(Y = "eqIncome", w_final = "rb050",
              Y_thres = NULL, wght_thres = NULL,
-             ID_household = "db030", id = "IDd", 
+             ID_level1 = "db030", ID_level2 = "IDd", 
              H = "db040", PSU = "rb030", N_h = NULL,
              sort = NULL, Dom = "db040",
              gender = NULL, X = NULL,
@@ -232,13 +234,14 @@ aa4 <- varpoord(Y = "eqIncome", w_final = "rb050",
              datasetX = NULL,
              q = rep(1, if (is.null(datasetX)) 
                         nrow(as.data.frame(H)) else nrow(datasetX)),
-             dataset =  dataset, percentage=60, order_quant=50,
-             alpha = 20, confidence = .95, outp_lin = TRUE,
-             outp_res = TRUE, type="all_choices")
-aa4$all_result[type=="ARPT"]
+             dataset =  dataset, percentage = 60,
+             order_quant = 50, alpha = 20, 
+             confidence = .95, outp_lin = TRUE,
+             outp_res = TRUE, type = "all_choices")
+aa4$all_result[type == "ARPT"]
 
-aa4$lin_out[20:40]
-aa4$res_out[20:40]
+aa4$lin_out[20 : 40]
+aa4$res_out[20 : 40]
 }
 
 

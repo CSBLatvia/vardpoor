@@ -2,9 +2,10 @@
 \alias{variance_est}
 \title{Variance estimation for sample surveys by the ultimate cluster method}
 \description{Computes the variance estimation by the ultimate cluster method.}
-\usage{variance_est(Y, H, PSU, w_final, N_h=NULL, fh_zero=FALSE,
-                    PSU_level=TRUE, PSU_sort=NULL,
-                    period=NULL, dataset=NULL, msg="")}
+\usage{variance_est(Y, H, PSU, w_final, N_h = NULL,
+                    fh_zero = FALSE, PSU_level = TRUE,
+                    PSU_sort = NULL, period = NULL,
+                    dataset = NULL, msg = "")} 
 \arguments{
 \item{Y}{Variables of interest. Object convertible to \code{data.table} or variable names as character, column numbers.}
 
@@ -85,19 +86,19 @@ Eurostat Methodologies and Working papers, Handbook on precision requirements an
 \examples{
 Ys <- rchisq(10, 3)
 w <- rep(2, 10)
-PSU <- 1:length(Ys)
+PSU <- 1 : length(Ys)
 H <- rep("Strata_1", 10)
 
 # by default without using fh_zero (finite population correction)
-variance_est(Y=Ys, H=H, PSU=PSU, w_final=w)
+variance_est(Y = Ys, H = H, PSU = PSU, w_final = w)
 
 
 \dontrun{
 # without using fh_zero (finite population correction)
-variance_est(Y=Ys, H=H, PSU=PSU, w_final=w, fh_zero=FALSE)
+variance_est(Y = Ys, H = H, PSU = PSU, w_final = w, fh_zero = FALSE)
 
 # with using fh_zero (finite population correction)
-variance_est(Y=Ys, H=H, PSU=PSU, w_final=w, fh_zero=TRUE)
+variance_est(Y = Ys, H = H, PSU = PSU, w_final = w, fh_zero = TRUE)
 }
 } 
 \seealso{

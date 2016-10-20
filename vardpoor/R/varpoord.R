@@ -131,8 +131,7 @@ varpoord <- function(Y, w_final,
           if (min(g %in% names(datasetX)) != 1) stop("'g' does not exist in 'datasetX'!")
           if (min(g %in% names(datasetX)) == 1) g <- datasetX[, g, with = FALSE] }
       if(!is.null(q)) {
-          if (min(q %in% names(datasetX)) != 1) {
-               if (length(q) != nrow(datasetX))  stop("'q' does not exist in 'datasetX'!") }
+          if (min(q %in% names(datasetX)) != 1) stop("'q' does not exist in 'datasetX'!")
           if (min(q %in% names(datasetX)) == 1) q <- datasetX[, q, with = FALSE]  }
     }
   N <- dataset <- datasetX <- NULL

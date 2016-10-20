@@ -89,8 +89,7 @@ vardomh <- function(Y, H, PSU, w_final,
           if (min(g %in% names(datasetX)) == 1) g <- datasetX[, g, with = FALSE] }
 
       if(!is.null(q)) {
-          if (min(q %in% names(datasetX)) != 1)  {
-                     if (length(q) != nrow(datasetX))  stop("'q' does not exist in 'datasetX'!") }
+          if (min(q %in% names(datasetX)) != 1) stop("'q' does not exist in 'datasetX'!")
           if (min(q %in% names(datasetX)) == 1) q <- datasetX[, q, with = FALSE] } 
      }
   N <- dataset <- datasetX <- NULL
@@ -241,6 +240,7 @@ vardomh <- function(Y, H, PSU, w_final,
   if (!is.null(X)) {
      if(!is.null(periodX)) {
         periodX <- data.table(periodX)
+        periodX[, (names(periods)) := lapply(.SD, as.character)]
         periX <- data.table(unique(periodX))
         setkeyv(periX, names(periX))
         peri <- data.table(unique(period))

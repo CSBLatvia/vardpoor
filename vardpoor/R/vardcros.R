@@ -20,7 +20,7 @@ vardcros <- function(Y, H, PSU, w_final, id,
   if (length(household_level_max) != 1 | !any(is.logical(household_level_max))) stop("'household_level_max' must be logical")
   if(length(confidence) != 1 | any(!is.numeric(confidence) |  confidence < 0 | confidence > 1)) {
           stop("'confidence' must be a numeric value in [0,1]")  }
-  if (is.null(Z)==linratio & linratio==TRUE) stop("'linratio' must be FALSE")
+  if (is.null(Z) == linratio & linratio == TRUE) stop("'linratio' must be FALSE")
 
   if(!is.null(dataset)) {
       dataset <- data.frame(dataset)

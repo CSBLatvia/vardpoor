@@ -10,8 +10,8 @@ Estimates the aggregate replacement ratio (defined as the gross median individua
 
 
 \usage{
-linarr(Y, Y_den, ID_level2 = NULL, age,
-       pl085, month_at_work, weight = NULL,
+linarr(Y, Y_den, id = NULL, age, pl085,
+       month_at_work, weight = NULL,
        sort = NULL, Dom = NULL, period = NULL,
        dataset = NULL, order_quant = 50,
        var_name = "lin_arr")
@@ -23,7 +23,7 @@ linarr(Y, Y_den, ID_level2 = NULL, age,
 
 \item{Y_den}{Denominator variable (for example gross individual earnings). One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.}
 
-\item{ID_level2}{Optional variable for unit ID codes. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.}
+\item{id}{Optional variable for unit ID codes. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.}
 
 \item{weight}{Optional weight variable. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.}
 
@@ -82,7 +82,7 @@ dati$month_at_work <- 12 * trunc(runif(nrow(dati), 0, 2))
 
 # Full population
 d <- linarr(Y = "eqIncome", Y_den = "eqIncome",
-            ID_level2 = "IDd", age = "age",  
+            id = "IDd", age = "age",  
             pl085 = "pl085", month_at_work = "month_at_work",
             weight = "rb050",  Dom = NULL,
             dataset = dati, order_quant = 50)
@@ -91,7 +91,7 @@ d$value
 \dontrun{
 # By domains
 dd <- linarr(Y = "eqIncome", Y_den = "eqIncome",
-             ID_level2 = "IDd", age = "age",  
+             id = "IDd", age = "age",  
              pl085 = "pl085", month_at_work = "month_at_work",
              weight = "rb050",  Dom = "db040",
              dataset = dati, order_quant = 50)

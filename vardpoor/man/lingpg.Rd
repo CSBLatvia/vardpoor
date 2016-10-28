@@ -11,7 +11,7 @@ Estimation of gender pay (wage) gap and computation of linearized variables for 
 
 
 \usage{
-lingpg(Y, gender = NULL, ID_level2 = NULL, 
+lingpg(Y, gender = NULL, id = NULL, 
        weight = NULL, sort = NULL, Dom = NULL,
        period = NULL, dataset = NULL,
        var_name = "lin_gpg")
@@ -24,7 +24,7 @@ lingpg(Y, gender = NULL, ID_level2 = NULL,
 
 \item{gender}{Numerical variable for gender, where 1 is for males, but 2 is for females. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.}
 
-\item{ID_level2}{Optional variable for unit ID codes. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.}
+\item{id}{Optional variable for unit ID codes. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.}
 
 \item{weight}{Optional weight variable. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.}
 
@@ -76,20 +76,20 @@ dati[sexf == "female", sex:= 2]
 
 # Full population
 gpgs1 <- lingpg(Y = "earningsHour", gender = "sex",
-                ID_level2 = "ID", weight = "weights",
+                id = "ID", weight = "weights",
                 dataset = dati)
 gpgs1$value
 
 \dontrun{
 # Domains by education
 gpgs2 <- lingpg(Y = "earningsHour", gender = "sex",
-                ID_level2 = "ID", weight = "weights",
+                id = "ID", weight = "weights",
                 Dom = "education", dataset = dati)
 gpgs2$value
 
 # Sort variable
 gpgs3 <- lingpg(Y = "earningsHour", gender = "sex",
-                ID_level2 = "ID", weight = "weights",
+                id = "ID", weight = "weights",
                 sort = "ID", Dom = "education",
                 dataset = dati)
 gpgs3$value
@@ -100,7 +100,7 @@ dati2 <- copy(dati)
 dati2[, year := 2011]
 dati <- rbind(dati, dati2)
 gpgs4 <- lingpg(Y = "earningsHour", gender = "sex",
-                ID_level2 = "ID", weight = "weights", 
+                id = "ID", weight = "weights", 
                 sort = "ID", Dom = "education",
                 period = "year", dataset = dati)
 gpgs4$value

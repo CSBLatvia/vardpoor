@@ -20,7 +20,7 @@ linarpt(Y, id = NULL, weight = NULL,
 
 \item{Y}{Study variable (for example equalised disposable income after social transfers). One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.}
 
-\item{ID_level2}{Optional variable for unit ID codes. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.}
+\item{id}{Optional variable for unit ID codes. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.}
 
 \item{weight}{Optional weight variable. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.}
 

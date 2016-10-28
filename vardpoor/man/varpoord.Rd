@@ -11,7 +11,7 @@
                  ID_level1, ID_level2 = NULL, H, PSU, N_h, fh_zero = FALSE,
                  PSU_level = TRUE, sort = NULL, Dom = NULL, period = NULL,
                  gender = NULL, dataset = NULL, X = NULL, periodX = NULL,
-                 X_ID_household = NULL, ind_gr = NULL, g = NULL, q=NULL, datasetX = NULL,
+                 X_ID_level1 = NULL, ind_gr = NULL, g = NULL, q=NULL, datasetX = NULL,
                  percentage = 60, order_quant = 50, alpha = 20,
                  confidence = 0.95, outp_lin = FALSE, outp_res = FALSE, type = "linrmpg") }
                      
@@ -62,7 +62,7 @@
 
 \item{periodX}{Optional variable of the survey periods. If supplied, residual estimation of calibration is done independently for each time period. Object convertible to \code{data.table} or variable names as character, column numbers.}
 
-\item{X_ID_household}{Variable for household ID codes. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.}
+\item{X_ID_level1}{Variable for level1 ID codes. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.}
 
 \item{ind_gr}{Optional variable by which divided independently X matrix of the auxiliary variables for the calibration. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.}
 
@@ -99,7 +99,7 @@ For example, to compute poverty threshold equal to some percentage of median inc
 
   \item{lin_out}{A \code{data.table} containing the linearized values of the ratio estimator with ID_level2 and PSU.}
 
-  \item{res_out}{A \code{data.table} containing the estimated residuals of calibration with ID_level2 and PSU.}
+  \item{res_out}{A \code{data.table} containing the estimated residuals of calibration with ID_level1 and PSU.}
 
   \item{all_result}{A \code{data.table}, which containing variables:
 
@@ -194,7 +194,7 @@ aa2 <-varpoord(Y = "eqIncome", w_final = "rb050",
              H = "db040", PSU = "rb030", N_h = NULL,
              fh_zero = TRUE, sort = NULL, Dom = "db040",
              gender = NULL, X = NULL,
-             X_ID_household = NULL, g = NULL,
+             X_ID_level1 = NULL, g = NULL,
              datasetX = NULL,
              q = rep(1, if (is.null(datasetX)) 
                         nrow(as.data.frame(H)) else nrow(datasetX)),
@@ -230,7 +230,7 @@ aa4 <- varpoord(Y = "eqIncome", w_final = "rb050",
              H = "db040", PSU = "rb030", N_h = NULL,
              sort = NULL, Dom = "db040",
              gender = NULL, X = NULL,
-             X_ID_household = NULL, g = NULL,
+             X_ID_level1 = NULL, g = NULL,
              datasetX = NULL,
              q = rep(1, if (is.null(datasetX)) 
                         nrow(as.data.frame(H)) else nrow(datasetX)),

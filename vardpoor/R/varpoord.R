@@ -1,4 +1,3 @@
-
 varpoord <- function(Y, w_final,
                      age = NULL,
                      pl085 = NULL,
@@ -18,7 +17,7 @@ varpoord <- function(Y, w_final,
                      dataset = NULL,
                      X = NULL,
                      periodX = NULL,
-                     X_ID_household = NULL,
+                     X_ID_level1 = NULL,
                      ind_gr = NULL,
                      g = NULL,
                      q = NULL,
@@ -118,9 +117,9 @@ varpoord <- function(Y, w_final,
        if (!is.null(periodX)) {
             if (min(periodX %in% names(datasetX)) != 1) stop("'periodX' does not exist in 'datasetX'!")
             if (min(periodX %in% names(datasetX)) == 1) periodX <- datasetX[, periodX, with = FALSE] }     
-      if(!is.null(X_ID_household)) {
-          if (min(X_ID_household %in% names(datasetX)) != 1) stop("'X_ID_household' does not exist in 'datasetX'!")
-          if (min(X_ID_household %in% names(datasetX)) == 1) X_ID_household <- datasetX[, X_ID_household, with = FALSE] }
+      if(!is.null(X_ID_level1)) {
+          if (min(X_ID_level1 %in% names(datasetX)) != 1) stop("'X_ID_level1' does not exist in 'datasetX'!")
+          if (min(X_ID_level1 %in% names(datasetX)) == 1) X_ID_level1 <- datasetX[, X_ID_level1, with = FALSE] }
       if(!is.null(X)) {
           if (min(X %in% names(datasetX)) != 1) stop("'X' does not exist in 'datasetX'!")
           if (min(X %in% names(datasetX)) == 1) X <- datasetX[, X, with = FALSE] }
@@ -165,15 +164,15 @@ varpoord <- function(Y, w_final,
   np <- sum(ncol(period))
 
   # ID_level2
-  if (is.null(ID_level2)) ID_level2 <- 1:n
+  if (is.null(ID_level2)) ID_level2 <- 1 : n
   ID_level2 <- data.table(ID_level2)
   if (any(is.na(ID_level2))) stop("'ID_level2' has missing values")
   if (ncol(ID_level2) != 1) stop("'ID_level2' must be 1 column data.frame, matrix, data.table")
   if (nrow(ID_level2) != n) stop("'ID_level2' must be the same length as 'Y'")
-  if (is.null(names(ID_level2))||(names(D_level2) == "D_level2")) setnames(ID_level2, names(ID_level2), "ID")
+  if (is.null(names(ID_level2))||(names(ID_level2) == "ID_level2")) setnames(ID_level2, names(ID_level2), "ID")
   if (is.null(period)){ if (any(duplicated(ID_level2))) stop("'ID_level2' are duplicate values") 
                        } else {dd <- data.table(period, ID_level2)
-                               if (any(duplicated(dd, by=names(dd)))) stop("'ID_level2' by period are duplicate values")
+                               if (any(duplicated(dd, by = names(dd)))) stop("'ID_level2' by period are duplicate values")
                                dd <- NULL}
 
   # age
@@ -322,19 +321,16 @@ varpoord <- function(Y, w_final,
      if(!is.null(periodX)) {
         periodX <- data.table(periodX)
         periodX[, (names(periodX)) := lapply(.SD, as.character)]
-        periX <- data.table(unique(periodX))
-        setkeyv(periX, names(periX))
-        peri <- data.table(unique(period))
-        setkeyv(peri, names(peri))
+        if (any(is.na(periodX))) stop("'periodX' has missing values")
         if (any(duplicated(names(periodX)))) 
                     stop("'periodX' are duplicate column names: ", 
                          paste(names(periodX)[duplicated(names(periodX))], collapse = ","))
         if (nrow(periodX) != nrow(X)) stop("'periodX' length must be equal with 'X' row count")
         if (ncol(periodX) != ncol(period)) stop("'periodX' length must be equal with 'period' column count")
         if (names(periodX) != names(period)) stop("'periodX' must be equal with 'period' names")
-        if (any(is.na(periodX))) stop("'periodX' has missing values")
+        periX <- periodX[, .N, keyby = names(periodX)][, N := NULL]
+        peri <- period[, .N, keyby = names(period)][, N := NULL]
         if (any(peri != periX)) stop("'unique(period)' and 'unique(periodX)' records have different")
-        if (peri[, class(get(names(peri)))]!=periX[, class(get(names(periX)))])  stop("Class for 'periodX' and class for 'period' must be equal")
       } else if (!is.null(period)) stop("'periodX' must be defined")
    } 
 
@@ -350,21 +346,21 @@ varpoord <- function(Y, w_final,
     X_ID_level1h <- copy(X_ID_level1)
     if (!is.null(period)) { X_ID_level1h <- data.table(periodX, ID_level1h)
                             ID_level1h <- data.table(period, ID_level1)
-                            ID_level1h <- ID_level1h[, .N, by=names(ID_level1h)][, N := NULL] }
+                            ID_level1h <- ID_level1h[, .N, by = names(ID_level1h)][, N := NULL] }
     if (nrow(X_ID_level1h[, .N, by = names(X_ID_level1h)][N > 1]) > 0) stop("'X_ID_level1' have duplicates")
 
     nperIDh <- names(ID_level1h)
     setkeyv(ID_level1h, nperIDh)
     setkeyv(X_ID_level1h, names(X_ID_level1h))
     if (nperIDh != names(X_ID_level1h)) stop("'X_ID_level1' and 'ID_level1' must be equal names")
-    if (ID_level1h[, class(get(nperIDh))] != X_ID_householdh[, class(get(nperIDh))])  stop("Class for 'X_ID_level1' and class for 'ID_level1' must be equal ")
+    if (ID_level1h[, class(get(nperIDh))] != X_ID_level1h[, class(get(nperIDh))])  stop("Class for 'X_ID_level1' and class for 'ID_level1' must be equal ")
 
     if (!is.null(period)) {
         if (nrow(ID_level1h) != nrow(X_ID_level1h)) stop("'periodX' with 'X_ID_level1' and 'unique(period, ID_level1)' have different row count")
         if (any(ID_level1h != X_ID_level1h)) stop("'periodX' with 'X_ID_level1' and 'unique(period, ID_level1)' records have different")
       } else {
-        if (nrow(ID_level1h) != nrow(X_ID_level1h)) stop("'X_ID_household' and 'unique(ID_level1)' have different row count")
-        if (any(ID_level1h != X_ID_level1h)) stop("'X_ID_household' and 'unique(ID_level1)' records have different")
+        if (nrow(ID_level1h) != nrow(X_ID_level1h)) stop("'X_ID_level' and 'unique(ID_level1)' have different row count")
+        if (any(ID_level1h != X_ID_level1h)) stop("'X_ID_level' and 'unique(ID_level1)' records have different")
     }}
 
   # ind_gr
@@ -392,7 +388,7 @@ varpoord <- function(Y, w_final,
 
   # g
   if (!is.null(X)) {
-    if (is.null(class(g)) | all(class(g)=="function")) stop("'g' must be numerical")
+    if (is.null(class(g)) | all(class(g) == "function")) stop("'g' must be numerical")
     g <- data.frame(g)
     if (nrow(g) != nrow(X)) stop("'g' length must be equal with 'X' row count")
     if (ncol(g) != 1) stop("'g' must be 1 column data.frame, matrix, data.table")

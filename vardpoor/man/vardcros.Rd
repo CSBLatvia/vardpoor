@@ -9,10 +9,10 @@
 \usage{
 vardcros(Y, H, PSU, w_final, id, Dom = NULL,
          Z = NULL, country, periods,
-         dataset = NULL, linratio=FALSE,
+         dataset = NULL, linratio = FALSE,
          percentratio = 1, use.estVar = FALSE,
-         household_level_max=TRUE,
-         withperiod=TRUE, netchanges=TRUE,
+         household_level_max = TRUE,
+         withperiod = TRUE, netchanges = TRUE,
          confidence = .95)}
 
 \arguments{
@@ -43,7 +43,7 @@ vardcros(Y, H, PSU, w_final, id, Dom = NULL,
 
 \item{use.estVar}{Logical value. If value is \code{TRUE}, then \code{R} function \code{estVar} is used for the  estimation of covariance matrix of the residuals. If value is \code{FALSE}, then \code{R} function \code{estVar} is not used for the estimation of covariance matrix of the residuals.}
  
-\item{household_level_max}{Logical value. If value is \code{TRUE}, then the size of sample for variance under simple random sampling is taken as maximum value of size in household . If value is \code{FALSE}, then the size of sample for variance under simple random sampling is taken as count of persons in household.}
+\item{household_level_max}{Logical value. If value is \code{TRUE}, then the size of sample for variance under simple random sampling is taken as maximum value of size in ID_level1 . If value is \code{FALSE}, then the size of sample for variance under simple random sampling is taken as count of ID_level2 in ID_level1.}
 
 \item{withperiod}{Logical value. If \code{TRUE} is value, the results is with period, if \code{FALSE}, without period.}
 

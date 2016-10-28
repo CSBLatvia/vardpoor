@@ -9,7 +9,7 @@
 }
 
 \usage{
-  lingini(Y, ID_level2 = NULL, weight = NULL,
+  lingini(Y, id = NULL, weight = NULL,
           sort = NULL, Dom = NULL, period = NULL,
           dataset = NULL, var_name = "lin_gini")
 }
@@ -18,7 +18,7 @@
 
   \item{Y}{Study variable (for example equalized disposable income). One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.}
 
-  \item{ID_level2}{Optional variable for unit ID codes. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.}
+  \item{id}{Optional variable for unit ID codes. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.}
 
   \item{weight}{Optional weight variable. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.}
 
@@ -56,12 +56,12 @@ data(eusilc)
 dati <- data.table(IDd = 1 : nrow(eusilc), eusilc)[1 : 3,]
 
 # Full population
-dat1 <- lingini(Y = "eqIncome", ID_level2 = "IDd", weight = "rb050", dataset = dati)
+dat1 <- lingini(Y = "eqIncome", id = "IDd", weight = "rb050", dataset = dati)
 dat1$value
 
 \dontrun{
 # By domains
-dat2 <- lingini(Y = "eqIncome", ID_level2 = "IDd", weight = "rb050", Dom = c("db040"), dataset = dati)
+dat2 <- lingini(Y = "eqIncome", id = "IDd", weight = "rb050", Dom = c("db040"), dataset = dati)
 dat2$value}
 }
 

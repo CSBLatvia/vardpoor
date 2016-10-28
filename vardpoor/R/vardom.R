@@ -507,8 +507,10 @@ vardom <- function(Y, H, PSU, w_final,
                                   all_result[, pop_size := nhs$pop_size]} 
 
   all_result[, n_eff := ifelse(is.na(deff) | deff < .Machine$double.eps, NA, respondent_count / deff)]
-  variab <- c("respondent_count", "n_nonzero", "pop_size", "estim", "var", "se", 
-              "rse", "cv", "absolute_margin_of_error", "relative_margin_of_error",
+  variab <- c("respondent_count", "n_nonzero", "pop_size")
+  if (!is.null(all_result$Z_nov)) variab <- c(variab, "Y_nov", "Z_nov")
+  variab <- c(variab, "estim", "var", "se", "rse", "cv", 
+              "absolute_margin_of_error", "relative_margin_of_error",
               "CI_lower", "CI_upper")
   if (is.null(Dom))  variab <- c(variab, "S2_y_HT", "S2_y_ca", "S2_res") 
   variab <- c(variab, "var_srs_HT",  "var_cur_HT", "var_srs_ca",

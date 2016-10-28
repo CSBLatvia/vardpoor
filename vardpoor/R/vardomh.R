@@ -92,6 +92,9 @@ vardomh <- function(Y, H, PSU, w_final,
           if (min(q %in% names(datasetX)) != 1) stop("'q' does not exist in 'datasetX'!")
           if (min(q %in% names(datasetX)) == 1) q <- datasetX[, q, with = FALSE] } 
      }
+
+  equal_dataset <- all(dataset == datasetX)
+  if (equal_dataset) X_ID_level1 <- ID_level1
   N <- dataset <- datasetX <- NULL
 
   # Y
@@ -240,20 +243,17 @@ vardomh <- function(Y, H, PSU, w_final,
   if (!is.null(X)) {
      if(!is.null(periodX)) {
         periodX <- data.table(periodX)
-        periodX[, (names(periods)) := lapply(.SD, as.character)]
-        periX <- data.table(unique(periodX))
-        setkeyv(periX, names(periX))
-        peri <- data.table(unique(period))
-        setkeyv(peri, names(peri))
+        periodX[, (names(periodX)) := lapply(.SD, as.character)]
+        if (any(is.na(periodX))) stop("'periodX' has missing values")
         if (any(duplicated(names(periodX)))) 
                     stop("'periodX' are duplicate column names: ", 
                          paste(names(periodX)[duplicated(names(periodX))], collapse = ","))
         if (nrow(periodX) != nrow(X)) stop("'periodX' length must be equal with 'X' row count")
         if (ncol(periodX) != ncol(period)) stop("'periodX' length must be equal with 'period' column count")
         if (names(periodX) != names(period)) stop("'periodX' must be equal with 'period' names")
-        if (any(is.na(periodX))) stop("'periodX' has missing values")
+        periX <- periodX[, .N, keyby = names(periodX)][, N := NULL]
+        peri <- period[, .N, keyby = names(period)][, N := NULL]
         if (any(peri != periX)) stop("'unique(period)' and 'unique(periodX)' records have different")
-        if (peri[, class(get(names(peri)))] != periX[, class(get(names(periX)))])  stop("Class for 'periodX' and class for 'period' must be equal")
       } else if (!is.null(period)) stop("'periodX' must be defined")
    } 
 
@@ -271,7 +271,7 @@ vardomh <- function(Y, H, PSU, w_final,
                            ID_level1h <- data.table(period, ID_level1)
                            ID_level1h <- ID_level1h[, .N, by = names(ID_level1h)][, N := NULL]}
  
-    if (nrow(X_ID_level1h[,.N,by=names(X_ID_level1h)][N > 1]) > 0) stop("'X_ID_level1' have duplicates")
+    if (nrow(X_ID_level1h[,.N, by = names(X_ID_level1h)][N > 1]) > 0) stop("'X_ID_level1' have duplicates")
     nperIDh <- names(ID_level1h)
     if (any(nperIDh != names(X_ID_level1h))) stop("'X_ID_level1' and 'ID_level1' must be equal names")
     if (ID_level1h[, class(get(nperIDh))] != X_ID_level1h[, class(get(nperIDh))])  stop("Class for 'X_ID_level1' and class for 'ID_level1' must be equal ")
@@ -443,7 +443,7 @@ vardomh <- function(Y, H, PSU, w_final,
        if (np>0) ID_level1h <- data.table(period, ID_level1h)
        setnames(ID_level1h, names(ID_level1h), names(X_ID_level1))
        X0 <- data.table(X_ID_level1, ind_gr, q, g, X)
-       D1 <- merge(IDh, X0, by = names(ID_level1h), sort = FALSE)
+       D1 <- merge(ID_level1h, X0, by = names(ID_level1h), sort = FALSE)
 
        ind_gr <- D1[, np + 2, with = FALSE]
        if (!is.null(period)) ind_gr <- data.table(D1[, names(periodX), with = FALSE], ind_gr)
@@ -633,10 +633,7 @@ vardomh <- function(Y, H, PSU, w_final,
                                                       all = TRUE, by = c(namesDom1, names(period)))
                          } else { all_result[, respondent_count := nhs$respondent_count]
                                   all_result[, pop_size := nhs$pop_size]} 
-
-  variab <- c("respondent_count", "n_nonzero", "pop_size", "estim", "var", "se", 
-              "rse", "cv", "absolute_margin_of_error", "relative_margin_of_error",
-              "CI_lower", "CI_upper")
+  variab <- c("respondent_count", "n_nonzero", "pop_size")
   if (is.null(Dom))  variab <- c(variab, "S2_y_HT", "S2_y_ca", "S2_res") 
   variab <- c(variab, "var_srs_HT",  "var_cur_HT", "var_srs_ca",
               "deff_sam", "deff_est", "deff")

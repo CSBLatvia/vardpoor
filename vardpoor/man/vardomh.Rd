@@ -7,12 +7,12 @@
 
 \description{Computes the variance estimation in domain for ID_level1.}
 
-\usage{vardomh(Y, H, PSU, w_final, ID_level1 = NULL,
-               ID_level1 = NULL, Dom = NULL, period = NULL,
+\usage{vardomh(Y, H, PSU, w_final, ID_level1,
+               ID_level2 = NULL, Dom = NULL, period = NULL,
                N_h = NULL, PSU_sort = NULL,
                fh_zero = FALSE, PSU_level = TRUE,
                Z = NULL, dataset = NULL,
-               X = NULL, periodX = NULL, X_ID_household = NULL,
+               X = NULL, periodX = NULL, X_ID_level1 = NULL,
                ind_gr = NULL, g = NULL, q = NULL,
                datasetX = NULL, confidence = .95,  
                percentratio = 1, outp_lin = FALSE,
@@ -79,7 +79,7 @@
 
   \item{lin_out}{A \code{data.table} containing the linearized values of the ratio estimator with ID_level2 and PSU.}
 
-  \item{res_out}{A \code{data.table} containing the estimated residuals of calibration with ID_level2 and PSU.}
+  \item{res_out}{A \code{data.table} containing the estimated residuals of calibration with ID_level1 and PSU.}
 
   \item{all_result}{A \code{data.table}, which containing variables:
        \code{variable} - names of variables of interest, \cr

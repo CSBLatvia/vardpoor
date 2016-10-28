@@ -14,7 +14,7 @@ vardcrospoor(Y,
                      Y_den=NULL,
                      Y_thres = NULL,
                      wght_thres = NULL, 
-                     H, PSU, w_final, id,
+                     H, PSU, w_final, ID_level2,
                      Dom = NULL,
                      country, periods,
                      sort=NULL,
@@ -55,7 +55,7 @@ vardcrospoor(Y,
 
 \item{w_final}{Weight variable. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.}
 
-\item{id}{variable for unit ID codes (for household surveys - secondary unit id number). One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.}
+\item{ID_level2}{variable for unit ID codes (for household surveys - secondary unit id number). One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.}
 
 \item{Dom}{Optional variables used to define population domains. If supplied, variables are calculated for each domain. An object convertible to \code{data.table} or variable names as character vector, column numbers.}
 
@@ -152,7 +152,7 @@ result <- vardcrospoor(Y="inc", age="age",
                      Y_den="inc", Y_thres="inc",
                      wght_thres="rb050",
                      H="strata", PSU="PSU", 
-                     w_final="rb050",  id=NULL,
+                     w_final="rb050",  ID_level2=NULL,
                      Dom = c("rb090", "db040"),
                      country="country", periods="year",
                      sort=NULL,
@@ -171,7 +171,7 @@ result2 <- vardcrospoor(Y="inc",  age="age",
                      Y_den="inc", Y_thres="inc",
                      wght_thres="rb050",
                      H="strata", PSU="PSU", 
-                     w_final="rb050", id=NULL,
+                     w_final="rb050", ID_level2=NULL,
                      Dom = c("rb090", "db040"),
                      country="country", periods="year",
                      sort=NULL,

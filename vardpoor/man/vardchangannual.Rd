@@ -7,7 +7,7 @@
 \description{Computes the variance estimation for measures of annual net change for single and multistage stage cluster sampling designs.}
 
 \usage{
-vardchangannual(Y, H, PSU, w_final, ID_level2,
+vardchangannual(Y, H, PSU, w_final, id,
             Dom = NULL, Z = NULL, 
             country, years, subperiods,
             dataset = NULL,
@@ -26,7 +26,7 @@ vardchangannual(Y, H, PSU, w_final, ID_level2,
 
 \item{w_final}{Weight variable. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.}
 
-\item{ID_level2}{variable for unit ID codes (for household surveys - secondary unit id number). One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.}
+\item{id}{variable for unit ID codes (for household surveys - secondary unit id number). One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.}
 
 \item{Dom}{Optional variables used to define population domains. If supplied, variables are calculated for each domain. An object convertible to \code{data.table} or variable names as character vector, column numbers.}
 

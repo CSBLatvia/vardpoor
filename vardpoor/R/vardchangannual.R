@@ -236,29 +236,51 @@
       } else if (!is.null(countryX)) stop("'countryX' must be defined")
    }
 
-   # periodX
+   # yearsX
    if (!is.null(X)) {
       if(!is.null(periodX)) {
-         periodX <- data.table(periodX)
-         periodX[, (names(periodX)) := lapply(.SD, as.character)]
-         if (any(is.na(periodX))) stop("'periodX' has missing values")
-         if (any(duplicated(names(periodX)))) 
-                     stop("'periodX' are duplicate column names: ", 
-                          paste(names(periodX)[duplicated(names(periodX))], collapse = ","))
-         if (nrow(periodX) != nrow(X)) stop("'periodX' length must be equal with 'X' row count")
-         if (ncol(periodX) != ncol(period)) stop("'periodX' length must be equal with 'period' column count")
-         if (names(periodX) != names(period)) stop("'periodX' must be equal with 'periods' names")
-         peri <- copy(period)
-         periX <- copy(periodX)
+         yearsX <- data.table(yearsX)
+         yearsX[, (names(yearsX)) := lapply(.SD, as.character)]
+         if (any(is.na(yearsX))) stop("'yearsX' has missing values")
+         if (any(duplicated(names(yearsX)))) 
+                     stop("'yearsX' are duplicate column names: ", 
+                          paste(names(yearsX)[duplicated(names(periodX))], collapse = ","))
+         if (nrow(yearsX) != nrow(X)) stop("'yearsX' length must be equal with 'X' row count")
+         if (ncol(yearsX) != ncol(years)) stop("'yearsX' length must be equal with 'years' column count")
+         if (names(yearsX) != names(years)) stop("'yearsX' must be equal with 'years' names")
+         peri <- copy(years)
+         periX <- copy(yearsX)
          if (!is.null(country)) peri <- data.table(country, peri)
          if (!is.null(countryX)) periX <- data.table(countryX, periX)
          periX <- periX[, .N, keyby = names(periX)][, N := NULL]
          peri <- peri[, .N, keyby = names(peri)][, N := NULL]
-         if (any(peri != periX) & is.null(country)) stop("'unique(period)' and 'unique(periodX)' records have different")
-         if (any(peri != periX) & !is.null(country)) stop("'unique(country, period)' and 'unique(countryX, periodX)' records have different")
-        } else if (!is.null(periodX)) stop("'periodX' must be defined")
+         if (any(peri != periX) & is.null(country)) stop("'unique(years)' and 'unique(yearsX)' records have different")
+         if (any(peri != periX) & !is.null(country)) stop("'unique(country, years)' and 'unique(countryX, yearsX)' records have different")
+        } else if (!is.null(yearsX)) stop("'yearsX' must be defined")
     } 
 
+   # subperiodsX
+   if (!is.null(X)) {
+      if(!is.null(subperiodsX)) {
+         subperiodsX <- data.table(subperiodsX)
+         yearsX[, (names(subperiodsX)) := lapply(.SD, as.character)]
+         if (any(is.na(subperiodsX))) stop("'subperiodsX' has missing values")
+         if (any(duplicated(names(subperiodsX)))) 
+                     stop("'subperiodsX' are duplicate column names: ", 
+                          paste(names(subperiodsX)[duplicated(names(subperiodsX))], collapse = ","))
+         if (nrow(subperiodsX) != nrow(X)) stop("'subperiodsX' length must be equal with 'X' row count")
+         if (ncol(subperiodsX) != ncol(years)) stop("'subperiodsX' length must be equal with 'subperiods' column count")
+         if (names(subperiodsX) != names(subperiods)) stop("'subperiodsX' must be equal with 'subperiods' names")
+         peri <- data.table(years, subperiods)
+         periX <- data.table(yearsX, subperiodsX)
+         if (!is.null(country)) peri <- data.table(country, peri)
+         if (!is.null(countryX)) periX <- data.table(countryX, periX)
+         periX <- periX[, .N, keyby = names(periX)][, N := NULL]
+         peri <- peri[, .N, keyby = names(peri)][, N := NULL]
+         if (any(peri != periX) & is.null(country)) stop("'unique(years, subperiods)' and 'unique(yearsX, subperiodsX)' records have different")
+         if (any(peri != periX) & !is.null(country)) stop("'unique(country, years, subperiods)' and 'unique(countryX, yearsX, subperiodsX)' records have different")
+        } else if (!is.null(subperiodsX)) stop("'subperiodsX' must be defined")
+    } 
 
     # X_ID_level1
     if (!is.null(X)) {
@@ -271,8 +293,8 @@
        ID_level1h <- copy(ID_level1)
        if (!is.null(countryX)) {X_ID_level1 <- data.table(countryX, X_ID_level1)
                                 ID_level1h <- data.table(country, ID_level1h)}
-       if (!is.null(periodX)) {X_ID_level1 <- data.table(periodX, X_ID_level1)
-                               ID_level1h <- data.table(period, ID_level1h)}
+       X_ID_level1 <- data.table(yearsX, subperiodsX, X_ID_level1)
+       ID_level1h <- data.table(years, subperiods, ID_level1h)}
        ID_level1h <- ID_level1h[, .N, by = names(ID_level1h)][, N := NULL]
        if (nrow(X_ID_level1[,.N, by = names(X_ID_level1)][N > 1]) > 0) stop("'X_ID_level1' have duplicates")
        setkeyv(X_ID_level1, names(X_ID_level1))

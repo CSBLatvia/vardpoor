@@ -7,13 +7,17 @@
 \description{Computes the variance estimation for cross-sectional and longitudinal measures for any stage cluster sampling designs.}
 
 \usage{
-vardcros(Y, H, PSU, w_final, id, Dom = NULL,
-         Z = NULL, country, periods,
-         dataset = NULL, linratio = FALSE,
-         percentratio = 1, use.estVar = FALSE,
-         household_level_max = TRUE,
-         withperiod = TRUE, netchanges = TRUE,
-         confidence = .95)}
+vardcros(Y, H, PSU, w_final, ID_level1,
+         ID_level2, Dom = NULL, Z = NULL,
+         country = NULL, period,
+         dataset = NULL, X = NULL,
+         countryX = NULL, periodX = NULL,
+         X_ID_level1 = NULL, ind_gr = NULL,
+         g = NULL, q = NULL, datasetX = NULL,
+         linratio = FALSE, percentratio=1,
+         use.estVar = FALSE, ID_level1_max = TRUE,
+         outp_res = FALSE, withperiod = TRUE,
+         netchanges = TRUE, confidence = .95)}
 
 \arguments{
 
@@ -25,7 +29,9 @@ vardcros(Y, H, PSU, w_final, id, Dom = NULL,
 
 \item{w_final}{Weight variable. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.}
 
-\item{id}{variable for unit ID codes (for household surveys - secondary unit id number). One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.}
+\item{ID_level1}{Variable for level1 ID codes. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.}
+
+\item{ID_level2}{Optional variable for unit ID codes. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.}
 
 \item{Dom}{Optional variables used to define population domains. If supplied, variables are calculated for each domain. An object convertible to \code{data.table} or variable names as character vector, column numbers.}
 
@@ -33,9 +39,25 @@ vardcros(Y, H, PSU, w_final, id, Dom = NULL,
 
 \item{country}{Variable for the survey countries. The values for each country are computed independently. Object convertible to \code{data.table} or variable names as character, column numbers.}
 
-\item{periods}{Variable for the survey periods. The values for each period are computed independently. Object convertible to \code{data.table} or variable names as character, column numbers.}
+\item{period}{Variable for the survey periods. The values for each period are computed independently. Object convertible to \code{data.table} or variable names as character, column numbers.}
 
 \item{dataset}{Optional survey data object convertible to \code{data.table}.}
+
+\item{X}{Optional matrix of the auxiliary variables for the calibration estimator. Object convertible to \code{data.table} or variable names as character, column numbers.}
+
+\item{countryX}{Optional variable for the survey countries. The values for each country are computed independently. Object convertible to \code{data.table} or variable names as character, column numbers.}
+
+\item{periodX}{Optional variable of the survey periods and countries. If supplied, residual estimation of calibration is done independently for each time period. Object convertible to \code{data.table} or variable names as character, column numbers.}
+
+\item{X_ID_level1}{Variable for level1 ID codes. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.}
+
+\item{ind_gr}{Optional variable by which divided independently X matrix of the auxiliary variables for the calibration. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.}
+
+\item{g}{Optional variable of the g weights. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.}
+
+\item{q}{Variable of the positive values accounting for heteroscedasticity. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.}
+
+\item{datasetX}{Optional survey data object in household level convertible to \code{data.table}.}
 
 \item{linratio}{Logical value. If value is \code{TRUE}, then the linearized variables for the ratio estimator is used for variance estimation. If value is \code{FALSE}, then the gradients is used for variance estimation.}
 
@@ -43,7 +65,9 @@ vardcros(Y, H, PSU, w_final, id, Dom = NULL,
 
 \item{use.estVar}{Logical value. If value is \code{TRUE}, then \code{R} function \code{estVar} is used for the  estimation of covariance matrix of the residuals. If value is \code{FALSE}, then \code{R} function \code{estVar} is not used for the estimation of covariance matrix of the residuals.}
  
-\item{household_level_max}{Logical value. If value is \code{TRUE}, then the size of sample for variance under simple random sampling is taken as maximum value of size in ID_level1 . If value is \code{FALSE}, then the size of sample for variance under simple random sampling is taken as count of ID_level2 in ID_level1.}
+\item{ID_level1_max}{Logical value. If value is \code{TRUE}, then the size of sample for variance under simple random sampling is taken as maximum value of size in ID_level1 . If value is \code{FALSE}, then the size of sample for variance under simple random sampling is taken as count of ID_level2 in ID_level1.}
+
+\item{outp_res}{Logical value. If \code{TRUE} estimated residuals of calibration will be printed out.}
 
 \item{withperiod}{Logical value. If \code{TRUE} is value, the results is with period, if \code{FALSE}, without period.}
 
@@ -54,16 +78,18 @@ vardcros(Y, H, PSU, w_final, id, Dom = NULL,
 
 \value{
 
-  A list with three objects are returned by the function:
+  A list with four objects are returned by the function:
 
-  \item{data_net_changes}{ A \code{data.table} containing aggregation of weighted data by period (if available), country, strata, PSU.}
+  \item{res_out}{A \code{data.table} containing the estimated residuals of calibration with ID_level1 and PSU.}
+
+  \item{data_net_changes}{ A \code{data.table} containing aggregation of weighted data by period (if available) and countries (if available), country, strata, PSU.}
 
   \item{var_grad}{ A \code{data.table} containing estimation for Y, the variance, gradient for numerator and
-                      denominator by period, country and population domains (if available).}
+                      denominator by period, country (if available) and population domains (if available).}
 
   \item{results}{ A \code{data.table} containing
      \code{period} -  survey periods, \cr
-     \code{country} - survey countries, \cr
+     \code{country} - survey countries (if available), \cr
      \code{Dom} - optional variable of the population domains, \cr
      \code{namesY} - names of variables of interest, \cr
      \code{namesZ} - optional variable for names of denominator for ratio estimation, \cr
@@ -102,45 +128,43 @@ Eurostat Methodologies and Working papers, Handbook on precision requirements an
 # Example 1
 data(eusilc)
 set.seed(1)
-data <- data.table(eusilc,
-                   year=rep(2010, nrow(eusilc)),
-                   country=rep("AT", nrow(eusilc)))
-data[, country:=as.character(country)]
-data[age<0, age:=0]
-PSU <- data[,.N, keyby="db030"]
-PSU[, N:=NULL]
-PSU[, PSU:=trunc(runif(nrow(PSU), 0, 100))]
-data <- merge(data, PSU, by="db030", all=TRUE)
+data <- data.table(eusilc)
+data[, year := 2010]
+data[, country := "AT"]
+data[age<0, age := 0]
+PSU <- data[, .N, keyby = "db030"]
+PSU[, N := NULL]
+PSU[, PSU := trunc(runif(nrow(PSU), 0, 100))]
+data <- merge(data, PSU, by = "db030", all = TRUE)
 PSU <- eusilc <- 0
 
-data[, strata:="XXXX"]
-data[, t_pov:=trunc(runif(nrow(data), 0, 2))]
-data[, t_dep:=trunc(runif(nrow(data), 0, 2))]
-data[, t_lwi:=trunc(runif(nrow(data), 0, 2))]
-data[, exp:= 1]
-data[, exp2:= 1 * (age < 60)]
+data[, strata := "XXXX"]
+data[, t_pov := trunc(runif(nrow(data), 0, 2))]
+data[, t_dep := trunc(runif(nrow(data), 0, 2))]
+data[, t_lwi := trunc(runif(nrow(data), 0, 2))]
+data[, exp := 1]
+data[, exp2 := 1 * (age < 60)]
 
 # At-risk-of-poverty (AROP)
-data[, pov:= ifelse (t_pov == 1, 1, 0)]
+data[, pov := ifelse (t_pov == 1, 1, 0)]
 
 # Severe material deprivation (DEP)
-data[, dep:= ifelse (t_dep == 1, 1, 0)]
+data[, dep := ifelse (t_dep == 1, 1, 0)]
 
 # Low work intensity (LWI)
-data[, lwi:= ifelse (t_lwi == 1 & exp2 == 1, 1, 0)]
+data[, lwi := ifelse (t_lwi == 1 & exp2 == 1, 1, 0)]
 
 # At-risk-of-poverty or social exclusion (AROPE)
-data[, arope:= ifelse (pov == 1 | dep == 1 | lwi == 1, 1, 0)]
+data[, arope := ifelse (pov == 1 | dep == 1 | lwi == 1, 1, 0)]
+data[, id2 := .I]
 
-result11 <- vardcros(Y="arope",
-                    H="strata", PSU="PSU", w_final="rb050",
-                    id="db030", Dom="rb090", Z=NULL,
-                    country="country", periods="year",
-                    dataset=data,
-                    linratio=FALSE,  
-                    withperiod=TRUE,
-                    netchanges=TRUE,
-                    confidence = .95)
+result11 <- vardcros(Y="arope", H = "strata", 
+                     PSU = "PSU", w_final = "rb050",
+                     ID_level1 = "db030", ID_level2 = "db030",
+                     Dom = "rb090", Z = NULL, country = "country",
+                     periods = "year", dataset = data,
+                     linratio = FALSE, withperiod = TRUE,
+                     netchanges = TRUE, confidence = .95)
 
 \dontrun{
 # Example 2
@@ -148,55 +172,52 @@ data(eusilc)
 set.seed(1)
 data <- data.table(rbind(eusilc, eusilc),
                       year=c(rep(2010, nrow(eusilc)),
-                             rep(2011, nrow(eusilc))),
-                   country=c(rep("AT", nrow(eusilc)),
-                             rep("AT", nrow(eusilc))))
+                             rep(2011, nrow(eusilc))))
+data[, country := "AT"]
 data[age<0, age:=0]
-PSU <- data[,.N, keyby="db030"]
-PSU[, N:=NULL]
-PSU[, PSU:=trunc(runif(nrow(PSU), 0, 100))]
-data <- merge(data, PSU, by="db030", all=TRUE)
+PSU <- data[, .N, keyby = "db030"][, N := NULL]
+PSU[, PSU := trunc(runif(nrow(PSU), 0, 100))]
+data <- merge(data, PSU, by = "db030", all = TRUE)
 PSU <- eusilc <- 0
-data[, strata:="XXXX"]
-data[, strata:=as.character(strata)]
-data[, t_pov:=trunc(runif(nrow(data), 0, 2))]
-data[, t_dep:=trunc(runif(nrow(data), 0, 2))]
-data[, t_lwi:=trunc(runif(nrow(data), 0, 2))]
-data[, exp:= 1]
-data[, exp2:= 1 * (age < 60)]
+data[, strata := "XXXX"]
+data[, strata := as.character(strata)]
+data[, t_pov := trunc(runif(nrow(data), 0, 2))]
+data[, t_dep := trunc(runif(nrow(data), 0, 2))]
+data[, t_lwi := trunc(runif(nrow(data), 0, 2))]
+data[, exp := 1]
+data[, exp2 := 1 * (age < 60)]
 
 # At-risk-of-poverty (AROP)
-data[, pov:= ifelse (t_pov == 1, 1, 0)]
+data[, pov := ifelse (t_pov == 1, 1, 0)]
 
 # Severe material deprivation (DEP)
-data[, dep:= ifelse (t_dep == 1, 1, 0)]
+data[, dep := ifelse (t_dep == 1, 1, 0)]
 
 # Low work intensity (LWI)
-data[, lwi:= ifelse (t_lwi == 1 & exp2 == 1, 1, 0)]
+data[, lwi := ifelse (t_lwi == 1 & exp2 == 1, 1, 0)]
 
 # At-risk-of-poverty or social exclusion (AROPE)
-data[, arope:= ifelse (pov == 1 | dep == 1 | lwi == 1, 1, 0)]
+data[, arope := ifelse (pov == 1 | dep == 1 | lwi == 1, 1, 0)]
+data[, id2 := .I]
 
-result11 <- vardcros(Y=c("pov", "dep", "arope"),
-                    H="strata", PSU="PSU", w_final="rb050",
-                    id="db030", Dom="rb090", Z=NULL,
-                    country="country", period="year",
-                    dataset=data,
-                    linratio=FALSE, 
-                    withperiod=TRUE,
-                    netchanges=TRUE,
-                    confidence = .95)
+result11 <- vardcros(Y = c("pov", "dep", "arope"),
+                     H = "strata", PSU = "PSU", w_final = "rb050",
+                     ID_level1 = "db030", ID_level2 = "id2",
+                     Dom = "rb090", Z = NULL, country = "country",
+                     period = "year", dataset=data, linratio = FALSE, 
+                     withperiod = TRUE, netchanges = TRUE,
+                     confidence = .95)
 
-data2 <- data[exp2==1]
-result12 <- vardcros(Y=c("lwi"),
-                    H="strata", PSU="PSU", w_final="rb050",
-                    id="db030", Dom="rb090", Z=NULL,
-                    country="country", period="year",
-                    dataset=data2,
-                    linratio=FALSE, 
-                    withperiod=TRUE,
-                    netchanges=TRUE,
-                    confidence = .95)
+data2 <- data[exp2 == 1]
+result12 <- vardcros(Y = c("lwi"), H = "strata",
+                     PSU = "PSU", w_final = "rb050",
+                     ID_level1 = "db030", ID_level2 = "id2",
+                     Dom = "rb090", Z = NULL,
+                     country = "country", period = "year",
+                     dataset = data2, linratio = FALSE, 
+                     withperiod = TRUE, netchanges = TRUE,
+                     confidence = .95)
+
 
 ### Example 3
 data(eusilc)
@@ -206,97 +227,92 @@ data <- data.table(rbind(eusilc, eusilc, eusilc, eusilc),
                    rb010=c(rep(2008, nrow(eusilc)),
                            rep(2009, nrow(eusilc)),
                            rep(2010, nrow(eusilc)),
-                           rep(2011, nrow(eusilc))),
-                   rb020=c(rep("AT", nrow(eusilc)),
-                           rep("AT", nrow(eusilc)),
-                           rep("AT", nrow(eusilc)),
-                           rep("AT", nrow(eusilc))))
-data[, rb020:=as.character(rb020)]
+                           rep(2011, nrow(eusilc))))
+data[, rb020 := "AT"]
 
-data[, u:=1]
-data[age<0, age:=0]
-data[, strata:="XXXX"]
-PSU <- data[,.N, keyby="db030"]
-PSU[, N:=NULL]
-PSU[, PSU:=trunc(runif(nrow(PSU), 0, 100))]
-data <- merge(data, PSU, by="db030", all=TRUE)
-thres <- data.table(rb020=as.character(rep("AT",4)),
-                    thres= c(11406, 11931, 12371, 12791),
-                    rb010=2008:2011)
-setnames(thres, names(thres), tolower(names(thres)))
-data <- merge(data, thres, all.x=TRUE, by=c("rb010", "rb020"))
-data[is.na(u), u:=0]
-data <- data[u==1]
-setkeyv(data, c("rb020", "rb030"))
+data[, u := 1]
+data[age < 0, age := 0]
+data[, strata := "XXXX"]
+PSU <- data[, .N, keyby = "db030"][, N:=NULL]
+PSU[, PSU := trunc(runif(nrow(PSU), 0, 100))]
+data <- merge(data, PSU, by = "db030", all = TRUE)
+thres <- data.table(rb020 = as.character(rep("AT", 4)),
+                    thres = c(11406, 11931, 12371, 12791),
+                    rb010 = 2008 : 2011)
+data <- merge(data, thres, all.x = TRUE, by = c("rb010", "rb020"))
+data[is.na(u), u := 0]
+data <- data[u == 1]
 
 #############
 # T3        #
 #############
 
-T3 <- data[rb010==year-3]
-T3[, strata1:=strata]
-T3[, PSU1:=PSU]
-T3[, w1:=rb050]
-T3[, inc1:=eqIncome]
-T3[, rb110_1:=db030]
-setnames(T3, "thres", "thres1")
-T3[, pov1:=inc1<=thres1]
-T3 <- T3[, c("rb020", "rb030", "strata", "PSU", "inc1", "pov1"), with=FALSE]
+T3 <- data[rb010 == year - 3]
+T3[, strata1 := strata]
+T3[, PSU1 := PSU]
+T3[, w1 := rb050]
+T3[, inc1 := eqIncome]
+T3[, rb110_1 := db030]
+T3[, pov1 := inc1 <= thres1]
+T3 <- T3[, c("rb020", "rb030", "strata", "PSU", "inc1", "pov1"), with = FALSE]
 
 #############
 # T2        #
 #############
-T2 <- data[rb010==year-2]
-T2[, strata2:=strata]
-T2[, PSU2:=PSU]
-T2[, w2:=rb050]
-T2[, inc2:=eqIncome]
-T2[, rb110_2:=db030]
+T2 <- data[rb010 == year - 2]
+T2[, strata2 := strata]
+T2[, PSU2 := PSU]
+T2[, w2 := rb050]
+T2[, inc2 := eqIncome]
+T2[, rb110_2 := db030]
 setnames(T2, "thres", "thres2")
-T2[, pov2:=inc2<=thres2]
-T2 <- T2[, c("rb020", "rb030","strata2","PSU2","inc2","pov2"), with=FALSE]
-#############
-# T1 #
-#############
-T1 <- data[rb010==year-1]
-T1[, strata3:=strata]
-T1[, PSU3:=PSU]
-T1[, w3:=rb050]
-T1[, inc3:=eqIncome]
-T1[, rb110_3:=db030]
-setnames(T1, "thres", "thres3")
-T1[, pov3:=inc3<=thres3]
-T1 <- T1[, c("rb020", "rb030", "strata3", "PSU3", "inc3", "pov3"), with=FALSE]
-#############
-# T0 #
-#############
-T0 <- data[rb010==year]
-T0[, PSU4:=PSU]
-T0[, strata4:=strata]
-T0[, w4:=rb050]
-T0[, inc4:=eqIncome]
-T0[, rb110_4:=db030]
-setnames(T0, "thres", "thres4")
-T0[, pov4:=inc4<=thres4]
-T0 <- T0[, c("rb020", "rb030", "strata4", "PSU4", "w4", "inc4", "pov4"), with=FALSE]
-apv <- merge(T3, T2, all=TRUE)
-apv <- merge(apv, T1, all=TRUE)
-apv <- merge(apv, T0, all=TRUE)
-apv <- apv[(!is.na(inc1)) & (!is.na(inc2)) & (!is.na(inc3)) & (!is.na(inc4))]
-apv[, ppr:=ifelse(((pov4==1)&((pov1==1&pov2==1&pov3==1)|(pov1==1&pov2==1&
-pov3==0)|(pov1==1&pov2==0&pov3==1)|(pov1==0&pov2==1&pov3==1))),1,0)]
+T2[, pov2 := inc2 <= thres2]
+T2 <- T2[, c("rb020", "rb030", "strata2", "PSU2", "inc2", "pov2"), with = FALSE]
 
-result20 <- vardcros(Y="ppr", H="strata", PSU="PSU",
-                    w_final="w4", id="rb030",
-                    Dom = NULL, Z=NULL,
-                    country="rb020", periods=NULL,
-                    dataset=apv,
-                    linratio=FALSE, 
-                    withperiod=FALSE,
-                    netchanges=FALSE,
+#############
+# T1        #
+#############
+T1 <- data[rb010 == year - 1]
+T1[, strata3 := strata]
+T1[, PSU3 := PSU]
+T1[, w3 := rb050]
+T1[, inc3 := eqIncome]
+T1[, rb110_3 := db030]
+setnames(T1, "thres", "thres3")
+T1[, pov3 := inc3 <= thres3]
+T1 <- T1[, c("rb020", "rb030", "strata3", "PSU3", "inc3", "pov3"), with = FALSE]
+
+#############
+# T0        #
+#############
+T0 <- data[rb010 == year]
+T0[, PSU4 := PSU]
+T0[, strata4 := strata]
+T0[, w4 := rb050]
+T0[, inc4 := eqIncome]
+T0[, rb110_4 := db030]
+setnames(T0, "thres", "thres4")
+T0[, pov4 := inc4 <= thres4]
+T0 <- T0[, c("rb020", "rb030", "strata4", "PSU4", "w4", "inc4", "pov4"), with = FALSE]
+apv <- merge(T3, T2, all = TRUE, by = c("rb020", "rb030"))
+apv <- merge(apv, T1, all = TRUE, by = c("rb020", "rb030"))
+apv <- merge(apv, T0, all = TRUE, by = c("rb020", "rb030"))
+apv <- apv[(!is.na(inc1)) & (!is.na(inc2)) & (!is.na(inc3)) & (!is.na(inc4))]
+apv[, ppr := ifelse(((pov4 == 1) & ((pov1 == 1 & pov2 == 1 & pov3 == 1) | (pov1 == 1 &
+                      pov2 == 1 & pov3 == 0) | (pov1 == 1 & pov2 == 0 & pov3 == 1) |
+                     (pov1 == 0 & pov2 ==1 & pov3 == 1))), 1, 0)]
+
+data[, id2 := .I]
+result20 <- vardcros(Y = "ppr", H = "strata", PSU = "PSU",
+                    w_final = "w4", ID_level1="rb030",
+                    ID_level2 = "rb030", Dom = NULL,
+                    Z = NULL, country = "rb020",
+                    periods = NULL, dataset = apv,
+                    linratio = FALSE, 
+                    withperiod = FALSE,
+                    netchanges = FALSE,
                     confidence = .95)}
 }
-
 
 \seealso{\code{\link{domain}}, \code{\link{lin.ratio}}}
 \keyword{vardcros}

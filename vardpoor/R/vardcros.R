@@ -30,7 +30,8 @@ vardcros <- function(Y, H, PSU, w_final,
   if (length(withperiod) != 1 | !any(is.logical(withperiod))) stop("'withperiod' must be logical")
   if (length(use.estVar) != 1 | !any(is.logical(use.estVar))) stop("'use.estVar' must be logical")
   if (length(ID_level1_max) != 1 | !any(is.logical(ID_level1_max))) stop("'ID_level1_max' must be logical")
-  if (all(ID_level1_max, !is.null(X))) stop("'ID_level1_max' must be ", !ID_level1_max, "!")
+  if (length(outp_res) != 1 | !any(is.logical(outp_res))) stop("'outp_res' must be logical")
+ if (all(ID_level1_max, !is.null(X))) stop("'ID_level1_max' must be ", !ID_level1_max, "!")
 
   if(length(confidence) != 1 | any(!is.numeric(confidence) |  confidence < 0 | confidence > 1)) {
           stop("'confidence' must be a numeric value in [0, 1]")  }
@@ -46,14 +47,6 @@ vardcros <- function(Y, H, PSU, w_final,
           if (min(H %in% names(dataset))!=1) stop("'H' does not exist in 'dataset'!")
           if (min(H %in% names(dataset)) == 1) H <- dataset[, H, with = FALSE] }
 
-      if(!is.null(ID_level1)) {
-          if (min(ID_level1 %in% names(dataset)) != 1) stop("'ID_level1' does not exist in 'dataset'!")
-          if (min(ID_level1 %in% names(dataset)) == 1) ID_level1 <- dataset[, ID_level1, with = FALSE] }
-
-      if(!is.null(ID_level2)) {
-          if (min(ID_level2 %in% names(dataset)) != 1) stop("'ID_level2' does not exist in 'dataset'!")
-          if (min(ID_level2 %in% names(dataset)) == 1) ID_level2 <- dataset[, ID_level2, with = FALSE] }
-
      if(!is.null(PSU)) {
           if (min(PSU %in% names(dataset)) != 1) stop("'PSU' does not exist in 'dataset'!")
           if (min(PSU %in% names(dataset)) == 1) PSU <- dataset[, PSU, with = FALSE] }
@@ -61,6 +54,14 @@ vardcros <- function(Y, H, PSU, w_final,
       if(!is.null(w_final)) {
           if (min(w_final %in% names(dataset)) != 1) stop("'w_final' does not exist in 'dataset'!")
           if (min(w_final %in% names(dataset)) == 1) w_final <- dataset[, w_final, with = FALSE] }
+
+      if(!is.null(ID_level1)) {
+          if (min(ID_level1 %in% names(dataset)) != 1) stop("'ID_level1' does not exist in 'dataset'!")
+          if (min(ID_level1 %in% names(dataset)) == 1) ID_level1 <- dataset[, ID_level1, with = FALSE] }
+
+      if(!is.null(ID_level2)) {
+          if (min(ID_level2 %in% names(dataset)) != 1) stop("'ID_level2' does not exist in 'dataset'!")
+          if (min(ID_level2 %in% names(dataset)) == 1) ID_level2 <- dataset[, ID_level2, with = FALSE] }
 
       if(!is.null(Z)) {
           if (min(Z %in% names(dataset)) != 1) stop("'Z' does not exist in 'dataset'!")
@@ -84,7 +85,7 @@ vardcros <- function(Y, H, PSU, w_final,
           datasetX <- data.table(datasetX)
           if (!is.null(countryX)) {
                if (min(countryX %in% names(datasetX)) != 1) stop("'countryX' does not exist in 'datasetX'!")
-               if (min(countryX %in% names(datasetX)) == 1) periodX <- datasetX[, periodX,  with = FALSE] }
+               if (min(countryX %in% names(datasetX)) == 1) countryX <- datasetX[, countryX,  with = FALSE] }
 
           if (!is.null(periodX)) {
                if (min(periodX %in% names(datasetX)) != 1) stop("'periodX' does not exist in 'datasetX'!")
@@ -151,25 +152,27 @@ vardcros <- function(Y, H, PSU, w_final,
   # ID_level1
   if (is.null(ID_level1)) stop("'ID_level1' must be defined")
   ID_level1 <- data.table(ID_level1)
+  ID_level1[, (names(ID_level1)) := lapply(.SD, as.character)]
+  if (any(is.na(ID_level1))) stop("'ID_level1' has missing values")
   if (ncol(ID_level1) != 1) stop("'ID_level1' must be 1 column data.frame, matrix, data.table")
   if (nrow(ID_level1) != n) stop("'ID_level1' must be the same length as 'Y'")
-  if (is.null(names(ID_level1))) setnames(ID_level1, names(ID_level1), "ID_level1")
 
   # ID_level2
   ID_level2 <- data.table(ID_level2)
+  ID_level2[, (names(ID_level2)) := lapply(.SD, as.character)]
   if (any(is.na(ID_level2))) stop("'ID_level2' has missing values")
   if (nrow(ID_level2) != n) stop("'ID_level2' length must be equal with 'Y' row count")
   if (ncol(ID_level2) != 1) stop("'ID_level2' must be 1 column data.frame, matrix, data.table")
-  if (is.null(names(ID_level2)) | (names(ID_level2) == "ID_level2")) setnames(ID_level2, names(ID_level2), "h_ID")
+  if (names(ID_level2) == names(ID_level1)) setnames(ID_level2, names(ID_level2), paste0(names(ID_level2), "_id"))
 
   # country
   if (!is.null(country)){
         country <- data.table(country)
-        if (nrow(country) != n) stop("'country' length must be equal with 'Y' row count")
-        if (ncol(country) != 1) stop("'country' has more than 1 column")
         country[, (names(country)) := lapply(.SD, as.character)]
         if (any(is.na(country))) stop("'country' has missing values")
         if (names(country) == "percoun") stop("'country' must be different name")
+        if (nrow(country) != n) stop("'country' length must be equal with 'Y' row count")
+        if (ncol(country) != 1) stop("'country' has more than 1 column")
     } 
 
   # period
@@ -177,8 +180,8 @@ vardcros <- function(Y, H, PSU, w_final,
         period <- data.table(period)
         period[, (names(period)) := lapply(.SD, as.character)]
         if (any(is.na(period))) stop("'period' has missing values")
-        if (nrow(period) != n) stop("'period' length must be equal with 'Y' row count")
         if (names(period) == "percoun") stop("'period' must be different name")
+        if (nrow(period) != n) stop("'period' length must be equal with 'Y' row count")
     } else if (!is.null(period)) stop("'period' must be NULL for those data")
 
   # Dom
@@ -193,6 +196,7 @@ vardcros <- function(Y, H, PSU, w_final,
     namesDom <- names(Dom)
     Dom[, (namesDom) := lapply(.SD, as.character)]
     if (any(is.na(Dom))) stop("'Dom' has missing values")
+    if (any(grepl("__", namesDom))) stop("'Dom' is not allowed column names with '__'")
     Dom_agg <- Dom[,.N, keyby = namesDom][, N := NULL]
     Dom_agg1 <- Dom_agg[, lapply(namesDom, function(x) make.names(paste0(x, ".", get(x))))]
     Dom_agg1[, Dom  :=  Reduce(function(x, y) paste(x, y, sep = "__"), .SD)]
@@ -207,6 +211,7 @@ vardcros <- function(Y, H, PSU, w_final,
     if (ncol(Z) != m) stop("'Z' and 'Y' must be equal column count")
     if (any(is.na(Z))) stop("'Z' has missing values")
     if (is.null(names(Z))) stop("'Z' must have column names")
+    if (any(grepl("__", names(Z)))) stop("'Z' is not allowed column names with '__'")
   }
       
   if (!is.null(X)) {
@@ -256,9 +261,10 @@ vardcros <- function(Y, H, PSU, w_final,
   # X_ID_level1
   if (!is.null(X)) {
     X_ID_level1 <- data.table(X_ID_level1)
+    X_ID_level1[, (names(X_ID_level1)) := lapply(.SD, as.character)]
+    if (any(is.na(X_ID_level1))) stop("'X_ID_level1' has missing values")
     if (nrow(X) != nrow(X_ID_level1)) stop("'X' and 'X_ID_level1' have different row count")
     if (ncol(X_ID_level1) != 1) stop("'X_ID_level1' must be 1 column data.frame, matrix, data.table")
-    if (any(is.na(X_ID_level1))) stop("'X_ID_level1' has missing values")
 
     ID_level1h <- copy(ID_level1)
     if (!is.null(countryX)) {X_ID_level1 <- data.table(countryX, X_ID_level1)
@@ -319,7 +325,7 @@ vardcros <- function(Y, H, PSU, w_final,
     g <- data.frame(g)
     if (nrow(g) != nrow(X)) stop("'g' length must be equal with 'X' row count")
     if (ncol(g) != 1) stop("'g' must be 1 column data.frame, matrix, data.table")
-    g <- g[,1]
+    g <- g[, 1]
     if (!is.numeric(g)) stop("'g' must be numeric")
     if (any(is.na(g))) stop("'g' has missing values")
     if (any(g == 0)) stop("'g' value can not be 0")
@@ -341,7 +347,7 @@ vardcros <- function(Y, H, PSU, w_final,
   # Calculation
       
   sar_nr <- N <- nameY <- nameZ <- variable <- NULL
-  sample_size <- totalY <- totalZ <- Z1 <- NULL
+  sample_size <- totalY <- totalZ <- Z1 <- percoun <- NULL
 
   # Design weights
   if (!is.null(X)) {
@@ -366,8 +372,8 @@ vardcros <- function(Y, H, PSU, w_final,
   if (!is.null(Dom)) Y1 <- domain(Y, Dom) else Y1 <- Y
 
   namesDom <- names(Dom)
-  DTp <- data.table(percoun = rep(1, nrow(size)))
-  if (!is.null(country)) DTp <- data.table(country, DTp)
+  if (!is.null(country)) { DTp <- data.table(country)
+                        } else DTp <- data.table(percoun = rep("1", nrow(size)))
   if (withperiod) DTp <- data.table(period, DTp)
   namesperc <- names(DTp)
   namesperc2 <- c("period_country", namesperc)
@@ -656,7 +662,7 @@ vardcros <- function(Y, H, PSU, w_final,
   DTs <- DT[, lapply(.SD, sum, na.rm = TRUE), 
                           keyby = c(namesperc2, names_id1, "w_final"),
                          .SDcols = c(names_size1, names_size1w, namesY2)]
-  if (household_level_max) {    
+  if (ID_level1_max) {    
            DTm <- DT[, lapply(.SD, max, na.rm = TRUE), keyby = c(namesperc2, names_id1), .SDcols = names_size1]
        } else {
           DTm <- DT[, lapply(.SD, sum, na.rm = TRUE), keyby = c(namesperc2, names_id1), .SDcols = names_size1]
@@ -762,9 +768,15 @@ vardcros <- function(Y, H, PSU, w_final,
             "relative_margin_of_error", "CI_lower", "CI_upper", 
             "sd_w", "sd_nw", "pop", "sampl_siz", "stderr_nw",
             "stderr_w")
+
   main <- main[main %in% names(res)]
   res <- res[, main,  with = FALSE]
-  list(data_net_changes = DTnet, var_grad = res1, results = res)
+  if (!netchanges & is.null(names_country)) {
+      if (!is.null(DTnet)) DTnet[, percoun := NULL]
+      res1[, percoun := NULL]
+      res[, percoun := NULL]  }
+  list(data_net_changes = DTnet, res_out = res_outp, var_grad = res1, results = res)
+
 }   
 
 

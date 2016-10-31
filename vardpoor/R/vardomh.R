@@ -146,11 +146,10 @@ vardomh <- function(Y, H, PSU, w_final,
   # ID_level2
   if (is.null(ID_level2)) ID_level2 <- 1 : n
   ID_level2 <- data.table(ID_level2)
+  ID_level2[, (names(ID_level1)) := lapply(.SD, as.character)]
   if (any(is.na(ID_level2))) stop("'ID_level2' has missing values")
   if (ncol(ID_level2) != 1) stop("'ID_level2' must be 1 column data.frame, matrix, data.table")
   if (nrow(ID_level2) != n) stop("'ID_level2' length must be equal with 'Y' row count")
-  if (is.null(names(ID_level2))||(names(ID_level2) == "id")) setnames(ID_level2, names(ID_level2), "ID")
-  if (names(ID_level2) == names(ID_level1)) setnames(ID_level2,names(ID_level2),paste(names(ID_level2),"_id",sep=""))
   if (is.null(period)){ if (any(duplicated(ID_level2))) stop("'ID_level2' are duplicate values") 
                        } else {dd <- data.table(period, ID_level2)
                                if (any(duplicated(dd, by = names(dd)))) stop("'ID_level2' by period are duplicate values")
@@ -160,11 +159,11 @@ vardomh <- function(Y, H, PSU, w_final,
   if (is.null(ID_level1)) { stop("'ID_level1' takes 'ID_level2' values")
                             ID_level1 <- copy(ID_level2) }
   ID_level1 <- data.table(ID_level1)
-  if (ncol(ID_level1) != 1) stop("'ID_level1' must be 1 column data.frame, matrix, data.table")
-  if (nrow(ID_level1) != n) stop("'ID_level1' must be the same length as 'Y'")
-  if (is.null(names(ID_level1))) setnames(ID_level1, names(ID_level1), "ID_level1")
   ID_level1[, (names(ID_level1)) := lapply(.SD, as.character)]
   if (any(is.na(ID_level1))) stop("'ID_level1' has missing values")
+  if (ncol(ID_level1) != 1) stop("'ID_level1' must be 1 column data.frame, matrix, data.table")
+  if (nrow(ID_level1) != n) stop("'ID_level1' must be the same length as 'Y'")
+  if (names(ID_level2) == names(ID_level1)) setnames(ID_level2, names(ID_level2), paste0(names(ID_level2), "_id"))
 
 
   # PSU_sort
@@ -260,10 +259,10 @@ vardomh <- function(Y, H, PSU, w_final,
  # X_ID_level1
   if (!is.null(X)) {
     X_ID_level1 <- data.table(X_ID_level1)
-    if (nrow(X) != nrow(X_ID_level1)) stop("'X' and 'X_ID_level1' have different row count")
-    if (ncol(X_ID_level1) != 1) stop("'X_ID_level1' must be 1 column data.frame, matrix, data.table")
     X_ID_level1[, (names(X_ID_level1)) := lapply(.SD, as.character)]
     if (any(is.na(X_ID_level1))) stop("'X_ID_level1' has missing values")
+    if (nrow(X) != nrow(X_ID_level1)) stop("'X' and 'X_ID_level1' have different row count")
+    if (ncol(X_ID_level1) != 1) stop("'X_ID_level1' must be 1 column data.frame, matrix, data.table")
 
     ID_level1h <- data.table(unique(ID_level1))
     X_ID_level1h <- copy(X_ID_level1)

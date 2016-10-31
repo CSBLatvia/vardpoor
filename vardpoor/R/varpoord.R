@@ -85,12 +85,12 @@ varpoord <- function(Y, w_final,
       if(!is.null(wght_thres)) {
           if (min(wght_thres %in% names(dataset)) != 1) stop("'wght_thres' does not exist in 'dataset'!")
           if (min(wght_thres %in% names(dataset)) == 1) wght_thres <- dataset[, wght_thres, with = FALSE] }
-      if(!is.null(id)) {
-          if (min(id %in% names(dataset)) != 1) stop("'id' does not exist in 'dataset'!")
-          if (min(id %in% names(dataset)) == 1) id <- dataset[, id, with = FALSE]  }
-      if(!is.null(ID_household)) {
-          if (min(ID_household %in% names(dataset)) != 1) stop("'ID_household' does not exist in 'dataset'!")
-          if (min(ID_household %in% names(dataset)) == 1) ID_household <- dataset[, ID_household, with = FALSE] }
+      if(!is.null(ID_level1)) {
+          if (min(ID_level1 %in% names(dataset)) != 1) stop("'ID_level1' does not exist in 'dataset'!")
+          if (min(ID_level1 %in% names(dataset)) == 1) ID_level1 <- dataset[, ID_level1, with = FALSE] }
+      if(!is.null(ID_level2)) {
+          if (min(ID_level2 %in% names(dataset)) != 1) stop("'ID_level2' does not exist in 'dataset'!")
+          if (min(ID_level2 %in% names(dataset)) == 1) ID_level2 <- dataset[, ID_level2, with = FALSE] }
       if(!is.null(H)) {
           if (min(H %in% names(dataset)) != 1) stop("'H' does not exist in 'dataset'!")
           if (min(H %in% names(dataset)) == 1) H <- dataset[, H, with = FALSE] }
@@ -169,7 +169,6 @@ varpoord <- function(Y, w_final,
   if (any(is.na(ID_level2))) stop("'ID_level2' has missing values")
   if (ncol(ID_level2) != 1) stop("'ID_level2' must be 1 column data.frame, matrix, data.table")
   if (nrow(ID_level2) != n) stop("'ID_level2' must be the same length as 'Y'")
-  if (is.null(names(ID_level2))||(names(ID_level2) == "ID_level2")) setnames(ID_level2, names(ID_level2), "ID")
   if (is.null(period)){ if (any(duplicated(ID_level2))) stop("'ID_level2' are duplicate values") 
                        } else {dd <- data.table(period, ID_level2)
                                if (any(duplicated(dd, by = names(dd)))) stop("'ID_level2' by period are duplicate values")
@@ -208,12 +207,11 @@ varpoord <- function(Y, w_final,
   # ID_level1
   if (is.null(ID_level1)) stop("'ID_level1' must be defined")
   ID_level1 <- data.table(ID_level1)
-  if (ncol(ID_level1) != 1) stop("'ID_level1' must be 1 column data.frame, matrix, data.table")
-  if (nrow(ID_level1) != n) stop("'ID_level1' must be the same length as 'Y'")
-  if (is.null(names(ID_level1))) setnames(ID_level1, names(ID_level1), "ID_level1")
-  if (names(ID_level1) == names(ID_level2)) setnames(names(ID_level2),names(ID_level2), paste0(names(ID_level2), "_id"))
   ID_level1[, (names(ID_level1)) := lapply(.SD, as.character)]
   if (any(is.na(ID_level1))) stop("'ID_level1' has missing values")
+  if (nrow(ID_level1) != n) stop("'ID_level1' must be the same length as 'Y'")
+  if (ncol(ID_level1) != 1) stop("'ID_level1' must be 1 column data.frame, matrix, data.table")
+  if (names(ID_level1) == names(ID_level2)) setnames(names(ID_level2), names(ID_level2), paste0(names(ID_level2), "_id"))
 
   # w_final 
   w_final <- data.frame(w_final)

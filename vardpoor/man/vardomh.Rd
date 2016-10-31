@@ -60,7 +60,7 @@
 
 \item{q}{Variable of the positive values accounting for heteroscedasticity. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.}
 
-\item{datasetX}{Optional survey data object in household level convertible to \code{data.table}.}
+\item{datasetX}{Optional survey data object in level1 convertible to \code{data.table}.}
 
 \item{confidence}{Optional positive value for confidence interval. This variable by default is 0.95.}
 

@@ -7,15 +7,22 @@
 \description{Computes the variance estimation for measures of change for single and multistage stage cluster sampling designs.}
 
 \usage{
-vardchanges(Y, H, PSU, w_final, id,
+vardchanges(Y, H, PSU, w_final, 
+            ID_level1, ID_level2,
             Dom = NULL, Z = NULL,
-            country, periods, dataset = NULL,
+            country = NULL, period,
+            dataset = NULL,
             period1, period2,
+            X = NULL, countryX = NULL,
+            periodX = NULL, X_ID_level1 = NULL,
+            ind_gr = NULL, g = NULL,
+            q = NULL, datasetX = NULL,
             annual = FALSE,
             linratio = FALSE,
             percentratio = 1,
             use.estVar = FALSE,
-            confidence=0.95,
+            outp_res = FALSE,
+            confidence = 0.95,
             change_type = "absolute")}
 
 \arguments{
@@ -28,7 +35,9 @@ vardchanges(Y, H, PSU, w_final, id,
 
 \item{w_final}{Weight variable. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.}
 
-\item{id}{variable for unit ID codes (for household surveys - secondary unit id number). One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.}
+\item{ID_level1}{Variable for level1 ID codes. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.}
+
+\item{ID_level2}{Optional variable for unit ID codes. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.}
 
 \item{Dom}{Optional variables used to define population domains. If supplied, variables are calculated for each domain. An object convertible to \code{data.table} or variable names as character vector, column numbers.}
 
@@ -36,13 +45,29 @@ vardchanges(Y, H, PSU, w_final, id,
 
 \item{country}{Variable for the survey countries. The values for each country are computed independently. Object convertible to \code{data.table} or variable names as character, column numbers.}
 
-\item{periods}{Variable for the all survey periods. The values for each period are computed independently. Object convertible to \code{data.table} or variable names as character, column numbers.}
+\item{period}{Variable for the all survey periods. The values for each period are computed independently. Object convertible to \code{data.table} or variable names as character, column numbers.}
 
 \item{dataset}{Optional survey data object convertible to \code{data.table}.}
 
 \item{period1}{The vector of periods from variable \code{periods} describes the first period.}
 
 \item{period2}{The vector of periods from variable \code{periods} describes the second period.}
+
+\item{X}{Optional matrix of the auxiliary variables for the calibration estimator. Object convertible to \code{data.table} or variable names as character, column numbers.}
+
+\item{countryX}{Optional variable for the survey countries. The values for each country are computed independently. Object convertible to \code{data.table} or variable names as character, column numbers.}
+
+\item{periodX}{Optional variable of the survey periods and countries. If supplied, residual estimation of calibration is done independently for each time period. Object convertible to \code{data.table} or variable names as character, column numbers.}
+
+\item{X_ID_level1}{Variable for level1 ID codes. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.}
+
+\item{ind_gr}{Optional variable by which divided independently X matrix of the auxiliary variables for the calibration. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.}
+
+\item{g}{Optional variable of the g weights. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.}
+
+\item{q}{Variable of the positive values accounting for heteroscedasticity. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.}
+
+\item{datasetX}{Optional survey data object in household level convertible to \code{data.table}.}
 
 \item{annual}{Logical value. If value is TRUE, then calculate for annual net changes.}
 
@@ -51,6 +76,8 @@ vardchanges(Y, H, PSU, w_final, id,
 \item{percentratio}{Positive numeric value. All linearized variables are multiplied with \code{percentratio} value, by default - 1.}
 
 \item{use.estVar}{Logical value. If value is \code{TRUE}, then \code{R} function \code{estVar} is used for the  estimation of covariance matrix of the residuals. If value is \code{FALSE}, then \code{R} function \code{estVar} is not used for the  estimation of covariance matrix of the residuals.}
+
+\item{outp_res}{Logical value. If \code{TRUE} estimated residuals of calibration will be printed out.}
 
 \item{confidence}{optional; either a positive value for confidence interval. This variable by default is 0.95 .}
 
@@ -154,76 +181,65 @@ eusilc1 <- eusilc[1:40,]
 set.seed(1)
 data <- data.table(rbind(eusilc1, eusilc1),
                    year=c(rep(2010, nrow(eusilc1)),
-                          rep(2011, nrow(eusilc1))),
-                   country=c(rep("AT", nrow(eusilc1)),
-                             rep("AT", nrow(eusilc1))))
-data[age<0, age:=0]
-PSU <- data[,.N, keyby="db030"]
-PSU[, N:=NULL]
-PSU[, PSU:=trunc(runif(nrow(PSU), 0, 5))]
-data <- merge(data, PSU, all=TRUE, by="db030")
+                          rep(2011, nrow(eusilc1))))
+data[age < 0, age := 0]
+PSU <- data[, .N, keyby = "db030"][, N := NULL]
+PSU[, PSU := trunc(runif(nrow(PSU), 0, 5))]
+data <- merge(data, PSU, all = TRUE, by = "db030")
 PSU <- eusilc <- NULL
-data[, strata:=c("XXXX")]
-data[, strata:=as.character(strata)]
+data[, strata := c("XXXX")]
 
-data[, t_pov:=trunc(runif(nrow(data), 0, 2))]
-data[, exp:= 1]
+data[, t_pov := trunc(runif(nrow(data), 0, 2))]
+data[, exp := 1]
 
 # At-risk-of-poverty (AROP)
-data[, pov:= ifelse (t_pov == 1, 1, 0)]
+data[, pov := ifelse (t_pov == 1, 1, 0)]
  
-result <- vardchanges(Y="pov",
-                   H="strata", PSU="PSU", w_final="rb050",
-                   id="db030", Dom=NULL, Z=NULL,
-                   country="country", periods="year",
-                   dataset=data,
-                   period1=2010, period2=2011,
-                   change_type="absolute")
+result <- vardchanges(Y = "pov", H = "strata", 
+                      PSU = "PSU", w_final = "rb050",
+                      ID_level1 = "db030", Dom = NULL,
+                      Z = NULL, periods = "year",
+                      dataset = data,
+                      period1 = 2010, period2 = 2011,
+                      change_type = "absolute")
  
 \dontrun{
 data("eusilc")
 data <- data.table(rbind(eusilc, eusilc),
                    year=c(rep(2010, nrow(eusilc)),
-                          rep(2011, nrow(eusilc))),
-                   country=c(rep("AT", nrow(eusilc)),
-                             rep("AT", nrow(eusilc))))
-data[age<0, age:=0]
-PSU <- data[,.N, keyby="db030"]
-PSU[, N:=NULL]
-PSU[, PSU:=trunc(runif(nrow(PSU), 0, 100))]
-setkeyv(PSU, "db030")
-setkeyv(data, "db030")
-data <- merge(data, PSU, all=TRUE)
+                          rep(2011, nrow(eusilc))))
+data[age < 0, age := 0]
+PSU <- data[,.N, keyby = "db030"][, N := NULL]
+PSU[, PSU := trunc(runif(nrow(PSU), 0, 100))]
+data <- merge(data, PSU, all = TRUE, by = "db030")
 PSU <- eusilc <- NULL
-data[, strata:=c("XXXX")]
-data[, strata:=as.character(strata)]
+data[, strata := "XXXX"]
 
-data[, t_pov:=trunc(runif(nrow(data), 0, 2))]
-data[, t_dep:=trunc(runif(nrow(data), 0, 2))]
-data[, t_lwi:=trunc(runif(nrow(data), 0, 2))]
-data[, exp:= 1]
-data[, exp2:= 1 * (age < 60)]
+data[, t_pov := trunc(runif(nrow(data), 0, 2))]
+data[, t_dep := trunc(runif(nrow(data), 0, 2))]
+data[, t_lwi := trunc(runif(nrow(data), 0, 2))]
+data[, exp := 1]
+data[, exp2 := 1 * (age < 60)]
 
 # At-risk-of-poverty (AROP)
-data[, pov:= ifelse (t_pov == 1, 1, 0)]
+data[, pov := ifelse (t_pov == 1, 1, 0)]
  
 # Severe material deprivation (DEP)
-data[, dep:= ifelse (t_dep == 1, 1, 0)]
+data[, dep := ifelse (t_dep == 1, 1, 0)]
 
 # Low work intensity (LWI)
-data[, lwi:= ifelse (t_lwi == 1 & exp2 == 1, 1, 0)]
+data[, lwi := ifelse (t_lwi == 1 & exp2 == 1, 1, 0)]
 
 # At-risk-of-poverty or social exclusion (AROPE)
-data[, arope:= ifelse (pov == 1 | dep == 1 | lwi == 1, 1, 0)]
-data[, dom:=1]
+data[, arope := ifelse (pov == 1 | dep == 1 | lwi == 1, 1, 0)]
+data[, dom := 1]
 
-result <- vardchanges(Y=c("pov", "dep", "lwi", "arope"),
-                   H="strata", PSU="PSU", w_final="rb050",
-                   id="db030", Dom="rb090", Z=NULL,
-                   country="country", periods="year",
-                   dataset=data,
-                   period1=2010, period2=2011,
-                   change_type="absolute")
+result <- vardchanges(Y = c("pov", "dep", "lwi", "arope"),
+                      H = "strata", PSU = "PSU", w_final = "rb050",
+                      ID_level1 = "db030", Dom = "rb090", Z = NULL,
+                      periods = "year", dataset = data,
+                      period1 = 2010, period2 = 2011,
+                      change_type = "absolute")
 }
 }
 

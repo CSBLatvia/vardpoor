@@ -8,11 +8,13 @@ vardcrosannual <- function(Y, H, PSU, w_final,
                             yearsX = NULL, subperiodsX = NULL,
                             X_ID_level1 = NULL, ind_gr = NULL,
                             g = NULL, q = NULL, datasetX = NULL,
-                            percentratio = 1, confidence = 0.95) {
+                            percentratio = 1, use.estVar = FALSE,
+                            confidence = 0.95) {
  
   ### Checking
-
+  outp_res <- FALSE
   if (length(percentratio) != 1 | !any(is.integer(percentratio) | percentratio > 0)) stop("'percentratio' must be a positive integer")
+  if (length(use.estVar) != 1 | !any(is.logical(use.estVar))) stop("'use.estVar' must be logical")
   if(length(confidence) != 1 | any(!is.numeric(confidence) |  confidence < 0 | confidence > 1)) {
           stop("'confidence' must be a numeric value in [0, 1]")  }
 
@@ -487,7 +489,8 @@ vardcrosannual <- function(Y, H, PSU, w_final,
   vars <- c(paste0(yearm, c(1, 2)), names(country), namesDom, "namesY", 
              "namesZ", paste0("estim_", c(1, 2)), "estim", "var")       
   annual_cros <- annual_cros[, vars[vars %in% names(annual_cros)], with = FALSE] 
-
+ 
+  se <- rse <- cv <- NULL
   annual_cros[, var_est2 := var]  
   annual_cros[xor(is.na(var_est2), var_est2 < 0), var_est2 := NA]  
   annual_cros[, se := sqrt(var_est2)]

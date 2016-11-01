@@ -1,17 +1,17 @@
 
 vardcrospoor <- function(Y, age = NULL, pl085 = NULL,
-                     month_at_work = NULL, Y_den = NULL,
-                     Y_thres = NULL,  wght_thres = NULL, 
-                     H, PSU, w_final, ID_level2,
-                     Dom = NULL, country, periods,
-                     sort = NULL, gender = NULL,
-                     percentage = 60, order_quant = 50,
-                     alpha = 20, dataset = NULL,
-                     use.estVar = FALSE,
-                     withperiod = TRUE,
-                     netchanges = TRUE,
-                     confidence = .95,
-                     type = "linrmpg") {
+                         month_at_work = NULL, Y_den = NULL,
+                         Y_thres = NULL,  wght_thres = NULL, 
+                         H, PSU, w_final, ID_level2,
+                         Dom = NULL, country, periods,
+                         sort = NULL, gender = NULL,
+                         percentage = 60, order_quant = 50,
+                         alpha = 20, dataset = NULL,
+                         use.estVar = FALSE,
+                         withperiod = TRUE,
+                         netchanges = TRUE,
+                         confidence = .95,
+                         type = "linrmpg") {
   ### Checking
 
   all_choices <- c("linarpr", "linarpt", "lingpg",

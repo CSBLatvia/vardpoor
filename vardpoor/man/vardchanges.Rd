@@ -57,7 +57,7 @@ vardchanges(Y, H, PSU, w_final,
 
 \item{countryX}{Optional variable for the survey countries. The values for each country are computed independently. Object convertible to \code{data.table} or variable names as character, column numbers.}
 
-\item{periodX}{Optional variable of the survey periods and countries. If supplied, residual estimation of calibration is done independently for each time period. Object convertible to \code{data.table} or variable names as character, column numbers.}
+\item{periodX}{Optional variable of the all survey periods. If supplied, residual estimation of calibration is done independently for each time period. Object convertible to \code{data.table} or variable names as character, column numbers.}
 
 \item{X_ID_level1}{Variable for level1 ID codes. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.}
 
@@ -88,6 +88,8 @@ vardchanges(Y, H, PSU, w_final,
 \value{
   
   A list with objects are returned by the function:
+
+  \item{res_out}{A \code{data.table} containing the estimated residuals of calibration with ID_level1 and PSU by periods and countries (if available).}
 
   \item{crossectional_results}{ A \code{data.table} containing:
     

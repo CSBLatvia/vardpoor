@@ -1,20 +1,20 @@
 vardchanges <- function(Y, H, PSU, w_final,
-                         ID_level1, ID_level2,
-                         Dom = NULL, Z = NULL, 
-                         country = NULL, period,
-                         dataset = NULL,
-                         period1, period2,
-                         X = NULL, countryX = NULL,
-                         periodX = NULL, X_ID_level1 = NULL,
-                         ind_gr = NULL, g = NULL,
-                         q = NULL, datasetX = NULL,
-                         annual = FALSE,
-                         linratio = FALSE,
-                         percentratio = 1,
-                         use.estVar = FALSE,
-                         outp_res = FALSE,
-                         confidence = 0.95,
-                         change_type = "absolute") {
+                        ID_level1, ID_level2,
+                        Dom = NULL, Z = NULL, 
+                        country = NULL, period,
+                        dataset = NULL,
+                        period1, period2,
+                        X = NULL, countryX = NULL,
+                        periodX = NULL, X_ID_level1 = NULL,
+                        ind_gr = NULL, g = NULL,
+                        q = NULL, datasetX = NULL,
+                        annual = FALSE,
+                        linratio = FALSE,
+                        percentratio = 1,
+                        use.estVar = FALSE,
+                        outp_res = FALSE,
+                        confidence = 0.95,
+                        change_type = "absolute") {
  
   ### Checking
 
@@ -100,7 +100,8 @@ vardchanges <- function(Y, H, PSU, w_final,
               if (min(q %in% names(datasetX)) != 1) stop("'q' does not exist in 'datasetX'!") 
               if (min(q %in% names(datasetX)) == 1) q <- datasetX[, q,  with = FALSE] } 
      }
-  equal_dataset <- all(dataset == datasetX)
+
+  equal_dataset <- all.equal(dataset, datasetX) & !is.null(X)
   if (equal_dataset) X_ID_level1 <- ID_level1
   if (equal_dataset) countryX <- country
 
@@ -163,7 +164,7 @@ vardchanges <- function(Y, H, PSU, w_final,
     } 
 
   # period
-  period <- data.table(period, check.names=TRUE)
+  period <- data.table(period, check.names = TRUE)
   period[, (names(period)) := lapply(.SD, as.character)]
   if (any(is.na(period))) stop("'period' has missing values")
   if (names(period) == "percoun") stop("'period' must be different name")
@@ -233,30 +234,29 @@ vardchanges <- function(Y, H, PSU, w_final,
         countrX <- countryX[, .N, keyby = names(countryX)][, N := NULL]
         countr <- country[, .N, keyby = names(country)][, N := NULL]
         if (any(countr != countrX)) stop("'unique(country)' and 'unique(countryX)' records have different")
-     } else if (!is.null(countryX)) stop("'countryX' must be defined")
+     } else if (!is.null(country)) stop("'countryX' must be defined")
   }
 
   # periodX
   if (!is.null(X)) {
-     if(!is.null(periodX)) {
-        periodX <- data.table(periodX)
-        periodX[, (names(periodX)) := lapply(.SD, as.character)]
-        if (any(is.na(periodX))) stop("'periodX' has missing values")
-        if (any(duplicated(names(periodX)))) 
-                    stop("'periodX' are duplicate column names: ", 
-                         paste(names(periodX)[duplicated(names(periodX))], collapse = ","))
-        if (nrow(periodX) != nrow(X)) stop("'periodX' length must be equal with 'X' row count")
-        if (ncol(periodX) != ncol(period)) stop("'periodX' length must be equal with 'period' column count")
-        if (names(periodX) != names(period)) stop("'periodX' must be equal with 'periods' names")
-        peri <- copy(period)
-        periX <- copy(periodX)
-        if (!is.null(country)) peri <- data.table(country, peri)
-        if (!is.null(countryX)) periX <- data.table(countryX, periX)
-        periX <- periX[, .N, keyby = names(periX)][, N := NULL]
-        peri <- peri[, .N, keyby = names(peri)][, N := NULL]
-        if (any(peri != periX) & is.null(country)) stop("'unique(period)' and 'unique(periodX)' records have different")
-        if (any(peri != periX) & !is.null(country)) stop("'unique(country, period)' and 'unique(countryX, periodX)' records have different")
-      } else if (!is.null(periodX)) stop("'periodX' must be defined")
+     if (is.null(periodX)) stop("'periodX' must be defined")
+     periodX <- data.table(periodX)
+     periodX[, (names(periodX)) := lapply(.SD, as.character)]
+     if (any(is.na(periodX))) stop("'periodX' has missing values")
+     if (any(duplicated(names(periodX)))) 
+                 stop("'periodX' are duplicate column names: ", 
+                        paste(names(periodX)[duplicated(names(periodX))], collapse = ","))
+     if (nrow(periodX) != nrow(X)) stop("'periodX' length must be equal with 'X' row count")
+     if (ncol(periodX) != ncol(period)) stop("'periodX' length must be equal with 'period' column count")
+     if (names(periodX) != names(period)) stop("'periodX' must be equal with 'periods' names")
+     peri <- copy(period)
+     periX <- copy(periodX)
+     if (!is.null(country)) peri <- data.table(country, peri)
+     if (!is.null(countryX)) periX <- data.table(countryX, periX)
+     periX <- periX[, .N, keyby = names(periX)][, N := NULL]
+     peri <- peri[, .N, keyby = names(peri)][, N := NULL]
+     if (any(peri != periX) & is.null(country)) stop("'unique(period)' and 'unique(periodX)' records have different")
+     if (any(peri != periX) & !is.null(country)) stop("'unique(country, period)' and 'unique(countryX, periodX)' records have different")
    } 
 
 
@@ -269,40 +269,33 @@ vardchanges <- function(Y, H, PSU, w_final,
     if (ncol(X_ID_level1) != 1) stop("'X_ID_level1' must be 1 column data.frame, matrix, data.table")
  
     ID_level1h <- copy(ID_level1)
-    if (!is.null(countryX)) {X_ID_level1 <- data.table(countryX, X_ID_level1)
-                             ID_level1h <- data.table(country, ID_level1h)}
-    if (!is.null(periodX)) {X_ID_level1 <- data.table(periodX, X_ID_level1)
-                            ID_level1h <- data.table(period, ID_level1h)}
+    if (!is.null(countryX)) { X_ID_level1 <- data.table(countryX, X_ID_level1)
+                              ID_level1h <- data.table(country, ID_level1h)}
+    X_ID_level1 <- data.table(periodX, X_ID_level1)
+    ID_level1h <- data.table(period, ID_level1h)
     ID_level1h <- ID_level1h[, .N, by = names(ID_level1h)][, N := NULL]
-    if (nrow(X_ID_level1[,.N, by = names(X_ID_level1)][N > 1]) > 0) stop("'X_ID_level1' have duplicates")
+    if (nrow(X_ID_level1[, .N, by = names(X_ID_level1)][N > 1]) > 0) stop("'X_ID_level1' have duplicates")
     setkeyv(X_ID_level1, names(X_ID_level1))
     setkeyv(ID_level1h, names(ID_level1h))
     nperIDh <- names(ID_level1h)
-    if (any(nperIDh != names(X_ID_level1))) stop("'X_ID_level1' and 'ID_level1' must be equal  names")
+    if (any(nperIDh != names(X_ID_level1))) stop("'X_ID_level1' and 'ID_level1' must be equal names")
     if (ID_level1h[, class(get(nperIDh))] != X_ID_level1[, class(get(nperIDh))])  stop("Class for 'X_ID_level1' and class for 'ID_level1' must be equal ")
 
-    if (!is.null(period)) {
-        if (!is.null(country)) {
-             if (nrow(ID_level1h) != nrow(X_ID_level1)) stop("'unique(countryX, periodX, X_ID_level1)' and 'unique(country, period, ID_level1)' have different row count")
-             if (any(ID_level1h != X_ID_level1)) stop("''unique(countryX, periodX, X_ID_level1)' and 'unique(country, period, ID_level1)' records have different")
-            } else {
-                if (nrow(ID_level1h) != nrow(X_ID_level1)) stop("'unique(periodX, X_ID_level1)' and 'unique(period, ID_level1)' have different row count")
-                if (any(ID_level1h != X_ID_level1)) stop("''unique(periodX, X_ID_level1)' and 'unique(period, ID_level1)' records have different")  }
-      } else {
-        if (!is.null(country)) {
-             if (nrow(ID_level1h) != nrow(X_ID_level1)) stop("'unique(countryX, X_ID_level1)' and 'unique(country, ID_level1)' have different row count")
-             if (any(ID_level1h != X_ID_level1)) stop("''unique(countryX, X_ID_level1)' and 'unique(country, ID_level1)' records have different")
-            } else {
-             if (nrow(ID_level1h) != nrow(X_ID_level1)) stop("'unique(X_ID_level1)' and 'unique(ID_level1)' have different row count")
-             if (any(ID_level1h != X_ID_level1)) stop("''unique(X_ID_level1)' and 'unique(ID_level1)' records have different") }
-   }}
+    if (!is.null(country)) {
+          if (nrow(ID_level1h) != nrow(X_ID_level1)) stop("'unique(countryX, periodX, X_ID_level1)' and 'unique(country, period, ID_level1)' have different row count")
+          if (any(ID_level1h != X_ID_level1)) stop("''unique(countryX, periodX, X_ID_level1)' and 'unique(country, period, ID_level1)' records have different")
+       } else {
+          if (nrow(ID_level1h) != nrow(X_ID_level1)) stop("'unique(periodX, X_ID_level1)' and 'unique(period, ID_level1)' have different row count")
+          if (any(ID_level1h != X_ID_level1)) stop("''unique(periodX, X_ID_level1)' and 'unique(period, ID_level1)' records have different")  }
+  }
 
   # ind_gr
   if (!is.null(X)) {
-     if(is.null(ind_gr)) ind_gr <- rep.int(1, nrow(X)) 
+     if(is.null(ind_gr)) ind_gr <- rep("1", nrow(X)) 
      ind_gr <- data.table(ind_gr)
      if (nrow(ind_gr) != nrow(X)) stop("'ind_gr' length must be equal with 'X' row count")
      if (ncol(ind_gr) != 1) stop("'ind_gr' must be 1 column data.frame, matrix, data.table")
+     ind_gr[, (names(ind_gr)) := lapply(.SD, as.character)]
      if (any(is.na(ind_gr))) stop("'ind_gr' has missing values")
    }
 
@@ -310,8 +303,7 @@ vardchanges <- function(Y, H, PSU, w_final,
   if (!is.null(X)) {
        X1 <- data.table(X, check.names = TRUE)
        nX1 <- names(X1)
-       ind_gr1 <- copy(ind_gr) 
-       if (!is.null(periodX)) ind_gr1 <- data.table(periodX, ind_gr1, check.names = TRUE)
+       ind_gr1 <- data.table(periodX, ind_gr, check.names = TRUE)
        X2 <- data.table(ind_gr1, X1)
        X1 <- X2[, .N, keyby = names(ind_gr1)][[ncol(ind_gr1) + 1]]
        X2 <- X2[, lapply(.SD, function(x) sum(!is.na(x))), keyby = names(ind_gr1), .SDcols = nX1]
@@ -361,6 +353,7 @@ vardchanges <- function(Y, H, PSU, w_final,
                      withperiod = TRUE,
                      netchanges = TRUE, 
                      confidence = confidence)
+  res_out <- datas$res_out
   crossectional_results <- datas$results
 
   if (!is.null(Dom)) { 
@@ -472,16 +465,16 @@ vardchanges <- function(Y, H, PSU, w_final,
   setnames(data2, sard, paste0(sard, "_2"))
   data <- merge(data1, data2, all = TRUE, by = c("ind", per1, per2, sarp))
 
-  data[is.na(period_country_1), period_country_1 := paste0(get(per1), "_", get(country))]
-  data[is.na(period_country_2), period_country_2 := paste0(get(per2), "_", get(country))]
-
+  data[is.na(period_country_2), period_country_1 := paste0(get(per1), "_",
+                                                    ifelse(names_country == "country", country, get(country)))]
+  data[is.na(period_country_2), period_country_2 := paste0(get(per2), "_", 
+                                                    ifelse(names_country == "country", country, get(country)))]
   data1 <- data2 <- NULL
 
   recode.NA <- function(DT, cols = seq_len(ncol(DT))) {
      for (j in cols) if (is.numeric(DT[[j]]))
       set(DT, which(is.na(DT[[j]])), j, ifelse(is.integer(DT[[j]]), 0L, 0))
    }
-
 
   data[, nh := .N, by = c("ind", "period_country_1", "period_country_2", H)]
 
@@ -694,7 +687,8 @@ vardchanges <- function(Y, H, PSU, w_final,
            var_tau[, percoun := NULL]
            changes_results[, percoun := NULL]  }
   
-   list(crossectional_results = crossectional_results,
+   list(res_out = res_out,
+        crossectional_results = crossectional_results,
         crossectional_var_grad = cros_var_grad,
         grad_var = grad_var,
         rho = rho_matrix,

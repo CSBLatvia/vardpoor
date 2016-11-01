@@ -1,18 +1,18 @@
 
-#vardchangannual <- function(Y, H, PSU, w_final,
-#                             ID_level1, ID_level2,
-#                             Dom = NULL, Z = NULL, 
-#                             country = NULL, years,
-#                             subperiods, dataset = NULL,
-#                             year1, year2, X = NULL,
-#                             countryX = NULL, yearsX = NULL,
-#                             subperiodsX = NULL, X_ID_level1 = NULL,
-#                             ind_gr = NULL, g = NULL, q = NULL,
-#                             datasetX = NULL, percentratio = 1,
-#                             use.estVar = FALSE, confidence = 0.95) {
+vardchangannual <- function(Y, H, PSU, w_final,
+                            ID_level1, ID_level2,
+                            Dom = NULL, Z = NULL, 
+                            country = NULL, years,
+                            subperiods, dataset = NULL,
+                            year1, year2, X = NULL,
+                            countryX = NULL, yearsX = NULL,
+                            subperiodsX = NULL, X_ID_level1 = NULL,
+                            ind_gr = NULL, g = NULL, q = NULL,
+                            datasetX = NULL, percentratio = 1,
+                            use.estVar = FALSE, confidence = 0.95) {
  
   ### Checking
-
+  outp_res <- FALSE
   if (length(percentratio) != 1 | !any(is.numeric(percentratio) | percentratio > 0)) stop("'percentratio' must be a positive numeric value")
   if (length(use.estVar) != 1 | !any(is.logical(use.estVar))) stop("'use.estVar' must be logical")
   if(length(confidence) != 1 | any(!is.numeric(confidence) |  confidence < 0 | confidence > 1)) {
@@ -75,9 +75,9 @@
                if (min(yearsX %in% names(datasetX)) != 1) stop("'yearsX' does not exist in 'datasetX'!")
                if (min(yearsX %in% names(datasetX)) == 1) yearsX <- datasetX[, yearsX,  with = FALSE] }
 
-          if (!is.null(subperiodX)) {
-               if (min(subperiodX %in% names(datasetX)) != 1) stop("'subperiodsX' does not exist in 'datasetX'!")
-               if (min(subperiodX %in% names(datasetX)) == 1) subperiodX <- datasetX[, subperiodX,  with = FALSE] }
+          if (!is.null(subperiodsX)) {
+               if (min(subperiodsX %in% names(datasetX)) != 1) stop("'subperiodsX' does not exist in 'datasetX'!")
+               if (min(subperiodsX %in% names(datasetX)) == 1) subperiodsX <- datasetX[, subperiodsX,  with = FALSE] }
 
           if (!is.null(X_ID_level1)) {
                if (min(X_ID_level1 %in% names(datasetX)) != 1) stop("'ID_level1' does not exist in 'datasetX'!")
@@ -99,9 +99,10 @@
               if (min(q %in% names(datasetX)) != 1) stop("'q' does not exist in 'datasetX'!") 
               if (min(q %in% names(datasetX)) == 1) q <- datasetX[, q,  with = FALSE] } 
      }
-  equal_dataset <- all(dataset == datasetX)
-  if (equal_dataset) X_ID_level1 <- ID_level1
-  if (equal_dataset) countryX <- country
+
+   equal_dataset <- all.equal(dataset, datasetX) & !is.null(X)
+   if (equal_dataset) X_ID_level1 <- ID_level1
+   if (equal_dataset) countryX <- country 
 
   # Y
   Y <- data.table(Y, check.names = TRUE)
@@ -163,6 +164,7 @@
 
   # years
   years <- data.table(years, check.names = TRUE)
+  years[, (names(years)) := lapply(.SD, as.character)]
   if (any(is.na(years))) stop("'years' has missing values")
   if (nrow(years) != n) stop("'years' length must be equal with 'Y' row count")
   if (ncol(years) != 1) stop("'years' must be 1 column")
@@ -170,6 +172,7 @@
 
   # subperiods
   subperiods <- data.table(subperiods, check.names = TRUE)
+  subperiods[, (names(subperiods)) := lapply(.SD, as.character)]
   if (any(is.na(subperiods))) stop("'subperiods' has missing values")
   if (nrow(subperiods) != n) stop("'subperiods' length must be equal with 'Y' row count")
   if (ncol(subperiods) != 1) stop("'subperiods' must be 1 column")
@@ -192,7 +195,7 @@
   
   namesZ <- NULL
   if (!is.null(Z)) {
-    Z <- data.table(Z, check.names=TRUE)
+    Z <- data.table(Z, check.names = TRUE)
     if (nrow(Z) != n) stop("'Z' and 'Y' must be equal row count")
     if (ncol(Z) != m) stop("'Z' and 'Y' must be equal column count")
     if (any(is.na(Z))) stop("'Z' has missing values")
@@ -202,7 +205,8 @@
   }
  
    # year1
-   year1 <- data.table(year1, check.names=TRUE)
+   year1 <- data.table(year1, check.names = TRUE)
+   year1[, (names(year1)) := lapply(.SD, as.character)]
    if (ncol(year1) != 1) stop("'year1' must be 1 column")
    setnames(year1, names(year1), names(years))
    if (any(is.na(year1))) stop("'year1' has missing values")
@@ -213,7 +217,8 @@
                        stop("'year1' row must be exist in 'years'")
 
    # year2
-   year2 <- data.table(year2, check.names=TRUE)
+   year2 <- data.table(year2, check.names = TRUE)
+   year2[, (names(year2)) := lapply(.SD, as.character)]
    if (ncol(year2) != 1) stop("'year2' must be 1 column")
    setnames(year2, names(year2), names(years))
    if (any(is.na(year2))) stop("'year2' has missing values")
@@ -233,53 +238,51 @@
          countrX <- countryX[, .N, keyby = names(countryX)][, N := NULL]
          countr <- country[, .N, keyby = names(country)][, N := NULL]
          if (any(countr != countrX)) stop("'unique(country)' and 'unique(countryX)' records have different")
-      } else if (!is.null(countryX)) stop("'countryX' must be defined")
+     } else if (!is.null(country)) stop("'countryX' must be defined")
    }
 
    # yearsX
    if (!is.null(X)) {
-      if(!is.null(periodX)) {
-         yearsX <- data.table(yearsX)
-         yearsX[, (names(yearsX)) := lapply(.SD, as.character)]
-         if (any(is.na(yearsX))) stop("'yearsX' has missing values")
-         if (any(duplicated(names(yearsX)))) 
-                     stop("'yearsX' are duplicate column names: ", 
-                          paste(names(yearsX)[duplicated(names(periodX))], collapse = ","))
-         if (nrow(yearsX) != nrow(X)) stop("'yearsX' length must be equal with 'X' row count")
-         if (ncol(yearsX) != ncol(years)) stop("'yearsX' length must be equal with 'years' column count")
-         if (names(yearsX) != names(years)) stop("'yearsX' must be equal with 'years' names")
-         peri <- copy(years)
-         periX <- copy(yearsX)
-         if (!is.null(country)) peri <- data.table(country, peri)
-         if (!is.null(countryX)) periX <- data.table(countryX, periX)
-         periX <- periX[, .N, keyby = names(periX)][, N := NULL]
-         peri <- peri[, .N, keyby = names(peri)][, N := NULL]
-         if (any(peri != periX) & is.null(country)) stop("'unique(years)' and 'unique(yearsX)' records have different")
-         if (any(peri != periX) & !is.null(country)) stop("'unique(country, years)' and 'unique(countryX, yearsX)' records have different")
-        } else if (!is.null(yearsX)) stop("'yearsX' must be defined")
+      if (is.null(yearsX)) stop("'yearsX' must be defined")
+      yearsX <- data.table(yearsX)
+      yearsX[, (names(yearsX)) := lapply(.SD, as.character)]
+      if (any(is.na(yearsX))) stop("'yearsX' has missing values")
+      if (any(duplicated(names(yearsX)))) 
+                  stop("'yearsX' are duplicate column names: ", 
+                       paste(names(yearsX)[duplicated(names(yearsX))], collapse = ","))
+      if (nrow(yearsX) != nrow(X)) stop("'yearsX' length must be equal with 'X' row count")
+      if (ncol(yearsX) != ncol(years)) stop("'yearsX' length must be equal with 'years' column count")
+      if (names(yearsX) != names(years)) stop("'yearsX' must be equal with 'years' names")
+      peri <- copy(years)
+      periX <- copy(yearsX)
+      if (!is.null(country)) peri <- data.table(country, peri)
+      if (!is.null(countryX)) periX <- data.table(countryX, periX)
+      periX <- periX[, .N, keyby = names(periX)][, N := NULL]
+      peri <- peri[, .N, keyby = names(peri)][, N := NULL]
+      if (any(peri != periX) & is.null(country)) stop("'unique(years)' and 'unique(yearsX)' records have different")
+      if (any(peri != periX) & !is.null(country)) stop("'unique(country, years)' and 'unique(countryX, yearsX)' records have different")
     } 
 
    # subperiodsX
    if (!is.null(X)) {
-      if(!is.null(subperiodsX)) {
-         subperiodsX <- data.table(subperiodsX)
-         yearsX[, (names(subperiodsX)) := lapply(.SD, as.character)]
-         if (any(is.na(subperiodsX))) stop("'subperiodsX' has missing values")
-         if (any(duplicated(names(subperiodsX)))) 
-                     stop("'subperiodsX' are duplicate column names: ", 
+      if (is.null(subperiodsX)) stop("'subperiodsX' must be defined")
+      subperiodsX <- data.table(subperiodsX)
+      subperiodsX[, (names(subperiodsX)) := lapply(.SD, as.character)]
+      if (any(is.na(subperiodsX))) stop("'subperiodsX' has missing values")
+      if (any(duplicated(names(subperiodsX)))) 
+                 stop("'subperiodsX' are duplicate column names: ", 
                           paste(names(subperiodsX)[duplicated(names(subperiodsX))], collapse = ","))
-         if (nrow(subperiodsX) != nrow(X)) stop("'subperiodsX' length must be equal with 'X' row count")
-         if (ncol(subperiodsX) != ncol(years)) stop("'subperiodsX' length must be equal with 'subperiods' column count")
-         if (names(subperiodsX) != names(subperiods)) stop("'subperiodsX' must be equal with 'subperiods' names")
-         peri <- data.table(years, subperiods)
-         periX <- data.table(yearsX, subperiodsX)
-         if (!is.null(country)) peri <- data.table(country, peri)
-         if (!is.null(countryX)) periX <- data.table(countryX, periX)
-         periX <- periX[, .N, keyby = names(periX)][, N := NULL]
-         peri <- peri[, .N, keyby = names(peri)][, N := NULL]
-         if (any(peri != periX) & is.null(country)) stop("'unique(years, subperiods)' and 'unique(yearsX, subperiodsX)' records have different")
-         if (any(peri != periX) & !is.null(country)) stop("'unique(country, years, subperiods)' and 'unique(countryX, yearsX, subperiodsX)' records have different")
-        } else if (!is.null(subperiodsX)) stop("'subperiodsX' must be defined")
+      if (nrow(subperiodsX) != nrow(X)) stop("'subperiodsX' length must be equal with 'X' row count")
+      if (ncol(subperiodsX) != ncol(years)) stop("'subperiodsX' length must be equal with 'subperiods' column count")
+      if (names(subperiodsX) != names(subperiods)) stop("'subperiodsX' must be equal with 'subperiods' names")
+      peri <- data.table(years, subperiods)
+      periX <- data.table(yearsX, subperiodsX)
+      if (!is.null(country)) peri <- data.table(country, peri)
+      if (!is.null(countryX)) periX <- data.table(countryX, periX)
+      periX <- periX[, .N, keyby = names(periX)][, N := NULL]
+      peri <- peri[, .N, keyby = names(peri)][, N := NULL]
+      if (any(peri != periX) & is.null(country)) stop("'unique(years, subperiods)' and 'unique(yearsX, subperiodsX)' records have different")
+      if (any(peri != periX) & !is.null(country)) stop("'unique(country, years, subperiods)' and 'unique(countryX, yearsX, subperiodsX)' records have different")
     } 
 
     # X_ID_level1
@@ -294,38 +297,31 @@
        if (!is.null(countryX)) {X_ID_level1 <- data.table(countryX, X_ID_level1)
                                 ID_level1h <- data.table(country, ID_level1h)}
        X_ID_level1 <- data.table(yearsX, subperiodsX, X_ID_level1)
-       ID_level1h <- data.table(years, subperiods, ID_level1h)}
+       ID_level1h <- data.table(years, subperiods, ID_level1h)
        ID_level1h <- ID_level1h[, .N, by = names(ID_level1h)][, N := NULL]
        if (nrow(X_ID_level1[,.N, by = names(X_ID_level1)][N > 1]) > 0) stop("'X_ID_level1' have duplicates")
        setkeyv(X_ID_level1, names(X_ID_level1))
        setkeyv(ID_level1h, names(ID_level1h))
        nperIDh <- names(ID_level1h)
-       if (any(nperIDh != names(X_ID_level1))) stop("'X_ID_level1' and 'ID_level1' must be equal  names")
+       if (any(nperIDh != names(X_ID_level1))) stop("'X_ID_level1' and 'ID_level1' must be equal names")
        if (ID_level1h[, class(get(nperIDh))] != X_ID_level1[, class(get(nperIDh))])  stop("Class for 'X_ID_level1' and class for 'ID_level1' must be equal ")
 
-       if (!is.null(period)) {
-           if (!is.null(country)) {
-                if (nrow(ID_level1h) != nrow(X_ID_level1)) stop("'unique(countryX, periodX, X_ID_level1)' and 'unique(country, period, ID_level1)' have different row count")
-                if (any(ID_level1h != X_ID_level1)) stop("''unique(countryX, periodX, X_ID_level1)' and 'unique(country, period, ID_level1)' records have different")
-               } else {
-                   if (nrow(ID_level1h) != nrow(X_ID_level1)) stop("'unique(periodX, X_ID_level1)' and 'unique(period, ID_level1)' have different row count")
-                   if (any(ID_level1h != X_ID_level1)) stop("''unique(periodX, X_ID_level1)' and 'unique(period, ID_level1)' records have different")  }
+       if (!is.null(country)) {
+           if (nrow(ID_level1h) != nrow(X_ID_level1)) stop("'unique(countryX, periodX, X_ID_level1)' and 'unique(country, period, ID_level1)' have different row count")
+           if (any(ID_level1h != X_ID_level1)) stop("''unique(countryX, periodX, X_ID_level1)' and 'unique(country, period, ID_level1)' records have different")
          } else {
-           if (!is.null(country)) {
-                if (nrow(ID_level1h) != nrow(X_ID_level1)) stop("'unique(countryX, X_ID_level1)' and 'unique(country, ID_level1)' have different row count")
-                if (any(ID_level1h != X_ID_level1)) stop("''unique(countryX, X_ID_level1)' and 'unique(country, ID_level1)' records have different")
-               } else {
-                if (nrow(ID_level1h) != nrow(X_ID_level1)) stop("'unique(X_ID_level1)' and 'unique(ID_level1)' have different row count")
-                if (any(ID_level1h != X_ID_level1)) stop("''unique(X_ID_level1)' and 'unique(ID_level1)' records have different") }
-    }}
+           if (nrow(ID_level1h) != nrow(X_ID_level1)) stop("'unique(periodX, X_ID_level1)' and 'unique(period, ID_level1)' have different row count")
+           if (any(ID_level1h != X_ID_level1)) stop("''unique(periodX, X_ID_level1)' and 'unique(period, ID_level1)' records have different")  }
+     }
 
    # ind_gr
    if (!is.null(X)) {
-      if(is.null(ind_gr)) ind_gr <- rep.int(1, nrow(X)) 
-      ind_gr <- data.table(ind_gr)
-      if (nrow(ind_gr) != nrow(X)) stop("'ind_gr' length must be equal with 'X' row count")
-      if (ncol(ind_gr) != 1) stop("'ind_gr' must be 1 column data.frame, matrix, data.table")
-      if (any(is.na(ind_gr))) stop("'ind_gr' has missing values")
+       if(is.null(ind_gr)) ind_gr <- rep("1", nrow(X)) 
+       ind_gr <- data.table(ind_gr)
+       if (nrow(ind_gr) != nrow(X)) stop("'ind_gr' length must be equal with 'X' row count")
+       if (ncol(ind_gr) != 1) stop("'ind_gr' must be 1 column data.frame, matrix, data.table")
+       ind_gr[, (names(ind_gr)) := lapply(.SD, as.character)]
+       if (any(is.na(ind_gr))) stop("'ind_gr' has missing values")
     }
 
    # X
@@ -375,6 +371,10 @@
 
    pers <- data.table(years, subperiods, 
                       pers = paste0(years[[names(years)]], "__", subperiods[[names(subperiods)]]))
+
+   if (!is.null(X)) persX <- data.table(yearsX, subperiodsX, 
+                                  pers = paste0(yearsX[[names(yearsX)]], "__", subperiodsX[[names(subperiodsX)]]))
+
    sarak <- pers[,.N, keyby = names(pers)][, N := NULL]
    
    namesDom <- names(Dom)
@@ -402,12 +402,12 @@
                                       Dom = Dom, Z = Z, country = country,
                                       period = pers[, "pers", with = FALSE], dataset = NULL,
                                       period1 = yrs[["pers_1"]], period2 = yrs[["pers_2"]],
-                                      X = X, countryX = countryX, periodX = periodX,
+                                      X = X, countryX = countryX, periodX = pers[, "pers", with = FALSE],
                                       X_ID_level1 = X_ID_level1, ind_gr = ind_gr,
                                       g = g, q = q, datasetX = NULL, annual = TRUE,
                                       linratio = !is.null(Z), percentratio = percentratio,
-                                      use.estVar = use.estVar, confidence = confidence,
-                                      change_type = "absolute")
+                                      use.estVar = use.estVar, outp_res = outp_res,
+                                      confidence = confidence, change_type = "absolute")
 
                  crossectional_results <- datas$crossectional_results
                  crossectional_results <- merge(sarak, crossectional_results, all.y = TRUE, by = "pers")
@@ -432,7 +432,7 @@
                  sar <- sar[sar %in% names(rho)]
                  rhoj <- rho[,.N, keyby=sar][, N := NULL]
 
-                 apstr <- lapply(1:ncol(Y), function(j){                               
+                 apstr <- lapply(1 : ncol(Y), function(j){                               
 
                                rho0 <- rhoj[j]
                                rho1 <- merge(rho0, rho, by = sar)[nams == "num2"]
@@ -473,10 +473,10 @@
                  sarsb <- sars[!(sars %in% yearm)]
                  sarc <- c("totalY", "totalZ")
                  sarc <- sarc[sarc %in% names(crossectional_var_grad)]
-                 ysum <- crossectional_var_grad[,lapply(.SD, mean), by = sars, .SDcols=sarc]
+                 ysum <- crossectional_var_grad[, lapply(.SD, mean), by = sars, .SDcols = sarc]
                  if (!is.null(ysum$namesZ)) {
-                              ysum[, estim:=totalY / totalZ * percentratio]
-                       } else ysum[, estim:=totalY]
+                              ysum[, estim := totalY / totalZ * percentratio]
+                       } else ysum[, estim := totalY]
                  ysum1 <- ysum[get(yearm) == year1[i][[1]], c(sarsb, "estim"), with = FALSE]
                  ysum2 <- ysum[get(yearm) == year2[i][[1]], c(sarsb, "estim"), with = FALSE]
                  setnames(ysum1, "estim", "estim_1")
@@ -489,7 +489,6 @@
                       crossectional_var_grad, grad_var,
                       rho, var_tau, vardchanges_results,
                       rho1, A_matrix, annual_changes, ysum)
-
    })
 
   crossectional_results <- rbindlist(lapply(apst, function(x) x[[1]]))
@@ -504,51 +503,51 @@
   annual_changes <- rbindlist(lapply(apst, function(x) x[[9]]))
   ysum <- rbindlist(lapply(apst, function(x) x[[10]]))
 
-  crossectional_results[, pers:=NULL]
-  crossectional_var_grad[, pers:=NULL]
-  grad_var[, (c("pers_1", "pers_2", "ids_1", "ids_2", "ids")):=NULL]
-  rho[, (c("pers_1", "pers_2", "ids_1", "ids_2", "ids")):=NULL]
-  var_tau[, (c("pers_1", "pers_2", "ids_1", "ids_2", "ids")):=NULL]
+  crossectional_results[, pers := NULL]
+  crossectional_var_grad[, pers := NULL]
+  grad_var[, (c("pers_1", "pers_2", "ids_1", "ids_2", "ids")) := NULL]
+  rho[, (c("pers_1", "pers_2", "ids_1", "ids_2", "ids")) := NULL]
+  var_tau[, (c("pers_1", "pers_2", "ids_1", "ids_2", "ids")) := NULL]
   vardchanges_results[, (c("pers_1", "pers_2",
-                           "ids_1", "ids_2", "ids")):=NULL]
+                           "ids_1", "ids_2", "ids")) := NULL]
 
   vars <- c(paste0(yearm, c(1,2)), yearm, names(country),
             namesDom, "namesY", "namesZ", "cols", "cros_se")
   X_annual <- X_annual[, vars[vars %in% names(X_annual)], with = FALSE]
 
   vars <- c(paste0(yearm, c(1,2)), names(country), namesDom, 
-            "namesY", "namesZ", "cols", paste0("V", 1:8))
+            "namesY", "namesZ", "cols", paste0("V", 1 : 8))
   A_matrix <- A_matrix[, vars[vars %in% names(A_matrix)], with = FALSE] 
 
   vars <- c(names(country), yearm, namesDom, "namesY", 
             "namesZ", "totalY", "totalZ", "estim")
   ysum <- ysum[, vars[vars %in% names(ysum)], with = FALSE] 
 
-  vars <- c(paste0(yearm, c(1,2)), names(country), namesDom, "namesY", 
-             "namesZ", paste0("estim_", c(1,2)), "estim", "var")       
+  vars <- c(paste0(yearm, c(1, 2)), names(country), namesDom, "namesY", 
+                 "namesZ", paste0("estim_", c(1, 2)), "estim", "var")       
   annual_changes <- annual_changes[, vars[vars %in% names(annual_changes)], with = FALSE] 
 
-  annual_changes[, var_est2:=var]  
-  annual_changes[xor(is.na(var_est2), var_est2 < 0), var_est2:=NA]  
-  annual_changes[, se:=sqrt(var_est2)]
-  annual_changes[, var_est2:=NULL]
+  annual_changes[, var_est2 := var]  
+  annual_changes[xor(is.na(var_est2), var_est2 < 0), var_est2 := NA]  
+  annual_changes[, se := sqrt(var_est2)]
+  annual_changes[, var_est2 := NULL]
 
-  tsad <- qnorm(0.5*(1+confidence))
-  annual_changes[, CI_lower:= estim - tsad * se]
-  annual_changes[, CI_upper:= estim + tsad * se]
+  tsad <- qnorm(0.5 * (1 + confidence))
+  annual_changes[, CI_lower := estim - tsad * se]
+  annual_changes[, CI_upper := estim + tsad * se]
 
   significant <- NULL
-  annual_changes[, significant:=TRUE]
-  annual_changes[CI_lower<=0 & CI_upper>=0, significant:=FALSE]
+  annual_changes[, significant := TRUE]
+  annual_changes[CI_lower <= 0 & CI_upper >= 0, significant := FALSE]
 
-  list(crossectional_results=crossectional_results,
-       crossectional_var_grad=crossectional_var_grad,
-       vardchanges_grad_var=grad_var,
-       vardchanges_rho=rho,
-       vardchanges_var_tau=var_tau,
-       vardchanges_results=vardchanges_results,
-       X_annual=X_annual, A_matrix=A_matrix,
-       annual_sum=ysum,  
-       annual_changes=annual_changes)
+  list(crossectional_results = crossectional_results,
+       crossectional_var_grad = crossectional_var_grad,
+       vardchanges_grad_var = grad_var,
+       vardchanges_rho = rho,
+       vardchanges_var_tau = var_tau,
+       vardchanges_results = vardchanges_results,
+       X_annual = X_annual, A_matrix = A_matrix,
+       annual_sum = ysum,  
+       annual_changes = annual_changes)
 
 }

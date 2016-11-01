@@ -290,10 +290,11 @@ vardomh <- function(Y, H, PSU, w_final,
 
   # ind_gr
   if (!is.null(X)) {
-     if(is.null(ind_gr)) ind_gr <- rep.int(1, nrow(X)) 
+     if(is.null(ind_gr)) ind_gr <- rep("1", nrow(X)) 
      ind_gr <- data.table(ind_gr)
      if (nrow(ind_gr) != nrow(X)) stop("'ind_gr' length must be equal with 'X' row count")
      if (ncol(ind_gr) != 1) stop("'ind_gr' must be 1 column data.frame, matrix, data.table")
+     ind_gr[, (names(ind_gr)) := lapply(.SD, as.character)]
      if (any(is.na(ind_gr))) stop("'ind_gr' has missing values")
    }
 

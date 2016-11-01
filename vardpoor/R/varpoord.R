@@ -363,10 +363,11 @@ varpoord <- function(Y, w_final,
 
   # ind_gr
   if (!is.null(X)) {
-     if(is.null(ind_gr)) ind_gr <- rep.int(1, nrow(X)) 
-     ind_gr <- data.table(ind_gr, check.names = TRUE)
+     if(is.null(ind_gr)) ind_gr <- rep("1", nrow(X)) 
+     ind_gr <- data.table(ind_gr)
      if (nrow(ind_gr) != nrow(X)) stop("'ind_gr' length must be equal with 'X' row count")
      if (ncol(ind_gr) != 1) stop("'ind_gr' must be 1 column data.frame, matrix, data.table")
+     ind_gr[, (names(ind_gr)) := lapply(.SD, as.character)]
      if (any(is.na(ind_gr))) stop("'ind_gr' has missing values")
    }
 
@@ -375,7 +376,7 @@ varpoord <- function(Y, w_final,
        X1 <- data.table(X, check.names = TRUE)
        nX1 <- names(X1)
        ind_gr1 <- copy(ind_gr) 
-       if (!is.null(periodX)) ind_gr1 <- data.table(periodX, ind_gr1, check.names=TRUE)
+       if (!is.null(periodX)) ind_gr1 <- data.table(periodX, ind_gr1, check.names = TRUE)
        X2 <- data.table(ind_gr1, X1)
        X1 <- X2[, .N, keyby = names(ind_gr1)][[ncol(ind_gr1) + 1]]
        X2 <- X2[, lapply(.SD, function(x) sum(!is.na(x))), keyby = names(ind_gr1), .SDcols = nX1]

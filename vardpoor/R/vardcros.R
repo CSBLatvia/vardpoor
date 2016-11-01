@@ -111,7 +111,7 @@ vardcros <- function(Y, H, PSU, w_final,
               if (min(q %in% names(datasetX)) != 1) stop("'q' does not exist in 'datasetX'!") 
               if (min(q %in% names(datasetX)) == 1) q <- datasetX[, q,  with = FALSE] } 
      }
-  equal_dataset <- all(dataset == datasetX)
+  equal_dataset <- all.equal(dataset, datasetX) & !is.null(X)
   if (equal_dataset) X_ID_level1 <- ID_level1
   if (equal_dataset) countryX <- country
 
@@ -231,7 +231,7 @@ vardcros <- function(Y, H, PSU, w_final,
         countrX <- countryX[, .N, keyby = names(countryX)][, N := NULL]
         countr <- country[, .N, keyby = names(country)][, N := NULL]
         if (any(countr != countrX)) stop("'unique(country)' and 'unique(countryX)' records have different")
-     } else if (!is.null(countryX)) stop("'countryX' must be defined")
+     } else if (!is.null(country)) stop("'countryX' must be defined")
   }
 
   # periodX
@@ -254,7 +254,7 @@ vardcros <- function(Y, H, PSU, w_final,
         peri <- peri[, .N, keyby = names(peri)][, N := NULL]
         if (any(peri != periX) & is.null(country)) stop("'unique(period)' and 'unique(periodX)' records have different")
         if (any(peri != periX) & !is.null(country)) stop("'unique(country, period)' and 'unique(countryX, periodX)' records have different")
-      } else if (!is.null(periodX)) stop("'periodX' must be defined")
+      } else if (is.null(periodX)) stop("'periodX' must be defined")
    } 
 
 
@@ -297,10 +297,11 @@ vardcros <- function(Y, H, PSU, w_final,
 
   # ind_gr
   if (!is.null(X)) {
-     if(is.null(ind_gr)) ind_gr <- rep.int(1, nrow(X)) 
+     if(is.null(ind_gr)) ind_gr <- rep("1", nrow(X)) 
      ind_gr <- data.table(ind_gr)
      if (nrow(ind_gr) != nrow(X)) stop("'ind_gr' length must be equal with 'X' row count")
      if (ncol(ind_gr) != 1) stop("'ind_gr' must be 1 column data.frame, matrix, data.table")
+     ind_gr[, (names(ind_gr)) := lapply(.SD, as.character)]
      if (any(is.na(ind_gr))) stop("'ind_gr' has missing values")
    }
 
@@ -442,8 +443,9 @@ vardcros <- function(Y, H, PSU, w_final,
    if (!is.null(namesZ)) varsYZ <- list(namesY, namesZ)
    DTagg <- melt(DTagg, id = c(namesperc, namesDom),
                         measure = varsYZ,
-                        variable.factor = FALSE)
-   setnames(DTagg, ifelse(!is.null(DTagg$value), "value", "value1"), "totalY")   
+                        variable.factor = FALSE)  
+
+   setnames(DTagg, ifelse(!is.null(DTagg$value1), "value1", "value"), "totalY")   
    if (!is.null(Z)) setnames(DTagg, "value2", "totalZ")
 
    DTagg <- merge(DTagg, vars,  by = "variable")[, variable := NULL]
@@ -629,8 +631,9 @@ vardcros <- function(Y, H, PSU, w_final,
 	
   res[, estim := totalY]
   res[, var := num1]
+  if (!is.null(res$totalZ)) res[, estim := totalY / totalZ * percentratio]
+
   if (!is.null(res$totalZ) & !linratio) { 
-                    res[, estim := totalY / totalZ * percentratio]
                     res[, var :=  (grad1 * grad1 * num1) +
                                   (grad2 * grad2 * den1) +
                               2 * (grad1 * grad2 * num_den1)] 

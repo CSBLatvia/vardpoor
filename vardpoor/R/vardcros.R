@@ -254,7 +254,7 @@ vardcros <- function(Y, H, PSU, w_final,
         peri <- peri[, .N, keyby = names(peri)][, N := NULL]
         if (any(peri != periX) & is.null(country)) stop("'unique(period)' and 'unique(periodX)' records have different")
         if (any(peri != periX) & !is.null(country)) stop("'unique(country, period)' and 'unique(countryX, periodX)' records have different")
-      } else if (is.null(periodX)) stop("'periodX' must be defined")
+      } else if (!is.null(period)) stop("'periodX' must be defined")
    } 
 
 

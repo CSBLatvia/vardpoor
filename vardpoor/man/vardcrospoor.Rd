@@ -7,27 +7,21 @@
 \description{Computes the variance estimation for cross-sectional and longitudinal measures for indicators on social exclusion and poverty.}
 
 \usage{
-vardcrospoor(Y, 
-                     age=NULL,
-                     pl085 = NULL,
-                     month_at_work = NULL,
-                     Y_den=NULL,
-                     Y_thres = NULL,
-                     wght_thres = NULL, 
-                     H, PSU, w_final, ID_level2,
-                     Dom = NULL,
-                     country, periods,
-                     sort=NULL,
-                     gender = NULL,
-                     percentage=60,
-                     order_quant=50,
-                     alpha = 20,
-                     dataset = NULL,
-                     use.estVar = FALSE,
-                     withperiod = TRUE,
-                     netchanges = TRUE,
-                     confidence = .95,
-                     type="linrmpg")
+vardcrospoor(Y, age = NULL, pl085 = NULL,
+             month_at_work = NULL, Y_den = NULL,
+             Y_thres = NULL,  wght_thres = NULL, 
+             H, PSU, w_final, ID_level1, ID_level2,
+             Dom = NULL, country = NULL,
+             period, sort = NULL, gender = NULL,
+             dataset = NULL, countryX = NULL,
+             periodX = NULL, X_ID_level1 = NULL,
+             ind_gr = NULL, g = NULL, q = NULL,
+             datasetX = NULL, percentage = 60,
+             order_quant = 50, alpha = 20,
+             use.estVar = FALSE, withperiod = TRUE,
+             netchanges = TRUE, confidence = .95,
+             outp_lin = FALSE, outp_res = FALSE,
+             type = "linrmpg")
 }
 
 \arguments{
@@ -55,17 +49,37 @@ vardcrospoor(Y,
 
 \item{w_final}{Weight variable. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.}
 
-\item{ID_level2}{variable for unit ID codes (for household surveys - secondary unit id number). One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.}
+\item{ID_level1}{Variable for level1 ID codes. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.}
+
+\item{ID_level2}{Optional variable for unit ID codes. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.}
 
 \item{Dom}{Optional variables used to define population domains. If supplied, variables are calculated for each domain. An object convertible to \code{data.table} or variable names as character vector, column numbers.}
 
 \item{country}{Variable for the survey countries. The values for each country are computed independently. Object convertible to \code{data.table} or variable names as character, column numbers.}
 
-\item{periods}{Variable for the survey periods. The values for each period are computed independently. Object convertible to \code{data.table} or variable names as character, column numbers.}
+\item{period}{Variable for the survey periods. The values for each period are computed independently. Object convertible to \code{data.table} or variable names as character, column numbers.}
 
 \item{sort}{Optional variable to be used as tie-breaker for sorting. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.}
 
 \item{gender}{Numerical variable for gender, where 1 is for males, but 2 is for females. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.}
+
+\item{dataset}{Optional survey data object convertible to \code{data.table}.}
+
+\item{X}{Optional matrix of the auxiliary variables for the calibration estimator. Object convertible to \code{data.table} or variable names as character, column numbers.}
+
+\item{countryX}{Optional variable for the survey countries. The values for each country are computed independently. Object convertible to \code{data.table} or variable names as character, column numbers.}
+
+\item{periodX}{Optional variable of the survey periods and countries. If supplied, residual estimation of calibration is done independently for each time period. Object convertible to \code{data.table} or variable names as character, column numbers.}
+
+\item{X_ID_level1}{Variable for level1 ID codes. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.}
+
+\item{ind_gr}{Optional variable by which divided independently X matrix of the auxiliary variables for the calibration. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.}
+
+\item{g}{Optional variable of the g weights. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.}
+
+\item{q}{Variable of the positive values accounting for heteroscedasticity. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.}
+
+\item{datasetX}{Optional survey data object in household level convertible to \code{data.table}.}
 
 \item{percentage}{A numeric value in range \eqn{[0,100]} for \eqn{p} in the formula for poverty threshold computation:
 \deqn{\frac{p}{100} \cdot Z_{\frac{\alpha}{100}}.}{p/100 * Z(\alpha/100).}
@@ -77,8 +91,6 @@ For example, to compute poverty threshold equal to some percentage of median inc
 
 \item{alpha}{a numeric value in range \eqn{[0,100]} for the order of the income quantile share ratio (in percentage).}
 
-\item{dataset}{Optional survey data object convertible to \code{data.table}.}
-
 \item{use.estVar}{Logical value. If value is \code{TRUE}, then \code{R} function \code{estVar} is used for the  estimation of covariance matrix of the residuals. If value is \code{FALSE}, then \code{R} function \code{estVar} is not used for the estimation of covariance matrix of the residuals.}
  
 \item{withperiod}{Logical value. If \code{TRUE} is value, the results is with period, if \code{FALSE}, without period.}
@@ -87,13 +99,21 @@ For example, to compute poverty threshold equal to some percentage of median inc
 
 \item{confidence}{Optional positive value for confidence interval. This variable by default is 0.95.}
 
+\item{outp_lin}{Logical value. If \code{TRUE} linearized values of the ratio estimator will be printed out.}
+
+\item{outp_res}{Logical value. If \code{TRUE} estimated residuals of calibration will be printed out.}
+
 \item{type}{a character vector (of length one unless several.ok is TRUE), example "linarpr","linarpt", "lingpg", "linpoormed", "linrmpg",
    "lingini", "lingini2", "linqsr", "linarr", "linrmir", "all_choices".}
 }
 
 \value{
 
-  A list with two objects are returned by the function:
+  A list with objects are returned by the function:
+
+  \item{lin_out}{A \code{data.table} containing the linearized values of the ratio estimator with ID_level2 and PSU.}
+
+  \item{res_out}{A \code{data.table} containing the estimated residuals of calibration with ID_level1 and PSU.}
 
   \item{data_net_changes}{ A \code{data.table} containing aggregation of weighted data by period (if available), country, strata, PSU.}
 
@@ -130,58 +150,54 @@ data(eusilc)
 set.seed(1)
 
 data <- data.table(rbind(eusilc, eusilc),
-                   year=c(rep(2010, nrow(eusilc)),
-                          rep(2011, nrow(eusilc))),
-                   country=c(rep("AT", nrow(eusilc)),
-                             rep("AT", nrow(eusilc))))
-data[age<0, age:=0]
-PSU <- data[,.N, keyby="db030"]
-PSU[, N:=NULL]
-PSU[, PSU:=trunc(runif(nrow(PSU), 0, 100))]
+                   year = c(rep(2010, nrow(eusilc)),
+                            rep(2011, nrow(eusilc))))
+data[age < 0, age := 0]
+PSU <- data[, .N, keyby="db030"][, N:=NULL]
+PSU[, PSU := trunc(runif(nrow(PSU), 0, 100))]
 PSU$inc <- runif(nrow(PSU), 20, 100000)
-data <- merge(data, PSU, all=TRUE, by="db030")
+data <- merge(data, PSU, all = TRUE, by = "db030")
 PSU <- eusilc <- NULL
 data[, strata:=c("XXXX")]
-data[, strata:=as.character(strata)]
-data$pl085 <- 12*trunc(runif(nrow(data),0,2))
-data$month_at_work <- 12*trunc(runif(nrow(data),0,2))
+data$pl085 <- 12 * trunc(runif(nrow(data), 0, 2))
+data$month_at_work <- 12 * trunc(runif(nrow(data), 0, 2))
+data[, id_l2 := .I]
 
-result <- vardcrospoor(Y="inc", age="age",
-                     pl085="pl085", 
-                     month_at_work="month_at_work",
-                     Y_den="inc", Y_thres="inc",
-                     wght_thres="rb050",
-                     H="strata", PSU="PSU", 
-                     w_final="rb050",  ID_level2=NULL,
-                     Dom = c("rb090", "db040"),
-                     country="country", periods="year",
-                     sort=NULL,
-                     gender = NULL,
-                     percentage=60,
-                     order_quant=50,
-                     alpha = 20,
-                     dataset = data,
-                     confidence=0.95,
-                     type="linrmpg")
+result <- vardcrospoor(Y = "inc", age = "age",
+                       pl085 = "pl085", 
+                       month_at_work = "month_at_work",
+                       Y_den = "inc", Y_thres = "inc",
+                       wght_thres = "rb050",
+                       H = "strata", PSU = "PSU", 
+                       w_final="rb050", ID_level1 = "db030",
+                       ID_level2 = "id_l2",
+                       Dom = c("rb090", "db040"),
+                       country = "country", period = "year",
+                       sort = NULL, gender = NULL,
+                       dataset = data,
+                       percentage = 60,
+                       order_quant = 50,
+                       alpha = 20,
+                       confidence = 0.95,
+                       type = "linrmpg")
 
 \dontrun{
-result2 <- vardcrospoor(Y="inc",  age="age",
-                     pl085="pl085", 
-                     month_at_work="month_at_work",
-                     Y_den="inc", Y_thres="inc",
-                     wght_thres="rb050",
-                     H="strata", PSU="PSU", 
-                     w_final="rb050", ID_level2=NULL,
-                     Dom = c("rb090", "db040"),
-                     country="country", periods="year",
-                     sort=NULL,
-                     gender = NULL,
-                     percentage=60,
-                     order_quant=50,
-                     alpha = 20,
-                     dataset = data,
-                     confidence=0.95,
-                     type="linrmpg")}
+result2 <- vardcrospoor(Y = "inc", age = "age",
+                        pl085 = "pl085", 
+                        month_at_work = "month_at_work",
+                        Y_den = "inc", Y_thres = "inc",
+                        wght_thres = "rb050",
+                        H = "strata", PSU = "PSU", 
+                        w_final = "rb050", ID_level1 = "db030",
+                        ID_level2 = "id_l2",
+                        Dom = c("rb090", "db040"),
+                        period = "year", sort = NULL,
+                        gender = NULL, dataset = data,
+                        percentage = 60,
+                        order_quant = 50,
+                        alpha = 20,
+                        confidence = 0.95,
+                        type = "linrmpg")}
 }
 
 

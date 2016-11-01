@@ -182,8 +182,8 @@ eusilc1 <- eusilc[1:40,]
 
 set.seed(1)
 data <- data.table(rbind(eusilc1, eusilc1),
-                   year=c(rep(2010, nrow(eusilc1)),
-                          rep(2011, nrow(eusilc1))))
+                   year = c(rep(2010, nrow(eusilc1)),
+                            rep(2011, nrow(eusilc1))))
 data[age < 0, age := 0]
 PSU <- data[, .N, keyby = "db030"][, N := NULL]
 PSU[, PSU := trunc(runif(nrow(PSU), 0, 5))]
@@ -196,14 +196,14 @@ data[, exp := 1]
 
 # At-risk-of-poverty (AROP)
 data[, pov := ifelse (t_pov == 1, 1, 0)]
- 
+data[, id_lev2 := .I]
+
 result <- vardchanges(Y = "pov", H = "strata", 
                       PSU = "PSU", w_final = "rb050",
-                      ID_level1 = "db030", Dom = NULL,
-                      Z = NULL, periods = "year",
-                      dataset = data,
-                      period1 = 2010, period2 = 2011,
-                      change_type = "absolute")
+                      ID_level1 = "db030", ID_level2 = "id_lev2",
+                      Dom = NULL, Z = NULL, period = "year",
+                      dataset = data, period1 = 2010,
+                      period2 = 2011, change_type = "absolute")
  
 \dontrun{
 data("eusilc")
@@ -235,13 +235,14 @@ data[, lwi := ifelse (t_lwi == 1 & exp2 == 1, 1, 0)]
 # At-risk-of-poverty or social exclusion (AROPE)
 data[, arope := ifelse (pov == 1 | dep == 1 | lwi == 1, 1, 0)]
 data[, dom := 1]
+data[, id_lev2 := .I]
 
 result <- vardchanges(Y = c("pov", "dep", "lwi", "arope"),
                       H = "strata", PSU = "PSU", w_final = "rb050",
-                      ID_level1 = "db030", Dom = "rb090", Z = NULL,
-                      periods = "year", dataset = data,
-                      period1 = 2010, period2 = 2011,
-                      change_type = "absolute")
+                      ID_level1 = "db030", ID_level2 = "id_lev2",
+                      Dom = "rb090", Z = NULL, period = "year",
+                      dataset = data, period1 = 2010, 
+                      period2 = 2011, change_type = "absolute")
 }
 }
 

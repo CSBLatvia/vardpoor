@@ -3,14 +3,19 @@ vardcrospoor <- function(Y, age = NULL, pl085 = NULL,
                          month_at_work = NULL, Y_den = NULL,
                          Y_thres = NULL,  wght_thres = NULL, 
                          H, PSU, w_final, ID_level2,
-                         Dom = NULL, country, periods,
-                         sort = NULL, gender = NULL,
-                         percentage = 60, order_quant = 50,
-                         alpha = 20, dataset = NULL,
+                         Dom = NULL, country = NULL,
+                         period, sort = NULL, gender = NULL,
+                         dataset = NULL, countryX = NULL,
+                         periodX = NULL, X_ID_level1 = NULL,
+                         ind_gr = NULL, g = NULL, q = NULL,
+                         datasetX = NULL, percentage = 60,
+                         order_quant = 50, alpha = 20,
                          use.estVar = FALSE,
                          withperiod = TRUE,
                          netchanges = TRUE,
                          confidence = .95,
+                         outp_lin = FALSE,
+                         outp_res = FALSE,
                          type = "linrmpg") {
   ### Checking
 
@@ -55,40 +60,54 @@ vardcrospoor <- function(Y, age = NULL, pl085 = NULL,
       if(!is.null(age)) {
           if (min(age %in% names(dataset)) != 1) stop("'age' does not exist in 'dataset'!")
           if (min(age %in% names(dataset)) == 1) age <- dataset[, age, with = FALSE] }
+
       if(!is.null(pl085)) {
           if (min(pl085 %in% names(dataset)) != 1) stop("'pl085' does not exist in 'dataset'!")
           if (min(pl085 %in% names(dataset)) == 1) pl085 <- dataset[, pl085, with = FALSE] }
+
       if(!is.null(month_at_work)) {
           if (min(month_at_work %in% names(dataset)) != 1) stop("'month_at_work' does not exist in 'dataset'!")
           if (min(month_at_work %in% names(dataset)) == 1) month_at_work <- dataset[, month_at_work, with = FALSE] }
+
       if(!is.null(Y_den)) {
           if (min(Y_den %in% names(dataset)) != 1) stop("'Y_den' does not exist in 'dataset'!")
           if (min(Y_den %in% names(dataset)) == 1) Y_den <- dataset[, Y_den, with = FALSE] }
+
       if(!is.null(Y_thres)) {
           if (min(Y_thres %in% names(dataset)) != 1) stop("'Y_thres' does not exist in 'dataset'!")
           if (min(Y_thres %in% names(dataset)) == 1) Y_thres <- dataset[, Y_thres, with = FALSE] }    
+
       if(!is.null(wght_thres)) {
           if (min(wght_thres %in% names(dataset)) != 1) stop("'wght_thres' does not exist in 'dataset'!")
           if (min(wght_thres %in% names(dataset)) == 1) wght_thres <- dataset[, wght_thres, with = FALSE] }
+
       if(!is.null(H)) {
           if (min(H %in% names(dataset)) != 1) stop("'H' does not exist in 'dataset'!")
           if (min(H %in% names(dataset)) == 1) H <- dataset[, H, with = FALSE]  }
-      if(!is.null(ID_level2)) {
-          if (min(ID_level2 %in% names(dataset)) != 1) stop("'ID_level2' does not exist in 'dataset'!")
-          if (min(ID_level2 %in% names(dataset)) == 1) ID_level2 <- dataset[, ID_level2, with = FALSE] }
+
      if(!is.null(PSU)) {
           if (min(PSU %in% names(dataset)) != 1) stop("'PSU' does not exist in 'dataset'!")
           if (min(PSU %in% names(dataset)) == 1) PSU <- dataset[, PSU, with = FALSE] }
-      if(!is.null(w_final)) {
+
+     if(!is.null(w_final)) {
           if (min(w_final %in% names(dataset)) != 1) stop("'w_final' does not exist in 'dataset'!")
           if (min(w_final %in% names(dataset)) == 1) w_final <- dataset[, w_final, with = FALSE] }
-      if(!is.null(country)) {
+
+     if(!is.null(ID_level1)) {
+          if (min(ID_level1 %in% names(dataset)) != 1) stop("'ID_level1' does not exist in 'dataset'!")
+          if (min(ID_level1 %in% names(dataset)) == 1) ID_level1 <- dataset[, ID_level1, with = FALSE] }
+
+     if(!is.null(ID_level2)) {
+          if (min(ID_level2 %in% names(dataset)) != 1) stop("'ID_level2' does not exist in 'dataset'!")
+          if (min(ID_level2 %in% names(dataset)) == 1) ID_level2 <- dataset[, ID_level2, with = FALSE] }
+  
+     if(!is.null(country)) {
           if (min(country %in% names(dataset)) != 1) stop("'country' does not exist in 'dataset'!")
           if (min(country %in% names(dataset)) == 1) country <- dataset[, country, with = FALSE]  }
 
-      if(!is.null(periods)) {
-          if (min(periods %in% names(dataset)) != 1) stop("'periods' does not exist in 'dataset'!")
-          if (min(periods %in% names(dataset)) == 1) periods <- dataset[, periods, with = FALSE] }
+     if(!is.null(period)) {
+          if (min(period %in% names(dataset)) != 1) stop("'period' does not exist in 'dataset'!")
+          if (min(period %in% names(dataset)) == 1) period <- dataset[, period, with = FALSE] }
 
       if(!is.null(gender)) {
           if (min(gender %in% names(dataset)) != 1) stop("'gender' does not exist in 'dataset'!")
@@ -103,18 +122,49 @@ vardcrospoor <- function(Y, age = NULL, pl085 = NULL,
           if (min(Dom %in% names(dataset)) == 1) Dom <- dataset[, Dom, with = FALSE] }
       }
 
+   if (is.null(datasetX)) datasetX <- copy(dataset)
+   if(!is.null(datasetX)) {
+          datasetX <- data.table(datasetX)
+          if (!is.null(countryX)) {
+               if (min(countryX %in% names(datasetX)) != 1) stop("'countryX' does not exist in 'datasetX'!")
+               if (min(countryX %in% names(datasetX)) == 1) countryX <- datasetX[, countryX,  with = FALSE] }
+
+          if (!is.null(periodX)) {
+               if (min(periodX %in% names(datasetX)) != 1) stop("'periodX' does not exist in 'datasetX'!")
+               if (min(periodX %in% names(datasetX)) == 1) periodX <- datasetX[, periodX,  with = FALSE] }
+
+          if(!is.null(X)) {
+              if (min(X %in% names(datasetX)) != 1) stop("'X' does not exist in 'datasetX'!")
+              if (min(X %in% names(datasetX)) == 1) X <- datasetX[, X,  with = FALSE] }
+
+          if(!is.null(ind_gr)) {
+              if (min(ind_gr %in% names(datasetX)) != 1) stop("'ind_gr' does not exist in 'datasetX'!")
+              if (min(ind_gr %in% names(datasetX)) == 1) ind_gr <- datasetX[, ind_gr,  with = FALSE] }     
+              
+          if(!is.null(g)) {
+              if (min(g %in% names(datasetX)) != 1) stop("'g' does not exist in 'datasetX'!")
+              if (min(g %in% names(datasetX)) == 1) g <- datasetX[, g,  with = FALSE] }
+
+          if(!is.null(q)) {
+              if (min(q %in% names(datasetX)) != 1) stop("'q' does not exist in 'datasetX'!") 
+              if (min(q %in% names(datasetX)) == 1) q <- datasetX[, q,  with = FALSE] } 
+     }
+  equal_dataset <- all.equal(dataset, datasetX) & !is.null(X)
+  if (equal_dataset) X_ID_level1 <- ID_level1
+  if (equal_dataset) countryX <- country
+
   # Y
   Y <- data.frame(Y)
   n <- nrow(Y)
   if (ncol(Y) != 1) stop("'Y' must be a vector or 1 column data.frame, matrix, data.table")
-  Y <- Y[,1]
+  Y <- Y[, 1]
   if (!is.numeric(Y)) stop("'Y' must be numeric")
   if (any(is.na(Y))) stop("'Y' has missing values")
 
-   if (!is.null(Y_den)) {
+  if (!is.null(Y_den)) {
           Y_den <- data.frame(Y_den)
-          if (ncol(Y_den)  !=  1) stop("'Y_den' must be a vector or 1 column data.frame, matrix, data.table")
-          if (nrow(Y_den)  !=  n) stop("'Y_den' must be the same length as 'Y'")
+          if (ncol(Y_den) != 1) stop("'Y_den' must be a vector or 1 column data.frame, matrix, data.table")
+          if (nrow(Y_den) != n) stop("'Y_den' must be the same length as 'Y'")
           Y_den <- Y_den[, 1]
           if(!is.numeric(Y_den)) stop("'Y_den' must be numeric")
           if (any(is.na(Y_den))) stop("'Y_den' has missing values")
@@ -173,22 +223,14 @@ vardcrospoor <- function(Y, age = NULL, pl085 = NULL,
   if (nrow(H) != n) stop("'H' length must be equal with 'Y' row count")
   if (ncol(H) != 1) stop("'H' must be 1 column data.frame, matrix, data.table")
   if (is.null(names(H))) stop("'H' must have column names")
-  H[, (names(H)):= lapply(.SD, as.character)]
+  H[, (names(H)) := lapply(.SD, as.character)]
   if (any(is.na(H))) stop("'H' has missing values")
-
-  # ID_level2
-  if (is.null(ID_level2)) ID_level2 <- 1 : n
-  ID_level2 <- data.table(ID_level2)
-  if (any(is.na(ID_level2))) stop("'ID_level2' has missing values")
-  if (nrow(ID_level2) != n) stop("'ID_level2' length must be equal with 'Y' row count")
-  if (ncol(ID_level2) != 1) stop("'ID_level2' must be 1 column data.frame, matrix, data.table")
-  if (is.null(names(ID_level2)) | (names(id) == "ID_level2")) setnames(ID_level2, names(ID_level2), "h_ID")
 
   # PSU
   PSU <- data.table(PSU)
   if (nrow(PSU) != n) stop("'PSU' length must be equal with 'Y' row count")
   if (ncol(PSU) != 1) stop("'PSU' has more than 1 column")
-  PSU[, (names(PSU)):= lapply(.SD, as.character)]
+  PSU[, (names(PSU)) := lapply(.SD, as.character)]
   if (any(is.na(PSU))) stop("'PSU' has missing values")
   
   # gender
@@ -218,20 +260,40 @@ vardcrospoor <- function(Y, age = NULL, pl085 = NULL,
   if (!is.numeric(w_final)) stop("'w_final' must be numeric")
   if (any(is.na(w_final))) stop("'w_final' has missing values") 
   
-  # country
-  country <- data.table(country)
-  if (nrow(country) != n) stop("'country' length must be equal with 'Y' row count")
-  if (ncol(country) != 1) stop("'country' has more than 1 column")
-  country[, (names(country)):= lapply(.SD, as.character)]
-  if (any(is.na(country))) stop("'country' has missing values")
+  # ID_level1
+  if (is.null(ID_level1)) stop("'ID_level1' must be defined")
+  ID_level1 <- data.table(ID_level1)
+  ID_level1[, (names(ID_level1)) := lapply(.SD, as.character)]
+  if (any(is.na(ID_level1))) stop("'ID_level1' has missing values")
+  if (ncol(ID_level1) != 1) stop("'ID_level1' must be 1 column data.frame, matrix, data.table")
+  if (nrow(ID_level1) != n) stop("'ID_level1' must be the same length as 'Y'")
 
-  # periods
+  # ID_level2
+  ID_level2 <- data.table(ID_level2)
+  ID_level2[, (names(ID_level2)) := lapply(.SD, as.character)]
+  if (any(is.na(ID_level2))) stop("'ID_level2' has missing values")
+  if (nrow(ID_level2) != n) stop("'ID_level2' length must be equal with 'Y' row count")
+  if (ncol(ID_level2) != 1) stop("'ID_level2' must be 1 column data.frame, matrix, data.table")
+  if (names(ID_level2) == names(ID_level1)) setnames(ID_level2, names(ID_level2), paste0(names(ID_level2), "_id"))
+
+  # country
+  if (!is.null(country)){
+        country <- data.table(country)
+        country[, (names(country)) := lapply(.SD, as.character)]
+        if (any(is.na(country))) stop("'country' has missing values")
+        if (names(country) == "percoun") stop("'country' must be different name")
+        if (nrow(country) != n) stop("'country' length must be equal with 'Y' row count")
+        if (ncol(country) != 1) stop("'country' has more than 1 column")
+    } 
+
+  # period
   if (withperiod) {
-        periods <- data.table(periods)
-        if (nrow(periods) != n) stop("'periods' length must be equal with 'Y' row count")
-        periods[, (names(periods)):= lapply(.SD, as.character)]
-        if (any(is.na(periods))) stop("'periods' has missing values")
-    } else if (!is.null(periods)) stop("'periods' must be NULL for those data")
+        period <- data.table(period)
+        period[, (names(period)) := lapply(.SD, as.character)]
+        if (any(is.na(period))) stop("'period' has missing values")
+        if (names(period) == "percoun") stop("'period' must be different name")
+        if (nrow(period) != n) stop("'period' length must be equal with 'Y' row count")
+    } else if (!is.null(period)) stop("'period' must be NULL for those data")
 
   # Dom
   namesDom <- NULL
@@ -247,6 +309,118 @@ vardcrospoor <- function(Y, age = NULL, pl085 = NULL,
     if (any(is.na(Dom))) stop("'Dom' has missing values")
     if (any(grepl("__", names(Dom)))) stop("'Dom' is not allowed column names with '__'")
   }
+
+  # periodX
+  if (!is.null(X)) {
+     if(!is.null(periodX)) {
+        periodX <- data.table(periodX)
+        periodX[, (names(periodX)) := lapply(.SD, as.character)]
+        if (any(is.na(periodX))) stop("'periodX' has missing values")
+        if (any(duplicated(names(periodX)))) 
+                    stop("'periodX' are duplicate column names: ", 
+                         paste(names(periodX)[duplicated(names(periodX))], collapse = ","))
+        if (nrow(periodX) != nrow(X)) stop("'periodX' length must be equal with 'X' row count")
+        if (ncol(periodX) != ncol(period)) stop("'periodX' length must be equal with 'period' column count")
+        if (names(periodX) != names(period)) stop("'periodX' must be equal with 'periods' names")
+        peri <- copy(period)
+        periX <- copy(periodX)
+        if (!is.null(country)) peri <- data.table(country, peri)
+        if (!is.null(countryX)) periX <- data.table(countryX, periX)
+        periX <- periX[, .N, keyby = names(periX)][, N := NULL]
+        peri <- peri[, .N, keyby = names(peri)][, N := NULL]
+        if (any(peri != periX) & is.null(country)) stop("'unique(period)' and 'unique(periodX)' records have different")
+        if (any(peri != periX) & !is.null(country)) stop("'unique(country, period)' and 'unique(countryX, periodX)' records have different")
+      } else if (!is.null(period)) stop("'periodX' must be defined")
+   } 
+
+
+  # X_ID_level1
+  if (!is.null(X)) {
+    X_ID_level1 <- data.table(X_ID_level1)
+    X_ID_level1[, (names(X_ID_level1)) := lapply(.SD, as.character)]
+    if (any(is.na(X_ID_level1))) stop("'X_ID_level1' has missing values")
+    if (nrow(X) != nrow(X_ID_level1)) stop("'X' and 'X_ID_level1' have different row count")
+    if (ncol(X_ID_level1) != 1) stop("'X_ID_level1' must be 1 column data.frame, matrix, data.table")
+
+    ID_level1h <- copy(ID_level1)
+    if (!is.null(countryX)) {X_ID_level1 <- data.table(countryX, X_ID_level1)
+                             ID_level1h <- data.table(country, ID_level1h)}
+    if (!is.null(periodX)) {X_ID_level1 <- data.table(periodX, X_ID_level1)
+                            ID_level1h <- data.table(period, ID_level1h)}
+    ID_level1h <- ID_level1h[, .N, by = names(ID_level1h)][, N := NULL]
+    if (nrow(X_ID_level1[,.N, by = names(X_ID_level1)][N > 1]) > 0) stop("'X_ID_level1' have duplicates")
+    setkeyv(X_ID_level1, names(X_ID_level1))
+    setkeyv(ID_level1h, names(ID_level1h))
+    nperIDh <- names(ID_level1h)
+    if (any(nperIDh != names(X_ID_level1))) stop("'X_ID_level1' and 'ID_level1' must be equal  names")
+    if (ID_level1h[, class(get(nperIDh))] != X_ID_level1[, class(get(nperIDh))])  stop("Class for 'X_ID_level1' and class for 'ID_level1' must be equal ")
+
+    if (!is.null(period)) {
+        if (!is.null(country)) {
+             if (nrow(ID_level1h) != nrow(X_ID_level1)) stop("'unique(countryX, periodX, X_ID_level1)' and 'unique(country, period, ID_level1)' have different row count")
+             if (any(ID_level1h != X_ID_level1)) stop("''unique(countryX, periodX, X_ID_level1)' and 'unique(country, period, ID_level1)' records have different")
+            } else {
+                if (nrow(ID_level1h) != nrow(X_ID_level1)) stop("'unique(periodX, X_ID_level1)' and 'unique(period, ID_level1)' have different row count")
+                if (any(ID_level1h != X_ID_level1)) stop("''unique(periodX, X_ID_level1)' and 'unique(period, ID_level1)' records have different")  }
+      } else {
+        if (!is.null(country)) {
+             if (nrow(ID_level1h) != nrow(X_ID_level1)) stop("'unique(countryX, X_ID_level1)' and 'unique(country, ID_level1)' have different row count")
+             if (any(ID_level1h != X_ID_level1)) stop("''unique(countryX, X_ID_level1)' and 'unique(country, ID_level1)' records have different")
+            } else {
+             if (nrow(ID_level1h) != nrow(X_ID_level1)) stop("'unique(X_ID_level1)' and 'unique(ID_level1)' have different row count")
+             if (any(ID_level1h != X_ID_level1)) stop("''unique(X_ID_level1)' and 'unique(ID_level1)' records have different") }
+   }}
+
+  # ind_gr
+  if (!is.null(X)) {
+     if(is.null(ind_gr)) ind_gr <- rep("1", nrow(X)) 
+     ind_gr <- data.table(ind_gr)
+     if (nrow(ind_gr) != nrow(X)) stop("'ind_gr' length must be equal with 'X' row count")
+     if (ncol(ind_gr) != 1) stop("'ind_gr' must be 1 column data.frame, matrix, data.table")
+     ind_gr[, (names(ind_gr)) := lapply(.SD, as.character)]
+     if (any(is.na(ind_gr))) stop("'ind_gr' has missing values")
+   }
+
+  # X
+  if (!is.null(X)) {
+       X1 <- data.table(X, check.names = TRUE)
+       nX1 <- names(X1)
+       ind_gr1 <- copy(ind_gr) 
+       if (!is.null(periodX)) ind_gr1 <- data.table(periodX, ind_gr1, check.names = TRUE)
+       X2 <- data.table(ind_gr1, X1)
+       X1 <- X2[, .N, keyby = names(ind_gr1)][[ncol(ind_gr1) + 1]]
+       X2 <- X2[, lapply(.SD, function(x) sum(!is.na(x))), keyby = names(ind_gr1), .SDcols = nX1]
+       X2 <- X2[, !(names(X2) %in% names(ind_gr1)), with = FALSE]
+
+       if (!all(X2 == 0 | X1 == X2)) stop("X has missing values")
+       ind_gr1 <- nX1 <- nX2 <- X1 <- X2 <- NULL
+    }
+
+  # g
+  if (!is.null(X)) {
+    if (is.null(class(g)) | all(class(g) == "function")) stop("'g' must be numeric")
+    g <- data.frame(g)
+    if (nrow(g) != nrow(X)) stop("'g' length must be equal with 'X' row count")
+    if (ncol(g) != 1) stop("'g' must be 1 column data.frame, matrix, data.table")
+    g <- g[, 1]
+    if (!is.numeric(g)) stop("'g' must be numeric")
+    if (any(is.na(g))) stop("'g' has missing values")
+    if (any(g == 0)) stop("'g' value can not be 0")
+   }
+    
+  # q
+  if (!is.null(X)) {
+    if (is.null(q))  q <- rep(1, nrow(X))
+    if (is.null(class(q)) | all(class(q) == "function")) stop("'q' must be numeric")
+    q <- data.frame(q)
+    if (nrow(q) != nrow(X)) stop("'q' length must be equal with 'X' row count")
+    if (ncol(q) != 1) stop("'q' must be 1 column data.frame, matrix, data.table")
+    q <- q[, 1]
+    if (!is.numeric(q)) stop("'q' must be numeric")
+    if (any(is.na(q))) stop("'q' has missing values")
+    if (any(is.infinite(q))) stop("'q' value can not be infinite")
+  }
+  
     
   # Calculation
   Dom1 <- n_h <- stratasf <- name1 <- nhcor <- n_h <- var <- NULL
@@ -254,10 +428,12 @@ vardcrospoor <- function(Y, age = NULL, pl085 = NULL,
   period_country <- N <- se <- rse <- cv <- namesY <- H_sk <- NULL 
 
   estim <- c()
-  countryper <- copy(country)
-  if (!is.null(periods)) countryper <- data.table(periods, countryper)
-  idper <- data.table(id, countryper)
-
+  if (!is.null(country)) { countryper <- copy(country)
+                        } else countryper <- data.table(percoun = rep("1", length(Y)))
+  if (!is.null(period)) countryper <- data.table(period, countryper)
+  idper <- data.table(ID_level1, ID_level2, countryper)
+  countryperid2 <- c(names(countryper), names(ID_level2))
+  
   size <- copy(countryper)
   if (!is.null(namesDom)) size <- data.table(size, Dom)
   names_size <- names(size)
@@ -266,19 +442,18 @@ vardcrospoor <- function(Y, age = NULL, pl085 = NULL,
                   pop_size = sum(w_final)), keyby = names_size]
  
   Y1 <- data.table(idper)
-  Y1$period_country <- do.call("paste", c(as.list(Y1[, names(countryper), with = FALSE]), sep="_"))
+  Y1$period_country <- do.call("paste", c(as.list(Y1[, names(countryper), with = FALSE]), sep = "_"))
   Y1 <- data.table(Y1, H, PSU, w_final, check.names = TRUE)
   namesY1 <- names(Y1)
-  setkeyv(Y1, names(idper)) 
 
   if ("linarpt" %in% type) {
         varpt <- linarpt(Y = Y, id = ID_level2,
-                         weight=w_final, sort = sort, 
-                         Dom=Dom, period = countryper,
+                         weight = w_final, sort = sort, 
+                         Dom = Dom, period = countryper,
                          dataset = NULL, percentage = percentage,
                          order_quant = order_quant,
                          var_name = "lin_arpt")
-        Y1 <- merge(Y1, varpt$lin, all.x = TRUE)
+        Y1 <- merge(Y1, varpt$lin, all.x = TRUE, by = countryperid2)
         esti <- data.table("ARPT", varpt$value, NA)
         setnames(esti, names(esti)[c(1, -1 : 0 + ncol(esti))],
                                    c("type", "value", "value_eu"))
@@ -292,7 +467,7 @@ vardcrospoor <- function(Y, age = NULL, pl085 = NULL,
                          Dom = Dom, period = countryper,
                          dataset = NULL, percentage = percentage,
                          order_quant = order_quant, var_name = "lin_arpr")
-        Y1 <- merge(Y1, varpr$lin, all.x = TRUE)
+        Y1 <- merge(Y1, varpr$lin, all.x = TRUE, by = countryperid2)
         esti <- data.table("ARPR", varpr$value, NA)  
         setnames(esti, names(esti)[c(1, -1 : 0 + ncol(esti))],
                                    c("type", "value", "value_eu"))
@@ -304,7 +479,7 @@ vardcrospoor <- function(Y, age = NULL, pl085 = NULL,
                         weight = w_final, sort = sort, Dom = Dom,
                         period = countryper, dataset = NULL,
                         var_name = "lin_gpg")
-         Y1 <- merge(Y1, vgpg$lin, all.x = TRUE)
+         Y1 <- merge(Y1, vgpg$lin, all.x = TRUE, by = countryperid2)
          esti <- data.table("GPG", vgpg$value, NA)  
          setnames(esti, names(esti)[c(1, -1 : 0 + ncol(esti))],
                                     c("type", "value", "value_eu"))
@@ -316,7 +491,7 @@ vardcrospoor <- function(Y, age = NULL, pl085 = NULL,
                              sort = sort, Dom = Dom, period = countryper, 
                              dataset = NULL, percentage = percentage,
                              order_quant = order_quant, var_name = "lin_poormed")
-         Y1 <- merge(Y1, vporm$lin, all.x = TRUE)
+         Y1 <- merge(Y1, vporm$lin, all.x = TRUE, by = countryperid2)
          esti <- data.table("POORMED", vporm$value, NA)  
          setnames(esti, names(esti)[c(1, -1 : 0 + ncol(esti))],
                                     c("type", "value", "value_eu"))
@@ -328,7 +503,7 @@ vardcrospoor <- function(Y, age = NULL, pl085 = NULL,
                           sort = sort, Dom = Dom, period = countryper,
                           dataset = NULL, percentage = percentage,
                           order_quant = order_quant, var_name = "lin_rmpg")
-         Y1 <- merge(Y1, vrmpg$lin, all.x = TRUE)
+         Y1 <- merge(Y1, vrmpg$lin, all.x = TRUE, by = countryperid2)
          esti <- data.table("RMPG", vrmpg$value, NA)  
          setnames(esti, names(esti)[c(1, -1 : 0 + ncol(esti))],
                                     c("type", "value", "value_eu")) 
@@ -337,9 +512,9 @@ vardcrospoor <- function(Y, age = NULL, pl085 = NULL,
       }
    if ("linqsr" %in% type) {
         vqsr <- linqsr(Y = Y, id = ID_level2, weight = w_final, 
-                       sort = sort, Dom=Dom, period = countryper,
+                       sort = sort, Dom = Dom, period = countryper,
                        dataset = NULL, alpha = alpha, var_name = "lin_qsr") 
-        Y1 <- merge(Y1, vqsr$lin, all.x = TRUE)
+        Y1 <- merge(Y1, vqsr$lin, all.x = TRUE, by = countryperid2)
         esti <- data.table("QSR", vqsr$value)  
         setnames(esti, names(esti)[c(1, -1 : 0 + ncol(esti))],
                                    c("type", "value", "value_eu"))
@@ -350,7 +525,7 @@ vardcrospoor <- function(Y, age = NULL, pl085 = NULL,
         vgini <- lingini(Y = Y, id = ID_level2, weight = w_final,
                          sort = sort, Dom = Dom, period = countryper,
                          dataset = NULL, var_name = "lin_gini")
-        Y1 <- merge(Y1, vgini$lin, all.x = TRUE)
+        Y1 <- merge(Y1, vgini$lin, all.x = TRUE, by = countryperid2)
         esti <- data.table("GINI", vgini$value)  
         setnames(esti, names(esti)[c(1, -1 : 0 + ncol(esti))],
                                    c("type", "value", "value_eu"))
@@ -361,7 +536,7 @@ vardcrospoor <- function(Y, age = NULL, pl085 = NULL,
         vgini2 <- lingini2(Y = Y, id = ID_level2, weight=w_final,
                            sort = sort, Dom = Dom, period = countryper,
                            dataset = NULL, var_name = "lin_gini2")
-        Y1 <- merge(Y1, vgini2$lin, all.x = TRUE)
+        Y1 <- merge(Y1, vgini2$lin, all.x = TRUE, by = countryperid2)
         esti <- data.table("GINI2", vgini2$value)  
         setnames(esti, names(esti)[c(1, -1 : 0 + ncol(esti))],
                                    c("type", "value", "value_eu"))
@@ -373,7 +548,7 @@ vardcrospoor <- function(Y, age = NULL, pl085 = NULL,
                          weight = w_final, sort = sort, Dom = Dom,
                          period = countryper, dataset = NULL,
                          order_quant = order_quant, var_name = "lin_rmir") 
-        Y1 <- merge(Y1, vrmir$lin, all.x = TRUE)
+        Y1 <- merge(Y1, vrmir$lin, all.x = TRUE, by = countryperid2)
  
         esti <- data.table("RMIR", vrmir$value, NA)  
         setnames(esti, names(esti)[c(1, -1 : 0 + ncol(esti))],
@@ -389,7 +564,7 @@ vardcrospoor <- function(Y, age = NULL, pl085 = NULL,
                       sort = sort, Dom = Dom, period = countryper, dataset = NULL,
                       order_quant = order_quant, var_name = "lin_arr") 
 
-       Y1 <- merge(Y1, varr$lin, all.x = TRUE)
+       Y1 <- merge(Y1, varr$lin, all.x = TRUE, by = countryperid2)
 
        esti <- data.table("ARR", varr$value, NA)  
        setnames(esti, names(esti)[c(1, -1 : 0 + ncol(esti))],
@@ -400,25 +575,25 @@ vardcrospoor <- function(Y, age = NULL, pl085 = NULL,
 
 
    setnames(estim, "value", "estim")
-   estim$period_country <- do.call("paste", c(as.list(estim[,names(countryper), with = FALSE]), sep="_"))
+   estim$period_country <- do.call("paste", c(as.list(estim[, names(countryper), with = FALSE]), sep = "_"))
    nams <- names(countryper)
    if (!is.null(namesDom)) nams <- c(nams, namesDom)
    estim <- merge(estim, size, all = TRUE, by = nams)
 
    namesY2 <- names(Y1)[!(names(Y1) %in% namesY1)]
    namesY2w <- paste0(namesY2, "w")
-   Y1[, (namesY2w):=lapply(namesY2, function(x) get(x) * w_final)]
+   Y1[, (namesY2w) := lapply(namesY2, function(x) get(x) * w_final)]
 
    DT1 <- copy(Y1)
-   names_id <- names(id)
+   names_id <- names(ID_level1)
    names_H <- names(H)
    names_PSU <- names(PSU)
 
    namesperc <- c("period_country", names(countryper))
    namesDT1k <- c(namesperc, names_H, names_PSU)
 
-   size <- id <- Dom <- country <-  NULL
-   H <- PSU <- nh <- nh_cor <- NULL
+   size <- ID_level1 <- ID_level2 <- Dom <- country <- NULL
+   country <- H <- PSU <- nh <- nh_cor <- NULL
   
    #--------------------------------------------------------*
    # AGGREGATION AT PSU LEVEL ("ULTIMATE CLUSTER" APPROACH) |
@@ -427,12 +602,12 @@ vardcrospoor <- function(Y, age = NULL, pl085 = NULL,
    DTY2 <- Y1[, lapply(.SD, sum, na.rm = TRUE), keyby = namesDT1k, .SDcols = namesY2w]
    setnames(DTY2, namesY2w, namesY2)
    DT1 <- copy(DTY2)
-   DT1[, period_country:= NULL]
+   DT1[, period_country := NULL]
    if (!netchanges) DT1 <- NULL
 
    # NUMBER OF PSUs PER STRATUM
    setkeyv(DTY2, c(namesperc, names_H))
-   DTY2[, nh:= .N, by= c(namesperc, names_H)]
+   DTY2[, nh := .N, by = c(namesperc, names_H)]
 
    #--------------------------------------------------------------------------*
    # MULTIVARIATE REGRESSION APPROACH USING STRATUM DUMMIES AS REGRESSORS AND |
@@ -441,7 +616,7 @@ vardcrospoor <- function(Y, age = NULL, pl085 = NULL,
 
    DTY2H <- DTY2[[names_H]]
    DTY2H <- factor(DTY2H)
-   if (length(levels(DTY2H)) == 1) { DTY2[, stratasf:= 1]
+   if (length(levels(DTY2H)) == 1) { DTY2[, stratasf := 1]
                                    DTY2H <- "stratasf"
                           } else { DTY2H <- data.table(model.matrix( ~ DTY2H - 1))
                                    DTY2 <- cbind(DTY2, DTY2H)
@@ -449,59 +624,56 @@ vardcrospoor <- function(Y, age = NULL, pl085 = NULL,
    namesY2m <-  make.names(namesY2)
    setnames(DTY2, namesY2, namesY2m)
 
-   fits <-lapply(1:length(namesY2), function(i) {
-             fitss <- lapply(split(DTY2, DTY2$period_country), function(DTY2c) {
-                          y <- namesY2m[i]
-                          funkc <- as.formula(paste("cbind(", trim(toString(y)), ")~",
-                                         paste(c(-1, DTY2H), collapse= "+")))
-                   	  res1 <- lm(funkc, data=DTY2c)
+   fits <- lapply(1 : length(namesY2), function(i) {
+              fitss <- lapply(split(DTY2, DTY2$period_country), function(DTY2c) {
+                           y <- namesY2m[i]
+                           funkc <- as.formula(paste("cbind(", trim(toString(y)), ") ~ ",
+                                          paste(c(- 1, DTY2H), collapse = "+")))
+                   	   res1 <- lm(funkc, data = DTY2c)
                             
-           	          if (use.estVar == TRUE) {res1 <- data.table(crossprod(res1$res))
-                                 } else res1 <- data.table(res1$res)
-                          setnames(res1, names(res1)[1], "num") 
-                          res1[, namesY:=y]
+           	           if (use.estVar == TRUE) {res1 <- data.table(crossprod(res1$res))
+                                  } else res1 <- data.table(res1$res)
+                           setnames(res1, names(res1)[1], "num") 
+                           res1[, namesY := y]
                            
-                          if (use.estVar == TRUE) {
-                                setnames(res1, "num", "var") 
-                                res1 <- data.table(res1[1], DTY2c[1])
-                            } else {
-                                res1 <- data.table(res1, DTY2c)
-                                res1[, nhcor:= ifelse(nh>1, nh / (nh - 1), 1)]
-                                res1[, var:= nhcor * num * num]
-                              }
-                          fits <- res1[, lapply(.SD, sum), 
-                                         keyby = c(namesperc, "namesY"),
-                                         .SDcols = "var"]
-                          return(fits)
-                     })
-            return(rbindlist(fitss))
-      })
-   res <- rbindlist(fits)
+                           if (use.estVar == TRUE) {
+                                 setnames(res1, "num", "var") 
+                                 res1 <- data.table(res1[1], DTY2c[1])
+                             } else {
+                                 res1 <- data.table(res1, DTY2c)
+                                 res1[, nhcor := ifelse(nh > 1, nh / (nh - 1), 1)]
+                                 res1[, var := nhcor * num * num]
+                               }
+                           fits <- res1[, lapply(.SD, sum), 
+                                          keyby = c(namesperc, "namesY"),
+                                          .SDcols = "var"]
+                           return(fits)
+                      })
+             return(rbindlist(fitss))
+       })
+    res <- rbindlist(fits)
    
-   estim[, namesY:= paste0("lin_", tolower(type))]
-   if (!is.null(namesDom)) {
-        Dom1 <- estim[, lapply(namesDom, function(x) make.names(paste0(x, ".", get(x))))]
-        Dom1 <- Dom1[, Dom := Reduce(function(x, y) paste(x, y, sep="__"), .SD)]    
-        estim <- data.table(estim, Dom1 = Dom1[, Dom])
-        estim[, namesY:= paste0(namesY, "__", Dom1)]
-     }
+    estim[, namesY:= paste0("lin_", tolower(type))]
+    if (!is.null(namesDom)) {
+         Dom1 <- estim[, lapply(namesDom, function(x) make.names(paste0(x, ".", get(x))))]
+         Dom1 <- Dom1[, Dom := Reduce(function(x, y) paste(x, y, sep = "__"), .SD)]    
+         estim <- data.table(estim, Dom1 = Dom1[, Dom])
+         estim[, namesY := paste0(namesY, "__", Dom1)]
+      } 
   
-   res <- merge(estim, res, all = TRUE, 
-                 by = names(res)[!(names(res) %in% "var")])
+    res <- merge(estim, res, all = TRUE, 
+                  by = names(res)[!(names(res) %in% "var")])
 
-   Dom1 <- estim <- DT3H <- NULL
-   if (is.null(res$Dom1)) res[, Dom1:= "1"]
-   res[, (c("namesY", "Dom1", "period_country")):= NULL]
+    Dom1 <- estim <- DT3H <- NULL
+    if (is.null(res$Dom1)) res[, Dom1 := "1"]
+    res[, (c("namesY", "Dom1", "period_country")) := NULL]
 
-   res[, se:= sqrt(var)]
-   res[, rse:= se / estim]
-   res[, cv:= rse * 100]
+    res[, se := sqrt(var)]
+    res[, rse := se / estim]
+    res[, cv := rse * 100]
    
-   res <- res[, c(names(countryper), namesDom, "type", "count_respondents",
-                  "pop_size", "estim", "se", "var", "rse", "cv"), with = FALSE]
+    res <- res[, c(names(countryper), namesDom, "type", "count_respondents",
+                   "pop_size", "estim", "se", "var", "rse", "cv"), with = FALSE]
 
-   list(data_net_changes = DT1, results = res)
+    list(data_net_changes = DT1, results = res)
  }   
-
-
-

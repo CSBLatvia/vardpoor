@@ -238,7 +238,8 @@ varpoord <- function(Y, w_final,
   if (ncol(wght_thres) != 1) stop("'wght_thres' must have vector or 1 column data.frame, matrix, data.table")
   wght_thres <- wght_thres[, 1]
   if (!is.numeric(wght_thres)) stop("'wght_thres' must be a numeric vector")
- 
+  if (any(is.na(wght_thres))) stop("'wght_thres' has missing values")
+
   # H
   H <- data.table(H)
   if (nrow(H) != n) stop("'H' must have the same length as 'Y'")

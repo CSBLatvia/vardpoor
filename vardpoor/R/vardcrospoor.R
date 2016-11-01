@@ -2,21 +2,18 @@
 vardcrospoor <- function(Y, age = NULL, pl085 = NULL,
                          month_at_work = NULL, Y_den = NULL,
                          Y_thres = NULL,  wght_thres = NULL, 
-                         H, PSU, w_final, ID_level2,
+                         H, PSU, w_final, ID_level1, ID_level2,
                          Dom = NULL, country = NULL,
                          period, sort = NULL, gender = NULL,
-                         dataset = NULL, countryX = NULL,
-                         periodX = NULL, X_ID_level1 = NULL,
-                         ind_gr = NULL, g = NULL, q = NULL,
-                         datasetX = NULL, percentage = 60,
-                         order_quant = 50, alpha = 20,
-                         use.estVar = FALSE,
-                         withperiod = TRUE,
-                         netchanges = TRUE,
-                         confidence = .95,
-                         outp_lin = FALSE,
-                         outp_res = FALSE,
-                         type = "linrmpg") {
+                         dataset = NULL, X = NULL, 
+                         countryX = NULL, periodX = NULL, 
+                         X_ID_level1 = NULL, ind_gr = NULL,
+                         g = NULL, q = NULL, datasetX = NULL,
+                         percentage = 60, order_quant = 50,
+                         alpha = 20, use.estVar = FALSE,
+                         withperiod = TRUE, netchanges = TRUE,
+                         confidence = .95, outp_lin = FALSE,
+                         outp_res = FALSE, type = "linrmpg") {
   ### Checking
 
   all_choices <- c("linarpr", "linarpt", "lingpg",
@@ -321,7 +318,7 @@ vardcrospoor <- function(Y, age = NULL, pl085 = NULL,
                          paste(names(periodX)[duplicated(names(periodX))], collapse = ","))
         if (nrow(periodX) != nrow(X)) stop("'periodX' length must be equal with 'X' row count")
         if (ncol(periodX) != ncol(period)) stop("'periodX' length must be equal with 'period' column count")
-        if (names(periodX) != names(period)) stop("'periodX' must be equal with 'periods' names")
+        if (names(periodX) != names(period)) stop("'periodX' must be equal with 'period' names")
         peri <- copy(period)
         periX <- copy(periodX)
         if (!is.null(country)) peri <- data.table(country, peri)
@@ -355,21 +352,13 @@ vardcrospoor <- function(Y, age = NULL, pl085 = NULL,
     if (any(nperIDh != names(X_ID_level1))) stop("'X_ID_level1' and 'ID_level1' must be equal  names")
     if (ID_level1h[, class(get(nperIDh))] != X_ID_level1[, class(get(nperIDh))])  stop("Class for 'X_ID_level1' and class for 'ID_level1' must be equal ")
 
-    if (!is.null(period)) {
-        if (!is.null(country)) {
-             if (nrow(ID_level1h) != nrow(X_ID_level1)) stop("'unique(countryX, periodX, X_ID_level1)' and 'unique(country, period, ID_level1)' have different row count")
-             if (any(ID_level1h != X_ID_level1)) stop("''unique(countryX, periodX, X_ID_level1)' and 'unique(country, period, ID_level1)' records have different")
-            } else {
-                if (nrow(ID_level1h) != nrow(X_ID_level1)) stop("'unique(periodX, X_ID_level1)' and 'unique(period, ID_level1)' have different row count")
-                if (any(ID_level1h != X_ID_level1)) stop("''unique(periodX, X_ID_level1)' and 'unique(period, ID_level1)' records have different")  }
-      } else {
-        if (!is.null(country)) {
-             if (nrow(ID_level1h) != nrow(X_ID_level1)) stop("'unique(countryX, X_ID_level1)' and 'unique(country, ID_level1)' have different row count")
-             if (any(ID_level1h != X_ID_level1)) stop("''unique(countryX, X_ID_level1)' and 'unique(country, ID_level1)' records have different")
-            } else {
-             if (nrow(ID_level1h) != nrow(X_ID_level1)) stop("'unique(X_ID_level1)' and 'unique(ID_level1)' have different row count")
-             if (any(ID_level1h != X_ID_level1)) stop("''unique(X_ID_level1)' and 'unique(ID_level1)' records have different") }
-   }}
+    if (!is.null(country)) {
+           if (nrow(ID_level1h) != nrow(X_ID_level1)) stop("'unique(countryX, periodX, X_ID_level1)' and 'unique(country, period, ID_level1)' have different row count")
+           if (any(ID_level1h != X_ID_level1)) stop("''unique(countryX, periodX, X_ID_level1)' and 'unique(country, period, ID_level1)' records have different")
+        } else {
+           if (nrow(ID_level1h) != nrow(X_ID_level1)) stop("'unique(periodX, X_ID_level1)' and 'unique(period, ID_level1)' have different row count")
+           if (any(ID_level1h != X_ID_level1)) stop("''unique(periodX, X_ID_level1)' and 'unique(period, ID_level1)' records have different")  }
+   }
 
   # ind_gr
   if (!is.null(X)) {
@@ -573,7 +562,9 @@ vardcrospoor <- function(Y, age = NULL, pl085 = NULL,
        varr <- esti <- NULL
      }
 
-
+   lin_out <- copy(Y1)
+   if (!outp_lin) lin_out <- NULL
+   
    setnames(estim, "value", "estim")
    estim$period_country <- do.call("paste", c(as.list(estim[, names(countryper), with = FALSE]), sep = "_"))
    nams <- names(countryper)
@@ -582,15 +573,41 @@ vardcrospoor <- function(Y, age = NULL, pl085 = NULL,
 
    namesY2 <- names(Y1)[!(names(Y1) %in% namesY1)]
    namesY2w <- paste0(namesY2, "w")
-   Y1[, (namesY2w) := lapply(namesY2, function(x) get(x) * w_final)]
+   
+   
+   # Calibration
 
-   DT1 <- copy(Y1)
+   w_design <- res_outp <- NULL
    names_id <- names(ID_level1)
    names_H <- names(H)
    names_PSU <- names(PSU)
 
    namesperc <- c("period_country", names(countryper))
    namesDT1k <- c(namesperc, names_H, names_PSU)
+   DTc <- Y1[, lapply(.SD, sum, na.rm = TRUE), keyby = c(namesDT1k, names(ID_level1)), .SDcols = namesY2]
+
+   if (!is.null(X)) {
+        X0 <- data.table(X_ID_level1, ind_gr, q, g, X)
+        DT1 <- merge(DTc, X0, by = names(ID_level1h))
+        DT1[, w_design := w_final / g ]
+
+        ind_gr <- DT1[, c(namesperc, names(ind_gr)), with = FALSE]
+        ind_period <- do.call("paste", c(as.list(ind_gr), sep="_"))
+     
+        res <- lapply(split(DT1[, .I], ind_period), function(i)                  
+                       data.table(DT1[i, names(ID_level1h), with = FALSE],
+                                  res <- residual_est(Y = DT1[i, namesY2, with = FALSE],
+                                                      X = DT1[i, names(X), with = FALSE],
+                                                      weight = DT1[i, "w_design", with = FALSE],
+                                                      q = DT1[i, "q", with = FALSE])))
+ 
+        res <- rbindlist(res)
+        setnames(res, namesY2, namesY2w)
+        DTc <- merge(DTc, res, by = names(ID_level1h)) 
+        if (outp_res) res_outp <- DTc[, c(names(ID_level1h), names_PSU, "w_final", namesY2w), with = FALSE]
+    } else DTc[, (namesY2w) := .SD[, namesY2, with = FALSE]]
+
+   DTc[, (namesY2w) := .SD[, namesY2, with = FALSE] * get("w_final")]
 
    size <- ID_level1 <- ID_level2 <- Dom <- country <- NULL
    country <- H <- PSU <- nh <- nh_cor <- NULL
@@ -599,7 +616,7 @@ vardcrospoor <- function(Y, age = NULL, pl085 = NULL,
    # AGGREGATION AT PSU LEVEL ("ULTIMATE CLUSTER" APPROACH) |
    #--------------------------------------------------------*
 
-   DTY2 <- Y1[, lapply(.SD, sum, na.rm = TRUE), keyby = namesDT1k, .SDcols = namesY2w]
+   DTY2 <- DTc[, lapply(.SD, sum, na.rm = TRUE), keyby = namesDT1k, .SDcols = namesY2w]
    setnames(DTY2, namesY2w, namesY2)
    DT1 <- copy(DTY2)
    DT1[, period_country := NULL]
@@ -675,5 +692,5 @@ vardcrospoor <- function(Y, age = NULL, pl085 = NULL,
     res <- res[, c(names(countryper), namesDom, "type", "count_respondents",
                    "pop_size", "estim", "se", "var", "rse", "cv"), with = FALSE]
 
-    list(data_net_changes = DT1, results = res)
+    list(lin_out = lin_out, res_out = res_outp, data_net_changes = DT1, results = res)
  }   

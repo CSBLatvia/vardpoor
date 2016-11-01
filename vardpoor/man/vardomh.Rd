@@ -137,10 +137,8 @@ aa <- vardomh(Y = "eqIncome", H = "db040", PSU = "db030",
               w_final = "rb050", ID_level1 = "db030",
               ID_level2 = "rb030", Dom = "db040", period = NULL,
               N_h = NULL, Z = NULL, dataset = dataset, X = NULL,
-              X_ID_level1 = NULL, g = NULL, datasetX = NULL,
-              q = rep(1, if (is.null(datasetX)) 
-                           nrow(as.data.frame(H)) else nrow(datasetX)),
-              confidence = 0.95, percentratio = 1,
+              X_ID_level1 = NULL, g = NULL, q = NULL, 
+              datasetX = NULL, confidence = 0.95, percentratio = 1,
               outp_lin = TRUE, outp_res = TRUE)
 
 \dontrun{
@@ -166,11 +164,10 @@ aa3 <- vardomh(Y = "eqIncome", H = "db040", PSU = "db030",
                ID_level2 = "rb030", Dom = "db040",
                period = "period", N_h = NULL, fh_zero=FALSE, 
                Z = NULL, dataset = dataset, X = NULL,
-               X_ID_level1 = NULL, g = NULL, datasetX = NULL,
-               q = rep(1, if (is.null(datasetX)) 
-                       nrow(as.data.frame(H)) else nrow(datasetX)),
-               confidence = .95, percentratio = 1,
-               outp_lin = TRUE, outp_res = TRUE)
+               X_ID_level1 = NULL, g = NULL, q = NULL,
+               datasetX = NULL, confidence = .95,
+               percentratio = 1, outp_lin = TRUE,
+               outp_res = TRUE)
 aa3
 
 # with using fh_zero (finite population correction)
@@ -179,9 +176,7 @@ aa4 <- vardomh(Y="eqIncome", H="db040", PSU="db030", w_final="rb050",
                period = "period", N_h = NULL, fh_zero=TRUE, 
                Z = NULL, dataset = dataset,
                X = NULL, X_ID_level1 = NULL, 
-               g = NULL, datasetX = NULL,
-               q = rep(1, if (is.null(datasetX)) 
-                              nrow(as.data.frame(H)) else nrow(datasetX)),
+               g = NULL, q = NULL, datasetX = NULL,
                confidence = .95, percentratio = 1,
                outp_lin = TRUE, outp_res = TRUE)
 aa4

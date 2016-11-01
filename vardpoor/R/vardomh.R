@@ -93,7 +93,7 @@ vardomh <- function(Y, H, PSU, w_final,
           if (min(q %in% names(datasetX)) == 1) q <- datasetX[, q, with = FALSE] } 
      }
 
-  equal_dataset <- all(dataset == datasetX)
+  equal_dataset <- all.equal(dataset, datasetX) & !is.null(X)
   if (equal_dataset) X_ID_level1 <- ID_level1
   N <- dataset <- datasetX <- NULL
 
@@ -105,7 +105,6 @@ vardomh <- function(Y, H, PSU, w_final,
   if (any(is.na(Y))) stop("'Y' has missing values")
   if (is.null(names(Y))) stop("'Y' must have column names")
   if (any(grepl("__", names(Y)))) stop("'Y' is not allowed column names with '__'")
-
   
   # H
   H <- data.table(H)
@@ -146,7 +145,7 @@ vardomh <- function(Y, H, PSU, w_final,
   # ID_level2
   if (is.null(ID_level2)) ID_level2 <- 1 : n
   ID_level2 <- data.table(ID_level2)
-  ID_level2[, (names(ID_level1)) := lapply(.SD, as.character)]
+  ID_level2[, (names(ID_level2)) := lapply(.SD, as.character)]
   if (any(is.na(ID_level2))) stop("'ID_level2' has missing values")
   if (ncol(ID_level2) != 1) stop("'ID_level2' must be 1 column data.frame, matrix, data.table")
   if (nrow(ID_level2) != n) stop("'ID_level2' length must be equal with 'Y' row count")

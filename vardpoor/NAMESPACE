@@ -24,8 +24,8 @@ export("vardcros")
 export("vardchanges")
 export("vardcrospoor")
 export("vardchangespoor")
+export("vardcrosannual")
 export("vardchangannual")
-
 
 import("stringr")
 import("laeken")

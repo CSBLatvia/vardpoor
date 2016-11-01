@@ -484,7 +484,7 @@ vardcros <- function(Y, H, PSU, w_final,
          setnames(res, namesY2, namesY2w)
          DTc <- merge(DTc, res, by = names(ID_level1h)) 
          if (outp_res) res_outp <- DTc[, c(names(ID_level1h), names_PSU, "w_final", namesY2w), with = FALSE]
-     } else DTc[, (namesY2w):=.SD[, namesY2, with = FALSE]]
+     } else DTc[, (namesY2w) := .SD[, namesY2, with = FALSE]]
 
    DTc[, (namesY2w):=.SD[, namesY2, with = FALSE] * get("w_final")]
 

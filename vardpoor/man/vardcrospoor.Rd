@@ -13,7 +13,7 @@ vardcrospoor(Y, age = NULL, pl085 = NULL,
              H, PSU, w_final, ID_level1, ID_level2,
              Dom = NULL, country = NULL,
              period, sort = NULL, gender = NULL,
-             dataset = NULL, countryX = NULL,
+             dataset = NULL, X = NULL, countryX = NULL,
              periodX = NULL, X_ID_level1 = NULL,
              ind_gr = NULL, g = NULL, q = NULL,
              datasetX = NULL, percentage = 60,
@@ -153,12 +153,12 @@ data <- data.table(rbind(eusilc, eusilc),
                    year = c(rep(2010, nrow(eusilc)),
                             rep(2011, nrow(eusilc))))
 data[age < 0, age := 0]
-PSU <- data[, .N, keyby="db030"][, N:=NULL]
+PSU <- data[, .N, keyby = "db030"][, N := NULL]
 PSU[, PSU := trunc(runif(nrow(PSU), 0, 100))]
 PSU$inc <- runif(nrow(PSU), 20, 100000)
 data <- merge(data, PSU, all = TRUE, by = "db030")
 PSU <- eusilc <- NULL
-data[, strata:=c("XXXX")]
+data[, strata := c("XXXX")]
 data$pl085 <- 12 * trunc(runif(nrow(data), 0, 2))
 data$month_at_work <- 12 * trunc(runif(nrow(data), 0, 2))
 data[, id_l2 := .I]
@@ -172,7 +172,7 @@ result <- vardcrospoor(Y = "inc", age = "age",
                        w_final="rb050", ID_level1 = "db030",
                        ID_level2 = "id_l2",
                        Dom = c("rb090", "db040"),
-                       country = "country", period = "year",
+                       country = NULL, period = "year",
                        sort = NULL, gender = NULL,
                        dataset = data,
                        percentage = 60,

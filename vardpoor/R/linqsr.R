@@ -226,7 +226,7 @@ linQSRCalc<-function(income, ids, weights = NULL, sort = NULL, ind = NULL, alpha
        vect_f1 <- exp(-(u1^2) / 2) / sqrt(2 * pi)
        f_quant1 <- sum(vect_f1 * wght) / (N * h) 
 
-       lin_inf <- -(1 / N) * ((income <= quant_inf) - alpha / 100) / f_quant1
+       lin_inf <- -b(1 / N) * ((income <= quant_inf) - alpha / 100) / f_quant1
 
 
        # 2. Linearization of the top quantile 
@@ -241,7 +241,7 @@ linQSRCalc<-function(income, ids, weights = NULL, sort = NULL, ind = NULL, alpha
        # 3. Linearization of the total income for the top quintile
   
        u3 <- (quant_sup - income) / h
-       vect_f3 <- exp(-(u3^2) / 2) / sqrt(2 * pi)
+       vect_f3 <- exp(- (u3^2) / 2) / sqrt(2 * pi)
        f_quant3 <- sum(vect_f3 * v) / h
  
        lin_num <- ind * (income - income * (income <= quant_sup) - f_quant3 * lin_sup)

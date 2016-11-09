@@ -128,7 +128,7 @@ variance_est <- function(Y, H, PSU, w_final, N_h = NULL, fh_zero = FALSE,
 
   # z_hi
   ids <- nhc <- f_h <- .SD <- N <- NULL
-  hpY <- data.table(H, PSU, Y*w_final)
+  hpY <- data.table(H, PSU, Y * w_final)
   if (!is.null(PSU_sort)) hpY <- data.table(H, PSU, PSU_sort, Y * w_final)
   if (!is.null(period)) hpY <- data.table(period, hpY)
   psusn <- as.integer(!is.null(PSU_sort))
@@ -196,10 +196,10 @@ variance_est <- function(Y, H, PSU, w_final, N_h = NULL, fh_zero = FALSE,
   # var_h
 
   if (!is.null(PSU_sort)) {
-         var_z_hi[, nhc := ifelse(n_h > 1, 1 / (2 * n_h * (n_h - 1)), NA)]
+         var_z_hi[, nhc := ifelse(n_h > 1, n_h / (2 * (n_h - 1)), NA)]
     } else var_z_hi[, nhc := n_h]
 
-  var_z_hi[, ids:= 1 : .N]
+  var_z_hi[, ids := 1 : .N]
   var_z_hi[, (paste0("var_", namY)) := lapply(.SD[, namY, with = FALSE],
                                            function(x) (1 - f_h * (1 - fh_zero)) * nhc * x), by = "ids"]
   # Variance_est 

@@ -1,4 +1,4 @@
-﻿# Pārbauda vai vardomh aprēķina pareizi atlikumus, ja dati
+# Pārbauda vai vardomh aprēķina pareizi atlikumus, ja dati
 # ir sakārtoti gadījuma secībā
 
 require(vardpoor)

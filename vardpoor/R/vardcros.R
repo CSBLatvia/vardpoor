@@ -156,6 +156,7 @@ vardcros <- function(Y, H, PSU, w_final,
   if (any(is.na(ID_level1))) stop("'ID_level1' has missing values")
   if (ncol(ID_level1) != 1) stop("'ID_level1' must be 1 column data.frame, matrix, data.table")
   if (nrow(ID_level1) != n) stop("'ID_level1' must be the same length as 'Y'")
+  if (names(ID_level1) == names(PSU)) setnames(PSU, names(PSU), paste0(names(PSU), "_PSU")) 
 
   # ID_level2
   ID_level2 <- data.table(ID_level2)

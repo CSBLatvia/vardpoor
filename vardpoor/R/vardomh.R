@@ -158,6 +158,7 @@ vardomh <- function(Y, H, PSU, w_final,
   if (is.null(ID_level1)) { stop("'ID_level1' takes 'ID_level2' values")
                             ID_level1 <- copy(ID_level2) }
   ID_level1 <- data.table(ID_level1)
+  if (names(ID_level1) == names(PSU)) setnames(PSU, names(PSU), paste0(names(PSU), "_PSU"))
   ID_level1[, (names(ID_level1)) := lapply(.SD, as.character)]
   if (any(is.na(ID_level1))) stop("'ID_level1' has missing values")
   if (ncol(ID_level1) != 1) stop("'ID_level1' must be 1 column data.frame, matrix, data.table")

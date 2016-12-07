@@ -226,7 +226,7 @@ linQSRCalc<-function(income, ids, weights = NULL, sort = NULL, ind = NULL, alpha
        vect_f1 <- exp(-(u1^2) / 2) / sqrt(2 * pi)
        f_quant1 <- sum(vect_f1 * wght) / (N * h) 
 
-       lin_inf <- -b(1 / N) * ((income <= quant_inf) - alpha / 100) / f_quant1
+       lin_inf <- -(1 / N) * ((income <= quant_inf) - alpha / 100) / f_quant1
 
 
        # 2. Linearization of the top quantile 

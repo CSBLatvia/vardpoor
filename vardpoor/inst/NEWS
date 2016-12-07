@@ -1,3 +1,8 @@
+Changes in vardpoor version 0.8.0
+
+    + Corrected mistakes in function vardomh
+
+
 Changes in vardpoor version 0.7.8
 
     + In function vardcros, vardchanges, vardchangannual add calibration information, when variable X is defined.

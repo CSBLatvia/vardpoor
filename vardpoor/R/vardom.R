@@ -417,37 +417,37 @@ vardom <- function(Y, H, PSU, w_final,
   Y2 <- S2_y_HT <- S2_y_ca <- S2_res <- var_srs_HT <- var_srs_ca <- NULL
 
   # Total estimation
-  Y_nov <- Z_nov <- NULL
+  Y_est <- Z_est <- NULL
   
   hY <- data.table(Y1 * w_final)
-  if (is.null(period)) { Y_nov <- hY[, lapply(.SD, sum, na.rm = TRUE), .SDcols = names(Y1)]
+  if (is.null(period)) { Y_est <- hY[, lapply(.SD, sum, na.rm = TRUE), .SDcols = names(Y1)]
                 } else { hY <- data.table(period, hY)
-                         Y_nov <- hY[, lapply(.SD, sum, na.rm = TRUE), keyby = names(period), .SDcols = names(Y1)]
+                         Y_est <- hY[, lapply(.SD, sum, na.rm = TRUE), keyby = names(period), .SDcols = names(Y1)]
                        }
-  Y_nov <- transpos(Y_nov, is.null(period), "Y_nov", names(period))
-  all_result <- merge(all_result, Y_nov, all = TRUE)
+  Y_est <- transpos(Y_est, is.null(period), "Y_est", names(period))
+  all_result <- merge(all_result, Y_est, all = TRUE)
 
   if (!is.null(Z1)) {
          YZnames <- data.table(variable = names(Y1), variableDZ = names(Z1))
          all_result <- merge(all_result, YZnames, all = TRUE, by = "variable")
          
          hZ <- data.table(Z1 * w_final)
-         if (is.null(period)) { Z_nov <- hZ[, lapply(.SD, sum, na.rm = TRUE), .SDcols = names(Z1)]
+         if (is.null(period)) { Z_est <- hZ[, lapply(.SD, sum, na.rm = TRUE), .SDcols = names(Z1)]
                        } else { hZ <- data.table(period, hZ)
-                                Z_nov <- hZ[, lapply(.SD, sum, na.rm = T), keyby = names(period), .SDcols = names(Z1)]
+                                Z_est <- hZ[, lapply(.SD, sum, na.rm = T), keyby = names(period), .SDcols = names(Z1)]
                               }
-         Z_nov <- transpos(Z_nov, is.null(period), "Z_nov", names(period), "variableDZ")
-         all_result <- merge(all_result, Z_nov, all = TRUE, by = "variableDZ")
+         Z_est <- transpos(Z_est, is.null(period), "Z_est", names(period), "variableDZ")
+         all_result <- merge(all_result, Z_est, all = TRUE, by = "variableDZ")
       }
 
   vars <- data.table(variable = names(Y1), nr_names = 1 : ncol(Y1))
   all_result <- merge(vars, all_result, all = TRUE, by = "variable")
 
-  vars <- idper <- Y_nov <- NULL
-  Z_nov <- hY <- hZ <- YZnames <- dati <- NULL                          
+  vars <- idper <- Y_est <- NULL
+  Z_est <- hY <- hZ <- YZnames <- dati <- NULL                          
 
-  all_result[, estim := Y_nov]
-  if (!is.null(all_result$Z_nov)) all_result[, estim := Y_nov / Z_nov * percentratio] 
+  all_result[, estim := Y_est]
+  if (!is.null(all_result$Z_est)) all_result[, estim := Y_est / Z_est * percentratio] 
 
   if (nrow(all_result[var_est < 0]) > 0) stop("Estimation of variance are negative!")
  
@@ -474,7 +474,7 @@ vardom <- function(Y, H, PSU, w_final,
   all_result[, CI_upper := estim + tsad * se]
   
   setnames(all_result, c("variable", "var_est"), c("variableD", "var"))
-  if (!is.null(all_result$Z_nov)) {
+  if (!is.null(all_result$Z_est)) {
                        nosrZ <- all_result$variableDZ
                        nosrZ <- nosrZ[!duplicated(nosrZ)]
                        nosrZ1 <- data.table(variableZ = t(data.frame(strsplit(nosrZ, "__")))[, c(1)])
@@ -498,7 +498,7 @@ vardom <- function(Y, H, PSU, w_final,
   all_result <- merge(nosr, all_result, by = "variableD")
   namesDom <- nosr <- NULL
   
-  if (!is.null(all_result$Z_nov)) { 
+  if (!is.null(all_result$Z_est)) { 
        all_result[, variable := paste("R", get("variable"), get("variableZ"), sep = "__")] }
 
   if (!is.null(c(Dom, period))) { all_result <- merge(all_result, nhs, 
@@ -508,7 +508,7 @@ vardom <- function(Y, H, PSU, w_final,
 
   all_result[, n_eff := ifelse(is.na(deff) | deff < .Machine$double.eps, NA, respondent_count / deff)]
   variab <- c("respondent_count", "n_nonzero", "pop_size")
-  if (!is.null(all_result$Z_nov)) variab <- c(variab, "Y_nov", "Z_nov")
+  if (!is.null(all_result$Z_est)) variab <- c(variab, "Y_est", "Z_est")
   variab <- c(variab, "estim", "var", "se", "rse", "cv", 
               "absolute_margin_of_error", "relative_margin_of_error",
               "CI_lower", "CI_upper")

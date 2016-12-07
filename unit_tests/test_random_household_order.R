@@ -1,17 +1,21 @@
-# Pārbauda vai vardomh aprēķina pareizi atlikumus, ja dati
-# ir sakārtoti gadījuma secībā
+# Test for estimation of regression residuals for vardomh
+# Data are randomly ordered
 
 require(vardpoor)
+require(testthat)
 
-test_unordered_residuals <- function(n = 600, l = 3) {
+# n <- 600L
+# l <- 3L
 
-  # n - personu skaits izlasē
-  # l - personu skaits mājsaimniecībā
-  # m - mājsaimniecību skaits izlasē
+test_unordered_residuals <- function(n = 600L, l = 3L) {
+
+  # n - numper of persons in sample
+  # l - number of persons in a household
+  # m - number of households in sample
 
   m <- n / l
 
-  # Personu izlases dati
+  # Data of persons
   datY <- data.table(IDp = 1:n,
                      IDh = rep(1:m, each = l),
                      y = sample(0:1, n, replace = T),
@@ -20,9 +24,10 @@ test_unordered_residuals <- function(n = 600, l = 3) {
 
   # PSU
   datY[, psu := floor((IDh - 1) / 10) + 1L]
+  datY[, IDh := as.character(IDh)]
 
-  # Mājsaimniecību dati izlasē
-  datX <- data.table(IDh = 1:m,
+  # Data of households
+  datX <- data.table(IDh = as.character(1:m),
                      x0 = 1L,
                      x1 = sample(0:3, m, replace = T),
                      x2 = sample(0:3, m, replace = T),
@@ -31,16 +36,16 @@ test_unordered_residuals <- function(n = 600, l = 3) {
                      q = runif(m),
                      rnd = runif(m))
 
-  # Kalibrētais svars
+  # Calibrated weight
   datX[, wc := wd * g]
 
-  # Pievieno kalibrēto svaru personām
+  # Add calibrated weight to households
   datY <- merge(datY, datX[, .(IDh, wc)], by = "IDh")
 
-  # Y summārās vērtības pa majsaimniecībām
+  # Estimate of Y total by households
   totY <- datY[, .(y = sum(y)), keyby = IDh]
 
-  # Sakārtojam gadījuma secībā
+  # Set random order
   setorder(datX, rnd)
   setorder(datY, rnd)
 
@@ -63,11 +68,11 @@ test_unordered_residuals <- function(n = 600, l = 3) {
                  outp_res = T)
 
   tmp <- merge(tmpX, res$res_out[, .(IDh, yres2 = y)], by = "IDh")
-  
+
   return(list(tmp[, yres], tmp[, yres2]))
 }
 
-test_that("Parbaude vai nejausa datu seciba nerada kludu vardomh atlikumu aprekina",{
+test_that("Test estimatation of residuals in vardomh",{
   results <- test_unordered_residuals()
   expect_equal(results[[1]], results[[2]])
 })

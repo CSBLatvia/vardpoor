@@ -93,7 +93,7 @@ vardomh <- function(Y, H, PSU, w_final,
           if (min(q %in% names(datasetX)) == 1) q <- datasetX[, q, with = FALSE] } 
      }
 
-  equal_dataset <- identical(all.equal(dataset, datasetX)) & !is.null(X)
+  equal_dataset <- identical(dataset, datasetX) & !is.null(X)
   if (equal_dataset) X_ID_level1 <- ID_level1
   N <- dataset <- datasetX <- NULL
 
@@ -257,6 +257,7 @@ vardomh <- function(Y, H, PSU, w_final,
 
  # X_ID_level1
   if (!is.null(X)) {
+    if (is.null(X_ID_level1)) stop("'X_ID_level1' must be defined")
     X_ID_level1 <- data.table(X_ID_level1)
     X_ID_level1[, (names(X_ID_level1)) := lapply(.SD, as.character)]
     if (any(is.na(X_ID_level1))) stop("'X_ID_level1' has missing values")
@@ -372,8 +373,8 @@ vardomh <- function(Y, H, PSU, w_final,
              idg <- merge(ID_level1h, idhx, by = names(ID_level1h), sort = FALSE)
              w_design <- w_final / idg[[ncol(idg)]]
              idg <- data.table(idg, w_design = w_design)
-             idh <- idg[, .N, keyby = c(names(idh), "w_design")]
-             if (nrow(X) != nrow(ID_level1h))  stop("Aggregated 'w_design' length must the same as matrix 'X'")
+             idh <- idg[, .N, keyby = c(names(ID_level1h), "w_design")]
+             if (nrow(X) != nrow(idh))  stop("Aggregated 'w_design' length must the same as matrix 'X'")
              idg <- idhx <- ID_level1h <- NULL
       } else w_design <- w_final
       
@@ -539,15 +540,15 @@ vardomh <- function(Y, H, PSU, w_final,
   var_srs_ca <- Y4 <- NULL
 
   # Total estimation
-  Y_nov <- Z_nov <- .SD <- NULL
+  Y_est <- Z_est <- .SD <- NULL
 
   hY <- data.table(Y1 * w_final)
-  if (is.null(period)) { Y_nov <- hY[, lapply(.SD, sum, na.rm = TRUE), .SDcols = names(Y1)]
+  if (is.null(period)) { Y_est <- hY[, lapply(.SD, sum, na.rm = TRUE), .SDcols = names(Y1)]
                 } else { hY <- data.table(period0, hY)
-                         Y_nov <- hY[, lapply(.SD, sum, na.rm = TRUE), keyby = names(period), .SDcols = names(Y1)]
+                         Y_est <- hY[, lapply(.SD, sum, na.rm = TRUE), keyby = names(period), .SDcols = names(Y1)]
                        }
-  Y_nov <- transpos(Y_nov, is.null(period), "Y_nov", names(period))
-  all_result <- merge(all_result, Y_nov)
+  Y_est <- transpos(Y_est, is.null(period), "Y_est", names(period))
+  all_result <- merge(all_result, Y_est)
   
   if (!is.null(Z1)) {
          YZnames <- data.table(variable = names(Y1), variableDZ = names(Z1))
@@ -556,24 +557,24 @@ vardomh <- function(Y, H, PSU, w_final,
          all_result <- merge(all_result, YZnames)
          
          hZ <- data.table(Z1 * w_final)
-         if (is.null(period)) { Z_nov <- hZ[, lapply(.SD, sum, na.rm = TRUE), .SDcols = names(Z1)]
+         if (is.null(period)) { Z_est <- hZ[, lapply(.SD, sum, na.rm = TRUE), .SDcols = names(Z1)]
                        } else { hZ <- data.table(period0, hZ)
-                                Z_nov <- hZ[, lapply(.SD, sum, na.rm = TRUE), keyby = names(period), .SDcols = names(Z1)]
+                                Z_est <- hZ[, lapply(.SD, sum, na.rm = TRUE), keyby = names(period), .SDcols = names(Z1)]
                               }
-         Z_nov <- transpos(Z_nov, is.null(period), "Z_nov", names(period), "variableDZ")
+         Z_est <- transpos(Z_est, is.null(period), "Z_est", names(period), "variableDZ")
          setkeyv(all_result, c(names(period), "variableDZ"))
-         all_result <- merge(all_result, Z_nov, all = TRUE)                                            
+         all_result <- merge(all_result, Z_est, all = TRUE)                                            
       }
 
   vars <- data.table(variable = names(Y1), nr_names = 1 : ncol(Y1))
-  all_result <- merge(vars, all_result, by="variable")
+  all_result <- merge(vars, all_result, by = "variable")
                         
-  vars <- idper <- Y1 <- Z1 <- Y_nov <- NULL
-  Z_nov <- period0 <- hY <- hZ <- NULL
+  vars <- idper <- Y1 <- Z1 <- Y_est <- NULL
+  Z_est <- period0 <- hY <- hZ <- NULL
   YZnames <- dati <- NULL
 
-  all_result[, estim := Y_nov]   
-  if (!is.null(all_result$Z_nov)) all_result[, estim := Y_nov / Z_nov * percentratio]
+  all_result[, estim := Y_est]   
+  if (!is.null(all_result$Z_est)) all_result[, estim := Y_est / Z_est * percentratio]
 
   if (nrow(all_result[var_est < 0]) > 0) stop("Estimation of variance are negative!")
  
@@ -601,7 +602,7 @@ vardomh <- function(Y, H, PSU, w_final,
   all_result[, CI_upper := estim + tsad * se]
 
   setnames(all_result, c("variable", "var_est"), c("variableD", "var"))
-  if (!is.null(all_result$Z_nov)) {
+  if (!is.null(all_result$Z_est)) {
                          nosrZ <- all_result$variableDZ
                          nosrZ <- nosrZ[!duplicated(nosrZ)]
                          nosrZ1 <- data.table(variableZ = t(data.frame(strsplit(nosrZ, "__")))[, c(1)])
@@ -625,14 +626,19 @@ vardomh <- function(Y, H, PSU, w_final,
   all_result <- merge(nosr, all_result, by="variableD")
   namesDom <- nosr <- NULL
   
-  if (!is.null(all_result$Z_nov)) { 
+  if (!is.null(all_result$Z_est)) { 
        all_result[, variable := paste("R", get("variable"), get("variableZ"), sep="__")] }
 
   if (!is.null(c(Dom, period))) { all_result <- merge(all_result, nhs,
                                                       all = TRUE, by = c(namesDom1, names(period)))
                          } else { all_result[, respondent_count := nhs$respondent_count]
                                   all_result[, pop_size := nhs$pop_size]} 
+
   variab <- c("respondent_count", "n_nonzero", "pop_size")
+  if (!is.null(all_result$Z_est)) variab <- c(variab, "Y_est", "Z_est")
+  variab <- c(variab, "estim", "var", "se", "rse", "cv", 
+              "absolute_margin_of_error", "relative_margin_of_error",
+              "CI_lower", "CI_upper")
   if (is.null(Dom))  variab <- c(variab, "S2_y_HT", "S2_y_ca", "S2_res") 
   variab <- c(variab, "var_srs_HT",  "var_cur_HT", "var_srs_ca",
               "deff_sam", "deff_est", "deff")

@@ -5,7 +5,7 @@
 \title{Linearization of the relative median income ratio}
 
 \description{
-Estimates the arelative median income ratio (defined as the ratio of the median equivalised disposable income of people aged above age  to the median equivalised disposable income of those aged below 65) and computes linearized variable for variance estimation.
+Estimates the relative median income ratio (defined as the ratio of the median equivalised disposable income of people aged above age  to the median equivalised disposable income of those aged below 65) and computes linearized variable for variance estimation.
 }
 
 

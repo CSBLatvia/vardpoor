@@ -2,7 +2,7 @@
 
 \alias{vardcrosannual}
 
-\title{Variance estimation for measures of annual estiamtes for single and multistage stage cluster sampling designs}
+\title{Variance estimation for measures of annual estimates for single and multistage stage cluster sampling designs}
 
 \description{Computes the variance estimation for measures of annual estimates for single and multistage stage cluster sampling designs.}
 

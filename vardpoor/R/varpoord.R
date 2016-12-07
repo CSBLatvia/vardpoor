@@ -111,7 +111,6 @@ varpoord <- function(Y, w_final,
           if (min(Dom %in% names(dataset)) == 1) Dom <- dataset[, Dom, with = FALSE] }
     }
 
-  if (is.null(datasetX)) datasetX <- copy(dataset)
   if(!is.null(datasetX)) {
       dataset <- data.table(datasetX)
        if (!is.null(periodX)) {

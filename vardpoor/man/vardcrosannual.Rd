@@ -240,7 +240,7 @@ data[, country := "AT"]
 data[, quarter:= .I - 4 * trunc((.I - 1) / 4)]
 data[age < 0, age:= 0]
 PSU <- data[, .N, keyby = "db030"][, N:= NULL]
-PSU[, PSU:= trunc(runif(nrow(PSU), 0, 5))]
+PSU[, PSU:= trunc(runif(nrow(PSU), 0, 100))]
 data <- merge(data, PSU, all = TRUE, by = "db030")
 PSU <- eusilc <- NULL
 data[, strata := c("XXXX")]

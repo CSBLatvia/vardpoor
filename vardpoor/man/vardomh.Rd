@@ -2,7 +2,7 @@
 
 \alias{vardomh}
 
-\title{Variance estimation for sample surveys in domain for two stage surveys by the ultimate
+\title{Variance estimation for sample surveys in domain for one or two stage surveys by the ultimate
                         cluster method}
 
 \description{Computes the variance estimation in domain for ID_level1.}

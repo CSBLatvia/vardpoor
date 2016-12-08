@@ -19,10 +19,10 @@ Generation of domain variables,
     median income of individuals below at risk of poverty gap,
     income quintile share ratio,
     relative median at risk of poverty gap),
-  computation of regression residuals in case of weight calibration,
+  computation of regression residuals in case of weight calibration, 
   variance estimation of sample surveys by the ultimate cluster method
-    (Hansen, Hurwitz and Madow, 1953),
-  variance estimation for longitudinal, cross - sectional measures and measures of change for single and multistage stage cluster sampling designs (Berger, Y. G.).
+    (Hansen, Hurwitz and Madow, Theory, vol. I: Methods and Applications; vol. II: Theory.  1953,  New York: John Wiley and Sons.),
+  variance estimation for longitudinal, cross - sectional measures and measures of change for single and multistage stage cluster sampling designs (Berger, Y. G. ,2015, <doi:10.1111/rssa.12116>).
   Several other precision measures are derived - standard error,
     the coefficient of variation,
     the margin of error,
@@ -33,7 +33,7 @@ Generation of domain variables,
 \tabular{ll}{
 Package: \tab vardpoor\cr
 Version: \tab 0.8.0\cr
-Date: \tab 2016-12-07\cr
+Date: \tab 2016-12-08\cr
 Depends: \tab R (>= 3.2.3), data.table (>= 1.9.6), laeken, stringr\cr
 Imports: \tab reshape, foreach, plyr, gdata, MASS, stats, utils, surveyplanning\cr
 License: \tab GPL (>= 2)\cr
@@ -75,8 +75,8 @@ vardom                  Estimation of the variance in domain by the ultimate
                         cluster method
 vardom_othstr           Variance estimation for sample surveys in domain 
                         using two stratification
-vardomh                 Variance Estimation in domain for household
-                        surveys by the ultimate cluster method
+vardomh                 Variance estimation for sample surveys in domain for one
+                        or two stage surveys by the ultimate cluster method
 vardpoor-package        Variance estimation for sample surveys by the 
                         ultimate cluster method ~~ package title ~~
 variance_est            Variance estimation for sample surveys by the ultimate

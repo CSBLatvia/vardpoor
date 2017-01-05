@@ -13,6 +13,6 @@ Description: Generation of domain variables, linearisation of several nonlinear 
 License: GPL (>= 2)
 Encoding: latin1
 Repository: CRAN
-URL: https://github.com/CSBLatvia/vardpoor/
+URL: https://csblatvia.github.io/vardpoor/
 BugReports: https://github.com/CSBLatvia/vardpoor/issues/
 NeedsCompilation: yes

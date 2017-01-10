@@ -37,13 +37,15 @@ residual_est <- function (Y, X, weight, q) {
   ee <- as.data.frame(matrix(NA, n, m))
   ws <- weight * q
  
-  kolonnas <- colSums(!is.na(X)) == nrow(X)
   B <- t(X[, kolonnas] * ws)
+  matr <- ginv(B %*% X) %*% B
+  B <- ws <- q <- weight <- NULL
 
   for (i in 1:ncol(Y)) {
-          beta <- ginv(B %*% X[, kolonnas]) %*% B %*% Y[, i]
-          ee[, i] <- Y[, i] - X[, kolonnas] %*% beta
+          beta <- matr %*% Y[, i]
+          ee[, i] <- Y[, i] - X %*% beta
          }
+  Y <- X <- beta <- NULL
 
   colnames(ee) <- colnames(Y)
 

@@ -108,7 +108,7 @@ variance_othstr <- function(Y, H, H2, w_final, N_h = NULL, N_h2, period = NULL, 
       if (is.null(names(N_h2))) stop("'N_h2' must be colnames")
 
       nams2 <- c(names(period), names(H2))
-      if (all(nams2 %in% names(N_h2))) {N_h2[, (nams) := lapply(.SD, as.character), .SDcols = nams2]
+      if (all(nams2 %in% names(N_h2))) {N_h2[, (nams2) := lapply(.SD, as.character), .SDcols = nams2]
              } else stop(paste0("All strata titles of 'H2'", ifelse(!is.null(period), "and periods titles of 'period'", ""), " have not in 'N_h2'"))
    
       if (is.null(period)) {

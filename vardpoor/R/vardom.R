@@ -350,6 +350,7 @@ vardom <- function(Y, H, PSU, w_final,
   n_nonzero <- vars <- Y1 <- Z1 <- Y_est <- Z_est <- hY <- hZ <- YZnames <- NULL
 
   # Calibration
+
   res_outp <- NULL
   if (!is.null(X)) {
         if (!is.null(period)) ind_gr <- data.table(ind_gr, period)
@@ -362,12 +363,12 @@ vardom <- function(Y, H, PSU, w_final,
                                                 weight = w_design[i],
                                                 q = q[i])))
         Y3 <- rbindlist(lin1)
+        X <- g <- q <- NULL
         setkeyv(Y3, "sar_nr")
         Y3[, sar_nr := NULL]
         if (outp_res) res_outp <- data.table(idper, PSU, Y3)
-  } else Y3 <- Y2
-  idper <- X <- g <- q <- NULL  
-
+    } else Y3 <- Y2
+  
   var_est <- variance_est(Y = Y3, H = H, PSU = PSU,
                           w_final = w_final, N_h = N_h,
                           fh_zero = fh_zero,
@@ -388,7 +389,7 @@ vardom <- function(Y, H, PSU, w_final,
                              period = period,
                              dataset = NULL,
                              msg = "Variance of HT estimator under current design")
-  H <- PSU <- PSU_sort <- N_h <- NULL
+  idper <- H <- PSU <- PSU_sort <- N_h <- NULL
   var_cur_HT <- transpos(var_cur_HT, is.null(period), "var_cur_HT", names(period))
   all_result <- merge(all_result, var_cur_HT, all = TRUE, by = c(names(period), "variable"))
   var_est <- var_cur_HT <- NULL

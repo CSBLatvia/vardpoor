@@ -9,14 +9,12 @@ residual_est <- function (Y, X, weight, q) {
   if(any(is.na(Y))) print("'Residual_est': 'Ys' has missing values", call. = FALSE)
  
   # X
-  X <- as.matrix(X)
+  X <- data.table(X, check.names = TRUE)
   if (nrow(X) != n) stop("'X' and 'Y' must be equal row count")
   if (!all(sapply(X, is.numeric))) stop("'X' must be numeric")
-
-  X1 <- data.table(X, check.names = TRUE)
-  X1 <- X1[, lapply(.SD, function(x) sum(!is.na(x)))]
+  X1 <- X[, lapply(.SD, function(x) sum(!is.na(x)))]
   if (!all(X1 == n)) stop("X has missing values")
-  X1 <- NULL
+  X <- as.matrix(X)
 
   # weight
   weight <- data.frame(weight)
@@ -45,9 +43,8 @@ residual_est <- function (Y, X, weight, q) {
           beta <- matr %*% Y[, i]
           ee[, i] <- Y[, i] - X %*% beta
          }
+  names(ee) <- names(Y)
   Y <- X <- beta <- NULL
-
-  colnames(ee) <- colnames(Y)
 
   return(ee)
 }

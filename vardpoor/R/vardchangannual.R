@@ -307,11 +307,11 @@ vardchangannual <- function(Y, H, PSU, w_final,
        if (ID_level1h[, class(get(nperIDh))] != X_ID_level1[, class(get(nperIDh))])  stop("Class for 'X_ID_level1' and class for 'ID_level1' must be equal ")
 
        if (!is.null(country)) {
-           if (nrow(ID_level1h) != nrow(X_ID_level1)) stop("'unique(countryX, periodX, X_ID_level1)' and 'unique(country, period, ID_level1)' have different row count")
+           if (nrow(ID_level1h) != nrow(X_ID_level1)) stop("'unique(countryX, yearsX, subperiodsX, X_ID_level1)' and 'unique(country, years, subperiods, ID_level1)' have different row count")
            if (any(ID_level1h != X_ID_level1)) stop("''unique(countryX, periodX, X_ID_level1)' and 'unique(country, period, ID_level1)' records have different")
          } else {
-           if (nrow(ID_level1h) != nrow(X_ID_level1)) stop("'unique(periodX, X_ID_level1)' and 'unique(period, ID_level1)' have different row count")
-           if (any(ID_level1h != X_ID_level1)) stop("''unique(periodX, X_ID_level1)' and 'unique(period, ID_level1)' records have different")  }
+           if (nrow(ID_level1h) != nrow(X_ID_level1)) stop("'unique(yearsX, subperiodsX, X_ID_level1)' and 'unique(years, subperiods, ID_level1)' have different row count")
+           if (any(ID_level1h != X_ID_level1)) stop("''unique(yearsX, subperiodsX, X_ID_level1)' and 'unique(years, subperiods, ID_level1)' records have different")  }
      }
 
    # ind_gr

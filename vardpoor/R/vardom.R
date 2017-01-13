@@ -1,13 +1,13 @@
 transpos <- function(variable, period_NULL, valnames, pernames, variabname = NULL) {
-        if (period_NULL) {dati <- data.table(nv=names(variable), t(variable))
+        if (period_NULL) {dati <- data.table(nv = names(variable), t(variable))
                           setnames(dati, names(dati), c("variable", valnames))
                  } else { dati <- melt(variable, id=c(pernames))
                           setnames(dati, names(dati)[ncol(dati)], valnames)
                    } 
-       dati[, variable:=as.character(variable)]
+       dati[, variable := as.character(variable)]
        if (!is.null(variabname)) { setnames(dati, "variable", variabname)
                             } else variabname <- "variable"
-       setkeyv(dati, c(pernames, variabname)) 
+       setkeyv(dati, c(pernames, variabname))
        return(dati)
 }
 
@@ -81,7 +81,8 @@ vardom <- function(Y, H, PSU, w_final,
             if (min(PSU_sort %in% names(dataset)) != 1) stop("'PSU_sort' does not exist in 'dataset'!")
             if (min(PSU_sort %in% names(dataset)) == 1) PSU_sort <- dataset[, PSU_sort, with = FALSE] }  
      }
-
+  dataset <- NULL
+  
   # Y
   Y <- data.table(Y, check.names = TRUE)
   n <- nrow(Y)
@@ -136,7 +137,7 @@ vardom <- function(Y, H, PSU, w_final,
           if (any(is.na(PSU_sort))) stop("'PSU_sort' has missing values")
 
           psuag <- data.table(PSU, PSU_sort)
-          if (!is.null(period)) hpY <- data.table(period, psuag)
+          if (!is.null(period)) psuag <- data.table(period, psuag)
           psuag <- psuag[,.N, by=names(psuag)][,N := NULL]
           psuag <- psuag[,.N, by=c(names(period), names(PSU))]
           if (nrow(psuag[N>1])>0) stop("'PSU_sort' must be equal for each 'PSU'")
@@ -162,21 +163,19 @@ vardom <- function(Y, H, PSU, w_final,
       if (!is.numeric(N_h[[ncol(N_h)]])) stop("The last column of 'N_h' should be numeric")
       if (any(is.na(N_h))) stop("'N_h' has missing values") 
       if (is.null(names(N_h))) stop("'N_h' must have column names")
-      if (all(names(H) %in% names(N_h))) {N_h[, (names(H)) := as.character(get(names(H)))]
-             } else stop("All strata titles of 'H' have not in 'N_h'")
+      nams <- c(names(period), names(H))
+      if (all(nams %in% names(N_h))) {N_h[, (nams) := lapply(.SD, as.character), .SDcols = nams]
+             } else stop(paste0("All strata titles of 'H'", ifelse(!is.null(period), "and periods titles of 'period'", ""), " have not in 'N_h'"))
+   
       if (is.null(period)) {
-             if (names(H) != names(N_h)[1]) stop("Strata titles for 'H' and 'N_h' is not equal")
-             if (any(is.na(merge(unique(H), N_h, by=names(H), all.x = TRUE)))) stop("'N_h' is not defined for all strata")
+             if (any(is.na(merge(unique(H), N_h, by = names(H), all.x = TRUE)))) stop("'N_h' is not defined for all strata")
              if (any(duplicated(N_h[, head(names(N_h), -1), with = FALSE]))) stop("Strata values for 'N_h' must be unique")
        } else { pH <- data.table(period, H)
-                if (any(names(pH) != names(N_h)[c(1 : (1 + np))])) stop("Strata titles for 'period' with 'H' and 'N_h' is not equal")
-                nperH <- names(period)
-                N_h[, (nperH) := as.character(get(nperH))]
                 if (any(is.na(merge(unique(pH), N_h, by = names(pH), all.x = TRUE)))) stop("'N_h' is not defined for all strata and periods")
                 if (any(duplicated(N_h[, head(names(N_h), -1), with = FALSE]))) stop("Strata values for 'N_h' must be unique in all periods")
                 pH <- NULL
-     }
-    setkeyv(N_h, names(N_h)[c(1 : (1 + np))])
+              }
+      setkeyv(N_h, names(N_h)[c(1 : (1 + np))])
   }
 
   # Dom
@@ -264,6 +263,7 @@ vardom <- function(Y, H, PSU, w_final,
       
   # Domains
   if (!is.null(Dom)) Y1 <- domain(Y, Dom) else Y1 <- Y
+  Y <- NULL
   n_nonzero <- copy(Y1)
   if (!is.null(period)){ n_nonzero <- data.table(period, n_nonzero) 
                          n_nonzero <- n_nonzero[, lapply(.SD, function(x) 
@@ -303,11 +303,11 @@ vardom <- function(Y, H, PSU, w_final,
     if (is.null(period)) {
           Y2 <- lin.ratio(Y1, Z1, w_final, Dom = NULL, percentratio = percentratio)
         } else {
-            periodap <- do.call("paste", c(as.list(period), sep="_"))
+            periodap <- do.call("paste", c(as.list(period), sep = "_"))
             lin1 <- lapply(split(Y1[, .I], periodap), function(i)
                             data.table(sar_nr = i, 
                                    lin.ratio(Y1[i], Z1[i], w_final[i],
-                                             Dom=NULL, percentratio = percentratio)))
+                                             Dom = NULL, percentratio = percentratio)))
             Y2 <- rbindlist(lin1)
             setkeyv(Y2, "sar_nr")
             Y2[, sar_nr := NULL]
@@ -317,15 +317,45 @@ vardom <- function(Y, H, PSU, w_final,
   } else {
           Y2 <- Y1
          }
-  Y <- Z <- NULL
+
+  # Total estimation
+  lin1 <- Z <- Y_est <- Z_est <- NULL
+  
+  hY <- data.table(Y1 * w_final)
+  if (is.null(period)) { Y_est <- hY[, lapply(.SD, sum, na.rm = TRUE), .SDcols = names(Y1)]
+                } else { hY <- data.table(period, hY)
+                         Y_est <- hY[, lapply(.SD, sum, na.rm = TRUE), keyby = names(period), .SDcols = names(Y1)]
+                       }
+  Y_est <- transpos(Y_est, is.null(period), "Y_est", names(period))
+  all_result <- Y_est
+
+  if (!is.null(Z1)) {
+         YZnames <- data.table(variable = names(Y1), variableDZ = names(Z1))
+         all_result <- merge(all_result, YZnames, all = TRUE, by = "variable")
+         
+         hZ <- data.table(Z1 * w_final)
+         if (is.null(period)) { Z_est <- hZ[, lapply(.SD, sum, na.rm = TRUE), .SDcols = names(Z1)]
+                       } else { hZ <- data.table(period, hZ)
+                                Z_est <- hZ[, lapply(.SD, sum, na.rm = T), keyby = names(period), .SDcols = names(Z1)]
+                              }
+         Z_est <- transpos(Z_est, is.null(period), "Z_est", names(period), "variableDZ")
+         all_result <- merge(all_result, Z_est, all = TRUE, by = c(names(period), "variableDZ"))
+      }
+
+  vars <- data.table(variable = names(Y1), nr_names = 1 : ncol(Y1))
+  all_result <- merge(vars, all_result, all = TRUE, by = "variable")
+
+  n_nonzero <- transpos(n_nonzero, is.null(period), "n_nonzero", names(period))
+  all_result <- merge(all_result, n_nonzero, all = TRUE, by = c(names(period), "variable"))
+  n_nonzero <- vars <- Y1 <- Z1 <- Y_est <- Z_est <- hY <- hZ <- YZnames <- NULL
 
   # Calibration
   res_outp <- NULL
   if (!is.null(X)) {
         if (!is.null(period)) ind_gr <- data.table(ind_gr, period)
-        ind_gr <- do.call("paste", c(as.list(ind_gr), sep="_"))
+        ind_gr <- do.call("paste", c(as.list(ind_gr), sep = "_"))
 
-        lin1 <- lapply(split(Y2[,.I], ind_gr), function(i) 
+        lin1 <- lapply(split(Y2[,.I], ind_gr), function(i)
                         data.table(sar_nr = i,
                                    residual_est(Y = Y2[i],                                   
                                                 X = X[i],
@@ -336,7 +366,8 @@ vardom <- function(Y, H, PSU, w_final,
         Y3[, sar_nr := NULL]
         if (outp_res) res_outp <- data.table(idper, PSU, Y3)
   } else Y3 <- Y2
-  
+  idper <- X <- g <- q <- NULL  
+
   var_est <- variance_est(Y = Y3, H = H, PSU = PSU,
                           w_final = w_final, N_h = N_h,
                           fh_zero = fh_zero,
@@ -346,11 +377,8 @@ vardom <- function(Y, H, PSU, w_final,
                           dataset = NULL,
                           msg = "Current variance estimation")
   var_est <- transpos(var_est, is.null(period), "var_est", names(period))
-  all_result <- var_est
-    
-  n_nonzero <- transpos(n_nonzero, is.null(period), "n_nonzero", names(period))
-  all_result <- merge(all_result, n_nonzero, all = TRUE)
- 
+  all_result <- merge(all_result, var_est, all = TRUE, by = c(names(period), "variable"))
+   
   # Variance of HT estimator under current design
   var_cur_HT <- variance_est(Y = Y2, H = H, PSU = PSU,
                              w_final = w_design, N_h = N_h, 
@@ -360,9 +388,10 @@ vardom <- function(Y, H, PSU, w_final,
                              period = period,
                              dataset = NULL,
                              msg = "Variance of HT estimator under current design")
+  H <- PSU <- PSU_sort <- N_h <- NULL
   var_cur_HT <- transpos(var_cur_HT, is.null(period), "var_cur_HT", names(period))
-  all_result <- merge(all_result, var_cur_HT, all = TRUE)
-  n_nonzero <- var_est <- var_cur_HT <- NULL
+  all_result <- merge(all_result, var_cur_HT, all = TRUE, by = c(names(period), "variable"))
+  var_est <- var_cur_HT <- NULL
   
   # Variance of HT estimator under SRS
   if (is.null(period)) {
@@ -385,12 +414,14 @@ vardom <- function(Y, H, PSU, w_final,
            var_srs_HT <- rbindlist(lapply(lin1, function(x) x[[2]]))
            S2_y_ca <- rbindlist(lapply(lin1, function(x) x[[3]]))           
       }
+  Y2 <- w_design <- NULL
   var_srs_HT <- transpos(var_srs_HT, is.null(period), "var_srs_HT", names(period))
-  all_result <- merge(all_result, var_srs_HT, all = TRUE)
+  all_result <- merge(all_result, var_srs_HT, all = TRUE, by = c(names(period), "variable"))
   S2_y_HT <- transpos(S2_y_HT, is.null(period), "S2_y_HT", names(period))
-  all_result <- merge(all_result, S2_y_HT, all = TRUE)
+  all_result <- merge(all_result, S2_y_HT, all = TRUE, by = c(names(period), "variable"))
+
   S2_y_ca <- transpos(S2_y_ca, is.null(period), "S2_y_ca", names(period))
-  all_result <- merge(all_result, S2_y_ca, all = TRUE)
+  all_result <- merge(all_result, S2_y_ca, all = TRUE, by = c(names(period), "variable"))
 
   # Variance of calibrated estimator under SRS
   if (is.null(period)) {
@@ -409,42 +440,14 @@ vardom <- function(Y, H, PSU, w_final,
            S2_res <- rbindlist(lapply(lin1, function(x) x[[1]]))
            var_srs_ca <- rbindlist(lapply(lin1, function(x) x[[2]]))
         }
-  Y3 <- NULL
-  var_srs_ca <- transpos(var_srs_ca, is.null(period), "var_srs_ca", names(period), "variable")
-  all_result <- merge(all_result, var_srs_ca, all = TRUE)
+  Y3 <- w_final <- NULL
+  var_srs_ca <- transpos(var_srs_ca, is.null(period), "var_srs_ca", names(period), )
+  all_result <- merge(all_result, var_srs_ca, all = TRUE, by = c(names(period), "variable"))
+
   S2_res <- transpos(S2_res, is.null(period), "S2_res", names(period), "variable")
-  all_result <- merge(all_result, S2_res, all = TRUE)
-  Y2 <- S2_y_HT <- S2_y_ca <- S2_res <- var_srs_HT <- var_srs_ca <- NULL
+  all_result <- merge(all_result, S2_res, all = TRUE, by = c(names(period), "variable"))
+  S2_y_HT <- S2_y_ca <- S2_res <- var_srs_HT <- var_srs_ca <- NULL
 
-  # Total estimation
-  Y_est <- Z_est <- NULL
-  
-  hY <- data.table(Y1 * w_final)
-  if (is.null(period)) { Y_est <- hY[, lapply(.SD, sum, na.rm = TRUE), .SDcols = names(Y1)]
-                } else { hY <- data.table(period, hY)
-                         Y_est <- hY[, lapply(.SD, sum, na.rm = TRUE), keyby = names(period), .SDcols = names(Y1)]
-                       }
-  Y_est <- transpos(Y_est, is.null(period), "Y_est", names(period))
-  all_result <- merge(all_result, Y_est, all = TRUE)
-
-  if (!is.null(Z1)) {
-         YZnames <- data.table(variable = names(Y1), variableDZ = names(Z1))
-         all_result <- merge(all_result, YZnames, all = TRUE, by = "variable")
-         
-         hZ <- data.table(Z1 * w_final)
-         if (is.null(period)) { Z_est <- hZ[, lapply(.SD, sum, na.rm = TRUE), .SDcols = names(Z1)]
-                       } else { hZ <- data.table(period, hZ)
-                                Z_est <- hZ[, lapply(.SD, sum, na.rm = T), keyby = names(period), .SDcols = names(Z1)]
-                              }
-         Z_est <- transpos(Z_est, is.null(period), "Z_est", names(period), "variableDZ")
-         all_result <- merge(all_result, Z_est, all = TRUE, by = "variableDZ")
-      }
-
-  vars <- data.table(variable = names(Y1), nr_names = 1 : ncol(Y1))
-  all_result <- merge(vars, all_result, all = TRUE, by = "variable")
-
-  vars <- idper <- Y_est <- NULL
-  Z_est <- hY <- hZ <- YZnames <- dati <- NULL                          
 
   all_result[, estim := Y_est]
   if (!is.null(all_result$Z_est)) all_result[, estim := Y_est / Z_est * percentratio] 
@@ -475,15 +478,14 @@ vardom <- function(Y, H, PSU, w_final,
   
   setnames(all_result, c("variable", "var_est"), c("variableD", "var"))
   if (!is.null(all_result$Z_est)) {
-                       nosrZ <- all_result$variableDZ
+                       nosrZ <- data.table(all_result[, "variableDZ"], all_result[, tstrsplit(variableDZ, "__")][, 1])
                        nosrZ <- nosrZ[!duplicated(nosrZ)]
-                       nosrZ1 <- data.table(variableZ = t(data.frame(strsplit(nosrZ, "__")))[, c(1)])
-                       nosrZ <- data.table(variableDZ = nosrZ, nosrZ1)
-                       all_result <- merge(all_result, nosrZ, by="variableDZ")
-                       nosrZ <- nosrZ1 <- NULL
+                       setnames(nosrZ, "V1", "variableZ")
+                       all_result <- merge(all_result, nosrZ, by = "variableDZ")
+                       nosrZ <- NULL
                     }
 
-  nosr <- data.table(variableD = all_result$variableD, t(data.frame(strsplit(all_result$variableD, "__"))))
+  nosr <- data.table(all_result[, "variableD"], all_result[, tstrsplit(variableD, "__")])
   nosr <- nosr[!duplicated(nosr)]
   nosr <- nosr[, lapply(nosr, as.character)]
   setnames(nosr, names(nosr)[2], "variable")
@@ -491,7 +493,7 @@ vardom <- function(Y, H, PSU, w_final,
   namesDom1 <- namesDom
   if (!is.null(Dom)) {
        setnames(nosr, names(nosr)[3:ncol(nosr)], paste0(namesDom, "_new"))
-       nhs[, (paste0(namesDom, "_new")) := lapply(namesDom, function(x) make.names(paste0(x,".", get(x))))]
+       nhs[, (paste0(namesDom, "_new")) := lapply(namesDom, function(x) make.names(paste0(x, ".", get(x))))]
        namesDom1 <- paste0(namesDom, "_new")
     }
 

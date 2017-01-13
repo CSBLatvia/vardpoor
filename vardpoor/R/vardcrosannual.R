@@ -286,11 +286,11 @@ vardcrosannual <- function(Y, H, PSU, w_final,
        if (ID_level1h[, class(get(nperIDh))] != X_ID_level1[, class(get(nperIDh))])  stop("Class for 'X_ID_level1' and class for 'ID_level1' must be equal ")
 
        if (!is.null(country)) {
-           if (nrow(ID_level1h) != nrow(X_ID_level1)) stop("'unique(countryX, periodX, X_ID_level1)' and 'unique(country, period, ID_level1)' have different row count")
-           if (any(ID_level1h != X_ID_level1)) stop("''unique(countryX, periodX, X_ID_level1)' and 'unique(country, period, ID_level1)' records have different")
+           if (nrow(ID_level1h) != nrow(X_ID_level1)) stop("'unique(countryX, yearsX, subperiodsX, X_ID_level1)' and 'unique(country, years, subperiods, ID_level1)' have different row count")
+           if (any(ID_level1h != X_ID_level1)) stop("''unique(countryX, yearsX, subperiodsX, X_ID_level1)' and 'unique(country, years, subperiods, ID_level1)' records have different")
          } else {
-           if (nrow(ID_level1h) != nrow(X_ID_level1)) stop("'unique(periodX, X_ID_level1)' and 'unique(period, ID_level1)' have different row count")
-           if (any(ID_level1h != X_ID_level1)) stop("''unique(periodX, X_ID_level1)' and 'unique(period, ID_level1)' records have different")  }
+           if (nrow(ID_level1h) != nrow(X_ID_level1)) stop("'unique(yearsX, subperiodsX, X_ID_level1)' and 'unique(years, subperiods, ID_level1)' have different row count")
+           if (any(ID_level1h != X_ID_level1)) stop("''unique(yearsX, subperiodsX, X_ID_level1)' and 'unique(years, subperiods, ID_level1)' records have different")  }
      }
 
    # ind_gr
@@ -348,10 +348,10 @@ vardcrosannual <- function(Y, H, PSU, w_final,
    var_est2 <- se  <- CI_lower <- CI_upper <- NULL
 
    pers <- data.table(years, subperiods, 
-                      pers=paste0(years[[names(years)]], "__", subperiods[[names(subperiods)]]))
+                      pers = paste0(years[[names(years)]], "__", subperiods[[names(subperiods)]]))
    if (!is.null(X)) persX <- data.table(yearsX, subperiodsX, 
                                   pers = paste0(yearsX[[names(yearsX)]], "__", subperiodsX[[names(subperiodsX)]]))
-   sarak <- pers[, .N, keyby = names(pers)][, N:=NULL]
+   sarak <- pers[, .N, keyby = names(pers)][, N := NULL]
    
    namesDom <- names(Dom)  
    year1 <- years[, .N, by = yearm][, N := NULL]

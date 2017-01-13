@@ -472,7 +472,7 @@ vardcros <- function(Y, H, PSU, w_final,
          DT1 <- merge(DTc, X0, by = names(ID_level1h))
 
          ind_gr <- DT1[, c(namesperc, names(ind_gr)), with = FALSE]
-         ind_period <- do.call("paste", c(as.list(ind_gr), sep="_"))
+         ind_period <- do.call("paste", c(as.list(ind_gr), sep = "_"))
      
          res <- lapply(split(DT1[, .I], ind_period), function(i)                  
                         data.table(DT1[i, names(ID_level1h), with = FALSE],

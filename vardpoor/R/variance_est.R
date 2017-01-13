@@ -88,7 +88,7 @@ variance_est <- function(Y, H, PSU, w_final, N_h = NULL, fh_zero = FALSE,
           if (any(is.na(PSU_sort))) stop("'PSU_sort' has missing values")
 
           psuag <- data.table(PSU, PSU_sort)
-          if (!is.null(period)) hpY <- data.table(period, psuag)
+          if (!is.null(period)) psuag <- data.table(period, psuag)
           psuag <- psuag[, .N, by = names(psuag)][,N := NULL]
           psuag <- psuag[, .N, by = c(names(period), names(PSU))]
           if (nrow(psuag[N > 1]) > 0) stop("'PSU_sort' must be equal for each 'PSU'")
@@ -101,16 +101,14 @@ variance_est <- function(Y, H, PSU, w_final, N_h = NULL, fh_zero = FALSE,
       if (!is.numeric(N_h[[ncol(N_h)]])) stop("The last column of 'N_h' should be numeric")
       if (any(is.na(N_h))) stop("'N_h' has missing values") 
       if (is.null(names(N_h))) stop("'N_h' must be colnames")
-      if (all(names(H) %in% names(N_h))) {N_h[, (names(H)) := lapply(.SD, as.character), .SDcols = names(H)]
-             } else stop("All strata titles of 'H' have not in 'N_h'")
+      nams <- c(names(period), names(H))
+      if (all(nams %in% names(N_h))) {N_h[, (nams) := lapply(.SD, as.character), .SDcols = nams]
+             } else stop(paste0("All strata titles of 'H'", ifelse(!is.null(period), "and periods titles of 'period'", ""), " have not in 'N_h'"))
+   
       if (is.null(period)) {
-             if (names(H) != names(N_h)[1]) stop("Strata titles for 'H' and 'N_h' is not equal")
              if (any(is.na(merge(unique(H), N_h, by = names(H), all.x = TRUE)))) stop("'N_h' is not defined for all strata")
              if (any(duplicated(N_h[, head(names(N_h), -1), with = FALSE]))) stop("Strata values for 'N_h' must be unique")
        } else { pH <- data.table(period, H)
-                if (any(names(pH) != names(N_h)[c(1 : (1 + np))])) stop("Strata titles for 'period' with 'H' and 'N_h' is not equal")
-                nperH <- names(period)
-                N_h[, (nperH) := as.character(get(nperH))]
                 if (any(is.na(merge(unique(pH), N_h, by = names(pH), all.x = TRUE)))) stop("'N_h' is not defined for all strata and periods")
                 if (any(duplicated(N_h[, head(names(N_h), -1), with = FALSE]))) stop("Strata values for 'N_h' must be unique in all periods")
                 }

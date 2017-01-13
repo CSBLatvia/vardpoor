@@ -78,18 +78,19 @@ variance_othstr <- function(Y, H, H2, w_final, N_h = NULL, N_h2, period = NULL, 
       if (!is.numeric(N_h[[ncol(N_h)]])) stop("The last column of 'N_h' should be numerical")
       if (any(is.na(N_h))) stop("'N_h' has missing values") 
       if (is.null(names(N_h))) stop("'N_h' must be colnames")
-      if (all(names(H) %in% names(N_h))) {N_h[, (names(H)) := lapply(.SD, as.character), .SDcols = names(H)]
-             } else stop("All strata titles of 'H' have not in 'N_h'")
+      nams <- c(names(period), names(H))
+      if (all(nams %in% names(N_h))) {N_h[, (nams) := lapply(.SD, as.character), .SDcols = nams]
+             } else stop(paste0("All strata titles of 'H'", ifelse(!is.null(period), "and periods titles of 'period'", ""), " have not in 'N_h'"))
+   
       if (is.null(period)) {
-             if (names(H) != names(N_h)[1]) stop("Strata titles for 'H' and 'N_h' is not equal")
-             if (any(is.na(merge(unique(H), N_h, by = names(H), all.x = TRUE)))) stop("'N_h' is not defined for all stratas")
+             if (any(is.na(merge(unique(H), N_h, by = names(H), all.x = TRUE)))) stop("'N_h' is not defined for all strata")
+             if (any(duplicated(N_h[, head(names(N_h), -1), with = FALSE]))) stop("Strata values for 'N_h' must be unique")
        } else { pH <- data.table(period, H)
-                if (any(names(pH) != names(N_h)[c(1 : (1 + np))])) stop("Strata titles for 'period' with 'H' and 'N_h' is not equal")
-                nperH <- names(period)
-                N_h[, (nperH) := as.character(get(nperH))]
-                if (any(is.na(merge(unique(pH), N_h, by = names(pH), all.x = TRUE)))) stop("'N_h' is not defined for all stratas and periods")
-               } 
-     setkeyv(N_h, names(N_h)[c(1 : (1 + np))])
+                if (any(is.na(merge(unique(pH), N_h, by = names(pH), all.x = TRUE)))) stop("'N_h' is not defined for all strata and periods")
+                if (any(duplicated(N_h[, head(names(N_h), -1), with = FALSE]))) stop("Strata values for 'N_h' must be unique in all periods")
+                pH <- NULL
+              }
+      setkeyv(N_h, names(N_h)[c(1 : (1 + np))])
   } else {
     Nh <- data.table(H, w_final)
     if (!is.null(period)) Nh <- data.table(period, Nh)
@@ -105,15 +106,16 @@ variance_othstr <- function(Y, H, H2, w_final, N_h = NULL, N_h2, period = NULL, 
       if (!is.numeric(N_h2[[ncol(N_h2)]])) stop("The last column of 'N_h2' should be numerical")
       if (any(is.na(N_h2))) stop("'N_h2' has missing values") 
       if (is.null(names(N_h2))) stop("'N_h2' must be colnames")
-      if (all(names(H2) %in% names(N_h2))) {N_h2[, (names(H2)) := lapply(.SD, as.character), .SDcols = names(H2)]
-             } else stop("All strata titles of 'H2' have not in 'N_h2'")
+
+      nams2 <- c(names(period), names(H2))
+      if (all(nams2 %in% names(N_h2))) {N_h2[, (nams) := lapply(.SD, as.character), .SDcols = nams2]
+             } else stop(paste0("All strata titles of 'H2'", ifelse(!is.null(period), "and periods titles of 'period'", ""), " have not in 'N_h2'"))
+   
       if (is.null(period)) {
              if (names(H2) != names(N_h2)[1]) stop("Strata titles for 'H2' and 'N_h2' is not equal")
              if (any(is.na(merge(unique(H2), N_h2, by = names(H2), all.x = TRUE)))) stop("'N_h2' is not defined for all stratas")
        } else { pH2 <- data.table(period, H2)
                 if (any(names(pH2) != names(N_h2)[c(1 : (1 + np))])) stop("Strata titles for 'period' with 'H2' and 'N_h2' is not equal")
-                nperH <- names(period)
-                N_h2[, (nperH) := as.character(get(nperH))]
                 if (any(is.na(merge(unique(pH2), N_h2, by = names(pH2), all.x = TRUE)))) stop("'N_h2' is not defined for all stratas and periods")
                 } 
     setkeyv(N_h2, names(N_h2)[c(1 : (1 + np))])

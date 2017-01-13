@@ -410,7 +410,7 @@ vardomh <- function(Y, H, PSU, w_final,
 
 
   # Total estimation
-  lin1 <- Y_est <- Z_est <- .SD <- NULL
+  lin1 <- Y_est <- Z_est <- .SD <- variableDZ <- NULL
 
   hY <- data.table(Y1 * w_final)
   if (is.null(period)) { Y_est <- hY[, lapply(.SD, sum, na.rm = TRUE), .SDcols = names(Y1)]
@@ -598,6 +598,7 @@ vardomh <- function(Y, H, PSU, w_final,
   all_result[, CI_lower := estim - tsad * se]
   all_result[, CI_upper := estim + tsad * se]
 
+  variableD <- NULL
   setnames(all_result, c("variable", "var_est"), c("variableD", "var"))
   if (!is.null(all_result$Z_est)) {
                        nosrZ <- data.table(all_result[, "variableDZ"], all_result[, tstrsplit(variableDZ, "__")][, 1])

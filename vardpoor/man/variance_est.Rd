@@ -116,5 +116,3 @@ variance_est(Y = Ys, H = H, PSU = PSU, w_final = w, fh_zero = TRUE)
     \code{\link{vardomh}}, \code{\link{varpoord}},     \code{\link{variance_othstr}}
 } 
 \keyword{vardpoor}
-Contact GitHub API Training Shop Blog About
-© 2017 GitHub, Inc.

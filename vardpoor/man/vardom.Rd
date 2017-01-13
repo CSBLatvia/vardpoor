@@ -37,7 +37,14 @@ vardom(Y, H, PSU, w_final,
 
 \item{PSU_sort}{optional; if PSU_sort is defined, then variance is calculated for systematic sample.}
 
-\item{N_h}{optional data object convertible to \code{data.table}. If period is supplied, the time period is at the beginning of the object and after time period in the object is stratum. If period is not supplied, the first column in the object is stratum. In the last column is the total of the population in each stratum.}
+\item{N_h}{Number of primary sampling units in population for each stratum (and period if \code{period} is not \code{NULL}). If \code{N_h = NULL} and \code{fh_zero = FALSE} (default), \code{N_h} is estimated from sample data as sum of weights (\code{w_final}) in each stratum (and period if \code{period} is not \code{NULL}).
+
+  Optional for single-stage sampling design as it will be estimated from sample data. Recommended for multi-stage sampling design as \code{N_h} can not be correctly estimated from the sample data in this case. If \code{N_h} is not used in case of multi-stage sampling design (for example, because this information is not available), it is advisable to set \code{fh_zero = TRUE}.
+
+  If \code{period} \bold{is} \code{NULL}. A two-column matrix with rows for each stratum. The first column should contain stratum code. The second column - the number of primary sampling units in the population of each stratum.
+
+  If \code{period} \bold{is not} \code{NULL}. A three-column matrix with rows for each intersection of strata and period. The first column should contain period. The second column should contain stratum code. The third column - the number of primary sampling units in the population of each stratum and period.
+}
 
 \item{fh_zero}{by default FALSE; fh is calculated as division of n_h and N_h in each strata, if true, fh value is zero in each strata.}
 

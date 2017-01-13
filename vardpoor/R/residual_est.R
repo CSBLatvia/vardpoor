@@ -2,11 +2,12 @@
 residual_est <- function (Y, X, weight, q) {
  
   # Y
-  Y <- as.data.frame.matrix(data.table(Y, check.names = TRUE))
+  Y <- data.table(Y, check.names = TRUE)
   n <- nrow(Y)
   m <- ncol(Y)
   if (!all(sapply(Y, is.numeric))) stop("'Y' must be numeric")
   if(any(is.na(Y))) print("'Residual_est': 'Ys' has missing values", call. = FALSE)
+  Y <- as.data.frame.matrix(Y)
  
   # X
   X <- data.table(X, check.names = TRUE)

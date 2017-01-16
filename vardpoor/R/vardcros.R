@@ -271,7 +271,7 @@ vardcros <- function(Y, H, PSU, w_final,
     if (!is.null(periodX)) {X_ID_level1 <- data.table(periodX, X_ID_level1)
                             ID_level1h <- data.table(period, ID_level1h)}
     ID_level1h <- ID_level1h[, .N, by = names(ID_level1h)][, N := NULL]
-    if (nrow(X_ID_level1[,.N, by = names(X_ID_level1)][N > 1]) > 0) stop("'X_ID_level1' have duplicates")
+    if (nrow(X_ID_level1[,.N, by = names(X_ID_level1h)][N > 1]) > 0) stop("'X_ID_level1' have duplicates")
     setkeyv(X_ID_level1, names(X_ID_level1))
     setkeyv(ID_level1h, names(ID_level1h))
     nperIDh <- names(ID_level1h)
@@ -311,12 +311,12 @@ vardcros <- function(Y, H, PSU, w_final,
        ind_gr1 <- copy(ind_gr) 
        if (!is.null(periodX)) ind_gr1 <- data.table(periodX, ind_gr1, check.names = TRUE)
        X2 <- data.table(ind_gr1, X1)
-       X1 <- X2[, .N, keyby = names(ind_gr1)][[ncol(ind_gr1) + 1]]
+       X1 <- X2[, .N, keyby = names(ind_gr1)][["N"]]
        X2 <- X2[, lapply(.SD, function(x) sum(!is.na(x))), keyby = names(ind_gr1), .SDcols = nX1]
-       X2 <- X2[, !(names(X2) %in% names(ind_gr1)), with = FALSE]
+       X2 <- X2[, nX1, with = FALSE]
 
        if (!all(X2 == 0 | X1 == X2)) stop("X has missing values")
-       ind_gr1 <- nX1 <- nX2 <- X1 <- X2 <- NULL
+       ind_gr1 <- nX1 <- X1 <- X2 <- NULL
     }
 
   # g

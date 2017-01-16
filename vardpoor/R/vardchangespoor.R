@@ -410,12 +410,12 @@ vardchangespoor <- function(Y, age = NULL,
        nX1 <- names(X1)
        ind_gr1 <- data.table(periodX, ind_gr, check.names = TRUE)
        X2 <- data.table(ind_gr1, X1)
-       X1 <- X2[, .N, keyby = names(ind_gr1)][[ncol(ind_gr1) + 1]]
+       X1 <- X2[, .N, keyby = names(ind_gr1)][["N"]]
        X2 <- X2[, lapply(.SD, function(x) sum(!is.na(x))), keyby = names(ind_gr1), .SDcols = nX1]
-       X2 <- X2[, !(names(X2) %in% names(ind_gr1)), with = FALSE]
+       X2 <- X2[, nX1, with = FALSE]
 
        if (!all(X2 == 0 | X1 == X2)) stop("X has missing values")
-       ind_gr1 <- nX1 <- nX2 <- X1 <- X2 <- NULL
+       ind_gr1 <- nX1 <- X1 <- X2 <- NULL
     }
 
   # g

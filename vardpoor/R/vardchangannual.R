@@ -324,15 +324,14 @@ vardchangannual <- function(Y, H, PSU, w_final,
    if (!is.null(X)) {
         X1 <- data.table(X, check.names = TRUE)
         nX1 <- names(X1)
-        ind_gr1 <- copy(ind_gr) 
-        if (!is.null(periodX)) ind_gr1 <- data.table(periodX, ind_gr1, check.names = TRUE)
+        ind_gr1 <- data.table(yearsX, subperiodsX, ind_gr, check.names = TRUE)
         X2 <- data.table(ind_gr1, X1)
-        X1 <- X2[, .N, keyby = names(ind_gr1)][[ncol(ind_gr1) + 1]]
+        X1 <- X2[, .N, keyby = names(ind_gr1)][["N"]]
         X2 <- X2[, lapply(.SD, function(x) sum(!is.na(x))), keyby = names(ind_gr1), .SDcols = nX1]
-        X2 <- X2[, !(names(X2) %in% names(ind_gr1)), with = FALSE]
+        X2 <- X2[, nX1, with = FALSE]
 
         if (!all(X2 == 0 | X1 == X2)) stop("X has missing values")
-        ind_gr1 <- nX1 <- nX2 <- X1 <- X2 <- NULL
+        ind_gr1 <- nX1 <- X1 <- X2 <- NULL
      }
 
    # g
@@ -376,6 +375,8 @@ vardchangannual <- function(Y, H, PSU, w_final,
    namesDom <- names(Dom)
    apst <- lapply(1 : nrow(year1), function(i) {
 
+
+i=1
                  atsyear <- rbindlist(list(year1[i], year2[i]))
                  atsyear <- merge(atsyear, sarak, all.x = TRUE, by = yearm, sort = FALSE)
                  yr12 <- data.table(year1 = year1[i][[1]], year2 = year2[i][[1]])
@@ -396,9 +397,9 @@ vardchangannual <- function(Y, H, PSU, w_final,
                  datas <- vardchanges(Y = Y, H = H, PSU = PSU, w_final = w_final,
                                       ID_level1 = ID_level1, ID_level2 = ID_level2,
                                       Dom = Dom, Z = Z, country = country,
-                                      period = pers[, "pers", with = FALSE], dataset = NULL,
+                                      period = pers[, "pers"], dataset = NULL,
                                       period1 = yrs[["pers_1"]], period2 = yrs[["pers_2"]],
-                                      X = X, countryX = countryX, periodX = pers[, "pers", with = FALSE],
+                                      X = X, countryX = countryX, periodX = pers[, "persX"],
                                       X_ID_level1 = X_ID_level1, ind_gr = ind_gr,
                                       g = g, q = q, datasetX = NULL, annual = TRUE,
                                       linratio = !is.null(Z), percentratio = percentratio,

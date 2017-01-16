@@ -146,7 +146,7 @@ vardcrospoor <- function(Y, age = NULL, pl085 = NULL,
               if (min(q %in% names(datasetX)) != 1) stop("'q' does not exist in 'datasetX'!") 
               if (min(q %in% names(datasetX)) == 1) q <- datasetX[, q,  with = FALSE] } 
      }
-  equal_dataset <- all.equal(dataset, datasetX) & !is.null(X)
+  equal_dataset <- identical(dataset, datasetX) & !is.null(datasetX) & !is.null(X)
   if (equal_dataset) X_ID_level1 <- ID_level1
   if (equal_dataset) countryX <- country
 

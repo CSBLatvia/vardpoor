@@ -100,9 +100,10 @@ vardchangannual <- function(Y, H, PSU, w_final,
               if (min(q %in% names(datasetX)) == 1) q <- datasetX[, q,  with = FALSE] } 
      }
 
-   equal_dataset <- identical(dataset, datasetX) & !is.null(X)
-   if (equal_dataset) X_ID_level1 <- ID_level1
-   if (equal_dataset) countryX <- country 
+  equal_dataset <- identical(dataset, datasetX) & !is.null(X)
+  if (equal_dataset) X_ID_level1 <- ID_level1
+  if (equal_dataset) countryX <- country 
+  dataset <- datasetX <- NULL
 
   # Y
   Y <- data.table(Y, check.names = TRUE)
@@ -374,9 +375,6 @@ vardchangannual <- function(Y, H, PSU, w_final,
    
    namesDom <- names(Dom)
    apst <- lapply(1 : nrow(year1), function(i) {
-
-
-i=1
                  atsyear <- rbindlist(list(year1[i], year2[i]))
                  atsyear <- merge(atsyear, sarak, all.x = TRUE, by = yearm, sort = FALSE)
                  yr12 <- data.table(year1 = year1[i][[1]], year2 = year2[i][[1]])
@@ -399,7 +397,7 @@ i=1
                                       Dom = Dom, Z = Z, country = country,
                                       period = pers[, "pers"], dataset = NULL,
                                       period1 = yrs[["pers_1"]], period2 = yrs[["pers_2"]],
-                                      X = X, countryX = countryX, periodX = pers[, "persX"],
+                                      X = X, countryX = countryX, periodX = persX[, "pers"],
                                       X_ID_level1 = X_ID_level1, ind_gr = ind_gr,
                                       g = g, q = q, datasetX = NULL, annual = TRUE,
                                       linratio = !is.null(Z), percentratio = percentratio,

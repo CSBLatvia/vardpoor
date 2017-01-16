@@ -484,7 +484,7 @@ vardchangespoor <- function(Y, age = NULL,
   X <- countryX <- periodX <- X_ID_level1 <- ind_gr <- NULL
   ind_gr <- g <- q <- N <- w_final <- namesY <- ind <- NULL
   dataset <- rot <- rot_1 <- rot_2 <- stratasf <- name1 <- NULL
-  num1 <- num1num1 <- num2num2 num1num2 <- num2 <- num1_1 <- NULL
+  num1 <- num1num1 <- num2num2 <- num1num2 <- num2 <- num1_1 <- NULL
   V12 <- grad1 <- grad2 <- num1_2 <- estim <- estim_1 <- nh <- NULL
   nhcor <- var_1 <- var_2 <- typs <- estim_2 <- se  <- NULL
   significant <- rho <- q_1 <- q_2 <- sum1 <- sum2 <- NULL

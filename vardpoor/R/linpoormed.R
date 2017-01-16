@@ -93,7 +93,7 @@ linpoormed <- function(Y, id = NULL, weight = NULL,
    if (anyNA(id)) stop("'id' has unknown values")
    if (ncol(id) != 1) stop("'id' must be 1 column data.frame, matrix, data.table")
    if (nrow(id) != n) stop("'id' must be the same length as 'Y'")
-   if (names(id) == "id")) setnames(id, names(id), "ID")
+   if (names(id) == "id") setnames(id, names(id), "ID")
    if (is.null(period)){ if (any(duplicated(id))) stop("'id' are duplicate values") 
                        } else {
                           id1 <- data.table(period, id)

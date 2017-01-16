@@ -209,7 +209,7 @@ vardchanges <- function(Y, H, PSU, w_final,
    if (ncol(period2) != 1) stop("'period2' must be 1 column")
    setnames(period2, names(period2), names(period))
    period2[, (names(period2)) := lapply(.SD, as.character)]
-   if (anyNA(period2))) stop("'period2' has missing values")
+   if (anyNA(period2)) stop("'period2' has missing values")
    if (anyNA(merge(period2, periods, all.x = TRUE,
                          by = names(period), allow.cartesian = TRUE)))
              stop("'period2' row must be exist in 'period'")

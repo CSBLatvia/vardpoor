@@ -81,7 +81,7 @@ lingini <- function(Y, id = NULL, weight = NULL,
    # id
    if (is.null(id)) id <- 1 : n
    id <- data.table(id)
-   if (any(NA(id)) stop("'id' has missing values")
+   if (anyNA(id)) stop("'id' has missing values")
    if (ncol(id) != 1) stop("'id' must be 1 column data.frame, matrix, data.table")
    if (nrow(id) != n) stop("'id' must be the same length as 'Y'")
    if (names(id) == "id") setnames(id, names(id), "ID")

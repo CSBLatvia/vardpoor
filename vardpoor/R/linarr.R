@@ -60,53 +60,54 @@ linarr <- function(Y, Y_den, id = NULL, age, pl085, month_at_work,
    # Y
    Y <- data.frame(Y)
    n <- nrow(Y)
+   if (anyNA(Y)) stop("'Y' has missing values")
    if (ncol(Y) != 1) stop("'Y' must be a vector or 1 column data.frame, matrix, data.table")
    Y <- Y[, 1]
    if(!is.numeric(Y)) stop("'Y' must be numeric")
-   if (any(is.na(Y))) stop("'Y' has missing values")
 
    Y_den <- data.frame(Y_den)
+   if (anyNA(Y_den)) stop("'Y_den' has missing values")
    if (ncol(Y_den) != 1) stop("'Y_den' must be a vector or 1 column data.frame, matrix, data.table")
    if (nrow(Y_den) != n) stop("'Y_den' must be the same length as 'Y'")
    Y_den <- Y_den[, 1]
    if(!is.numeric(Y_den)) stop("'Y_den' must be numeric")
-   if (any(is.na(Y_den))) stop("'Y_den' has missing values")
 
    # weight
    weight <- data.frame(weight)
+   if (anyNA(weight)) stop("'weight' has missing values")
    if (nrow(weight) != n) stop("'weight' must be the same length as 'Y'")
    if (ncol(weight) != 1) stop("'weight' must be a vector or 1 column data.frame, matrix, data.table")
    weight <- weight[, 1]
    if (!is.numeric(weight)) stop("'weight' must be numeric")
-   if (any(is.na(weight))) stop("'weight' has missing values")
    
    # age
    age <- data.frame(age)
+   if (anyNA(age)) stop("'age' has missing values")
    if (nrow(age) != n) stop("'age' must be the same length as 'Y'")
    if (ncol(age) != 1) stop("'age' must be a vector or 1 column data.frame, matrix, data.table")
    age <- age[, 1]
    if (!is.numeric(age)) stop("'age' must be numeric")
-   if (any(is.na(age))) stop("'age' has missing values")
    
    # pl085
    pl085 <- data.frame(pl085)
+   if (anyNA(pl085)) stop("'pl085' has missing values")
    if (nrow(pl085) != n) stop("'pl085' must be the same length as 'Y'")
    if (ncol(pl085) != 1) stop("'pl085' must be a vector or 1 column data.frame, matrix, data.table")
    pl085 <- pl085[, 1]
    if (!is.numeric(pl085)) stop("'pl085' must be numeric")
-   if (any(is.na(pl085))) stop("'pl085' has missing values")
 
    # month_at_work
    month_at_work <- data.frame(month_at_work)
+   if (anyNA(month_at_work)) stop("'month_at_work' has missing values")
    if (nrow(month_at_work) != n) stop("'month_at_work' must be the same length as 'Y'")
    if (ncol(month_at_work) != 1) stop("'month_at_work' must be a vector or 1 column data.frame, matrix, data.table")
    month_at_work <- month_at_work[, 1]
-   if (!is.numeric(pl085)) stop("'month_at_work' must be numeric")
-   if (any(is.na(pl085))) stop("'month_at_work' has missing values")
+   if (!is.numeric(month_at_work)) stop("'month_at_work' must be numeric")
 
    # sort
    if (!is.null(sort)) {    
         sort <- data.frame(sort)
+        if (anyNA(sort)) stop("'sort' has missing values")
         if (length(sort) != n) stop("'sort' must have the same length as 'Y'")
         if (ncol(sort) != 1) stop("'sort' must be a vector or 1 column data.frame, matrix, data.table")
         sort <- sort[, 1]
@@ -120,7 +121,7 @@ linarr <- function(Y, Y_den, id = NULL, age, pl085, month_at_work,
                       paste(names(period)[duplicated(names(period))], collapse = ","))
        if (nrow(period) != n) stop("'period' must be the same length as 'Y'")
        period[, (names(period)) := lapply(.SD, as.character)]
-       if(any(is.na(period))) stop("'period' has missing values")
+       if(anyNA(period)) stop("'period' has missing values")
    }   
    
    # id
@@ -129,7 +130,7 @@ linarr <- function(Y, Y_den, id = NULL, age, pl085, month_at_work,
    if (any(is.na(id))) stop("'id' has missing values")
    if (ncol(id) != 1) stop("'id' must be 1 column data.frame, matrix, data.table")
    if (nrow(id) != n) stop("'id' must be the same length as 'Y'")
-   if (is.null(names(id)) | (names(id) == "id")) setnames(id, names(id), "ID")
+   if (names(id) == "id") setnames(id, names(id), "ID")
    if (is.null(period)){ if (any(duplicated(id))) stop("'id' are duplicate values") 
                        } else {
                           id1 <- data.table(period, id)
@@ -142,10 +143,9 @@ linarr <- function(Y, Y_den, id = NULL, age, pl085, month_at_work,
              if (any(duplicated(names(Dom)))) 
                  stop("'Dom' are duplicate column names: ", 
                       paste(names(Dom)[duplicated(names(Dom))], collapse = ","))
-             if (is.null(names(Dom))) stop("'Dom' must be colnames")
              if (nrow(Dom) != n) stop("'Dom' must be the same length as 'Y'")
              Dom[, (names(Dom)) := lapply(.SD, as.character)]
-             if (any(is.na(Dom))) stop("'Dom' has missing values")
+             if (anyNA(Dom)) stop("'Dom' has missing values")
              if (any(grepl("__", names(Dom)))) stop("'Dom' is not allowed column names with '__'")
        }
 
@@ -154,7 +154,7 @@ linarr <- function(Y, Y_den, id = NULL, age, pl085, month_at_work,
     period_agg <- period1 <- NULL
     if (!is.null(period)) { period1 <- copy(period)
                             period_agg <- data.table(unique(period))
-                        } else period1 <- data.table(ind=ind0)
+                        } else period1 <- data.table(ind = ind0)
     period1_agg <- data.table(unique(period1))
 
     # RMI by domain (if requested)
@@ -206,7 +206,7 @@ linarr <- function(Y, Y_den, id = NULL, age, pl085, month_at_work,
         arr_m <- copy(arr_id)
         for(i in 1:nrow(Dom_agg)) {
               g <- c(var_name, paste(names(Dom), as.matrix(Dom_agg[i,]), sep = "."))
-              var_nams <- do.call(paste, as.list(c(g, sep="__")))
+              var_nams <- do.call(paste, as.list(c(g, sep = "__")))
               ind <- as.integer(rowSums(Dom == Dom_agg[i,][ind0,]) == ncol(Dom))
 
               arrl <- lapply(1:nrow(period1_agg), function(j) {
@@ -286,7 +286,7 @@ arrlinCalc <- function(Y_num, Y_den, ids, wght, indicator, order_quants,
     N1 <- sum(wght * dom1)   
     N2 <- sum(wght * dom2) 
 				
-    arr_val <- quant_65_74pls/quant_50_59mon  # Estimated aggregate replacement ratio
+    arr_val <- quant_65_74pls / quant_50_59mon  # Estimated aggregate replacement ratio
 
     # Bandwith parameter - h=S/N^(1/5) (calculated over the whole population) 
 

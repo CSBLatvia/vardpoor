@@ -108,46 +108,44 @@ vardchangannual <- function(Y, H, PSU, w_final,
   Y <- data.table(Y, check.names = TRUE)
   n <- nrow(Y)
   m <- ncol(Y)
+  if (anyNA(Y)) stop("'Y' has missing values")
   if (!all(sapply(Y, is.numeric))) stop("'Y' must be numeric")
-  if (any(is.na(Y))) stop("'Y' has missing values")
-  if (is.null(names(Y))) stop("'Y' must have column names")
   if (any(grepl("__", names(Y)))) stop("'Y' is not allowed column names with '__'")
 
   # H
   H <- data.table(H)
   if (nrow(H) != n) stop("'H' length must be equal with 'Y' row count")
   if (ncol(H) != 1) stop("'H' must be 1 column data.frame, matrix, data.table")
-  if (is.null(names(H))) stop("'H' must be colname")
   H[, (names(H)) := lapply(.SD, as.character)]
-  if (any(is.na(H))) stop("'H' has missing values")
+  if (anyNA(H)) stop("'H' has missing values")
 
   # PSU
   PSU <- data.table(PSU)
   if (nrow(PSU) !=  n) stop("'PSU' length must be equal with 'Y' row count")
   if (ncol(PSU) !=  1) stop("'PSU' has more than 1 column")
   PSU[, (names(PSU)):=lapply(.SD, as.character)]
-  if (any(is.na(PSU))) stop("'PSU' has missing values")
+  if (anyNA(PSU)) stop("'PSU' has missing values")
   
   # w_final
   w_final <- data.frame(w_final)
+  if (anyNA(w_final)) stop("'w_final' has missing values") 
   if (nrow(w_final) !=  n) stop("'w_final' must be equal with 'Y' row count")
   if (ncol(w_final) !=  1) stop("'w_final' must be a vector or 1 column data.frame, matrix, data.table")
   w_final <- w_final[, 1]
   if (!is.numeric(w_final)) stop("'w_final' must be numeric")
-  if (any(is.na(w_final))) stop("'w_final' has missing values") 
   
   # ID_level1
   if (is.null(ID_level1)) stop("'ID_level1' must be defined")
   ID_level1 <- data.table(ID_level1)
   ID_level1[, (names(ID_level1)) := lapply(.SD, as.character)]
-  if (any(is.na(ID_level1))) stop("'ID_level1' has missing values")
+  if (anyNA(ID_level1)) stop("'ID_level1' has missing values")
   if (ncol(ID_level1) != 1) stop("'ID_level1' must be 1 column data.frame, matrix, data.table")
   if (nrow(ID_level1) != n) stop("'ID_level1' must be the same length as 'Y'")
 
   # ID_level2
   ID_level2 <- data.table(ID_level2)
   ID_level2[, (names(ID_level2)) := lapply(.SD, as.character)]
-  if (any(is.na(ID_level2))) stop("'ID_level2' has missing values")
+  if (anyNA(ID_level2)) stop("'ID_level2' has missing values")
   if (nrow(ID_level2) != n) stop("'ID_level2' length must be equal with 'Y' row count")
   if (ncol(ID_level2) != 1) stop("'ID_level2' must be 1 column data.frame, matrix, data.table")
   if (names(ID_level2) == names(ID_level1)) setnames(ID_level2, names(ID_level2), paste0(names(ID_level2), "_id"))
@@ -156,7 +154,7 @@ vardchangannual <- function(Y, H, PSU, w_final,
   if (!is.null(country)){
         country <- data.table(country)
         country[, (names(country)) := lapply(.SD, as.character)]
-        if (any(is.na(country))) stop("'country' has missing values")
+        if (anyNA(country)) stop("'country' has missing values")
         if (names(country) == "percoun") stop("'country' must be different name")
         if (nrow(country) != n) stop("'country' length must be equal with 'Y' row count")
         if (ncol(country) != 1) stop("'country' has more than 1 column")
@@ -165,7 +163,7 @@ vardchangannual <- function(Y, H, PSU, w_final,
   # years
   years <- data.table(years, check.names = TRUE)
   years[, (names(years)) := lapply(.SD, as.character)]
-  if (any(is.na(years))) stop("'years' has missing values")
+  if (anyNA(years)) stop("'years' has missing values")
   if (nrow(years) != n) stop("'years' length must be equal with 'Y' row count")
   if (ncol(years) != 1) stop("'years' must be 1 column")
   yearm <- names(years)
@@ -173,7 +171,7 @@ vardchangannual <- function(Y, H, PSU, w_final,
   # subperiods
   subperiods <- data.table(subperiods, check.names = TRUE)
   subperiods[, (names(subperiods)) := lapply(.SD, as.character)]
-  if (any(is.na(subperiods))) stop("'subperiods' has missing values")
+  if (anyNA(subperiods)) stop("'subperiods' has missing values")
   if (nrow(subperiods) != n) stop("'subperiods' length must be equal with 'Y' row count")
   if (ncol(subperiods) != 1) stop("'subperiods' must be 1 column")
   subn <- data.table(years, subperiods)
@@ -187,9 +185,8 @@ vardchangannual <- function(Y, H, PSU, w_final,
            stop("'Dom' are duplicate column names: ", 
                  paste(names(Dom)[duplicated(names(Dom))], collapse = ","))
     if (nrow(Dom) != n) stop("'Dom' and 'Y' must be equal row count")
-    if (is.null(names(Dom))) stop("'Dom' must have column names")
     Dom[, (names(Dom)) := lapply(.SD, as.character)]
-    if (any(is.na(Dom))) stop("'Dom' has missing values")
+    if (anyNA(Dom)) stop("'Dom' has missing values")
     if (any(grepl("__", names(Dom)))) stop("'Dom' is not allowed column names with '__'")
   }
   
@@ -198,8 +195,7 @@ vardchangannual <- function(Y, H, PSU, w_final,
     Z <- data.table(Z, check.names = TRUE)
     if (nrow(Z) != n) stop("'Z' and 'Y' must be equal row count")
     if (ncol(Z) != m) stop("'Z' and 'Y' must be equal column count")
-    if (any(is.na(Z))) stop("'Z' has missing values")
-    if (is.null(names(Z))) stop("'Z' must have column names")
+    if (anyNA(Z)) stop("'Z' has missing values")
     if (any(grepl("__", names(Z)))) stop("'Z' is not allowed column names with '__'")
     namesZ <- names(Z)
   }
@@ -207,23 +203,23 @@ vardchangannual <- function(Y, H, PSU, w_final,
    # year1
    year1 <- data.table(year1, check.names = TRUE)
    year1[, (names(year1)) := lapply(.SD, as.character)]
+   if (anyNA(year1)) stop("'year1' has missing values")
    if (ncol(year1) != 1) stop("'year1' must be 1 column")
    setnames(year1, names(year1), names(years))
-   if (any(is.na(year1))) stop("'year1' has missing values")
    yearss <- copy(years)
    yearss[, yearss := 1]
-   if (any(is.na(merge(year1, yearss, all.x = TRUE,
-                       by = names(years), allow.cartesian = TRUE))))
+   if (anyNA(merge(year1, yearss, all.x = TRUE,
+                       by = names(years), allow.cartesian = TRUE)))
                        stop("'year1' row must be exist in 'years'")
 
    # year2
    year2 <- data.table(year2, check.names = TRUE)
    year2[, (names(year2)) := lapply(.SD, as.character)]
+   if (anyNA(year2)) stop("'year2' has missing values")
    if (ncol(year2) != 1) stop("'year2' must be 1 column")
    setnames(year2, names(year2), names(years))
-   if (any(is.na(year2))) stop("'year2' has missing values")
-   if (any(is.na(merge(year2, yearss, all.x = TRUE,
-                       by = names(years), allow.cartesian = TRUE))))
+   if (anyNA(merge(year2, yearss, all.x = TRUE,
+                       by = names(years), allow.cartesian = TRUE)))
                        stop("'year2' row must be exist in 'years'")
 
    # countryX
@@ -233,7 +229,7 @@ vardchangannual <- function(Y, H, PSU, w_final,
          if (nrow(countryX) != nrow(X)) stop("'countryX' length must be equal with 'X' row count")
          if (ncol(countryX) != 1) stop("'countryX' has more than 1 column")
          countryX[, (names(countryX)) := lapply(.SD, as.character)]
-         if (any(is.na(countryX))) stop("'countryX' has missing values")
+         if (anyNA(countryX)) stop("'countryX' has missing values")
          if (names(countryX) != names(country)) stop("'countryX' must be equal with 'country' names")
          countrX <- countryX[, .N, keyby = names(countryX)][, N := NULL]
          countr <- country[, .N, keyby = names(country)][, N := NULL]
@@ -246,7 +242,7 @@ vardchangannual <- function(Y, H, PSU, w_final,
       if (is.null(yearsX)) stop("'yearsX' must be defined")
       yearsX <- data.table(yearsX)
       yearsX[, (names(yearsX)) := lapply(.SD, as.character)]
-      if (any(is.na(yearsX))) stop("'yearsX' has missing values")
+      if (anyNA(yearsX)) stop("'yearsX' has missing values")
       if (any(duplicated(names(yearsX)))) 
                   stop("'yearsX' are duplicate column names: ", 
                        paste(names(yearsX)[duplicated(names(yearsX))], collapse = ","))
@@ -268,7 +264,7 @@ vardchangannual <- function(Y, H, PSU, w_final,
       if (is.null(subperiodsX)) stop("'subperiodsX' must be defined")
       subperiodsX <- data.table(subperiodsX)
       subperiodsX[, (names(subperiodsX)) := lapply(.SD, as.character)]
-      if (any(is.na(subperiodsX))) stop("'subperiodsX' has missing values")
+      if (anyNA(subperiodsX)) stop("'subperiodsX' has missing values")
       if (any(duplicated(names(subperiodsX)))) 
                  stop("'subperiodsX' are duplicate column names: ", 
                           paste(names(subperiodsX)[duplicated(names(subperiodsX))], collapse = ","))
@@ -289,7 +285,7 @@ vardchangannual <- function(Y, H, PSU, w_final,
     if (!is.null(X)) {
        X_ID_level1 <- data.table(X_ID_level1)
        X_ID_level1[, (names(X_ID_level1)) := lapply(.SD, as.character)]
-       if (any(is.na(X_ID_level1))) stop("'X_ID_level1' has missing values")
+       if (anyNA(X_ID_level1)) stop("'X_ID_level1' has missing values")
        if (nrow(X) != nrow(X_ID_level1)) stop("'X' and 'X_ID_level1' have different row count")
        if (ncol(X_ID_level1) != 1) stop("'X_ID_level1' must be 1 column data.frame, matrix, data.table")
  
@@ -321,7 +317,7 @@ vardchangannual <- function(Y, H, PSU, w_final,
        if (nrow(ind_gr) != nrow(X)) stop("'ind_gr' length must be equal with 'X' row count")
        if (ncol(ind_gr) != 1) stop("'ind_gr' must be 1 column data.frame, matrix, data.table")
        ind_gr[, (names(ind_gr)) := lapply(.SD, as.character)]
-       if (any(is.na(ind_gr))) stop("'ind_gr' has missing values")
+       if (anyNA(ind_gr)) stop("'ind_gr' has missing values")
     }
 
    # X
@@ -343,11 +339,11 @@ vardchangannual <- function(Y, H, PSU, w_final,
    if (!is.null(X)) {
      if (is.null(class(g)) | all(class(g) == "function")) stop("'g' must be numeric")
      g <- data.frame(g)
+     if (anyNA(g)) stop("'g' has missing values")
      if (nrow(g) != nrow(X)) stop("'g' length must be equal with 'X' row count")
      if (ncol(g) != 1) stop("'g' must be 1 column data.frame, matrix, data.table")
      g <- g[, 1]
      if (!is.numeric(g)) stop("'g' must be numeric")
-     if (any(is.na(g))) stop("'g' has missing values")
      if (any(g == 0)) stop("'g' value can not be 0")
    }
     
@@ -356,11 +352,11 @@ vardchangannual <- function(Y, H, PSU, w_final,
      if (is.null(q))  q <- rep(1, nrow(X))
      if (is.null(class(q)) | all(class(q) == "function")) stop("'q' must be numeric")
      q <- data.frame(q)
+     if (anyNA(q)) stop("'q' has missing values")
      if (nrow(q) != nrow(X)) stop("'q' length must be equal with 'X' row count")
      if (ncol(q) != 1) stop("'q' must be 1 column data.frame, matrix, data.table")
      q <- q[, 1]
      if (!is.numeric(q)) stop("'q' must be numeric")
-     if (any(is.na(q))) stop("'q' has missing values")
      if (any(is.infinite(q))) stop("'q' value can not be infinite")
    }
 

@@ -47,23 +47,24 @@ linqsr <- function(Y, id = NULL, weight = NULL,
    # Y
    Y <- data.frame(Y)
    n <- nrow(Y)
+   if (anyNA(Y)) stop("'Y' has missing values")
    if (ncol(Y) != 1) stop("'Y' must be a vector or 1 column data.frame, data matrix, data table")
    Y <- Y[, 1] 
    if (!is.numeric(Y)) stop("'Y' must be a numeric vector")
-   if (any(is.na(Y))) stop("'Y' has missing values")
  
    # weight
    weight <- data.frame(weight)
    if (is.null(weight)) weight <- data.frame(rep.int(1, n))
+   if (anyNA(weight)) stop("'weight' has missing values")
    if (nrow(weight) != n) stop("'weight' must be the same length as 'Y'")
    if (ncol(weight) != 1) stop("'weight' must be a vector or 1 column data.frame, matrix, data.table")
    weight <- weight[, 1] 
    if (!is.numeric(weight)) stop("'weight' must be numeric")
-   if (any(is.na(weight))) stop("'weight' has missing values")
 
    # sort
    if (!is.null(sort)) {
         sort <- data.frame(sort)
+        if (anyNA(sort)) stop("'sort' has missing values")
         if (length(sort) != n) stop("'sort' must have the same length as 'Y'")
         if (ncol(sort) != 1) stop("'sort' must be a vector or 1 column data.frame, matrix, data.table")
         sort <- sort[, 1]
@@ -77,16 +78,16 @@ linqsr <- function(Y, id = NULL, weight = NULL,
                       paste(names(period)[duplicated(names(period))], collapse = ","))
        if (nrow(period) != n) stop("'period' must be the same length as 'Y'")
        period[, (names(period)) := lapply(.SD, as.character)]
-       if(any(is.na(period))) stop("'period' has missing values")
+       if(anyNA(period)) stop("'period' has missing values")
    }   
 
    # id
    if (is.null(id)) id <- 1 : n
    id <- data.table(id)
-   if (any(is.na(id))) stop("'id' has missing values")
+   if (anyNA(id)) stop("'id' has missing values")
    if (ncol(id) != 1) stop("'id' must be 1 column data.frame, matrix, data.table")
    if (nrow(id) != n) stop("'id' must be the same length as 'Y'")
-   if (is.null(names(id)) | (names(id) == "id")) setnames(id, names(id), "ID")
+   if (names(id) == "id") setnames(id, names(id), "ID")
    if (is.null(period)){ if (any(duplicated(id))) stop("'id' are duplicate values") 
                        } else {
                           id1 <- data.table(period, id)
@@ -99,10 +100,9 @@ linqsr <- function(Y, id = NULL, weight = NULL,
              if (any(duplicated(names(Dom)))) 
                  stop("'Dom' are duplicate column names: ", 
                       paste(names(Dom)[duplicated(names(Dom))], collapse = ","))
-             if (is.null(names(Dom))) stop("'Dom' must be colnames")
              if (nrow(Dom) != n) stop("'Dom' must be the same length as 'Y'")
              Dom[, (names(Dom)) := lapply(.SD, as.character)]
-             if (any(is.na(Dom))) stop("'Dom' has missing values")
+             if (anyNA(Dom)) stop("'Dom' has missing values")
              if (any(grepl("__", names(Dom)))) stop("'Dom' is not allowed column names with '__'")
        }
 
@@ -111,7 +111,7 @@ linqsr <- function(Y, id = NULL, weight = NULL,
    period_agg <- period1 <- NULL
    if (!is.null(period)) { period1 <- copy(period)
                            period_agg <- data.table(unique(period))
-                        } else period1 <- data.table(ind=ind0)
+                        } else period1 <- data.table(ind = ind0)
    period1_agg <- data.table(unique(period1))
 
    # QSR by domain (if requested)  
@@ -128,7 +128,7 @@ linqsr <- function(Y, id = NULL, weight = NULL,
 
         for(i in 1:nrow(Dom_agg)) {
               g <- c(var_name, paste(names(Dom), as.matrix(Dom_agg[i,]), sep = "."))
-              var_nams <- do.call(paste, as.list(c(g, sep="__")))
+              var_nams <- do.call(paste, as.list(c(g, sep = "__")))
 
               ind <- as.integer(rowSums(Dom == Dom_agg[i,][ind0,]) == ncol(Dom))
 

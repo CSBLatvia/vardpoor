@@ -37,24 +37,22 @@ variance_est <- function(Y, H, PSU, w_final, N_h = NULL, fh_zero = FALSE,
   Y <- data.table(Y, check.names = TRUE)
   n <- nrow(Y)
   m <- ncol(Y)
+  if (anyNA(Y)) print("'Y' has missing values")
   if (!all(sapply(Y, is.numeric))) stop("'Y' must be numeric values")
-  if (any(is.na(Y))) print("'Y' has missing values")
-  if (is.null(names(Y))) stop("'Y' must have column names")
   
   # H
   H <- data.table(H)
   if (nrow(H) != n) stop("'H' length must be equal with 'Y' row count")
   if (ncol(H) != 1) stop("'H' must be 1 column data.frame, matrix, data.table")
-  if (is.null(names(H))) stop("'H' must have column names")
   H[, (names(H)) := lapply(.SD, as.character)]
-  if (any(is.na(H))) stop("'H' has missing values")
+  if (anyNA(H)) stop("'H' has missing values")
   
   # PSU
   PSU <- data.table(PSU)
   if (nrow(PSU) != n) stop("'PSU' length must be equal with 'Y' row count")
   if (ncol(PSU) != 1) stop("'PSU' must be 1 column data.frame, matrix, data.table")
   PSU[, (names(PSU)) := lapply(.SD, as.character)]
-  if (any(is.na(PSU))) stop("'PSU' has missing values")
+  if (anyNA(PSU)) stop("'PSU' has missing values")
   
   # w_final
   w_final <- data.frame(w_final)
@@ -62,7 +60,7 @@ variance_est <- function(Y, H, PSU, w_final, N_h = NULL, fh_zero = FALSE,
   if (ncol(w_final) != 1) stop("'w_final' must be vector or 1 column data.frame, matrix, data.table")
   w_final <- w_final[, 1]
   if (!is.numeric(w_final)) stop("'w_final' must be numerical")
-  if (any(is.na(w_final))) stop("'w_final' has missing values")
+  if (anyNA(w_final)) stop("'w_final' has missing values")
 
   # period     
   if (!is.null(period)) {
@@ -72,7 +70,7 @@ variance_est <- function(Y, H, PSU, w_final, N_h = NULL, fh_zero = FALSE,
                       paste(names(period)[duplicated(names(period))], collapse = ","))
        if (nrow(period) != n) stop("'period' must be the same length as 'inc'")
        period[, (names(period)) := lapply(.SD, as.character)]
-       if(any(is.na(period))) stop("'period' has missing values")  
+       if(anyNA(period)) stop("'period' has missing values")  
   }   
   np <- sum(ncol(period))
   vars <- names(period)
@@ -85,11 +83,11 @@ variance_est <- function(Y, H, PSU, w_final, N_h = NULL, fh_zero = FALSE,
           if (ncol(PSU_sort) != 1) stop("'PSU_sort' must be a vector or 1 column data.frame, matrix, data.table")
           PSU_sort <- PSU_sort[, 1]
           if (!is.numeric(PSU_sort)) stop("'PSU_sort' must be numeric")
-          if (any(is.na(PSU_sort))) stop("'PSU_sort' has missing values")
+          if (anyNA(PSU_sort)) stop("'PSU_sort' has missing values")
 
           psuag <- data.table(PSU, PSU_sort)
           if (!is.null(period)) psuag <- data.table(period, psuag)
-          psuag <- psuag[, .N, by = names(psuag)][,N := NULL]
+          psuag <- psuag[, .N, by = names(psuag)][, N := NULL]
           psuag <- psuag[, .N, by = c(names(period), names(PSU))]
           if (nrow(psuag[N > 1]) > 0) stop("'PSU_sort' must be equal for each 'PSU'")
   }
@@ -97,10 +95,9 @@ variance_est <- function(Y, H, PSU, w_final, N_h = NULL, fh_zero = FALSE,
   # N_h
   if (!is.null(N_h)) {
       N_h <- data.table(N_h)
+      if (anyNA(N_h)) stop("'N_h' has missing values") 
       if (ncol(N_h) != np + 2) stop(paste0("'N_h' should be ", toString(np + 2)," columns"))
       if (!is.numeric(N_h[[ncol(N_h)]])) stop("The last column of 'N_h' should be numeric")
-      if (any(is.na(N_h))) stop("'N_h' has missing values") 
-      if (is.null(names(N_h))) stop("'N_h' must be colnames")
       nams <- c(names(period), names(H))
       if (all(nams %in% names(N_h))) {N_h[, (nams) := lapply(.SD, as.character), .SDcols = nams]
              } else stop(paste0("All strata titles of 'H'", ifelse(!is.null(period), "and periods titles of 'period'", ""), " have not in 'N_h'"))

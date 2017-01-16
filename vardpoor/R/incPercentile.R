@@ -52,22 +52,23 @@ incPercentile <- function(Y, weights = NULL, sort = NULL,
    # Y
    Y <- data.frame(Y)
    n <- nrow(Y)
+   if (anyNA(Y)) stop("'Y' has missing values")
    if (ncol(Y) != 1) stop("'Y' must be a vector or 1 column data.frame, matrix, data.table")
    Y <- Y[, 1]
    if(!is.numeric(Y)) stop("'Y' must be numeric")
-   if (any(is.na(Y))) stop("'Y' has missing values")
 
    # weights
    weights <- data.table(weights)
+   if (anyNA(weights)) stop("'weights' has missing values")
    if (nrow(weights) != n) stop("'weights' must be the same length as 'Y'")
    if (ncol(weights) != 1) stop("'weights' must be a vector or 1 column data.frame, matrix, data.table")
    weights <- weights[[1]]
    if(!is.numeric(weights)) stop("'weights' must be numeric")
-   if (any(is.na(weights))) stop("'weights' has missing values")
 
    # sort  
    if(!is.null(sort)) {
          sort <- data.frame(sort)
+         if (anyNA(sort)) stop("'sort' has missing values")
          if (nrow(sort) != n) stop("'sort' must be the same length as 'Y'")
          if (ncol(sort) != 1) stop("'sort' must be a vector or 1 column data.frame, matrix, data.table")
          sort <- sort[, 1]
@@ -81,7 +82,7 @@ incPercentile <- function(Y, weights = NULL, sort = NULL,
                       paste(names(period)[duplicated(names(period))], collapse = ","))
        if (nrow(period) != n) stop("'period' must be the same length as 'Y'")
        period[, (names(period)) := lapply(.SD, as.character)]
-       if(any(is.na(period))) stop("'period' has missing values")  
+       if(anyNA(period)) stop("'period' has missing values")  
    }
 
    # Dom
@@ -89,10 +90,9 @@ incPercentile <- function(Y, weights = NULL, sort = NULL,
    if(!is.null(Dom)) {
              Dom <- data.table(Dom)
              namesDom <- names(Dom)
-             if (is.null(names(Dom))) stop("'Dom' must have column names")
              if (nrow(Dom) != n) stop("'Dom' must be the same length as 'Y'")
              Dom[, (names(Dom)) := lapply(.SD, as.character)]
-             if (any(is.na(Dom))) stop("'Dom' has missing values")
+             if (anyNA(Dom)) stop("'Dom' has missing values")
        }
     
     if (!is.null(period)) {

@@ -31,7 +31,7 @@ vardcros <- function(Y, H, PSU, w_final,
   if (length(use.estVar) != 1 | !any(is.logical(use.estVar))) stop("'use.estVar' must be logical")
   if (length(ID_level1_max) != 1 | !any(is.logical(ID_level1_max))) stop("'ID_level1_max' must be logical")
   if (length(outp_res) != 1 | !any(is.logical(outp_res))) stop("'outp_res' must be logical")
- if (all(ID_level1_max, !is.null(X))) stop("'ID_level1_max' must be ", !ID_level1_max, "!")
+  if (all(ID_level1_max, !is.null(X))) stop("'ID_level1_max' must be ", !ID_level1_max, "!")
 
   if(length(confidence) != 1 | any(!is.numeric(confidence) |  confidence < 0 | confidence > 1)) {
           stop("'confidence' must be a numeric value in [0, 1]")  }
@@ -122,24 +122,23 @@ vardcros <- function(Y, H, PSU, w_final,
   n <- nrow(Y)
   m <- ncol(Y)
   if (!all(sapply(Y, is.numeric))) stop("'Y' must be numeric values")
-  if (any(is.na(Y))) stop("'Y' has missing values")
+  if (anyNA(Y)) stop("'Y' has missing values")
   if (is.null(names(Y))) stop("'Y' must have column names")
   
   # H
   H <- data.table(H)
   if (nrow(H) != n) stop("'H' length must be equal with 'Y' row count")
   if (ncol(H) != 1) stop("'H' must be 1 column data.frame, matrix, data.table")
-  if (is.null(names(H))) stop("'H' must have column names")
   if (names(H) == "dataH_stratas") stop("'H' must have different column name")
   H[, (names(H)) := lapply(.SD, as.character)]
-  if (any(is.na(H))) stop("'H' has missing values")
+  if (anyNA(H)) stop("'H' has missing values")
 
   # PSU
   PSU <- data.table(PSU)
   if (nrow(PSU) != n) stop("'PSU' length must be equal with 'Y' row count")
   if (ncol(PSU) != 1) stop("'PSU' has more than 1 column")
   PSU[, (names(PSU)) := lapply(.SD, as.character)]
-  if (any(is.na(PSU))) stop("'PSU' has missing values")
+  if (anyNA(PSU)) stop("'PSU' has missing values")
   
   # w_final 
   w_final <- data.frame(w_final)
@@ -147,13 +146,13 @@ vardcros <- function(Y, H, PSU, w_final,
   if (ncol(w_final) != 1) stop("'w_final' must be a vector or 1 column data.frame, matrix, data.table")
   w_final <- w_final[, 1]
   if (!is.numeric(w_final)) stop("'w_final' must be numeric values")
-  if (any(is.na(w_final))) stop("'w_final' has missing values") 
+  if (anyNA(w_final)) stop("'w_final' has missing values") 
   
   # ID_level1
   if (is.null(ID_level1)) stop("'ID_level1' must be defined")
   ID_level1 <- data.table(ID_level1)
   ID_level1[, (names(ID_level1)) := lapply(.SD, as.character)]
-  if (any(is.na(ID_level1))) stop("'ID_level1' has missing values")
+  if (anyNA(ID_level1)) stop("'ID_level1' has missing values")
   if (ncol(ID_level1) != 1) stop("'ID_level1' must be 1 column data.frame, matrix, data.table")
   if (nrow(ID_level1) != n) stop("'ID_level1' must be the same length as 'Y'")
   if (names(ID_level1) == names(PSU)) setnames(PSU, names(PSU), paste0(names(PSU), "_PSU")) 
@@ -161,7 +160,7 @@ vardcros <- function(Y, H, PSU, w_final,
   # ID_level2
   ID_level2 <- data.table(ID_level2)
   ID_level2[, (names(ID_level2)) := lapply(.SD, as.character)]
-  if (any(is.na(ID_level2))) stop("'ID_level2' has missing values")
+  if (anyNA(ID_level2)) stop("'ID_level2' has missing values")
   if (nrow(ID_level2) != n) stop("'ID_level2' length must be equal with 'Y' row count")
   if (ncol(ID_level2) != 1) stop("'ID_level2' must be 1 column data.frame, matrix, data.table")
   if (names(ID_level2) == names(ID_level1)) setnames(ID_level2, names(ID_level2), paste0(names(ID_level2), "_id"))
@@ -170,7 +169,7 @@ vardcros <- function(Y, H, PSU, w_final,
   if (!is.null(country)){
         country <- data.table(country)
         country[, (names(country)) := lapply(.SD, as.character)]
-        if (any(is.na(country))) stop("'country' has missing values")
+        if (anyNA(country)) stop("'country' has missing values")
         if (names(country) == "percoun") stop("'country' must be different name")
         if (nrow(country) != n) stop("'country' length must be equal with 'Y' row count")
         if (ncol(country) != 1) stop("'country' has more than 1 column")
@@ -180,7 +179,7 @@ vardcros <- function(Y, H, PSU, w_final,
   if (withperiod) {
         period <- data.table(period)
         period[, (names(period)) := lapply(.SD, as.character)]
-        if (any(is.na(period))) stop("'period' has missing values")
+        if (anyNA(period)) stop("'period' has missing values")
         if (names(period) == "percoun") stop("'period' must be different name")
         if (nrow(period) != n) stop("'period' length must be equal with 'Y' row count")
     } else if (!is.null(period)) stop("'period' must be NULL for those data")
@@ -193,10 +192,9 @@ vardcros <- function(Y, H, PSU, w_final,
            stop("'Dom' are duplicate column names: ", 
                  paste(names(Dom)[duplicated(names(Dom))], collapse = ","))
     if (nrow(Dom) != n) stop("'Dom' and 'Y' must be equal row count")
-    if (is.null(names(Dom))) stop("'Dom' must have column names")
     namesDom <- names(Dom)
     Dom[, (namesDom) := lapply(.SD, as.character)]
-    if (any(is.na(Dom))) stop("'Dom' has missing values")
+    if (anyNA(Dom)) stop("'Dom' has missing values")
     if (any(grepl("__", namesDom))) stop("'Dom' is not allowed column names with '__'")
     Dom_agg <- Dom[,.N, keyby = namesDom][, N := NULL]
     Dom_agg1 <- Dom_agg[, lapply(namesDom, function(x) make.names(paste0(x, ".", get(x))))]
@@ -207,11 +205,10 @@ vardcros <- function(Y, H, PSU, w_final,
   # Z
   if (!is.null(Z)) {
     Z <- data.table(Z, check.names = TRUE)
+    if (anyNA(Z)) stop("'Z' has missing values")
     if (!all(sapply(Z, is.numeric))) stop("'Z' must be numeric values")
     if (nrow(Z) != n) stop("'Z' and 'Y' must be equal row count")
     if (ncol(Z) != m) stop("'Z' and 'Y' must be equal column count")
-    if (any(is.na(Z))) stop("'Z' has missing values")
-    if (is.null(names(Z))) stop("'Z' must have column names")
     if (any(grepl("__", names(Z)))) stop("'Z' is not allowed column names with '__'")
   }
       
@@ -227,7 +224,7 @@ vardcros <- function(Y, H, PSU, w_final,
         if (nrow(countryX) != nrow(X)) stop("'countryX' length must be equal with 'X' row count")
         if (ncol(countryX) != 1) stop("'countryX' has more than 1 column")
         countryX[, (names(countryX)) := lapply(.SD, as.character)]
-        if (any(is.na(countryX))) stop("'countryX' has missing values")
+        if (anyNA(countryX)) stop("'countryX' has missing values")
         if (names(countryX) != names(country)) stop("'countryX' must be equal with 'country' names")
         countrX <- countryX[, .N, keyby = names(countryX)][, N := NULL]
         countr <- country[, .N, keyby = names(country)][, N := NULL]
@@ -240,7 +237,7 @@ vardcros <- function(Y, H, PSU, w_final,
      if(!is.null(periodX)) {
         periodX <- data.table(periodX)
         periodX[, (names(periodX)) := lapply(.SD, as.character)]
-        if (any(is.na(periodX))) stop("'periodX' has missing values")
+        if (anyNA(periodX)) stop("'periodX' has missing values")
         if (any(duplicated(names(periodX)))) 
                     stop("'periodX' are duplicate column names: ", 
                          paste(names(periodX)[duplicated(names(periodX))], collapse = ","))
@@ -303,7 +300,7 @@ vardcros <- function(Y, H, PSU, w_final,
      if (nrow(ind_gr) != nrow(X)) stop("'ind_gr' length must be equal with 'X' row count")
      if (ncol(ind_gr) != 1) stop("'ind_gr' must be 1 column data.frame, matrix, data.table")
      ind_gr[, (names(ind_gr)) := lapply(.SD, as.character)]
-     if (any(is.na(ind_gr))) stop("'ind_gr' has missing values")
+     if (anyNA(ind_gr)) stop("'ind_gr' has missing values")
    }
 
   # X
@@ -325,11 +322,11 @@ vardcros <- function(Y, H, PSU, w_final,
   if (!is.null(X)) {
     if (is.null(class(g)) | all(class(g) == "function")) stop("'g' must be numeric")
     g <- data.frame(g)
+    if (anyNA(g)) stop("'g' has missing values")
     if (nrow(g) != nrow(X)) stop("'g' length must be equal with 'X' row count")
     if (ncol(g) != 1) stop("'g' must be 1 column data.frame, matrix, data.table")
     g <- g[, 1]
     if (!is.numeric(g)) stop("'g' must be numeric")
-    if (any(is.na(g))) stop("'g' has missing values")
     if (any(g == 0)) stop("'g' value can not be 0")
    }
     
@@ -338,11 +335,11 @@ vardcros <- function(Y, H, PSU, w_final,
     if (is.null(q))  q <- rep(1, nrow(X))
     if (is.null(class(q)) | all(class(q) == "function")) stop("'q' must be numeric")
     q <- data.frame(q)
+    if (anyNA(q)) stop("'q' has missing values")
     if (nrow(q) != nrow(X)) stop("'q' length must be equal with 'X' row count")
     if (ncol(q) != 1) stop("'q' must be 1 column data.frame, matrix, data.table")
     q <- q[, 1]
     if (!is.numeric(q)) stop("'q' must be numeric")
-    if (any(is.na(q))) stop("'q' has missing values")
     if (any(is.infinite(q))) stop("'q' value can not be infinite")
   }
   

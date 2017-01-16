@@ -10,9 +10,10 @@ residual_est <- function (Y, X, weight, q) {
   Y <- as.data.frame.matrix(Y)
  
   # X
-  X <- as.matrix(X, check.names = TRUE)
+  X <- data.table(X, check.names = TRUE)
   if(anyNA(X)) stop("'X' has missing values")
   if (nrow(X) != n) stop("'X' and 'Y' must be equal row count")
+  X <- as.matrix(X)
   if (is.numeric(class(X[, 1]))) stop("'X' must be numeric")
 
   # weight

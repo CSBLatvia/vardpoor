@@ -5,17 +5,16 @@ var_srs <- function(Y, w = rep(1, length(Y))){
   # Y
   Y <- data.table(Y, check.names = TRUE)
   n <- nrow(Y)   
+  if (anyNA(Y)) print("'Y' has missing values")
   if (!all(sapply(Y, is.numeric))) stop("'Y' must be numerical")
-  if (any(is.na(Y))) print("'Y' has missing values")
-  if (is.null(colnames(Y))) stop("'Y' must have column names")
     
   # w 
   w <- data.frame(w)
+  if (anyNA(w)) stop("'w' has missing values")
   if (nrow(w) != n) stop("'w' must be equal with 'Y' row count")
   if (ncol(w) != 1) stop("'w' must be vector or 1 column data.frame, matrix, data.table")
   w <- w[, 1]
   if (!is.numeric(w)) stop("'w' must be numeric")
-  if (any(is.na(w))) stop("'w' has missing values")
     
   ### Calculation
 

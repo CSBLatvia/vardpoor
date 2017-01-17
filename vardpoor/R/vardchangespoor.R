@@ -397,6 +397,7 @@ vardchangespoor <- function(Y, age = NULL,
        } else {
           if (nrow(ID_level1h) != nrow(X_ID_level1)) stop("'unique(periodX, X_ID_level1)' and 'unique(period, ID_level1)' have different row count")
           if (any(ID_level1h != X_ID_level1)) stop("''unique(periodX, X_ID_level1)' and 'unique(period, ID_level1)' records have different")  }
+	ID_level1h <- X_ID_level1h <- NULL	  
   }
 
   # ind_gr

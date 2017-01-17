@@ -258,41 +258,44 @@ vardcros <- function(Y, H, PSU, w_final,
 
 
   # X_ID_level1
-  if (!is.null(X)) {
-    X_ID_level1 <- data.table(X_ID_level1)
-    X_ID_level1[, (names(X_ID_level1)) := lapply(.SD, as.character)]
-    if (any(is.na(X_ID_level1))) stop("'X_ID_level1' has missing values")
-    if (nrow(X) != nrow(X_ID_level1)) stop("'X' and 'X_ID_level1' have different row count")
-    if (ncol(X_ID_level1) != 1) stop("'X_ID_level1' must be 1 column data.frame, matrix, data.table")
+    if (!is.null(X)) {
+      if (is.null(X_ID_level1)) stop("'X_ID_level1' must be defined")
+      X_ID_level1 <- data.table(X_ID_level1)
+      X_ID_level1[, (names(X_ID_level1)) := lapply(.SD, as.character)]
+      if (anyNA(X_ID_level1)) stop("'X_ID_level1' has missing values")
+      if (nrow(X) != nrow(X_ID_level1)) stop("'X' and 'X_ID_level1' have different row count")
+      if (ncol(X_ID_level1) != 1) stop("'X_ID_level1' must be 1 column data.frame, matrix, data.table")
+      if (any(names(X_ID_level1) != names(ID_level1))) stop("'X_ID_level1' and 'ID_level1' must be equal names")
+      
+      ID_level1h <- copy(ID_level1)
+      X_ID_level1h <- copy(X_ID_level1)
+      if (!is.null(countryX)) {X_ID_level1h <- data.table(countryX, X_ID_level1h)
+                               ID_level1h <- data.table(country, ID_level1h)}
+      if (!is.null(periodX)) {X_ID_level1h <- data.table(periodX, X_ID_level1h)
+                              ID_level1h <- data.table(period, ID_level1h)}
 
-    ID_level1h <- copy(ID_level1)
-    if (!is.null(countryX)) {X_ID_level1 <- data.table(countryX, X_ID_level1)
-                             ID_level1h <- data.table(country, ID_level1h)}
-    if (!is.null(periodX)) {X_ID_level1 <- data.table(periodX, X_ID_level1)
-                            ID_level1h <- data.table(period, ID_level1h)}
-    ID_level1h <- ID_level1h[, .N, by = names(ID_level1h)][, N := NULL]
-    if (nrow(X_ID_level1[,.N, by = names(X_ID_level1h)][N > 1]) > 0) stop("'X_ID_level1' have duplicates")
-    setkeyv(X_ID_level1, names(X_ID_level1))
-    setkeyv(ID_level1h, names(ID_level1h))
-    nperIDh <- names(ID_level1h)
-    if (any(nperIDh != names(X_ID_level1))) stop("'X_ID_level1' and 'ID_level1' must be equal  names")
-    if (ID_level1h[, class(get(nperIDh))] != X_ID_level1[, class(get(nperIDh))])  stop("Class for 'X_ID_level1' and class for 'ID_level1' must be equal ")
+      ID_level1h <- ID_level1h[, .N, by = names(ID_level1h)][, N := NULL]
+      if (nrow(X_ID_level1h[,.N, by = names(X_ID_level1h)][N > 1]) > 0) stop("'X_ID_level1' have duplicates")  
 
-    if (!is.null(period)) {
-        if (!is.null(country)) {
-             if (nrow(ID_level1h) != nrow(X_ID_level1)) stop("'unique(countryX, periodX, X_ID_level1)' and 'unique(country, period, ID_level1)' have different row count")
-             if (any(ID_level1h != X_ID_level1)) stop("''unique(countryX, periodX, X_ID_level1)' and 'unique(country, period, ID_level1)' records have different")
+      setkeyv(X_ID_level1h, names(X_ID_level1h))
+      setkeyv(ID_level1h, names(ID_level1h))
+      if (!is.null(period)) {
+          if (!is.null(country)) {
+                 if (nrow(ID_level1h) != nrow(X_ID_level1h)) stop("'unique(countryX, periodX, X_ID_level1)' and 'unique(country, period, ID_level1)' have different row count")
+                 if (any(ID_level1h != X_ID_level1h)) stop("''unique(countryX, periodX, X_ID_level1)' and 'unique(country, period, ID_level1)' records have different")
+              } else {
+                 if (nrow(ID_level1h) != nrow(X_ID_level1h)) stop("'unique(periodX, X_ID_level1)' and 'unique(period, ID_level1)' have different row count")
+                 if (any(ID_level1h != X_ID_level1h)) stop("''unique(periodX, X_ID_level1)' and 'unique(period, ID_level1)' records have different")  }
+        } else {
+          if (!is.null(country)) {
+               if (nrow(ID_level1h) != nrow(X_ID_level1h)) stop("'unique(countryX, X_ID_level1)' and 'unique(country, ID_level1)' have different row count")
+               if (any(ID_level1h != X_ID_level1h)) stop("''unique(countryX, X_ID_level1)' and 'unique(country, ID_level1)' records have different")
             } else {
-                if (nrow(ID_level1h) != nrow(X_ID_level1)) stop("'unique(periodX, X_ID_level1)' and 'unique(period, ID_level1)' have different row count")
-                if (any(ID_level1h != X_ID_level1)) stop("''unique(periodX, X_ID_level1)' and 'unique(period, ID_level1)' records have different")  }
-      } else {
-        if (!is.null(country)) {
-             if (nrow(ID_level1h) != nrow(X_ID_level1)) stop("'unique(countryX, X_ID_level1)' and 'unique(country, ID_level1)' have different row count")
-             if (any(ID_level1h != X_ID_level1)) stop("''unique(countryX, X_ID_level1)' and 'unique(country, ID_level1)' records have different")
-            } else {
-             if (nrow(ID_level1h) != nrow(X_ID_level1)) stop("'unique(X_ID_level1)' and 'unique(ID_level1)' have different row count")
-             if (any(ID_level1h != X_ID_level1)) stop("''unique(X_ID_level1)' and 'unique(ID_level1)' records have different") }
-   }}
+               if (nrow(ID_level1h) != nrow(X_ID_level1h)) stop("'unique(X_ID_level1)' and 'unique(ID_level1)' have different row count")
+               if (any(ID_level1h != X_ID_level1h)) stop("''unique(X_ID_level1)' and 'unique(ID_level1)' records have different") }
+      }
+      ID_level1h <- X_ID_level1h <- NULL
+    }
 
   # ind_gr
   if (!is.null(X)) {
@@ -352,9 +355,12 @@ vardcros <- function(Y, H, PSU, w_final,
   # Design weights
   if (!is.null(X)) {
              idh <- data.table(ID_level1)
-             if (!is.null(country)) idh <- data.table(country, idh)
-             if (!is.null(period)) idh <- data.table(period, idh)
-             idhx <- data.table(X_ID_level1, g)
+             idhx <- data.table(X_ID_level1)
+             if (!is.null(countryX)) {idh <- data.table(country, idh)
+                                      idhx <- data.table(countryX, idhx)}
+             if (!is.null(periodX)) {idh <- data.table(period, idh)
+                                     idhx <- data.table(periodX, idhx)}
+             idhx <- data.table(idhx, g)
              setnames(idhx, names(idhx)[c(1 : (ncol(idhx)-1))], names(idh))
              idg <- merge(idh, idhx,  by = names(idh), sort = FALSE)
              w_design <- w_final / idg[[ncol(idg)]]
@@ -467,7 +473,10 @@ vardcros <- function(Y, H, PSU, w_final,
     res_outp <- NULL
     if (!is.null(X)) {
          X0 <- data.table(X_ID_level1, ind_gr, q, g, X)
-         DT1 <- merge(DTc, X0, by = names(ID_level1h))
+         if (!is.null(countryX)) X0 <- data.table(countryX, X0)
+         if (!is.null(periodX)) X0 <- data.table(periodX, X0)
+         nos <- c(names(periodX), names(countryX), names(ID_level1))
+         DT1 <- merge(DTc, X0, by = nos)
 
          ind_gr <- DT1[, c(namesperc, names(ind_gr)), with = FALSE]
          ind_period <- do.call("paste", c(as.list(ind_gr), sep = "_"))

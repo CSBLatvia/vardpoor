@@ -201,7 +201,14 @@ vardcrosannual <- function(Y, H, PSU, w_final,
     namesZ <- names(Z)
   }
   
-# countryX
+  # X
+  if (!is.null(X)) {
+      X <- data.table(X, check.names = TRUE)
+      if (!all(sapply(X, is.numeric))) stop("'X' must be numeric values")
+      if (anyNA(X)) stop("'X' has missing values")
+   }
+
+  # countryX
    if (!is.null(X)) {
      if(!is.null(countryX)) {
          countryX <- data.table(countryX)
@@ -260,34 +267,34 @@ vardcrosannual <- function(Y, H, PSU, w_final,
       if (any(peri != periX) & !is.null(country)) stop("'unique(country, years, subperiods)' and 'unique(countryX, yearsX, subperiodsX)' records have different")
     } 
 
-    # X_ID_level1
-    if (!is.null(X)) {
-       X_ID_level1 <- data.table(X_ID_level1)
-       X_ID_level1[, (names(X_ID_level1)) := lapply(.SD, as.character)]
-       if (anyNA(X_ID_level1)) stop("'X_ID_level1' has missing values")
-       if (nrow(X) != nrow(X_ID_level1)) stop("'X' and 'X_ID_level1' have different row count")
-       if (ncol(X_ID_level1) != 1) stop("'X_ID_level1' must be 1 column data.frame, matrix, data.table")
- 
-       ID_level1h <- copy(ID_level1)
-       if (!is.null(countryX)) {X_ID_level1 <- data.table(countryX, X_ID_level1)
-                                ID_level1h <- data.table(country, ID_level1h)}
-       X_ID_level1 <- data.table(yearsX, subperiodsX, X_ID_level1)
-       ID_level1h <- data.table(years, subperiods, ID_level1h)
-       ID_level1h <- ID_level1h[, .N, by = names(ID_level1h)][, N := NULL]
-       if (nrow(X_ID_level1[,.N, by = names(X_ID_level1)][N > 1]) > 0) stop("'X_ID_level1' have duplicates")
-       setkeyv(X_ID_level1, names(X_ID_level1))
-       setkeyv(ID_level1h, names(ID_level1h))
-       nperIDh <- names(ID_level1h)
-       if (any(nperIDh != names(X_ID_level1))) stop("'X_ID_level1' and 'ID_level1' must be equal names")
-       if (ID_level1h[, class(get(nperIDh))] != X_ID_level1[, class(get(nperIDh))])  stop("Class for 'X_ID_level1' and class for 'ID_level1' must be equal ")
+   # X_ID_level1
+   if (!is.null(X)) {
+      if (is.null(X_ID_level1)) stop("'X_ID_level1' must be defined")
+      X_ID_level1 <- data.table(X_ID_level1)
+      X_ID_level1[, (names(X_ID_level1)) := lapply(.SD, as.character)]
+      if (anyNA(X_ID_level1)) stop("'X_ID_level1' has missing values")
+      if (nrow(X) != nrow(X_ID_level1)) stop("'X' and 'X_ID_level1' have different row count")
+      if (any(names(X_ID_level1) != names(ID_level1))) stop("'X_ID_level1' and 'ID_level1' must be equal names")
+      if (ncol(X_ID_level1) != 1) stop("'X_ID_level1' must be 1 column data.frame, matrix, data.table")
 
-       if (!is.null(country)) {
-           if (nrow(ID_level1h) != nrow(X_ID_level1)) stop("'unique(countryX, yearsX, subperiodsX, X_ID_level1)' and 'unique(country, years, subperiods, ID_level1)' have different row count")
-           if (any(ID_level1h != X_ID_level1)) stop("''unique(countryX, yearsX, subperiodsX, X_ID_level1)' and 'unique(country, years, subperiods, ID_level1)' records have different")
-         } else {
-           if (nrow(ID_level1h) != nrow(X_ID_level1)) stop("'unique(yearsX, subperiodsX, X_ID_level1)' and 'unique(years, subperiods, ID_level1)' have different row count")
-           if (any(ID_level1h != X_ID_level1)) stop("''unique(yearsX, subperiodsX, X_ID_level1)' and 'unique(years, subperiods, ID_level1)' records have different")  }
-     }
+      ID_level1h <- data.table(years, subperiods, ID_level1)
+      X_ID_level1h <- data.table(yearsX, subperiodsX, X_ID_level1)
+      if (!is.null(countryX)) {X_ID_level1h <- data.table(countryX, X_ID_level1h)
+                               ID_level1h <- data.table(country, ID_level1h)}                      
+      ID_level1h <- ID_level1h[, .N, by = names(ID_level1h)][, N := NULL]
+      if (nrow(X_ID_level1h[,.N, by = names(X_ID_level1h)][N > 1]) > 0) stop("'X_ID_level1' have duplicates")  
+
+      setkeyv(X_ID_level1h, names(X_ID_level1h))
+      setkeyv(ID_level1h, names(ID_level1h))
+      if (!is.null(country)) {
+             if (nrow(ID_level1h) != nrow(X_ID_level1h)) stop("'unique(countryX, yearsX, subperiodsX, X_ID_level1)' and 'unique(country, years, subperiods, ID_level1)' have different row count")
+             if (any(ID_level1h != X_ID_level1h)) stop("''unique(countryX, periodX, X_ID_level1)' and 'unique(country, period, ID_level1)' records have different")
+           } else {
+             if (nrow(ID_level1h) != nrow(X_ID_level1h)) stop("'unique(yearsX, subperiodsX, X_ID_level1)' and 'unique(years, subperiods, ID_level1)' have different row count")
+             if (any(ID_level1h != X_ID_level1h)) stop("''unique(yearsX, subperiodsX, X_ID_level1)' and 'unique(years, subperiods, ID_level1)' records have different")  }
+       }
+      ID_level1h <- X_ID_level1h <- NULL
+    }
 
    # ind_gr
    if (!is.null(X)) {
@@ -299,29 +306,15 @@ vardcrosannual <- function(Y, H, PSU, w_final,
        if (anyNA(ind_gr)) stop("'ind_gr' has missing values")
     }
 
-   # X
-   if (!is.null(X)) {
-        X1 <- data.table(X, check.names = TRUE)
-        nX1 <- names(X1)
-        ind_gr1 <- data.table(yearsX, subperiodsX, ind_gr, check.names = TRUE)
-        X2 <- data.table(ind_gr1, X1)
-        X1 <- X2[, .N, keyby = names(ind_gr1)][["N"]]
-        X2 <- X2[, lapply(.SD, function(x) sum(!is.na(x))), keyby = names(ind_gr1), .SDcols = nX1]
-        X2 <- X2[, nX1, with = FALSE]
-
-        if (!all(X2 == 0 | X1 == X2)) stop("X has missing values")
-        nX1 <- X1 <- X2 <- NULL
-     }
-
    # g
    if (!is.null(X)) {
      if (is.null(class(g)) | all(class(g) == "function")) stop("'g' must be numeric")
      g <- data.frame(g)
-     if (anyNA(g)) stop("'g' has missing values")
      if (nrow(g) != nrow(X)) stop("'g' length must be equal with 'X' row count")
      if (ncol(g) != 1) stop("'g' must be 1 column data.frame, matrix, data.table")
      g <- g[, 1]
      if (!is.numeric(g)) stop("'g' must be numeric")
+     if (anyNA(g)) stop("'g' has missing values")
      if (any(g == 0)) stop("'g' value can not be 0")
    }
     
@@ -330,11 +323,11 @@ vardcrosannual <- function(Y, H, PSU, w_final,
      if (is.null(q))  q <- rep(1, nrow(X))
      if (is.null(class(q)) | all(class(q) == "function")) stop("'q' must be numeric")
      q <- data.frame(q)
-     if (anyNA(q)) stop("'q' has missing values")
      if (nrow(q) != nrow(X)) stop("'q' length must be equal with 'X' row count")
      if (ncol(q) != 1) stop("'q' must be 1 column data.frame, matrix, data.table")
      q <- q[, 1]
      if (!is.numeric(q)) stop("'q' must be numeric")
+     if (anyNA(q)) stop("'q' has missing values")
      if (any(is.infinite(q))) stop("'q' value can not be infinite")
    }
 

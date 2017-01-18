@@ -216,6 +216,7 @@ vardcros <- function(Y, H, PSU, w_final,
   if (!is.null(X)) {
     X <- data.table(X, check.names = TRUE)
     if (!all(sapply(X, is.numeric))) stop("'X' must be numeric values")
+    if (anyNA(X)) stop("'X' has missing values")
   }
 
   # countryX
@@ -306,21 +307,6 @@ vardcros <- function(Y, H, PSU, w_final,
      ind_gr[, (names(ind_gr)) := lapply(.SD, as.character)]
      if (anyNA(ind_gr)) stop("'ind_gr' has missing values")
    }
-
-  # X
-  if (!is.null(X)) {
-       X1 <- data.table(X, check.names = TRUE)
-       nX1 <- names(X1)
-       ind_gr1 <- copy(ind_gr) 
-       if (!is.null(periodX)) ind_gr1 <- data.table(periodX, ind_gr1, check.names = TRUE)
-       X2 <- data.table(ind_gr1, X1)
-       X1 <- X2[, .N, keyby = names(ind_gr1)][["N"]]
-       X2 <- X2[, lapply(.SD, function(x) sum(!is.na(x))), keyby = names(ind_gr1), .SDcols = nX1]
-       X2 <- X2[, nX1, with = FALSE]
-
-       if (!all(X2 == 0 | X1 == X2)) stop("X has missing values")
-       ind_gr1 <- nX1 <- X1 <- X2 <- NULL
-    }
 
   # g
   if (!is.null(X)) {
@@ -482,17 +468,18 @@ vardcros <- function(Y, H, PSU, w_final,
          ind_period <- do.call("paste", c(as.list(ind_gr), sep = "_"))
      
          res <- lapply(split(DT1[, .I], ind_period), function(i)                  
-                        data.table(DT1[i, names(ID_level1h), with = FALSE],
+                        data.table(DT1[i, nos, with = FALSE],
                                    res <- residual_est(Y = DT1[i, namesY2, with = FALSE],
                                                        X = DT1[i, names(X), with = FALSE],
-                                                       weight = DT1[i, "w_design", with = FALSE],
-                                                       q = DT1[i, "q", with = FALSE])))
- 
+                                                       weight = DT1[i, w_design],
+                                                       q = DT1[i, q])))
          res <- rbindlist(res)
          setnames(res, namesY2, namesY2w)
-         DTc <- merge(DTc, res, by = names(ID_level1h)) 
+         DTc <- merge(DTc, res, by = nos) 
          if (outp_res) res_outp <- DTc[, c(names(ID_level1h), names_PSU, "w_final", namesY2w), with = FALSE]
      } else DTc[, (namesY2w) := .SD[, namesY2, with = FALSE]]
+
+   DTc[, .SD[, namesY2w, with = FALSE] * get("w_final")]
 
    DTc[, (namesY2w) := .SD[, namesY2w, with = FALSE] * get("w_final")]
 

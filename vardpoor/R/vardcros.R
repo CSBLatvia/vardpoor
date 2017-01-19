@@ -479,8 +479,6 @@ vardcros <- function(Y, H, PSU, w_final,
          if (outp_res) res_outp <- DTc[, c(names(ID_level1h), names_PSU, "w_final", namesY2w), with = FALSE]
      } else DTc[, (namesY2w) := .SD[, namesY2, with = FALSE]]
 
-   DTc[, .SD[, namesY2w, with = FALSE] * get("w_final")]
-
    DTc[, (namesY2w) := .SD[, namesY2w, with = FALSE] * get("w_final")]
 
    #--------------------------------------------------------*

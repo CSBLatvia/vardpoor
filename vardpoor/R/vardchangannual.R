@@ -257,6 +257,7 @@ vardchangannual <- function(Y, H, PSU, w_final,
       if (nrow(yearsX) != nrow(X)) stop("'yearsX' length must be equal with 'X' row count")
       if (ncol(yearsX) != ncol(years)) stop("'yearsX' length must be equal with 'years' column count")
       if (names(yearsX) != names(years)) stop("'yearsX' must be equal with 'years' names")
+
       peri <- copy(years)
       periX <- copy(yearsX)
       if (!is.null(country)) peri <- data.table(country, peri)
@@ -279,6 +280,7 @@ vardchangannual <- function(Y, H, PSU, w_final,
       if (nrow(subperiodsX) != nrow(X)) stop("'subperiodsX' length must be equal with 'X' row count")
       if (ncol(subperiodsX) != ncol(years)) stop("'subperiodsX' length must be equal with 'subperiods' column count")
       if (names(subperiodsX) != names(subperiods)) stop("'subperiodsX' must be equal with 'subperiods' names")
+
       peri <- data.table(years, subperiods)
       periX <- data.table(yearsX, subperiodsX)
       if (!is.null(country)) peri <- data.table(country, peri)

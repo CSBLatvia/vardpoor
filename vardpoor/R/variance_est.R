@@ -15,7 +15,7 @@ variance_est <- function(Y, H, PSU, w_final, N_h = NULL, fh_zero = FALSE,
     if(!is.null(dataset)) {
       dataset <- data.table(dataset)
       if (min(Y %in% names(dataset)) != 1) stop("'Y' does not exist in 'dataset'!")
-      if (min(Y %in% names(dataset)) == 1) Y <- dataset[, Y, ] 
+      if (min(Y %in% names(dataset)) == 1) Y <- dataset[, Y, with = FALSE] 
       if(!is.null(H)) {
           if (min(H %in% names(dataset)) != 1) stop("'H' does not exist in 'dataset'!")
           if (min(H %in% names(dataset)) == 1) H <- dataset[, H, with = FALSE] }

@@ -274,7 +274,7 @@ vardcrosannual <- function(Y, H, PSU, w_final,
       X_ID_level1[, (names(X_ID_level1)) := lapply(.SD, as.character)]
       if (anyNA(X_ID_level1)) stop("'X_ID_level1' has missing values")
       if (nrow(X) != nrow(X_ID_level1)) stop("'X' and 'X_ID_level1' have different row count")
-      if (any(names(X_ID_level1) != names(ID_level1))) stop("'X_ID_level1' and 'ID_level1' must be equal names")
+      if (any(names(X_ID_level1) != names(ID_level1))) stop("'X_ID_level1' and 'ID_level1' must be equal names") 
       if (ncol(X_ID_level1) != 1) stop("'X_ID_level1' must be 1 column data.frame, matrix, data.table")
 
       ID_level1h <- data.table(years, subperiods, ID_level1)

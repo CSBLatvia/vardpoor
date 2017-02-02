@@ -362,6 +362,7 @@ vardchangespoor <- function(Y, age = NULL,
      if (nrow(periodX) != nrow(X)) stop("'periodX' length must be equal with 'X' row count")
      if (ncol(periodX) != ncol(period)) stop("'periodX' length must be equal with 'period' column count")
      if (names(periodX) != names(period)) stop("'periodX' must be equal with 'periods' names")
+   
      peri <- copy(period)
      periX <- copy(periodX)
      if (!is.null(country)) peri <- data.table(country, peri)
@@ -380,7 +381,7 @@ vardchangespoor <- function(Y, age = NULL,
     if (nrow(X) != nrow(X_ID_level1)) stop("'X' and 'X_ID_level1' have different row count")
     if (ncol(X_ID_level1) != 1) stop("'X_ID_level1' must be 1 column data.frame, matrix, data.table")
     if (any(names(X_ID_level1) != names(ID_level1))) stop("'X_ID_level1' and 'ID_level1' must be equal names")
-
+  
     ID_level1h <- data.table(period, ID_level1)
     X_ID_level1h <- data.table(periodX, X_ID_level1)
     if (!is.null(countryX)) { X_ID_level1h <- data.table(countryX, X_ID_level1h)

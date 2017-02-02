@@ -248,6 +248,7 @@ vardchanges <- function(Y, H, PSU, w_final,
      if (nrow(periodX) != nrow(X)) stop("'periodX' length must be equal with 'X' row count")
      if (ncol(periodX) != ncol(period)) stop("'periodX' length must be equal with 'period' column count")
      if (names(periodX) != names(period)) stop("'periodX' must be equal with 'periods' names")
+
      peri <- copy(period)
      periX <- copy(periodX)
      if (!is.null(country)) peri <- data.table(country, peri)

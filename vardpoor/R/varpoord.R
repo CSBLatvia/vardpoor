@@ -116,7 +116,7 @@ varpoord <- function(Y, w_final,
     }
 
   if(!is.null(datasetX)) {
-      dataset <- data.table(datasetX)
+      datasetX <- data.table(datasetX)
        if (!is.null(periodX)) {
             if (min(periodX %in% names(datasetX)) != 1) stop("'periodX' does not exist in 'datasetX'!")
             if (min(periodX %in% names(datasetX)) == 1) periodX <- datasetX[, periodX, with = FALSE] }     
@@ -355,7 +355,7 @@ varpoord <- function(Y, w_final,
 
  # X_ID_level1
   if (!is.null(X)) {
-    X_ID_level1 <- data.table(ID_level1)
+    X_ID_level1 <- data.table(X_ID_level1)
     if (nrow(X) != nrow(X_ID_level1)) stop("'X' and 'ID_level1' have different row count")
     if (ncol(ID_level1) != 1) stop("'X_ID_level1' must be 1 column data.frame, matrix, data.table")
     X_ID_level1[, (names(ID_level1)) := lapply(.SD, as.character)]
@@ -436,7 +436,7 @@ varpoord <- function(Y, w_final,
              ID_level1h <- data.table(ID_level1)
              if (!is.null(period)) { ID_level1h <- data.table(period, ID_level1h)
                                      X_ID_level1 <- data.table(period, X_ID_level1)
-                                   }
+                              }
              ID_level1hx <- data.table(X_ID_level1, g)
              setnames(ID_level1hx, names(ID_level1hx)[c(1:(ncol(ID_level1hx)-1))], names(ID_level1h))
              ID_level1g <- merge(ID_level1h, ID_level1hx, by=names(ID_level1h), sort=FALSE)
@@ -662,7 +662,7 @@ varpoord <- function(Y, w_final,
        D1 <- merge(ID_level1h, X0, by = names(ID_level1h), sort = FALSE)
        ind_gr <- D1[, np + 2, with = FALSE]
        if (!is.null(period)) ind_gr <- data.table(D1[, names(periodX), with = FALSE], ind_gr)
-       ind_period <- do.call("paste", c(as.list(ind_gr), sep="_"))
+       ind_period <- do.call("paste", c(as.list(ind_gr), sep = "_"))
     
        lin1 <- lapply(split(Y3[, .I], ind_period), function(i) 
                       data.table(sar_nr = i, 

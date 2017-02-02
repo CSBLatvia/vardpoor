@@ -245,6 +245,7 @@ vardomh <- function(Y, H, PSU, w_final,
         if (nrow(periodX) != nrow(X)) stop("'periodX' length must be equal with 'X' row count")
         if (ncol(periodX) != ncol(period)) stop("'periodX' length must be equal with 'period' column count")
         if (names(periodX) != names(period)) stop("'periodX' must be equal with 'period' names")
+        if (any(names(periodX) == "g")) stop("'periodX' must be different name")
         periX <- periodX[, .N, keyby = names(periodX)][, N := NULL]
         peri <- period[, .N, keyby = names(period)][, N := NULL]
         if (any(peri != periX)) stop("'unique(period)' and 'unique(periodX)' records have different")
@@ -260,6 +261,7 @@ vardomh <- function(Y, H, PSU, w_final,
     if (nrow(X) != nrow(X_ID_level1)) stop("'X' and 'X_ID_level1' have different row count")
     if (ncol(X_ID_level1) != 1) stop("'X_ID_level1' must be 1 column data.frame, matrix, data.table")
     if (any(names(X_ID_level1) != names(ID_level1))) stop("'X_ID_level1' and 'ID_level1' must be equal names")
+    if (any(names(X_ID_level1) == "g")) stop("'X_ID_level1' must be different name")
 
     ID_level1h <- copy(ID_level1)
     X_ID_level1h <- copy(X_ID_level1)
@@ -346,10 +348,10 @@ vardomh <- function(Y, H, PSU, w_final,
              if (!is.null(period)) { ID_level1h <- data.table(period, ID_level1h)
                                      X_ID_level1 <- data.table(period, X_ID_level1)
                                     }
-             idhx <- data.table(X_ID_level1, g)
+             idhx <- data.table(X_ID_level1, g = g)
              setnames(idhx, names(idhx)[c(1 : (ncol(idhx) - 1))], names(ID_level1h))
              idg <- merge(ID_level1h, idhx, by = names(ID_level1h), sort = FALSE)
-             w_design <- w_final / idg[[ncol(idg)]]
+             w_design <- w_final / idg[["g"]]
              idg <- data.table(idg, w_design = w_design)
              idh <- idg[, .N, keyby = c(names(ID_level1h), "w_design")]
              if (nrow(X) != nrow(idh))  stop("Aggregated 'w_design' length must the same as matrix 'X'")

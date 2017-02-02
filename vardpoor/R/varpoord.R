@@ -437,14 +437,14 @@ varpoord <- function(Y, w_final,
              if (!is.null(period)) { ID_level1h <- data.table(period, ID_level1h)
                                      X_ID_level1 <- data.table(period, X_ID_level1)
                               }
-             ID_level1hx <- data.table(X_ID_level1, g)
-             setnames(ID_level1hx, names(ID_level1hx)[c(1:(ncol(ID_level1hx)-1))], names(ID_level1h))
-             ID_level1g <- merge(ID_level1h, ID_level1hx, by=names(ID_level1h), sort=FALSE)
-             w_design <- w_final / ID_level1g[[ncol(ID_level1g)]]
-             ID_level1g <- data.table(ID_level1g, w_design=w_design)
-             ID_level1h <- ID_level1g[, .N, keyby=c(names(idh), "w_design")]
-             if (nrow(X) != nrow(ID_level1h))  stop("Aggregated 'w_design' length must the same as matrix 'X'")
-             idg <- idhx <- idh <- NULL
+             idhx <- data.table(X_ID_level1, g)
+             setnames(idhx, names(idhx)[c(1 : (ncol(idhx) - 1))], names(ID_level1h))
+             idg <- merge(ID_level1h, idhx, by = names(ID_level1h), sort = FALSE)
+             w_design <- w_final / idg[[ncol(idg)]]
+             idg <- data.table(idg, w_design = w_design)
+             idh <- idg[, .N, keyby = c(names(ID_level1h), "w_design")]
+             if (nrow(X) != nrow(idh))  stop("Aggregated 'w_design' length must the same as matrix 'X'")
+             idg <- idhx <- ID_level1h <- NULL
       } else w_design <- w_final
 
   ### Calculation
@@ -638,7 +638,7 @@ varpoord <- function(Y, w_final,
   idper <- period <- NULL
   if (np > 0) period <- Y2[, c(1 : np), with = FALSE]
 
-  IDh <- Y2[, np + 1, with = FALSE]
+  ID_level1h <- Y2[, np + 1, with = FALSE]
   H <- Y2[, np + 2, with = FALSE]
   setnames(H, names(H), aH)
 
@@ -662,7 +662,7 @@ varpoord <- function(Y, w_final,
        D1 <- merge(ID_level1h, X0, by = names(ID_level1h), sort = FALSE)
        ind_gr <- D1[, np + 2, with = FALSE]
        if (!is.null(period)) ind_gr <- data.table(D1[, names(periodX), with = FALSE], ind_gr)
-       ind_period <- do.call("paste", c(as.list(ind_gr), sep = "_"))
+       ind_period <- do.call("paste", c(as.list(ind_gr), sep="_"))
     
        lin1 <- lapply(split(Y3[, .I], ind_period), function(i) 
                       data.table(sar_nr = i, 

@@ -239,7 +239,7 @@ vardcrospoor <- function(Y, age = NULL, pl085 = NULL,
       if (!is.numeric(gender)) stop("'gender' must be numeric")
       if (length(unique(gender)) != 2) stop("'gender' must be exactly two values")
       if (!all.equal(unique(gender), c(1, 2))) stop("'gender' must be value 1 for male, 2 for females")
-  } if (any(type == "lingpg")) stop("'gender' must be numeric")
+  } else if (any(type == "lingpg")) stop("'gender' must be numeric")
 
   # sort
   if (!is.null(sort)) {

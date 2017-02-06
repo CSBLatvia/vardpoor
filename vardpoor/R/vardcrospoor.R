@@ -175,7 +175,7 @@ vardcrospoor <- function(Y, age = NULL, pl085 = NULL,
        age <- age[, 1]
        if (!is.numeric(age)) stop("'age' must be numeric")
        if (anyNA(age)) stop("'age' has missing values")
-   } else if (c( %in%  type
+    } else if (any(c("linrmir", "linarr") %in% type)) stop("'age' must be numeric")
 
    # pl085
    if (!is.null(pl085)) {

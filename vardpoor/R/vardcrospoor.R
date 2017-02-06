@@ -165,7 +165,7 @@ vardcrospoor <- function(Y, age = NULL, pl085 = NULL,
           Y_den <- Y_den[, 1]
           if(!is.numeric(Y_den)) stop("'Y_den' must be numeric")
           if (anyNA(Y_den)) stop("'Y_den' has missing values")
-  }
+    } else if (any(c("linrmir", "linarr") %in% type)) stop("'age' must be numeric")
 
   # age
   if (!is.null(age)) {
@@ -175,8 +175,7 @@ vardcrospoor <- function(Y, age = NULL, pl085 = NULL,
        age <- age[, 1]
        if (!is.numeric(age)) stop("'age' must be numeric")
        if (anyNA(age)) stop("'age' has missing values")
-    } else if (any(c("linrmir", "linarr") %in% type)) stop("'age' must be numeric")
-
+   } else if (c( %in%  type
 
    # pl085
    if (!is.null(pl085)) {
@@ -186,7 +185,7 @@ vardcrospoor <- function(Y, age = NULL, pl085 = NULL,
        if (ncol(pl085) != 1) stop("'pl085' must be a vector or 1 column data.frame, matrix, data.table")
        pl085 <- pl085[, 1]
        if (!is.numeric(pl085)) stop("'pl085' must be numeric")
-   } else if (any(type == "linarr")) stop("'pl085' must be numeric")
+    } else if (any(type == "linarr")) stop("'pl085' must be numeric")
 
    # month_at_work
    if (!is.null(month_at_work)) {
@@ -240,7 +239,7 @@ vardcrospoor <- function(Y, age = NULL, pl085 = NULL,
       if (!is.numeric(gender)) stop("'gender' must be numeric")
       if (length(unique(gender)) != 2) stop("'gender' must be exactly two values")
       if (!all.equal(unique(gender), c(1, 2))) stop("'gender' must be value 1 for male, 2 for females")
-   } if (any(type == "lingpg")) stop("'gender' must be numeric")
+  } if (any(type == "lingpg")) stop("'gender' must be numeric")
 
   # sort
   if (!is.null(sort)) {

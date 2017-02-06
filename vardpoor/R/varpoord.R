@@ -196,7 +196,7 @@ varpoord <- function(Y, w_final,
        if (ncol(age) != 1) stop("'age' must be vector or 1 column data.frame, matrix, data.table")
        age <- age[, 1]
        if (!is.numeric(age)) stop("'age' must be numeric")
-   }
+    } else if (any(c("linrmir", "linarr") %in% type)) stop("'age' must be numeric")
 
    # pl085
    if (!is.null(pl085)) {
@@ -206,7 +206,7 @@ varpoord <- function(Y, w_final,
        if (ncol(pl085) != 1) stop("'pl085' must be vector or 1 column data.frame, matrix, data.table")
        pl085 <- pl085[, 1]
        if (!is.numeric(pl085)) stop("'pl085' must be numeric")
-   }
+   } else if (any(type == "linarr")) stop("'pl085' must be numeric")
 
    # month_at_work
    if (!is.null(month_at_work)) {
@@ -216,7 +216,8 @@ varpoord <- function(Y, w_final,
         if (ncol(month_at_work) != 1) stop("'month_at_work' must be vector or 1 column data.frame, matrix, data.table")
         month_at_work <- month_at_work[, 1]
         if (!is.numeric(pl085)) stop("'month_at_work' must be numeric")
-  }
+     } else if (any(type == "linarr")) stop("'month_at_work' must be numeric")
+
 
   # w_final 
   w_final <- data.frame(w_final)

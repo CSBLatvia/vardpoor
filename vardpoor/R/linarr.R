@@ -81,6 +81,7 @@ linarr <- function(Y, Y_den, id = NULL, age, pl085, month_at_work,
    if (!is.numeric(weight)) stop("'weight' must be numeric")
    
    # age
+   if (is.null(age)) stop("'age' must be numeric")
    age <- data.frame(age)
    if (anyNA(age)) stop("'age' has missing values")
    if (nrow(age) != n) stop("'age' must be the same length as 'Y'")
@@ -89,6 +90,7 @@ linarr <- function(Y, Y_den, id = NULL, age, pl085, month_at_work,
    if (!is.numeric(age)) stop("'age' must be numeric")
    
    # pl085
+   if (is.null(pl085)) stop("'pl085' must be numeric")
    pl085 <- data.frame(pl085)
    if (anyNA(pl085)) stop("'pl085' has missing values")
    if (nrow(pl085) != n) stop("'pl085' must be the same length as 'Y'")
@@ -97,6 +99,7 @@ linarr <- function(Y, Y_den, id = NULL, age, pl085, month_at_work,
    if (!is.numeric(pl085)) stop("'pl085' must be numeric")
 
    # month_at_work
+   if (is.null(month_at_work)) stop("'month_at_work' must be numeric")
    month_at_work <- data.frame(month_at_work)
    if (anyNA(month_at_work)) stop("'month_at_work' has missing values")
    if (nrow(month_at_work) != n) stop("'month_at_work' must be the same length as 'Y'")

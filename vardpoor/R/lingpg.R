@@ -54,6 +54,7 @@ lingpg <- function(Y, gender = NULL, id = NULL,
    if(!is.numeric(Y)) stop("'Y' must be a numeric vector")                   
 
    # gender
+   if (is.null(gender)) stop("'gender' must be numeric")
    gender <- data.frame(gender)
    if (nrow(gender) != n) stop("'gender' must be the same length as 'Y'")
    if (ncol(gender) != 1) stop("'gender' must be a vector or 1 column data.frame, matrix, data.table")

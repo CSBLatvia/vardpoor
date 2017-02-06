@@ -66,6 +66,7 @@ linrmir <- function(Y, id = NULL, age, weight = NULL,
    if (!is.numeric(weight)) stop("'weight' must be numerical")
    
    # age
+   if (is.null(age)) stop("'age' must be numeric")
    age <- data.frame(age)
    if (anyNA(age)) stop("'age' has missing values")
    if (nrow(age) != n) stop("'age' must be the same length as 'Y'")

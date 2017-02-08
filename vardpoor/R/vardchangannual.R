@@ -1,4 +1,3 @@
-
 vardchangannual <- function(Y, H, PSU, w_final,
                             ID_level1, ID_level2,
                             Dom = NULL, Z = NULL, 
@@ -429,13 +428,12 @@ vardchangannual <- function(Y, H, PSU, w_final,
                                A_matrix <- diag(1, nrow(atsyear), nrow(atsyear))
 
                                for (k in 1 : nrow(rho1)) {
-
                                      at <- rho1[k == ids]
                                      A_matrix[at[["ids_1"]], at[["ids_2"]]] <- at[["rho_num1"]]
                                      A_matrix[at[["ids_2"]], at[["ids_1"]]] <- at[["rho_num1"]]
                                      if (at[["ids_2"]] > subn & at[["ids_1"]] < subn + 1) {
-                                                  A_matrix[at[["ids_1"]], at[["ids_2"]]] <- - 2 * at[["rho_num1"]]
-                                                  A_matrix[at[["ids_2"]], at[["ids_1"]]] <- - 2 * at[["rho_num1"]]
+                                                  A_matrix[at[["ids_1"]], at[["ids_2"]]] <- - at[["rho_num1"]]
+                                                  A_matrix[at[["ids_2"]], at[["ids_1"]]] <- - at[["rho_num1"]]
                                            }
                                    }
                                rho1 <- merge(rho0, crossectional_var_grad, by = sar)

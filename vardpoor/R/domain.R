@@ -1,4 +1,14 @@
-   
+namesD <- function(Y, D) {
+    Dom_agg <- unique(D)
+    h <- vector(mode = "character", length = nrow(Dom_agg))
+    for (i in 1:nrow(Dom_agg)) {
+      cc <- paste(names(D), Dom_agg[i, ], sep = ".")
+      h[i] <- paste(cc, collapse = "__")
+    }
+    foreach(i = 1 : ncol(Y), .combine = c) %do% paste(names(Y)[i], h, sep="__")
+  }
+
+
 domain <- function(Y, D, dataset = NULL) { 
 
    if(!is.null(dataset)) {
@@ -40,14 +50,7 @@ domain <- function(Y, D, dataset = NULL) {
       ifelse(rowSums(D == Dom_agg[k, ][rep(1, n), ]) == ncol(D), Y[[i]], 0)
   
   if (!is.data.table(domen)) domen <- data.table(domen)
-  namesD <- function(Y, D) {
-    h <- vector(mode = "character", length = nrow(Dom_agg))
-    for (i in 1:nrow(Dom_agg)) {
-      cc <- paste(names(D), Dom_agg[i, ], sep = ".")
-      h[i] <- paste(cc, collapse = "__")
-    }
-    foreach(i = 1 : ncol(Y), .combine = c) %do% paste(names(Y)[i], h, sep="__")
-  }
+
   setnames(domen, namesD(Y, D))
   domen <- data.table(domen, check.names=TRUE)
   return(domen)

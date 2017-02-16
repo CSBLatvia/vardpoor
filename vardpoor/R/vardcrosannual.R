@@ -195,6 +195,7 @@ vardcrosannual <- function(Y, H, PSU, w_final,
   if (!is.null(Z)) {
     Z <- data.table(Z, check.names = TRUE)
     if (anyNA(Z)) stop("'Z' has missing values")
+    if (!all(sapply(Z, is.numeric))) stop("'Z' must be numeric")
     if (nrow(Z) != n) stop("'Z' and 'Y' must be equal row count")
     if (ncol(Z) != m) stop("'Z' and 'Y' must be equal column count")
     if (any(grepl("__", names(Z)))) stop("'Z' is not allowed column names with '__'")

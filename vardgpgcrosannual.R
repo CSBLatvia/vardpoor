@@ -1,14 +1,14 @@
-vardchangannual <- function(Y, H, PSU, w_final,
-                            ID_level1, ID_level2,
-                            Dom = NULL, Z = NULL, 
-                            country = NULL, years,
-                            subperiods, dataset = NULL,
-                            year1, year2, X = NULL,
-                            countryX = NULL, yearsX = NULL,
-                            subperiodsX = NULL, X_ID_level1 = NULL,
-                            ind_gr = NULL, g = NULL, q = NULL,
-                            datasetX = NULL, percentratio = 1,
-                            use.estVar = FALSE, confidence = 0.95) {
+vardgpgcrosannual <-  function(Y, H, PSU, w_final,
+                               ID_level1, ID_level2,
+                               Dom = NULL, Z, gender,
+                               country = NULL, years,
+                               subperiods, dataset = NULL,
+                               year1, year2, X = NULL,
+                               countryX = NULL, yearsX = NULL,
+                               subperiodsX = NULL, X_ID_level1 = NULL,
+                               ind_gr = NULL, g = NULL, q = NULL,
+                               datasetX = NULL, percentratio = 1,
+                               use.estVar = FALSE, confidence = 0.95) {
  
   ### Checking
   outp_res <- FALSE
@@ -45,6 +45,10 @@ vardchangannual <- function(Y, H, PSU, w_final,
       if(!is.null(Z)) {
           if (min(Z %in% names(dataset)) != 1) stop("'Z' does not exist in 'dataset'!")
           if (min(Z %in% names(dataset)) == 1) Z <- dataset[, Z, with = FALSE]}
+
+      if(!is.null(gender)) {
+          if (min(gender %in% names(dataset)) != 1) stop("'gender' does not exist in 'dataset'!")
+          if (min(gender %in% names(dataset)) == 1) gender <- dataset[, gender, with = FALSE]}
 
       if(!is.null(country)) {
           if (min(country %in% names(dataset)) != 1) stop("'country' does not exist in 'dataset'!")
@@ -105,12 +109,12 @@ vardchangannual <- function(Y, H, PSU, w_final,
   dataset <- datasetX <- NULL
 
   # Y
-  Y <- data.table(Y, check.names = TRUE)
+  Y <- data.frame(Y)
   n <- nrow(Y)
-  m <- ncol(Y)
+  if (ncol(Y) != 1) stop("'Y' must be vector or 1 column data.frame, matrix, data.table")
   if (anyNA(Y)) stop("'Y' has missing values")
-  if (!all(sapply(Y, is.numeric))) stop("'Y' must be numeric")
-  if (any(grepl("__", names(Y)))) stop("'Y' is not allowed column names with '__'")
+  Y <- Y[, 1]
+  if (!is.numeric(Y)) stop("'Y' must be numeric")
 
   # H
   H <- data.table(H)
@@ -190,16 +194,24 @@ vardchangannual <- function(Y, H, PSU, w_final,
     if (any(grepl("__", names(Dom)))) stop("'Dom' is not allowed column names with '__'")
   }
   
-  namesZ <- NULL
-  if (!is.null(Z)) {
-    Z <- data.table(Z, check.names = TRUE)
-    if (anyNA(Z)) stop("'Z' has missing values")
-    if (!all(sapply(Z, is.numeric))) stop("'Z' must be numeric")
-    if (nrow(Z) != n) stop("'Z' and 'Y' must be equal row count")
-    if (ncol(Z) != m) stop("'Z' and 'Y' must be equal column count")
-    if (any(grepl("__", names(Z)))) stop("'Z' is not allowed column names with '__'")
-    namesZ <- names(Z)
-  }
+  Z <- data.frame(Z, check.names = TRUE)
+  if (nrow(Z) != n) stop("'Z' and 'Y' must be equal row count")
+  if (ncol(Z) != 1) stop("'Y' must be vector or 1 column data.frame, matrix, data.table")
+  if (anyNA(Z)) stop("'Z' has missing values")
+  Z <- Z[, 1]
+  if (!is.numeric(Z)) stop("'Y' must be numeric")
+
+
+  if (!is.null(gender)) {
+      gender <- data.frame(gender)
+      if (nrow(gender) != n) stop("'gender' must be the same length as 'Y'")
+      if (ncol(gender) != 1) stop("'gender' must be vector or 1 column data.frame, matrix, data.table")
+      gender <- gender[, 1]
+      if (!is.numeric(gender)) stop("'gender' must be numeric")
+      if (length(unique(gender)) != 2) stop("'gender' must be exactly two values")
+      if (!all(gender %in% 1:2)) stop("'gender' must be value 1 for male, 2 for females")
+   }
+
  
    # year1
    year1 <- data.table(year1, check.names = TRUE)
@@ -368,8 +380,15 @@ vardchangannual <- function(Y, H, PSU, w_final,
 
    sarak <- pers[,.N, keyby = names(pers)][, N := NULL]
    
+   Y <- domain(Y, gender)
+   setnames(Y, names(Y), c("Y1", "Y2"))
+   Z <- domain(Z, gender)
+   setnames(Z, names(Z), c("Z1", "Z2"))
+
    namesDom <- names(Dom)
-   apst <- lapply(1 : nrow(year1), function(i) {
+#   apst <- lapply(1 : nrow(year1), function(i) {
+
+i=1
                  atsyear <- rbindlist(list(year1[i], year2[i]))
                  atsyear <- merge(atsyear, sarak, all.x = TRUE, by = yearm, sort = FALSE)
                  yr12 <- data.table(year1 = year1[i][[1]], year2 = year2[i][[1]])

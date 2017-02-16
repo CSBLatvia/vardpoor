@@ -1,6 +1,7 @@
 vardchanges <- function(Y, H, PSU, w_final,
                         ID_level1, ID_level2,
                         Dom = NULL, Z = NULL, 
+                        gender = NULL,
                         country = NULL, period,
                         dataset = NULL,
                         period1, period2,
@@ -184,14 +185,25 @@ vardchanges <- function(Y, H, PSU, w_final,
   
   namesZ <- NULL
   if (!is.null(Z)) {
-    Z <- data.table(Z, check.names=TRUE)
+    Z <- data.table(Z, check.names = TRUE)
     if (anyNA(Z)) stop("'Z' has missing values")
+    if (!all(sapply(Z, is.numeric))) stop("'Z' must be numeric")
     if (nrow(Z) !=  n) stop("'Z' and 'Y' must be equal row count")
     if (ncol(Z) !=  m) stop("'Z' and 'Y' must be equal column count")
     if (any(grepl("__", names(Z)))) stop("'Z' is not allowed column names with '__'")
     namesZ <- names(Z)
   }
  
+  if (!is.null(gender)) {
+      gender <- data.frame(gender)
+      if (nrow(gender) != n) stop("'gender' must be the same length as 'Y'")
+      if (ncol(gender) != 1) stop("'gender' must be vector or 1 column data.frame, matrix, data.table")
+      gender <- gender[, 1]
+      if (!is.numeric(gender)) stop("'gender' must be numeric")
+      if (length(unique(gender)) != 2) stop("'gender' must be exactly two values")
+      if (!all(gender %in% 1:2)) stop("'gender' must be value 1 for male, 2 for females")
+   }
+
    # period1
    period1 <- data.table(period1, check.names = TRUE)
    if (ncol(period1) != 1) stop("'period1' must be 1 column")

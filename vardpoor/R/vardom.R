@@ -192,10 +192,10 @@ vardom <- function(Y, H, PSU, w_final,
   # Z
   if (!is.null(Z)) {
     Z <- data.table(Z, check.names = TRUE)
+    if (anyNA(Z)) stop("'Z' has missing values")
+    if (!all(sapply(Z, is.numeric))) stop("'Z' must be numeric")
     if (nrow(Z) != n) stop("'Z' and 'Y' must be equal row count")
     if (ncol(Z) != m) stop("'Z' and 'Y' must be equal column count")
-    if (!all(sapply(Z, is.numeric))) stop("'Z' must be numeric values")
-    if (anyNA(Z)) stop("'Z' has missing values")
     if (any(grepl("__", names(Z)))) stop("'Z' is not allowed column names with '__'")
   }
       
@@ -427,7 +427,7 @@ vardom <- function(Y, H, PSU, w_final,
       } else {
            period_agg <- unique(period)
            lin1 <- lapply(1:nrow(period_agg), function(i) {
-                          per <- period_agg[i,][rep(1, nrow(Y2)),]
+                          per <- period_agg[i][rep(1, nrow(Y3))]
                           ind <- (rowSums(per  ==  period)  ==  ncol(period))
                           varsres <- var_srs(Y = Y3[ind], w = w_final[ind])
                           list(S2p = data.table(period_agg[i,], varsres$S2p),

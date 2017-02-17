@@ -1,3 +1,40 @@
+
+check_var <- function(vars, varn, dataset, data_type = "data.table",
+                      check.names = TRUE, ncols = NULL,  Yncol = 0,
+                      Ynrow = 0, isnumeric = FALSE, ascharacter = FALSE,
+                      asvector = FALSE, grepls = NULL, dif_name = "",
+                      namesID1 = "id", duplicatednames = FALSE,
+                      withperiod = TRUE){
+  if (!is.null(vars)) {
+    if (withperiod = FALSE & varn == "period") stop(paste0("'", varn, "' must be NULL for those data"))
+    if(!is.null(dataset)) {
+      dataset <- data.table(dataset)
+      if (min(vars %in% names(dataset)) != 1) stop(paste0("'", varn, "' does not exist in 'dataset'!"), call. = FALSE)
+      if (min(vars %in% names(dataset)) == 1)  vars <- dataset[, vars, with = FALSE]}
+    if (!(data_type %in% c("data.frame", "data.table")))  stop("'data_type' please check again!", call. = FALSE)
+
+    if (data_type == "data.frame") { vars <- data.frame(vars, check.names = check.names)
+    } else vars <- data.table(vars, check.names = check.names)
+    if (ascharacter) vars[, (names(vars)) := lapply(.SD, as.character)]
+    if (anyNA(vars)) stop(paste0("'", varn, "' has missing values"), call. = FALSE)
+    if (Ynrow > 0) if (nrow(vars) != Ynrow) stop(paste0("'", varn, "' length must be equal with 'Y' row count"))
+    if (Yncol > 0) if (ncol(vars) != Yncol) stop(paste0("'", varn, "' length must be equal with 'Y' column count"))
+    if (ncols > 0) if (ncol(vars) != ncols) stop(paste0("'", varn, "' must be ", ncols, " column data.frame, matrix, data.table"))
+    if (isnumeric) if(!all(sapply(vars, is.numeric))) stop(paste0("'", varn, "' must be numeric"), call. = FALSE)
+    if (!is.null(grepls)) if (any(grepl(grepls, names(vars)))) stop(paste0("'", varn, "' is not allowed column names with '", grepls, "'"), call. = FALSE)
+    if (names(vars) == dif_name) stop(paste0("'", dif_name, "' must be different name"), call. = FALSE)
+    if (names(vars) == namesID1) setnames(vars, names(vars), paste0(names(vars), "_", varn))
+    if (duplicatednames == TRUE & !is.null(Dom)) {
+      if (any(duplicated(names(vars))))
+        stop(paste0("'", varn, "' are duplicate column names: "),
+             paste(names(vars)[duplicated(names(vars))], collapse = ",")) }
+    if (ncols == 1 & asvector) vars <- vars[, 1]
+
+  } else if (!(varn %in% c("country", "Dom"))) stop(paste0("'", varn, "' must be defined!"), call. = FALSE)
+  return(vars)
+}
+
+
 namesD <- function(Y, D) {
     Dom_agg <- unique(D)
     h <- vector(mode = "character", length = nrow(Dom_agg))
@@ -9,46 +46,23 @@ namesD <- function(Y, D) {
   }
 
 
-domain <- function(Y, D, dataset = NULL) { 
-
-   if(!is.null(dataset)) {
-        dataset <- data.table(dataset)
-        if (min(Y %in% names(dataset)) != 1) stop("'Y' does not exist in 'dataset'!")
-        if (min(Y %in% names(dataset)) == 1) Y <- dataset[, Y, with = FALSE] 
-    
-    if (!is.null(D)) {
-        if (min(D %in% names(dataset)) != 1) stop("'D' does not exist in 'data'!")
-        if (min(D %in% names(dataset)) == 1) D <- dataset[, D, with = FALSE] }
-   }
-
-  name.Y <- substitute(Y)
-  name.D <- substitute(D)
-  
-  # Y
-  Y <- data.table(Y, check.names = TRUE)
-  if (anyNA(Y)) stop(name.Y, " has missing values")
-  if (!all(sapply(Y, is.numeric))) stop(name.Y, " must be numeric")
-  if (any(grepl("__", names(Y)))) stop("Y' is not allowed column names with '__'")
-  n <- nrow(Y)
-
-  # D
-  D <- data.table(D, check.names = FALSE)
-  if (any(duplicated(names(D))))
-    stop(name.D, " has duplicate column names: ",
-         paste(names(D)[duplicated(names(D))], collapse = ", "))
-  if (nrow(D) != n) stop(name.Y, " and ", name.D ," have different row count")
-  D[, (names(D)) := lapply(.SD, as.character)]
-  if (anyNA(D)) stop("'D' has missing values")
-  if (any(grepl("__", names(D)))) stop("'D' is not allowed column names with '__'")
+domain <- function(Y, D, dataset = NULL) {
+   Y <- check_var(vars = Y, varn = "Y", dataset = dataset, data_type = "data.table",
+                  check.names = TRUE, ncols = 0, Yncol = 0, Ynrow = 0,
+                  isnumeric = TRUE, grepls = "__")
+   Ynrow <- nrow(Y)
+   D <- check_var(vars = D, varn = "Dom", dataset = dataset, data_type = "data.table",
+                  check.names = TRUE, ncols = 0, Yncol = 0, Ynrow = Ynrow,
+                  isnumeric = FALSE, ascharacter = TRUE, dif_name = "percoun", grepls = "__")
 
   Dom_agg <- unique(D)
   setkeyv(Dom_agg, names(Dom_agg))
-  
-  i <- k <- NULL 	
+
+  i <- k <- NULL
   domen <- foreach(i = 1 : ncol(Y), .combine = data.table) %:%
     foreach(k = 1:nrow(Dom_agg), .combine = data.table) %do%
       ifelse(rowSums(D == Dom_agg[k, ][rep(1, n), ]) == ncol(D), Y[[i]], 0)
-  
+
   if (!is.data.table(domen)) domen <- data.table(domen)
 
   setnames(domen, namesD(Y, D))

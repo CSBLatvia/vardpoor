@@ -12,12 +12,43 @@ vardgpgcrosannual <- function(Y, H, PSU, w_final,
                             confidence = 0.95) {
  
   ### Checking
- if (is.null(Y)) stop("'Z' must be defined")
+  Y <- check_var(vars = Y, varn = "Y", dataset = dataset, data_type = "data.table", 
+                 check.names = TRUE, ncols = 0, Yncol = 0, Ynrow = 0,
+                 isnumeric = TRUE, grepls = "__")
+  Ynrow <- nrow(Y)
+  Yncol <- ncol(Y)
+
+  H <- check_var(vars = H, varn = "H", dataset = dataset, data_type = "data.table", 
+                 check.names = TRUE, ncols = 1, Yncol = 0, Ynrow = Ynrow,
+                 isnumeric = FALSE, ascharacter = TRUE)
+
+  ID_level1 <- check_var(vars = ID_level1, varn = "ID_level1", dataset = dataset,
+                         data_type = "data.table", check.names = TRUE, ncols = 1,
+                         Yncol = 0, Ynrow = Ynrow, isnumeric = FALSE,
+                         ascharacter = TRUE)
+
+  PSU <- check_var(vars = PSU, varn = "PSU", dataset = dataset,
+                   data_type = "data.table", check.names = TRUE,
+                   ncol = 1, Yncol = 0, Ynrow = Ynrow, isnumeric = FALSE,
+                   ascharacter = TRUE, namesID1 = names(ID_level1))
+
+  w_final <- check_var(vars = w_final, varn = "w_final", dataset = dataset,
+                       data_type = "data.table", check.names = TRUE, ncols = 1,
+                       Yncol = 0, Ynrow = Ynrow, isnumeric = TRUE,
+                       ascharacter = FALSE)
+
+  ID_level2 <- check_var(vars = ID_level2, varn = "ID_level2", dataset = dataset,
+                         data_type = "data.table", check.names = TRUE, ncols = 1,
+                         Yncol = 0, Ynrow = Ynrow, isnumeric = FALSE,
+                         ascharacter = TRUE, namesID1 = names(ID_level1))
+
+  country <- check_var(vars = country, varn = "country", dataset = dataset,
+                     data_type = "data.table", check.names = TRUE, ncols = 1,
+                     Yncol = 0, Ynrow = Ynrow, isnumeric = FALSE,
+                     ascharacter = TRUE, dif_name = "percoun")
+
+
  if (is.null(Z)) stop("'Z' must be defined")
- if (is.null(ID_level1)) stop("'ID_level1' must be defined")
- if (is.null(ID_level2)) stop("'ID_level2' must be defined")
- if (is.null(PSU)) stop("'PSU' must be defined")
- if (is.null(w_final)) stop("'w_final' must be defined")
  if (is.null(gender)) stop("'gender' must be defined")
  if (is.null(years)) stop("'years' must be defined")
  if (is.null(subperiods)) stop("'subperiods' must be defined")

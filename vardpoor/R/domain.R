@@ -1,38 +1,53 @@
 
-check_var <- function(vars, varn, dataset, data_type = "data.table",
-                      check.names = TRUE, ncols = NULL,  Yncol = 0,
-                      Ynrow = 0, isnumeric = FALSE, ascharacter = FALSE,
+check_var <- function(vars, varn, dataset, check.names = TRUE,
+                      ncols = NULL, Yncol = 0, Ynrow = 0, Xnrow = 0,
+                      isnumeric = FALSE, ascharacter = FALSE,
                       asvector = FALSE, grepls = NULL, dif_name = "",
                       namesID1 = "id", duplicatednames = FALSE,
                       withperiod = TRUE){
+
+  if (varn %in%  c("g", "q") & (is.null(class(vars)) | any(class(vars) == "function"))) stop("'g' must be numeric")
+  if (is.null(vars)) {
+    if (Xnrow > 0 & varn %in% c("q", "ind_gr", "id")) { vars <- rep(1, Xnrow)
+                                                        dataset <- NULL}
+    if (Ynrow > 0 & varn == "id") { vars <- rep(1, Ynrow)
+                                    dataset <- NULL}}
+
   if (!is.null(vars)) {
-    if (withperiod = FALSE & varn == "period") stop(paste0("'", varn, "' must be NULL for those data"))
-    if(!is.null(dataset)) {
-      dataset <- data.table(dataset)
-      if (min(vars %in% names(dataset)) != 1) stop(paste0("'", varn, "' does not exist in 'dataset'!"), call. = FALSE)
-      if (min(vars %in% names(dataset)) == 1)  vars <- dataset[, vars, with = FALSE]}
-    if (!(data_type %in% c("data.frame", "data.table")))  stop("'data_type' please check again!", call. = FALSE)
+      if (withperiod == FALSE & varn == "period") stop(paste0("'", varn, "' must be NULL for those data"))
+      if(!is.null(dataset)) {
+        dataset <- data.table(dataset)
+        if (min(vars %in% names(dataset)) != 1) stop(paste0("'", varn, "' does not exist in 'dataset'!"), call. = FALSE)
+        if (min(vars %in% names(dataset)) == 1)  vars <- dataset[, vars, with = FALSE]}
+      if (!(data_type %in% c("data.frame", "data.table")))  stop("'data_type' please check again!", call. = FALSE)
 
-    if (data_type == "data.frame") { vars <- data.frame(vars, check.names = check.names)
-    } else vars <- data.table(vars, check.names = check.names)
-    if (ascharacter) vars[, (names(vars)) := lapply(.SD, as.character)]
-    if (anyNA(vars)) stop(paste0("'", varn, "' has missing values"), call. = FALSE)
-    if (Ynrow > 0) if (nrow(vars) != Ynrow) stop(paste0("'", varn, "' length must be equal with 'Y' row count"))
-    if (Yncol > 0) if (ncol(vars) != Yncol) stop(paste0("'", varn, "' length must be equal with 'Y' column count"))
-    if (ncols > 0) if (ncol(vars) != ncols) stop(paste0("'", varn, "' must be ", ncols, " column data.frame, matrix, data.table"))
-    if (isnumeric) if(!all(sapply(vars, is.numeric))) stop(paste0("'", varn, "' must be numeric"), call. = FALSE)
-    if (!is.null(grepls)) if (any(grepl(grepls, names(vars)))) stop(paste0("'", varn, "' is not allowed column names with '", grepls, "'"), call. = FALSE)
-    if (names(vars) == dif_name) stop(paste0("'", dif_name, "' must be different name"), call. = FALSE)
-    if (names(vars) == namesID1) setnames(vars, names(vars), paste0(names(vars), "_", varn))
-    if (duplicatednames == TRUE & !is.null(Dom)) {
-      if (any(duplicated(names(vars))))
-        stop(paste0("'", varn, "' are duplicate column names: "),
-             paste(names(vars)[duplicated(names(vars))], collapse = ",")) }
-    if (ncols == 1 & asvector) vars <- vars[, 1]
+      vars <- data.table(vars, check.names = check.names
+      if (ascharacter) vars[, (names(vars)) := lapply(.SD, as.character)]
+      if (anyNA(vars)) stop(paste0("'", varn, "' has missing values"), call. = FALSE)
+      if (Ynrow > 0) if (nrow(vars) != Ynrow) stop(paste0("'", varn, "' length must be equal with 'Y' row count"))
+      if (Xnrow > 0) if (nrow(vars) != Xnrow) stop(paste0("'", varn, "' length must be equal with 'X' row count"))
+      if (Yncol > 0) if (ncol(vars) != Yncol) stop(paste0("'", varn, "' length must be equal with 'Y' column count"))
+      if (ncols > 0) if (ncol(vars) != ncols) stop(paste0("'", varn, "' must be ", ncols, " column data.frame, matrix, data.table"))
+      if (isnumeric) if(!all(sapply(vars, is.numeric))) stop(paste0("'", varn, "' must be numeric"), call. = FALSE)
+      if (!is.null(grepls)) if (any(grepl(grepls, names(vars)))) stop(paste0("'", varn, "' is not allowed column names with '", grepls, "'"), call. = FALSE)
+      if (names(vars) == dif_name) stop(paste0("'", dif_name, "' must be different name"), call. = FALSE)
+      if (names(vars) == namesID1) setnames(vars, names(vars), paste0(names(vars), "_", varn))
+      if (duplicatednames == TRUE & !is.null(Dom)) {
+        if (any(duplicated(names(vars))))
+          stop(paste0("'", varn, "' are duplicate column names: "),
+               paste(names(vars)[duplicated(names(vars))], collapse = ",")) }
+      if (ncols == 1 & asvector) { vars <- as.data.frame(vars)
+                                   vars <- vars[, 1] }
+      if (any(vars == 0) & varn == "g") stop("'g' value can not be 0")
+      if (varn == "q") if (any(is.infinite(vars))) stop("'q' value can not be infinite")
 
-  } else if (!(varn %in% c("country", "Dom"))) stop(paste0("'", varn, "' must be defined!"), call. = FALSE)
+      if (varn == "gender") {
+         if (length(unique(vars)) != 2) stop("'gender' must be exactly two values")
+         if (!all(vars %in% 1:2)) stop("'gender' must be value 1 for male, 2 for females") }
+      } else if (!(varn %in% c("country", "sort", "Dom"))) stop(paste0("'", varn, "' must be defined!"), call. = FALSE)
   return(vars)
 }
+
 
 
 namesD <- function(Y, D) {

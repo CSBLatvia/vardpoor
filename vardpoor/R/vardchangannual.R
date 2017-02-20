@@ -17,19 +17,22 @@ vardchangannual <- function(Y, H, PSU, w_final,
   if(length(confidence) != 1 | any(!is.numeric(confidence) |  confidence < 0 | confidence > 1)) {
           stop("'confidence' must be a numeric value in [0, 1]")  }
 
+  Y <- check_var(vars = Y, varn = "Y", dataset = dataset, data_type = "data.table",
+                 check.names = TRUE, ncols = 0, Yncol = 0, Ynrow = 0,
+                 isnumeric = TRUE, grepls = "__")
+  Ynrow <- nrow(Y)
+  Yncol <- ncol(Y)
+
+  H <- check_var(vars = H, varn = "H", dataset = dataset, data_type = "data.table",
+                 check.names = TRUE, ncols = 1, Yncol = 0, Ynrow = Ynrow,
+                 isnumeric = FALSE, ascharacter = TRUE)
+
+  ID_level1 <- check_var(vars = ID_level1, varn = "ID_level1", dataset = dataset,
+                         data_type = "data.table", check.names = TRUE, ncols = 1,
+                         Yncol = 0, Ynrow = Ynrow, isnumeric = FALSE,
+                         ascharacter = TRUE)
+
   if(!is.null(dataset)) {
-      dataset <- data.table(dataset)
-      if (min(Y %in% names(dataset)) != 1) stop("'Y' does not exist in 'dataset'!")
-      if (min(Y %in% names(dataset)) == 1)  Y <- dataset[, Y, with = FALSE]
-
-      if(!is.null(H)) {
-          if (min(H %in% names(dataset)) != 1) stop("'H' does not exist in 'dataset'!")
-          if (min(H %in% names(dataset)) == 1) H <- dataset[, H, with = FALSE] }
-
-      if(!is.null(ID_level1)) {
-          if (min(ID_level1 %in% names(dataset)) != 1) stop("'ID_level1' does not exist in 'dataset'!")
-          if (min(ID_level1 %in% names(dataset)) == 1) ID_level1 <- dataset[, ID_level1, with = FALSE]  }
-
       if(!is.null(ID_level2)) {
           if (min(ID_level2 %in% names(dataset)) != 1) stop("'ID_level2' does not exist in 'dataset'!")
           if (min(ID_level2 %in% names(dataset)) == 1) ID_level2 <- dataset[, ID_level2, with = FALSE]  }   
@@ -104,21 +107,6 @@ vardchangannual <- function(Y, H, PSU, w_final,
   if (equal_dataset) countryX <- country 
   dataset <- datasetX <- NULL
 
-  # Y
-  Y <- data.table(Y, check.names = TRUE)
-  n <- nrow(Y)
-  m <- ncol(Y)
-  if (anyNA(Y)) stop("'Y' has missing values")
-  if (!all(sapply(Y, is.numeric))) stop("'Y' must be numeric")
-  if (any(grepl("__", names(Y)))) stop("'Y' is not allowed column names with '__'")
-
-  # H
-  H <- data.table(H)
-  if (nrow(H) != n) stop("'H' length must be equal with 'Y' row count")
-  if (ncol(H) != 1) stop("'H' must be 1 column data.frame, matrix, data.table")
-  H[, (names(H)) := lapply(.SD, as.character)]
-  if (anyNA(H)) stop("'H' has missing values")
-
   # PSU
   PSU <- data.table(PSU)
   if (nrow(PSU) !=  n) stop("'PSU' length must be equal with 'Y' row count")
@@ -134,13 +122,6 @@ vardchangannual <- function(Y, H, PSU, w_final,
   w_final <- w_final[, 1]
   if (!is.numeric(w_final)) stop("'w_final' must be numeric")
   
-  # ID_level1
-  if (is.null(ID_level1)) stop("'ID_level1' must be defined")
-  ID_level1 <- data.table(ID_level1)
-  ID_level1[, (names(ID_level1)) := lapply(.SD, as.character)]
-  if (anyNA(ID_level1)) stop("'ID_level1' has missing values")
-  if (ncol(ID_level1) != 1) stop("'ID_level1' must be 1 column data.frame, matrix, data.table")
-  if (nrow(ID_level1) != n) stop("'ID_level1' must be the same length as 'Y'")
 
   # ID_level2
   ID_level2 <- data.table(ID_level2)
@@ -238,6 +219,7 @@ vardchangannual <- function(Y, H, PSU, w_final,
          if (ncol(countryX) != 1) stop("'countryX' has more than 1 column")
          countryX[, (names(countryX)) := lapply(.SD, as.character)]
          if (anyNA(countryX)) stop("'countryX' has missing values")
+
          if (names(countryX) != names(country)) stop("'countryX' must be equal with 'country' names")
          countrX <- countryX[, .N, keyby = names(countryX)][, N := NULL]
          countr <- country[, .N, keyby = names(country)][, N := NULL]

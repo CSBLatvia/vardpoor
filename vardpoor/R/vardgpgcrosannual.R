@@ -90,26 +90,27 @@ vardgpgcrosannual <- function(Y, H, PSU, w_final, ID_level1,
   Dom <- names(Dom)
 
  if(!is.null(X)) {
-        X <- check_var(vars = X, varn = "X", dataset = dataset, data_type = "data.table",
-                       check.names = TRUE, ncols = 0, Yncol = 0, Ynrow = 0, Xnrow = 0,
-                       isnumeric = TRUE, grepls = "__")
+        X <- check_var(vars = X, varn = "X", dataset = dataset,
+                       check.names = TRUE, ncols = 0, Yncol = 0,
+                       Ynrow = 0, Xnrow = 0, isnumeric = TRUE,
+                       grepls = "__")
         Xnrow <- nrow(X)
 
-        g <- check_var(vars = g, varn = "g", dataset = dataset, data_type = "data.frame",
-                       check.names = TRUE, ncols = 1, Yncol = 0, Ynrow = 0, Xnrow = Xnrow,
-                       isnumeric = TRUE)
+        g <- check_var(vars = g, varn = "g", dataset = dataset,
+                       check.names = TRUE, ncols = 1, Yncol = 0,
+                       Ynrow = 0, Xnrow = Xnrow, isnumeric = TRUE)
 
-        q <- check_var(vars = q, varn = "q", dataset = dataset, data_type = "data.frame",
-                       check.names = TRUE, ncols = 1, Yncol = 0, Ynrow = 0, Xnrow = Xnrow,
-                       isnumeric = TRUE)
+        q <- check_var(vars = q, varn = "q", dataset = dataset,
+                       check.names = TRUE, ncols = 1, Yncol = 0,
+                       Ynrow = 0, Xnrow = Xnrow, isnumeric = TRUE)
 
         ind_gr <- check_var(vars = ind_gr, varn = "ind_gr", dataset = dataset,
-                            data_type = "data.frame", check.names = TRUE, ncols = 1,
-                            Yncol = 0, Ynrow = 0, Xnrow = Xnrow, ascharacter = TRUE)
+                            check.names = TRUE, ncols = 1, Yncol = 0, Ynrow = 0,
+                            Xnrow = Xnrow, ascharacter = TRUE)
 
-                       if (is.null(yearsX)) stop("'yearsX' must be defined")
-                       if (is.null(subperiodsX)) stop("'subperiodsX' must be defined")
-                       if (is.null(X_ID_level1)) stop("'X_ID_level1' must be defined")
+        if (is.null(yearsX)) stop("'yearsX' must be defined")
+        if (is.null(subperiodsX)) stop("'subperiodsX' must be defined")
+        if (is.null(X_ID_level1)) stop("'X_ID_level1' must be defined")
 
         datasetX <- data.table(X, yearsX, subperiodsX, X_ID_level1, ind_gr, g, q)
         X <- names(X)

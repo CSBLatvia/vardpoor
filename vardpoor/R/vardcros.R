@@ -40,51 +40,74 @@ vardcros <- function(Y, H, PSU, w_final,
     if (all(!is.null(Z), !is.null(X), !linratio)) stop("'linratio' must be TRUE")
     if (all(is.null(Z), linratio)) stop("'linratio' must be FALSE")
 
-    Y <- check_var(vars = Y, varn = "Y", dataset = dataset, data_type = "data.table",
-                   check.names = TRUE, ncols = 0, Yncol = 0, Ynrow = 0,
-                   isnumeric = TRUE, grepls = "__")
+    Y <- check_var(vars = Y, varn = "Y", dataset = dataset,
+                   check.names = TRUE, ncols = 0, Yncol = 0,
+                   Ynrow = 0, isnumeric = TRUE, grepls = "__")
     Ynrow <- nrow(Y)
     Yncol <- ncol(Y)
 
-    H <- check_var(vars = H, varn = "H", dataset = dataset, data_type = "data.table",
-                   check.names = TRUE, ncols = 1, Yncol = 0, Ynrow = Ynrow,
-                   isnumeric = FALSE, ascharacter = TRUE)
+    H <- check_var(vars = H, varn = "H", dataset = dataset,
+                   check.names = TRUE, ncols = 1, Yncol = 0,
+                   Ynrow = Ynrow, isnumeric = FALSE, ascharacter = TRUE)
 
     ID_level1 <- check_var(vars = ID_level1, varn = "ID_level1", dataset = dataset,
-                           data_type = "data.table", check.names = TRUE, ncols = 1,
-                           Yncol = 0, Ynrow = Ynrow, isnumeric = FALSE,
-                           ascharacter = TRUE)
+                           check.names = TRUE, ncols = 1, Yncol = 0, Ynrow = Ynrow, 
+                           isnumeric = FALSE, ascharacter = TRUE)
+  
+    Dom <- check_var(vars = Dom, varn = "Dom", dataset = dataset,
+                   check.names = TRUE, ncols = 0, Yncol = 0,
+                   Ynrow = Ynrow, isnumeric = FALSE, ascharacter = TRUE,
+                   dif_name = "percoun", grepls = "__")
 
     PSU <- check_var(vars = PSU, varn = "PSU", dataset = dataset,
-                     data_type = "data.table", check.names = TRUE,
-                     ncol = 1, Yncol = 0, Ynrow = Ynrow, isnumeric = FALSE,
+                     check.names = TRUE, ncol = 1, Yncol = 0,
+                     Ynrow = Ynrow, isnumeric = FALSE,
                      ascharacter = TRUE, namesID1 = names(ID_level1))
 
     w_final <- check_var(vars = w_final, varn = "w_final", dataset = dataset,
-                         data_type = "data.table", check.names = TRUE, ncols = 1,
-                         Yncol = 0, Ynrow = Ynrow, isnumeric = TRUE,
-                         ascharacter = FALSE)
+                         check.names = TRUE, ncols = 1, Yncol = 0,
+                         Ynrow = Ynrow, isnumeric = TRUE, ascharacter = FALSE)
 
     ID_level2 <- check_var(vars = ID_level2, varn = "ID_level2", dataset = dataset,
-                           data_type = "data.table", check.names = TRUE, ncols = 1,
-                           Yncol = 0, Ynrow = Ynrow, isnumeric = FALSE,
-                           ascharacter = TRUE, namesID1 = names(ID_level1))
+                           check.names = TRUE, ncols = 1, Yncol = 0, Ynrow = Ynrow,
+                           isnumeric = FALSE, ascharacter = TRUE, namesID1 = names(ID_level1))
 
     country <- check_var(vars = country, varn = "country", dataset = dataset,
-                         data_type = "data.table", check.names = TRUE, ncols = 1,
-                         Yncol = 0, Ynrow = Ynrow, isnumeric = FALSE,
-                         ascharacter = TRUE, dif_name = "percoun")
+                         check.names = TRUE, ncols = 1, Yncol = 0, Ynrow = Ynrow, 
+                         isnumeric = FALSE, ascharacter = TRUE, dif_name = "percoun")
 
-    period <- check_var(period = period, varn = "period", dataset = dataset, data_type = "data.table",
+    period <- check_var(period = period, varn = "period", dataset = dataset,
                         check.names = TRUE, ncols = 1, Yncol = 0, Ynrow = Ynrow,
-                      isnumeric = FALSE, ascharacter = TRUE, dif_name = "percoun")
+                        isnumeric = FALSE, ascharacter = TRUE, dif_name = "percoun",
+                        withperiod = withperiod)
 
+    Z <- check_var(vars = Z, varn = "Z", dataset = dataset,
+                 check.names = TRUE, ncols = 0, Yncol = Yncol,
+                 Ynrow = Ynrow, isnumeric = FALSE,
+                 ascharacter = TRUE, dif_name = "percoun")
   }
 
+  if(!is.null(X)) {
+    if (is.null(datasetX)) datasetX <- copy(dataset)
+    X <- check_var(vars = X, varn = "X", dataset = dataset,
+                   check.names = TRUE, ncols = 0, Yncol = 0,
+                   Ynrow = 0, Xnrow = 0, isnumeric = TRUE,
+                   grepls = "__")
+    Xnrow <- nrow(X)
 
-  if (is.null(datasetX)) datasetX <- copy(dataset)
-  if(!is.null(datasetX)) {
-          datasetX <- data.table(datasetX)
+    g <- check_var(vars = g, varn = "g", dataset = dataset,
+                   check.names = TRUE, ncols = 1, Yncol = 0,
+                   Ynrow = 0, Xnrow = Xnrow, isnumeric = TRUE)
+
+    q <- check_var(vars = q, varn = "q", dataset = dataset,
+                   check.names = TRUE, ncols = 1, Yncol = 0,
+                   Ynrow = 0, Xnrow = Xnrow, isnumeric = TRUE)
+
+    ind_gr <- check_var(vars = ind_gr, varn = "ind_gr", dataset = dataset,
+                        check.names = TRUE, ncols = 1, Yncol = 0,
+                        Ynrow = 0, Xnrow = Xnrow, ascharacter = TRUE)
+
+    if(!is.null(datasetX)) {          
           if (!is.null(countryX)) {
                if (min(countryX %in% names(datasetX)) != 1) stop("'countryX' does not exist in 'datasetX'!")
                if (min(countryX %in% names(datasetX)) == 1) countryX <- datasetX[, countryX,  with = FALSE] }
@@ -96,38 +119,13 @@ vardcros <- function(Y, H, PSU, w_final,
           if (!is.null(X_ID_level1)) {
                if (min(X_ID_level1 %in% names(datasetX)) != 1) stop("'ID_level1' does not exist in 'datasetX'!")
                if (min(X_ID_level1 %in% names(datasetX)) == 1) X_ID_level1 <- datasetX[, X_ID_level1,  with = FALSE]  }
+       }
 
-          if(!is.null(X)) {
-              if (min(X %in% names(datasetX)) != 1) stop("'X' does not exist in 'datasetX'!")
-              if (min(X %in% names(datasetX)) == 1) X <- datasetX[, X,  with = FALSE] }
+    equal_dataset <- identical(dataset, datasetX) & !is.null(datasetX) & !is.null(X)
+    if (equal_dataset) X_ID_level1 <- ID_level1
+    if (equal_dataset) countryX <- country
 
-          if(!is.null(ind_gr)) {
-              if (min(ind_gr %in% names(datasetX)) != 1) stop("'ind_gr' does not exist in 'datasetX'!")
-              if (min(ind_gr %in% names(datasetX)) == 1) ind_gr <- datasetX[, ind_gr,  with = FALSE] }
-
-          if(!is.null(g)) {
-              if (min(g %in% names(datasetX)) != 1) stop("'g' does not exist in 'datasetX'!")
-              if (min(g %in% names(datasetX)) == 1) g <- datasetX[, g,  with = FALSE] }
-
-          if(!is.null(q)) {
-              if (min(q %in% names(datasetX)) != 1) stop("'q' does not exist in 'datasetX'!")
-              if (min(q %in% names(datasetX)) == 1) q <- datasetX[, q,  with = FALSE] }
-     }
-
-  equal_dataset <- identical(dataset, datasetX) & !is.null(datasetX) & !is.null(X)
-  if (equal_dataset) X_ID_level1 <- ID_level1
-  if (equal_dataset) countryX <- country
-
-  N <- dataset <- datasetX <- NULL
-
-  # period
-  if (withperiod) {
-        period <- data.table(period)
-        period[, (names(period)) := lapply(.SD, as.character)]
-        if (anyNA(period)) stop("'period' has missing values")
-        if (names(period) == "percoun") stop("'period' must be different name")
-        if (nrow(period) != n) stop("'period' length must be equal with 'Y' row count")
-    } else if (!is.null(period)) stop("'period' must be NULL for those data")
+    N <- dataset <- datasetX <- NULL
 
   # Dom
   namesDom <- NULL
@@ -141,21 +139,13 @@ vardcros <- function(Y, H, PSU, w_final,
     Dom[, (namesDom) := lapply(.SD, as.character)]
     if (anyNA(Dom)) stop("'Dom' has missing values")
     if (any(grepl("__", namesDom))) stop("'Dom' is not allowed column names with '__'")
+
     Dom_agg <- Dom[,.N, keyby = namesDom][, N := NULL]
     Dom_agg1 <- Dom_agg[, lapply(namesDom, function(x) make.names(paste0(x, ".", get(x))))]
     Dom_agg1[, Dom  :=  Reduce(function(x, y) paste(x, y, sep = "__"), .SD)]
     Dom_agg <- data.table(Dom_agg, Dom_agg1[, "Dom"])
   }
 
-  # Z
-  if (!is.null(Z)) {
-    Z <- data.table(Z, check.names = TRUE)
-    if (anyNA(Z)) stop("'Z' has missing values")
-    if (!all(sapply(Z, is.numeric))) stop("'Z' must be numeric values")
-    if (nrow(Z) != n) stop("'Z' and 'Y' must be equal row count")
-    if (ncol(Z) != m) stop("'Z' and 'Y' must be equal column count")
-    if (any(grepl("__", names(Z)))) stop("'Z' is not allowed column names with '__'")
-  }
 
   if (!is.null(X)) {
     X <- data.table(X, check.names = TRUE)
@@ -173,30 +163,6 @@ vardcros <- function(Y, H, PSU, w_final,
     if (anyNA(ind_gr)) stop("'ind_gr' has missing values")
   }
 
-  # g
-  if (!is.null(X)) {
-    if (is.null(class(g)) | all(class(g) == "function")) stop("'g' must be numeric")
-    g <- data.frame(g)
-    if (anyNA(g)) stop("'g' has missing values")
-    if (nrow(g) != nrow(X)) stop("'g' length must be equal with 'X' row count")
-    if (ncol(g) != 1) stop("'g' must be 1 column data.frame, matrix, data.table")
-    g <- g[, 1]
-    if (!is.numeric(g)) stop("'g' must be numeric")
-    if (any(g == 0)) stop("'g' value can not be 0")
-  }
-
-  # q
-  if (!is.null(X)) {
-    if (is.null(q))  q <- rep(1, nrow(X))
-    if (is.null(class(q)) | all(class(q) == "function")) stop("'q' must be numeric")
-    q <- data.frame(q)
-    if (anyNA(q)) stop("'q' has missing values")
-    if (nrow(q) != nrow(X)) stop("'q' length must be equal with 'X' row count")
-    if (ncol(q) != 1) stop("'q' must be 1 column data.frame, matrix, data.table")
-    q <- q[, 1]
-    if (!is.numeric(q)) stop("'q' must be numeric")
-    if (any(is.infinite(q))) stop("'q' value can not be infinite")
-  }
 
   # countryX
   if (!is.null(X)) {

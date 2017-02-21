@@ -52,7 +52,7 @@ vardom <- function(Y, H, PSU, w_final,
   
   period <- check_var(period = period, varn = "period", dataset = dataset,
                       check.names = TRUE, ncols = 1, Yncol = 0, Ynrow = Ynrow,
-                      isnumeric = FALSE, ascharacter = TRUE)
+                      isnumeric = FALSE, ascharacter = TRUE, mustdefined = FALSE)
   np <- sum(ncol(period))
  
   id <- check_var(period = id, varn = "id", dataset = dataset,
@@ -65,7 +65,8 @@ vardom <- function(Y, H, PSU, w_final,
   
   Dom <- check_var(vars = Dom, varn = "Dom", dataset = dataset,
                    ncols = 0, Yncol = 0, Ynrow = Ynrow, isnumeric = FALSE,
-                   ascharacter = TRUE, duplicatednames = TRUE, grepls = "__")
+                   ascharacter = TRUE, mustdefined = FALSE,
+                   grepls = "__", duplicatednames = TRUE)
   namesDom <- names(Dom)
 
   w_final <- check_var(vars = w_final, varn = "w_final", dataset = dataset,
@@ -74,11 +75,12 @@ vardom <- function(Y, H, PSU, w_final,
 
   Z <- check_var(vars = Z, varn = "Z", dataset = dataset,
                  check.names = TRUE, ncols = 0, Yncol = Yncol,
-                 Ynrow = Ynrow, isnumeric = TRUE)
+                 Ynrow = Ynrow, isnumeric = TRUE,
+                 mustdefined = FALSE)
 
   PSU_sort <- check_var(vars = PSU_sort, varn = "PSU_sort", dataset = dataset,
                         ncol = 1, Yncol = 0, Ynrow = Ynrow, ascharacter = TRUE,
-                        asvector = TRUE)
+                        asvector = TRUE, mustdefined = FALSE)
 
   if (!is.null(X)) {  
 	X <- check_var(vars = X, varn = "X", dataset = dataset,

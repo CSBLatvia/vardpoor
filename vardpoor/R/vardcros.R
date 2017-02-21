@@ -56,8 +56,9 @@ vardcros <- function(Y, H, PSU, w_final,
   
     Dom <- check_var(vars = Dom, varn = "Dom", dataset = dataset,
                    check.names = TRUE, ncols = 0, Yncol = 0,
-                   Ynrow = Ynrow, isnumeric = FALSE, ascharacter = TRUE,
-                   dif_name = "percoun", grepls = "__")
+                   Ynrow = Ynrow, isnumeric = FALSE,
+                   ascharacter = TRUE, mustdefined = FALSE,
+                   grepls = "__", duplicatednames = TRUE)
 
     PSU <- check_var(vars = PSU, varn = "PSU", dataset = dataset,
                      check.names = TRUE, ncol = 1, Yncol = 0,
@@ -74,7 +75,8 @@ vardcros <- function(Y, H, PSU, w_final,
 
     country <- check_var(vars = country, varn = "country", dataset = dataset,
                          check.names = TRUE, ncols = 1, Yncol = 0, Ynrow = Ynrow, 
-                         isnumeric = FALSE, ascharacter = TRUE, dif_name = "percoun")
+                         isnumeric = FALSE, ascharacter = TRUE,
+                         mustdefined = FALSE, dif_name = "percoun")
 
     period <- check_var(period = period, varn = "period", dataset = dataset,
                         check.names = TRUE, ncols = 1, Yncol = 0, Ynrow = Ynrow,
@@ -84,7 +86,7 @@ vardcros <- function(Y, H, PSU, w_final,
     Z <- check_var(vars = Z, varn = "Z", dataset = dataset,
                  check.names = TRUE, ncols = 0, Yncol = Yncol,
                  Ynrow = Ynrow, isnumeric = FALSE,
-                 ascharacter = TRUE, dif_name = "percoun")
+                 ascharacter = TRUE, mustdefined = FALSE)
   }
 
   if(!is.null(X)) {

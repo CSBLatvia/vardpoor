@@ -88,7 +88,9 @@ check_var <- function(vars, varn, dataset, check.names = FALSE,
                if (!identical(country, varsX)) stop("'unique(country)' and 'unique(countryX)' records have different")
        }
 
-      if (varn == "periodX") {
+      print(vars)
+
+      if (varn %in% c("periodX", "yearsX", "subperiodsX")) {
                peri <- periods
                periX <- copy(vars)
                if (!is.null(country)) peri <- data.table(country, peri)
@@ -96,7 +98,7 @@ check_var <- function(vars, varn, dataset, check.names = FALSE,
                periX <- periX[, .N, keyby = names(periX)][, N := NULL]
                peri <- peri[, .N, keyby = names(peri)][, N := NULL]
                if (!identical(peri, periX)) {
-                   if (is.null(country)) { stop("'unique(period)' and 'unique(periodX)' records have different")
+                   if (is.null(country)) { stop(paste0("'unique(", periods_varn, ")' and 'unique(", periods_varnX, ")' records have different"))
                                 } else stop("'unique(country, period)' and 'unique(countryX, periodX)' records have different")
                  }
                peri <- periX <- NULL

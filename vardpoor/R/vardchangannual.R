@@ -116,16 +116,18 @@ vardchangannual <- function(Y, H, PSU, w_final,
                           mustbedefined = !is.null(country), varnout = "country",
                           varname = names(country), country = country)
 
-    yearsX <- check_var(vars = yearsX, varn = "yearsX", dataset = datasetX,
+    yearsX <-
+
+      check_var(vars = yearsX, varn = "yearsX", dataset = datasetX,
                         ncols = 1, Yncol = 0, Xnrow = Xnrow, ischaracter = TRUE,
                         mustbedefined = !is.null(years), varnout = "years",
-                        varname = names(years), country = country,
-                        countryX = countryX)
+                        varname = names(years), periods = periods,
+                        country = country, countryX = countryX)
 
-    country1 <-
-    countryX1 <- years
 
-    yearsX <- check_var(vars = yearsX, varn = "yearsX", dataset = datasetX,
+
+
+        yearsX <- check_var(vars = yearsX, varn = "yearsX", dataset = datasetX,
                         ncols = 1, Yncol = 0, Xnrow = Xnrow, ischaracter = TRUE,
                         mustbedefined = !is.null(years), varnout = "years",
                         varname = names(years), country = country,
@@ -136,8 +138,8 @@ vardchangannual <- function(Y, H, PSU, w_final,
                          Ynrow = 0, Xnrow = Xnrow, ischaracter = TRUE,
                          mustbedefined = !is.null(period),
                          duplicatednames = TRUE, varnout = "period",
-                         varname = c(names(years), country = country,
-                         countryX = countryX)
+                         varname = c(names(years), periods = periods,
+                         country = country, countryX = countryX)
 
     X_ID_level1 <- check_var(vars = X_ID_level1, varn = "X_ID_level1",
                              dataset = datasetX, ncols = 1, Yncol = 0,
@@ -148,29 +150,9 @@ vardchangannual <- function(Y, H, PSU, w_final,
 
 
 
-    country1 <-
-      caa <- NULL
-    aa <- data.table(a = 1:100)
-    cbind(caa, aa)
-
-    peri <- copy(years)
-    periX <- copy(yearsX)
-    if (!is.null(country)) peri <- data.table(country, peri)
-    if (!is.null(countryX)) periX <- data.table(countryX, periX)
-    periX <- periX[, .N, keyby = names(periX)][, N := NULL]
-    peri <- peri[, .N, keyby = names(peri)][, N := NULL]
-    if (any(peri != periX) & is.null(country)) stop("'unique(years)' and 'unique(yearsX)' records have different")
-    if (any(peri != periX) & !is.null(country)) stop("'unique(country, years)' and 'unique(countryX, yearsX)' records have different")
-
-
-
 
     if(!is.null(datasetX)) {
       datasetX <- data.table(datasetX)
-      if (!is.null(yearsX)) {
-        if (min(yearsX %in% names(datasetX)) != 1) stop("'yearsX' does not exist in 'datasetX'!")
-        if (min(yearsX %in% names(datasetX)) == 1) yearsX <- datasetX[, yearsX,  with = FALSE] }
-
       if (!is.null(subperiodsX)) {
         if (min(subperiodsX %in% names(datasetX)) != 1) stop("'subperiodsX' does not exist in 'datasetX'!")
         if (min(subperiodsX %in% names(datasetX)) == 1) subperiodsX <- datasetX[, subperiodsX,  with = FALSE] }

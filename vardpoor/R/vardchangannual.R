@@ -259,7 +259,8 @@ vardchangannual <- function(Y, H, PSU, w_final,
                                       g = g, q = q, datasetX = NULL, annual = TRUE,
                                       linratio = !is.null(Z), percentratio = percentratio,
                                       use.estVar = use.estVar, outp_res = outp_res,
-                                      confidence = confidence, change_type = "absolute")
+                                      confidence = confidence, change_type = "absolute",
+                                      checking = FALSE)
 
                  crossectional_results <- datas$crossectional_results
                  crossectional_results <- merge(sarak, crossectional_results, all.y = TRUE, by = "pers")

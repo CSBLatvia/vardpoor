@@ -40,6 +40,12 @@ vardcros <- function(Y, H, PSU, w_final,
     if (all(!is.null(Z), !is.null(X), !linratio)) stop("'linratio' must be TRUE")
     if (all(is.null(Z), linratio)) stop("'linratio' must be FALSE")
 
+    if(!is.null(X)) {
+      if (is.null(datasetX)) datasetX <- copy(dataset)
+      equal_dataset <- identical(dataset, datasetX) & !is.null(dataset)
+      if (equal_dataset) { X_ID_level1 <- ID_level1
+                           countryX <- country }}
+
     Y <- check_var(vars = Y, varn = "Y", dataset = dataset,
                    check.names = TRUE, ncols = 0, Yncol = 0,
                    Ynrow = 0, isnumeric = TRUE, grepls = "__")
@@ -47,204 +53,88 @@ vardcros <- function(Y, H, PSU, w_final,
     Yncol <- ncol(Y)
 
     H <- check_var(vars = H, varn = "H", dataset = dataset,
-                   check.names = TRUE, ncols = 1, Yncol = 0,
-                   Ynrow = Ynrow, isnumeric = FALSE, ascharacter = TRUE)
+                   ncols = 1, Yncol = 0, Ynrow = Ynrow,
+                   ischaracter = TRUE, dif_name = "dataH_stratas")
 
-    ID_level1 <- check_var(vars = ID_level1, varn = "ID_level1", dataset = dataset,
-                           check.names = TRUE, ncols = 1, Yncol = 0, Ynrow = Ynrow, 
-                           isnumeric = FALSE, ascharacter = TRUE)
-  
+    ID_level1 <- check_var(vars = ID_level1, varn = "ID_level1",
+                           dataset = dataset, ncols = 1, Yncol = 0,
+                           Ynrow = Ynrow, ischaracter = TRUE)
+
+    country <- check_var(vars = country, varn = "country",
+                         dataset = dataset, ncols = 1, Yncol = 0,
+                         Ynrow = Ynrow, ischaracter = TRUE,
+                         mustbedefined = FALSE, dif_name = "percoun")
+
+    period <- check_var(vars = period, varn = "period",
+                        dataset = dataset, Yncol = 0, Ynrow = Ynrow,
+                        ischaracter = TRUE, duplicatednames = TRUE,
+                        dif_name = c("percoun", names(country)))
+
     Dom <- check_var(vars = Dom, varn = "Dom", dataset = dataset,
-                   check.names = TRUE, ncols = 0, Yncol = 0,
-                   Ynrow = Ynrow, isnumeric = FALSE,
-                   ascharacter = TRUE, mustdefined = FALSE,
-                   grepls = "__", duplicatednames = TRUE)
+                     ncols = 0, Yncol = 0, Ynrow = Ynrow,
+                     ischaracter = TRUE, mustbedefined = FALSE,
+                     duplicatednames = TRUE, grepls = "__")
 
     PSU <- check_var(vars = PSU, varn = "PSU", dataset = dataset,
-                     check.names = TRUE, ncol = 1, Yncol = 0,
-                     Ynrow = Ynrow, isnumeric = FALSE,
-                     ascharacter = TRUE, namesID1 = names(ID_level1))
+                     ncol = 1, Yncol = 0, Ynrow = Ynrow,
+                     ischaracter = TRUE, namesID1 = names(ID_level1))
 
-    w_final <- check_var(vars = w_final, varn = "w_final", dataset = dataset,
-                         check.names = TRUE, ncols = 1, Yncol = 0,
-                         Ynrow = Ynrow, isnumeric = TRUE, ascharacter = FALSE)
+    w_final <- check_var(vars = w_final, varn = "w_final",
+                         dataset = dataset, ncols = 1, Yncol = 0,
+                         Ynrow = Ynrow, isnumeric = TRUE, isvector = TRUE)
 
-    ID_level2 <- check_var(vars = ID_level2, varn = "ID_level2", dataset = dataset,
-                           check.names = TRUE, ncols = 1, Yncol = 0, Ynrow = Ynrow,
-                           isnumeric = FALSE, ascharacter = TRUE, namesID1 = names(ID_level1))
+    ID_level2 <- check_var(vars = ID_level2, varn = "ID_level2",
+                           dataset = dataset, ncols = 1, Yncol = 0,
+                           Ynrow = Ynrow, ischaracter = TRUE,
+                           namesID1 = names(ID_level1), country = country,
+                           periods = data.table(year, subperiods))
 
-    country <- check_var(vars = country, varn = "country", dataset = dataset,
-                         check.names = TRUE, ncols = 1, Yncol = 0, Ynrow = Ynrow, 
-                         isnumeric = FALSE, ascharacter = TRUE,
-                         mustdefined = FALSE, dif_name = "percoun")
+    Z <- check_var(vars = Z, varn = "Z", dataset = dataset, ncols = 0,
+                   check.names = TRUE, Yncol = Yncol, Ynrow = Ynrow,
+                   isnumeric = TRUE, mustbedefined = FALSE)
+}
 
-    period <- check_var(period = period, varn = "period", dataset = dataset,
-                        check.names = TRUE, ncols = 1, Yncol = 0, Ynrow = Ynrow,
-                        isnumeric = FALSE, ascharacter = TRUE, dif_name = "percoun",
-                        withperiod = withperiod)
+    if(!is.null(X)) {
+      X <- check_var(vars = X, varn = "X", dataset = datasetX,
+                     check.names = TRUE, ncols = 0, Yncol = 0,
+                     Ynrow = 0, Xnrow = 0, isnumeric = TRUE,
+                     grepls = "__")
+      Xnrow <- nrow(X)
 
-    Z <- check_var(vars = Z, varn = "Z", dataset = dataset,
-                 check.names = TRUE, ncols = 0, Yncol = Yncol,
-                 Ynrow = Ynrow, isnumeric = FALSE,
-                 ascharacter = TRUE, mustdefined = FALSE)
-  }
+      ind_gr <- check_var(vars = ind_gr, varn = "ind_gr", dataset = datasetX,
+                          ncols = 1, Yncol = 0, Ynrow = 0, Xnrow = Xnrow,
+                          ischaracter = TRUE, dif_name = names(period))
 
-  if(!is.null(X)) {
-    if (is.null(datasetX)) datasetX <- copy(dataset)
-    X <- check_var(vars = X, varn = "X", dataset = dataset,
-                   check.names = TRUE, ncols = 0, Yncol = 0,
-                   Ynrow = 0, Xnrow = 0, isnumeric = TRUE,
-                   grepls = "__")
-    Xnrow <- nrow(X)
+      g <- check_var(vars = g, varn = "g", dataset = datasetX,
+                     ncols = 1, Yncol = 0, Ynrow = 0, Xnrow = Xnrow,
+                     isnumeric = TRUE, isvector = TRUE)
 
-    g <- check_var(vars = g, varn = "g", dataset = dataset,
-                   check.names = TRUE, ncols = 1, Yncol = 0,
-                   Ynrow = 0, Xnrow = Xnrow, isnumeric = TRUE)
+      q <- check_var(vars = q, varn = "q", dataset = datasetX,
+                     ncols = 1, Yncol = 0, Ynrow = 0, Xnrow = Xnrow,
+                     isnumeric = TRUE, isvector = TRUE)
 
-    q <- check_var(vars = q, varn = "q", dataset = dataset,
-                   check.names = TRUE, ncols = 1, Yncol = 0,
-                   Ynrow = 0, Xnrow = Xnrow, isnumeric = TRUE)
+      countryX <- check_var(vars = countryX, varn = "countryX",
+                            dataset = datasetX, ncols = 1, Yncol = 0,
+                            Ynrow = 0, Xnrow = Xnrow, ischaracter = TRUE,
+                            mustbedefined = !is.null(country), varnout = "country",
+                            varname = names(country), country = country)
 
-    ind_gr <- check_var(vars = ind_gr, varn = "ind_gr", dataset = dataset,
-                        check.names = TRUE, ncols = 1, Yncol = 0,
-                        Ynrow = 0, Xnrow = Xnrow, ascharacter = TRUE)
+      periodX <- check_var(vars = periodX, varn = "periodX",
+                           dataset = datasetX, ncols = 1, Yncol = 0,
+                           Ynrow = 0, Xnrow = Xnrow, ischaracter = TRUE,
+                           mustbedefined = !is.null(period),
+                           duplicatednames = TRUE, varnout = "period",
+                           varname = names(period), country = country,
+                           countryX = countryX)
 
-    if(!is.null(datasetX)) {          
-          if (!is.null(countryX)) {
-               if (min(countryX %in% names(datasetX)) != 1) stop("'countryX' does not exist in 'datasetX'!")
-               if (min(countryX %in% names(datasetX)) == 1) countryX <- datasetX[, countryX,  with = FALSE] }
+      X_ID_level1 <- check_var(vars = X_ID_level1, varn = "X_ID_level1",
+                         dataset = datasetX, ncols = 1, Yncol = 0,
+                         Ynrow = 0, Xnrow = Xnrow, ischaracter = TRUE,
+                         varnout = "ID_level1", varname = names(ID_level1),
+                         country = country, countryX = countryX,
+                         ID_level1 = ID_level1)
 
-          if (!is.null(periodX)) {
-               if (min(periodX %in% names(datasetX)) != 1) stop("'periodX' does not exist in 'datasetX'!")
-               if (min(periodX %in% names(datasetX)) == 1) periodX <- datasetX[, periodX,  with = FALSE] }
-
-          if (!is.null(X_ID_level1)) {
-               if (min(X_ID_level1 %in% names(datasetX)) != 1) stop("'ID_level1' does not exist in 'datasetX'!")
-               if (min(X_ID_level1 %in% names(datasetX)) == 1) X_ID_level1 <- datasetX[, X_ID_level1,  with = FALSE]  }
-       }
-
-    equal_dataset <- identical(dataset, datasetX) & !is.null(datasetX) & !is.null(X)
-    if (equal_dataset) X_ID_level1 <- ID_level1
-    if (equal_dataset) countryX <- country
-
-    N <- dataset <- datasetX <- NULL
-
-  # Dom
-  namesDom <- NULL
-  if (!is.null(Dom)) {
-    Dom <- data.table(Dom)
-    if (any(duplicated(names(Dom))))
-           stop("'Dom' are duplicate column names: ",
-                 paste(names(Dom)[duplicated(names(Dom))], collapse = ","))
-    if (nrow(Dom) != n) stop("'Dom' and 'Y' must be equal row count")
-    namesDom <- names(Dom)
-    Dom[, (namesDom) := lapply(.SD, as.character)]
-    if (anyNA(Dom)) stop("'Dom' has missing values")
-    if (any(grepl("__", namesDom))) stop("'Dom' is not allowed column names with '__'")
-
-    Dom_agg <- Dom[,.N, keyby = namesDom][, N := NULL]
-    Dom_agg1 <- Dom_agg[, lapply(namesDom, function(x) make.names(paste0(x, ".", get(x))))]
-    Dom_agg1[, Dom  :=  Reduce(function(x, y) paste(x, y, sep = "__"), .SD)]
-    Dom_agg <- data.table(Dom_agg, Dom_agg1[, "Dom"])
-  }
-
-
-  if (!is.null(X)) {
-    X <- data.table(X, check.names = TRUE)
-    if (!all(sapply(X, is.numeric))) stop("'X' must be numeric values")
-    if (anyNA(X)) stop("'X' has missing values")
-  }
-
-  # ind_gr
-  if (!is.null(X)) {
-    if(is.null(ind_gr)) ind_gr <- rep("1", nrow(X))
-    ind_gr <- data.table(ind_gr)
-    if (nrow(ind_gr) != nrow(X)) stop("'ind_gr' length must be equal with 'X' row count")
-    if (ncol(ind_gr) != 1) stop("'ind_gr' must be 1 column data.frame, matrix, data.table")
-    ind_gr[, (names(ind_gr)) := lapply(.SD, as.character)]
-    if (anyNA(ind_gr)) stop("'ind_gr' has missing values")
-  }
-
-
-  # countryX
-  if (!is.null(X)) {
-    if(!is.null(countryX)) {
-        countryX <- data.table(countryX)
-        if (nrow(countryX) != nrow(X)) stop("'countryX' length must be equal with 'X' row count")
-        if (ncol(countryX) != 1) stop("'countryX' has more than 1 column")
-        countryX[, (names(countryX)) := lapply(.SD, as.character)]
-        if (anyNA(countryX)) stop("'countryX' has missing values")
-        if (names(countryX) != names(country)) stop("'countryX' must be equal with 'country' names")
-        countrX <- countryX[, .N, keyby = names(countryX)][, N := NULL]
-        countr <- country[, .N, keyby = names(country)][, N := NULL]
-        if (any(countr != countrX)) stop("'unique(country)' and 'unique(countryX)' records have different")
-     } else if (!is.null(country)) stop("'countryX' must be defined")
-  }
-
-  # periodX
-  if (!is.null(X)) {
-     if(!is.null(periodX)) {
-        periodX <- data.table(periodX)
-        periodX[, (names(periodX)) := lapply(.SD, as.character)]
-        if (anyNA(periodX)) stop("'periodX' has missing values")
-        if (any(duplicated(names(periodX))))
-                    stop("'periodX' are duplicate column names: ",
-                         paste(names(periodX)[duplicated(names(periodX))], collapse = ","))
-        if (nrow(periodX) != nrow(X)) stop("'periodX' length must be equal with 'X' row count")
-        if (ncol(periodX) != ncol(period)) stop("'periodX' length must be equal with 'period' column count")
-        if (names(periodX) != names(period)) stop("'periodX' must be equal with 'periods' names")
-        peri <- copy(period)
-        periX <- copy(periodX)
-        if (!is.null(country)) peri <- data.table(country, peri)
-        if (!is.null(countryX)) periX <- data.table(countryX, periX)
-        periX <- periX[, .N, keyby = names(periX)][, N := NULL]
-        peri <- peri[, .N, keyby = names(peri)][, N := NULL]
-        if (any(peri != periX) & is.null(country)) stop("'unique(period)' and 'unique(periodX)' records have different")
-        if (any(peri != periX) & !is.null(country)) stop("'unique(country, period)' and 'unique(countryX, periodX)' records have different")
-      } else if (!is.null(period)) stop("'periodX' must be defined")
-   }
-
-
-  # X_ID_level1
-    if (!is.null(X)) {
-      if (is.null(X_ID_level1)) stop("'X_ID_level1' must be defined")
-      X_ID_level1 <- data.table(X_ID_level1)
-      X_ID_level1[, (names(X_ID_level1)) := lapply(.SD, as.character)]
-      if (anyNA(X_ID_level1)) stop("'X_ID_level1' has missing values")
-      if (nrow(X) != nrow(X_ID_level1)) stop("'X' and 'X_ID_level1' have different row count")
-      if (ncol(X_ID_level1) != 1) stop("'X_ID_level1' must be 1 column data.frame, matrix, data.table")
-      if (any(names(X_ID_level1) != names(ID_level1))) stop("'X_ID_level1' and 'ID_level1' must be equal names")
-
-      ID_level1h <- copy(ID_level1)
-      X_ID_level1h <- copy(X_ID_level1)
-      if (!is.null(countryX)) {X_ID_level1h <- data.table(countryX, X_ID_level1h)
-                               ID_level1h <- data.table(country, ID_level1h)}
-      if (!is.null(periodX)) {X_ID_level1h <- data.table(periodX, X_ID_level1h)
-                              ID_level1h <- data.table(period, ID_level1h)}
-
-      ID_level1h <- ID_level1h[, .N, by = names(ID_level1h)][, N := NULL]
-      if (nrow(X_ID_level1h[,.N, by = names(X_ID_level1h)][N > 1]) > 0) stop("'X_ID_level1' have duplicates")
-
-      setkeyv(X_ID_level1h, names(X_ID_level1h))
-      setkeyv(ID_level1h, names(ID_level1h))
-      if (!is.null(period)) {
-          if (!is.null(country)) {
-                 if (nrow(ID_level1h) != nrow(X_ID_level1h)) stop("'unique(countryX, periodX, X_ID_level1)' and 'unique(country, period, ID_level1)' have different row count")
-                 if (any(ID_level1h != X_ID_level1h)) stop("''unique(countryX, periodX, X_ID_level1)' and 'unique(country, period, ID_level1)' records have different")
-              } else {
-                 if (nrow(ID_level1h) != nrow(X_ID_level1h)) stop("'unique(periodX, X_ID_level1)' and 'unique(period, ID_level1)' have different row count")
-                 if (any(ID_level1h != X_ID_level1h)) stop("''unique(periodX, X_ID_level1)' and 'unique(period, ID_level1)' records have different")  }
-        } else {
-          if (!is.null(country)) {
-               if (nrow(ID_level1h) != nrow(X_ID_level1h)) stop("'unique(countryX, X_ID_level1)' and 'unique(country, ID_level1)' have different row count")
-               if (any(ID_level1h != X_ID_level1h)) stop("''unique(countryX, X_ID_level1)' and 'unique(country, ID_level1)' records have different")
-            } else {
-               if (nrow(ID_level1h) != nrow(X_ID_level1h)) stop("'unique(X_ID_level1)' and 'unique(ID_level1)' have different row count")
-               if (any(ID_level1h != X_ID_level1h)) stop("''unique(X_ID_level1)' and 'unique(ID_level1)' records have different") }
-      }
-      ID_level1h <- X_ID_level1h <- NULL
-    }
-
+  dataset <- datasetX <- NULL
 
 
   # Calculation
@@ -385,8 +275,8 @@ vardcros <- function(Y, H, PSU, w_final,
                         data.table(DT1[i, nos, with = FALSE],
                                    res <- residual_est(Y = DT1[i, namesY2, with = FALSE],
                                                        X = DT1[i, names(X), with = FALSE],
-                                                       weight = DT1[i, w_design],
-                                                       q = DT1[i, q])))
+                                                       weight = DT1[i, w_design, with = FALSE],
+                                                       q = DT1[i, q, with = FALSE])))
          res <- rbindlist(res)
          setnames(res, namesY2, namesY2w)
          DTc <- merge(DTc, res, by = nos)

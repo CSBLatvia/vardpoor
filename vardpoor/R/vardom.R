@@ -3,7 +3,7 @@ transpos <- function(variable, period_NULL, valnames, pernames, variabname = NUL
                           setnames(dati, names(dati), c("variable", valnames))
                  } else { dati <- melt(variable, id=c(pernames))
                           setnames(dati, names(dati)[ncol(dati)], valnames)
-                   } 
+                   }
        dati[, variable := as.character(variable)]
        if (!is.null(variabname)) { setnames(dati, "variable", variabname)
                             } else variabname <- "variable"
@@ -13,10 +13,10 @@ transpos <- function(variable, period_NULL, valnames, pernames, variabname = NUL
 
 
 vardom <- function(Y, H, PSU, w_final,
-                   id = NULL,  
+                   id = NULL,
                    Dom = NULL,
                    period = NULL,
-                   PSU_sort=NULL, 
+                   PSU_sort=NULL,
                    N_h = NULL,
                    fh_zero=FALSE,
                    PSU_level = TRUE,
@@ -25,12 +25,12 @@ vardom <- function(Y, H, PSU, w_final,
                    ind_gr = NULL,
                    g = NULL,
                    q = NULL,
-                   dataset = NULL, 
+                   dataset = NULL,
                    confidence = .95,
                    percentratio = 1,
                    outp_lin = FALSE,
                    outp_res = FALSE) {
- 
+
   ### Checking
   if (length(fh_zero) != 1 | !any(is.logical(fh_zero))) stop("'fh_zero' must be logical")
   if (length(PSU_level) != 1 | !any(is.logical(PSU_level))) stop("'PSU_level' must be logical")
@@ -39,7 +39,7 @@ vardom <- function(Y, H, PSU, w_final,
   if (length(outp_res) != 1 | !any(is.logical(outp_res))) stop("'outp_res' must be logical")
   if(length(confidence) != 1 | any(!is.numeric(confidence) | confidence < 0 | confidence > 1)) {
          stop("'confidence' must be a numeric value in [0, 1]")  }
- 
+
   Y <- check_var(vars = Y, varn = "Y", dataset = dataset,
                  check.names = TRUE, ncols = 0, Yncol = 0,
                  Ynrow = 0, isnumeric = TRUE, grepls = "__")
@@ -49,59 +49,58 @@ vardom <- function(Y, H, PSU, w_final,
   H <- check_var(vars = H, varn = "H", dataset = dataset,
                  ncols = 1, Yncol = 0, Ynrow = Ynrow,
                  isnumeric = FALSE, ascharacter = TRUE)
-  
-  period <- check_var(period = period, varn = "period", dataset = dataset,
-                      check.names = TRUE, ncols = 1, Yncol = 0, Ynrow = Ynrow,
-                      isnumeric = FALSE, ascharacter = TRUE, mustdefined = FALSE)
-  np <- sum(ncol(period))
- 
-  id <- check_var(period = id, varn = "id", dataset = dataset,
-                  check.names = TRUE, ncols = 1, Yncol = 0, Ynrow = Ynrow,
-                  isnumeric = FALSE, ascharacter = TRUE, periods = period)
 
-  PSU <- check_var(vars = PSU, varn = "PSU", dataset = dataset, ncol = 1,
-                   Yncol = 0, Ynrow = Ynrow, isnumeric = FALSE,
-                   ascharacter = TRUE, namesID1 = names(ID_level1))
-  
+  period <- check_var(vars = period, varn = "period",
+                        dataset = dataset, Yncol = 0, Ynrow = Ynrow,
+                        ischaracter = TRUE, duplicatednames = TRUE))
+  np <- sum(ncol(period))
+
+  id <- check_var(vars = id, varn = "id", dataset = dataset,
+                  ncols = 1, Yncol = 0, Ynrow = Ynrow,
+                  ischaracter = TRUE, periods = period)
+
+  PSU <- check_var(vars = PSU, varn = "PSU", dataset = dataset,
+                   ncol = 1, Yncol = 0, Ynrow = Ynrow,
+                   ischaracter = TRUE, namesID1 = names(id))
+
   Dom <- check_var(vars = Dom, varn = "Dom", dataset = dataset,
-                   ncols = 0, Yncol = 0, Ynrow = Ynrow, isnumeric = FALSE,
-                   ascharacter = TRUE, mustdefined = FALSE,
-                   grepls = "__", duplicatednames = TRUE)
+                   ncols = 0, Yncol = 0, Ynrow = Ynrow,
+                   ischaracter = TRUE, mustbedefined = FALSE,
+                   duplicatednames = TRUE, grepls = "__")
   namesDom <- names(Dom)
 
-  w_final <- check_var(vars = w_final, varn = "w_final", dataset = dataset,
-                       check.names = FALSE, ncols = 1, Yncol = 0, Ynrow = Ynrow,
-                       isnumeric = TRUE, ascharacter = FALSE, asvector = TRUE)
+  w_final <- check_var(vars = w_final, varn = "w_final",
+                       dataset = dataset, ncols = 1, Yncol = 0,
+                       Ynrow = Ynrow, isnumeric = TRUE, isvector = TRUE)
 
-  Z <- check_var(vars = Z, varn = "Z", dataset = dataset,
-                 check.names = TRUE, ncols = 0, Yncol = Yncol,
-                 Ynrow = Ynrow, isnumeric = TRUE,
-                 mustdefined = FALSE)
+  Z <- check_var(vars = Z, varn = "Z", dataset = dataset, ncols = 0,
+                 check.names = TRUE, Yncol = Yncol, Ynrow = Ynrow,
+                 isnumeric = TRUE, mustbedefined = FALSE)
 
   PSU_sort <- check_var(vars = PSU_sort, varn = "PSU_sort", dataset = dataset,
-                        ncol = 1, Yncol = 0, Ynrow = Ynrow, ascharacter = TRUE,
-                        asvector = TRUE, mustdefined = FALSE)
+                        ncols = 1, Yncol = 0, Ynrow = Ynrow, ischaracter = TRUE,
+                        isvector = TRUE, mustdefined = FALSE)
 
-  if (!is.null(X)) {  
-	X <- check_var(vars = X, varn = "X", dataset = dataset,
-        	       check.names = TRUE, ncols = 0, Yncol = 0,
-                       Ynrow = Ynrow, Xnrow = 0, isnumeric = TRUE,
-                       grepls = "__")
-        Xnrow <- nrow(X)
 
-        g <- check_var(vars = g, varn = "g", dataset = dataset,
-                       check.names = TRUE, ncols = 1, Yncol = 0,
-                       Ynrow = 0, Xnrow = Xnrow, isnumeric = TRUE,
-                       asvector = TRUE)
+  if (!is.null(X)) {
+         X <- check_var(vars = X, varn = "X", dataset = dataset,
+                        check.names = TRUE, ncols = 0, Yncol = 0,
+                        Ynrow = Ynrow, Xnrow = 0, isnumeric = TRUE,
+                        grepls = "__")
+         Xnrow <- nrow(X)
 
-        q <- check_var(vars = q, varn = "q", dataset = dataset,
-                       check.names = TRUE, ncols = 1, Yncol = 0,
-                       Ynrow = 0, Xnrow = Xnrow, isnumeric = TRUE,
-                       asvector = TRUE)
+         ind_gr <- check_var(vars = ind_gr, varn = "ind_gr",
+                             dataset = datasetX, ncols = 1,
+                             Yncol = 0, Ynrow = 0, Xnrow = Xnrow,
+                             ischaracter = TRUE, dif_name = c(names(period), names(country)))
 
-        ind_gr <- check_var(vars = ind_gr, varn = "ind_gr", dataset = dataset,
-                            check.names = TRUE, ncols = 1, Yncol = 0,
-                            Ynrow = 0, Xnrow = Xnrow, ascharacter = TRUE)
+         g <- check_var(vars = g, varn = "g", dataset = dataset,
+                        ncols = 1, Yncol = 0, Ynrow = 0, Xnrow = Xnrow,
+                        isnumeric = TRUE, isvector = TRUE)
+
+         q <- check_var(vars = q, varn = "q", dataset = dataset,
+                        ncols = 1, Yncol = 0, Ynrow = 0, Xnrow = Xnrow,
+                        isnumeric = TRUE, isvector = TRUE)
     }
   dataset <- NULL
 
@@ -109,13 +108,13 @@ vardom <- function(Y, H, PSU, w_final,
   # N_h
   if (!is.null(N_h)) {
       N_h <- data.table(N_h)
-      if (anyNA(N_h)) stop("'N_h' has missing values") 
+      if (anyNA(N_h)) stop("'N_h' has missing values")
       if (ncol(N_h) != np+2) stop(paste0("'N_h' should be ", np + 2," columns"))
       if (!is.numeric(N_h[[ncol(N_h)]])) stop("The last column of 'N_h' should be numeric")
       nams <- c(names(period), names(H))
       if (all(nams %in% names(N_h))) {N_h[, (nams) := lapply(.SD, as.character), .SDcols = nams]
              } else stop(paste0("All strata titles of 'H'", ifelse(!is.null(period), "and periods titles of 'period'", ""), " have not in 'N_h'"))
-   
+
       if (is.null(period)) {
              if (any(is.na(merge(unique(H), N_h, by = names(H), all.x = TRUE)))) stop("'N_h' is not defined for all strata")
              if (any(duplicated(N_h[, head(names(N_h), -1), with = FALSE]))) stop("Strata values for 'N_h' must be unique")
@@ -128,17 +127,17 @@ vardom <- function(Y, H, PSU, w_final,
   }
 
   ### Calculation
-      
+
   # Domains
   if (!is.null(Dom)) Y1 <- domain(Y, Dom) else Y1 <- Y
   Y <- NULL
   n_nonzero <- copy(Y1)
-  if (!is.null(period)){ n_nonzero <- data.table(period, n_nonzero) 
-                         n_nonzero <- n_nonzero[, lapply(.SD, function(x) 
+  if (!is.null(period)){ n_nonzero <- data.table(period, n_nonzero)
+                         n_nonzero <- n_nonzero[, lapply(.SD, function(x)
                                                           sum(as.integer(abs(x) > .Machine$double.eps))),
                                                           keyby = names(period),
                                                          .SDcols = names(Y1)]
-                  } else n_nonzero <- n_nonzero[, lapply(.SD, function(x) 
+                  } else n_nonzero <- n_nonzero[, lapply(.SD, function(x)
                                                           sum(as.integer(abs(x) > .Machine$double.eps))),
                                                          .SDcols = names(Y1)]
 
@@ -154,7 +153,7 @@ vardom <- function(Y, H, PSU, w_final,
 
   # Design weights
   if (!is.null(X)) w_design <- w_final / g else w_design <- w_final
-      
+
   # Ratio of two totals
   linratio_outp <- variableZ <- estim <- deff_sam <- NULL
   deff_est <- deff <- var_est2 <- se <- rse <- cv <- NULL
@@ -173,7 +172,7 @@ vardom <- function(Y, H, PSU, w_final,
         } else {
             periodap <- do.call("paste", c(as.list(period), sep = "_"))
             lin1 <- lapply(split(Y1[, .I], periodap), function(i)
-                            data.table(sar_nr = i, 
+                            data.table(sar_nr = i,
                                    lin.ratio(Y1[i], Z1[i], w_final[i],
                                              Dom = NULL, percentratio = percentratio)))
             Y2 <- rbindlist(lin1)
@@ -181,14 +180,14 @@ vardom <- function(Y, H, PSU, w_final,
             Y2[, sar_nr := NULL]
         }
     if (any(is.na(Y2))) print("Results are calculated, but there are cases where Z = 0")
-    if (outp_lin) linratio_outp <- data.table(idper, PSU, Y2) 
+    if (outp_lin) linratio_outp <- data.table(idper, PSU, Y2)
   } else {
           Y2 <- Y1
          }
 
   # Total estimation
   lin1 <- Z <- Y_est <- Z_est <- variableDZ <- NULL
-  
+
   hY <- data.table(Y1 * w_final)
   if (is.null(period)) { Y_est <- hY[, lapply(.SD, sum, na.rm = TRUE), .SDcols = names(Y1)]
                 } else { hY <- data.table(period, hY)
@@ -200,7 +199,7 @@ vardom <- function(Y, H, PSU, w_final,
   if (!is.null(Z1)) {
          YZnames <- data.table(variable = names(Y1), variableDZ = names(Z1))
          all_result <- merge(all_result, YZnames, all = TRUE, by = "variable")
-         
+
          hZ <- data.table(Z1 * w_final)
          if (is.null(period)) { Z_est <- hZ[, lapply(.SD, sum, na.rm = TRUE), .SDcols = names(Z1)]
                        } else { hZ <- data.table(period, hZ)
@@ -226,7 +225,7 @@ vardom <- function(Y, H, PSU, w_final,
 
         lin1 <- lapply(split(Y2[,.I], ind_gr), function(i)
                         data.table(sar_nr = i,
-                                   residual_est(Y = Y2[i],                                   
+                                   residual_est(Y = Y2[i],
                                                 X = X[i],
                                                 weight = w_design[i],
                                                 q = q[i])))
@@ -236,7 +235,7 @@ vardom <- function(Y, H, PSU, w_final,
         Y3[, sar_nr := NULL]
         if (outp_res) res_outp <- data.table(idper, PSU, Y3)
     } else Y3 <- Y2
-  
+
   var_est <- variance_est(Y = Y3, H = H, PSU = PSU,
                           w_final = w_final, N_h = N_h,
                           fh_zero = fh_zero,
@@ -247,10 +246,10 @@ vardom <- function(Y, H, PSU, w_final,
                           msg = "Current variance estimation")
   var_est <- transpos(var_est, is.null(period), "var_est", names(period))
   all_result <- merge(all_result, var_est, all = TRUE, by = c(names(period), "variable"))
-   
+
   # Variance of HT estimator under current design
   var_cur_HT <- variance_est(Y = Y2, H = H, PSU = PSU,
-                             w_final = w_design, N_h = N_h, 
+                             w_final = w_design, N_h = N_h,
                              fh_zero = fh_zero,
                              PSU_level = PSU_level,
                              PSU_sort = PSU_sort,
@@ -261,7 +260,7 @@ vardom <- function(Y, H, PSU, w_final,
   var_cur_HT <- transpos(var_cur_HT, is.null(period), "var_cur_HT", names(period))
   all_result <- merge(all_result, var_cur_HT, all = TRUE, by = c(names(period), "variable"))
   var_est <- var_cur_HT <- NULL
-  
+
   # Variance of HT estimator under SRS
   if (is.null(period)) {
            varsrs <- var_srs(Y = Y2, w = w_design)
@@ -281,7 +280,7 @@ vardom <- function(Y, H, PSU, w_final,
                         })
            S2_y_HT <- rbindlist(lapply(lin1, function(x) x[[1]]))
            var_srs_HT <- rbindlist(lapply(lin1, function(x) x[[2]]))
-           S2_y_ca <- rbindlist(lapply(lin1, function(x) x[[3]]))           
+           S2_y_ca <- rbindlist(lapply(lin1, function(x) x[[3]]))
       }
   Y2 <- w_design <- NULL
   var_srs_HT <- transpos(var_srs_HT, is.null(period), "var_srs_HT", names(period))
@@ -319,16 +318,16 @@ vardom <- function(Y, H, PSU, w_final,
 
 
   all_result[, estim := Y_est]
-  if (!is.null(all_result$Z_est)) all_result[, estim := Y_est / Z_est * percentratio] 
+  if (!is.null(all_result$Z_est)) all_result[, estim := Y_est / Z_est * percentratio]
 
   if (nrow(all_result[var_est < 0]) > 0) stop("Estimation of variance are negative!")
- 
+
   # Design effect of sample design
   all_result[, deff_sam := var_cur_HT / var_srs_HT]
-  
+
   # Design effect of estimator
   all_result[, deff_est := var_est / var_cur_HT]
-  
+
   # Overall effect of sample design and estimator
   all_result[, deff := deff_sam * deff_est]
 
@@ -344,7 +343,7 @@ vardom <- function(Y, H, PSU, w_final,
   all_result[, relative_margin_of_error:= tsad * cv]
   all_result[, CI_lower := estim - tsad * se]
   all_result[, CI_upper := estim + tsad * se]
-  
+
   variableD <- NULL
   setnames(all_result, c("variable", "var_est"), c("variableD", "var"))
   if (!is.null(all_result$Z_est)) {
@@ -369,22 +368,22 @@ vardom <- function(Y, H, PSU, w_final,
 
   all_result <- merge(nosr, all_result, by = "variableD")
   namesDom <- nosr <- NULL
-  
-  if (!is.null(all_result$Z_est)) { 
+
+  if (!is.null(all_result$Z_est)) {
        all_result[, variable := paste("R", get("variable"), get("variableZ"), sep = "__")] }
 
-  if (!is.null(c(Dom, period))) { all_result <- merge(all_result, nhs, 
+  if (!is.null(c(Dom, period))) { all_result <- merge(all_result, nhs,
                                                       all = TRUE, by = c(namesDom1, names(period)))
                          } else { all_result[, respondent_count := nhs$respondent_count]
-                                  all_result[, pop_size := nhs$pop_size]} 
+                                  all_result[, pop_size := nhs$pop_size]}
 
   all_result[, n_eff := ifelse(is.na(deff) | deff < .Machine$double.eps, NA, respondent_count / deff)]
   variab <- c("respondent_count", "n_nonzero", "pop_size")
   if (!is.null(all_result$Z_est)) variab <- c(variab, "Y_est", "Z_est")
-  variab <- c(variab, "estim", "var", "se", "rse", "cv", 
+  variab <- c(variab, "estim", "var", "se", "rse", "cv",
               "absolute_margin_of_error", "relative_margin_of_error",
               "CI_lower", "CI_upper")
-  if (is.null(Dom))  variab <- c(variab, "S2_y_HT", "S2_y_ca", "S2_res") 
+  if (is.null(Dom))  variab <- c(variab, "S2_y_HT", "S2_y_ca", "S2_res")
   variab <- c(variab, "var_srs_HT",  "var_cur_HT", "var_srs_ca",
               "deff_sam", "deff_est", "deff", "n_eff")
   setkeyv(all_result, c("nr_names", names(Dom), names(period)))

@@ -33,7 +33,6 @@ vardchangannual <- function(Y, H, PSU, w_final,
                  ncols = 1, Yncol = 0, Ynrow = Ynrow,
                  ischaracter = TRUE, dif_name = "dataH_stratas")
 
-
   w_final <- check_var(vars = w_final, varn = "w_final",
                        dataset = dataset, ncols = 1, Yncol = 0,
                        Ynrow = Ynrow, isnumeric = TRUE, isvector = TRUE)
@@ -52,25 +51,23 @@ vardchangannual <- function(Y, H, PSU, w_final,
   country <- check_var(vars = country, varn = "country",
                        dataset = dataset, ncols = 1, Yncol = 0,
                        Ynrow = Ynrow, ischaracter = TRUE,
-                       mustbedefined = FALSE, dif_name = "percoun")
+                       mustbedefined = FALSE, dif_name = c("percoun", "period_country"))
 
   years <- check_var(vars = years, varn = "years", dataset = dataset,
-                     ncols = 1, Yncol = 0, Ynrow = Ynrow,
-                     ischaracter = TRUE, dif_name = "percoun")
+                     ncols = 1, Yncol = 0, Ynrow = Ynrow, ischaracter = TRUE,
+                     dif_name = c("percoun", "period_country", names(country)))
   yearm <- names(years)
 
   year1 <- check_var(vars = year1, varn = "year1", dataset = NULL,
-                     ncols = 1, ischaracter = TRUE, periods = years,
-                     periods_varn = "years")
+                     ncols = 1, ischaracter = TRUE, years = years)
 
   year2 <- check_var(vars = year2, varn = "year2", dataset = NULL,
-                     ncols = 1, ischaracter = TRUE, periods = years,
-                     periods_varn = "years")
+                     ncols = 1, ischaracter = TRUE, years = years)
 
   subperiods <- check_var(vars = subperiods, varn = "subperiods",
                           dataset = dataset, ncols = 1, Yncol = 0,
                           Ynrow = Ynrow, ischaracter = TRUE,
-                          dif_name = "percoun")
+                          dif_name = c("percoun", names(country)))
   subn <- data.table(years, subperiods)
   subn <- nrow(subn[, .N, by = names(subn)]) / nrow(unique(years))
   subpm <- names(subperiods)
@@ -83,7 +80,7 @@ vardchangannual <- function(Y, H, PSU, w_final,
                          dataset = dataset, ncols = 1, Yncol = 0,
                          Ynrow = Ynrow, ischaracter = TRUE,
                          namesID1 = names(ID_level1), country = country,
-                         periods = data.table(years, subperiods))
+                         years = years, periods = subperiods)
 
   PSU <- check_var(vars = PSU, varn = "PSU", dataset = dataset,
                    ncol = 1, Yncol = 0, Ynrow = Ynrow,
@@ -98,7 +95,8 @@ vardchangannual <- function(Y, H, PSU, w_final,
     ind_gr <- check_var(vars = ind_gr, varn = "ind_gr",
                         dataset = datasetX, ncols = 1,
                         Yncol = 0, Ynrow = 0, Xnrow = Xnrow,
-                        ischaracter = TRUE)
+                        ischaracter = TRUE,
+                        dif_name = c(names(years), names(subperiods), names(country)))
 
     g <- check_var(vars = g, varn = "g", dataset = datasetX,
                    ncols = 1, Yncol = 0, Ynrow = 0,
@@ -116,106 +114,32 @@ vardchangannual <- function(Y, H, PSU, w_final,
                           mustbedefined = !is.null(country), varnout = "country",
                           varname = names(country), country = country)
 
-    yearsX <-
-
-      check_var(vars = yearsX, varn = "yearsX", dataset = datasetX,
-                        ncols = 1, Yncol = 0, Xnrow = Xnrow, ischaracter = TRUE,
-                        mustbedefined = !is.null(years), varnout = "years",
-                        varname = names(years), periods = periods,
-                        country = country, countryX = countryX)
-
-
-
-
-        yearsX <- check_var(vars = yearsX, varn = "yearsX", dataset = datasetX,
+    yearsX <- check_var(vars = yearsX, varn = "yearsX", dataset = datasetX,
                         ncols = 1, Yncol = 0, Xnrow = Xnrow, ischaracter = TRUE,
                         mustbedefined = !is.null(years), varnout = "years",
                         varname = names(years), country = country,
-                        countryX = countryX)
+                        countryX = countryX, years = years)
 
-            periodX <- check_var(vars = periodX, varn = "periodX",
-                         dataset = datasetX, ncols = 1, Yncol = 0,
-                         Ynrow = 0, Xnrow = Xnrow, ischaracter = TRUE,
-                         mustbedefined = !is.null(period),
-                         duplicatednames = TRUE, varnout = "period",
-                         varname = c(names(years), periods = periods,
-                         country = country, countryX = countryX)
+    subperiodsX <- check_var(vars = subperiodsX, varn = "subperiodsX",
+                             dataset = datasetX, ncols = 1, Yncol = 0,
+                             Xnrow = Xnrow, ischaracter = TRUE,
+                             mustbedefined = !is.null(subperiods),
+                             varnout = "subperiods", varname = names(subperiods),
+                             country = country, countryX = countryX,
+                             years = years, yearsX = yearsX,
+                             periods = subperiods)
 
     X_ID_level1 <- check_var(vars = X_ID_level1, varn = "X_ID_level1",
                              dataset = datasetX, ncols = 1, Yncol = 0,
-                             Ynrow = 0, Xnrow = Xnrow, ischaracter = TRUE,
+                             Xnrow = Xnrow, ischaracter = TRUE,
                              varnout = "ID_level1", varname = names(ID_level1),
                              country = country, countryX = countryX,
+                             years = years, yearsX = yearsX,
+                             periods = subperiods, periodsX = subperiodsX,
                              ID_level1 = ID_level1)
+    }
 
-
-
-
-    if(!is.null(datasetX)) {
-      datasetX <- data.table(datasetX)
-      if (!is.null(subperiodsX)) {
-        if (min(subperiodsX %in% names(datasetX)) != 1) stop("'subperiodsX' does not exist in 'datasetX'!")
-        if (min(subperiodsX %in% names(datasetX)) == 1) subperiodsX <- datasetX[, subperiodsX,  with = FALSE] }
-
-      if (!is.null(X_ID_level1)) {
-        if (min(X_ID_level1 %in% names(datasetX)) != 1) stop("'ID_level1' does not exist in 'datasetX'!")
-        if (min(X_ID_level1 %in% names(datasetX)) == 1) X_ID_level1 <- datasetX[, X_ID_level1,  with = FALSE]  }
-
-      if (identical(dataset, datasetX)) { X_ID_level1 <- ID_level1
-                                          countryX <- country }
-      }
-
-
-    # subperiodsX
-      if (is.null(subperiodsX)) stop("'subperiodsX' must be defined")
-      subperiodsX <- data.table(subperiodsX)
-      subperiodsX[, (names(subperiodsX)) := lapply(.SD, as.character)]
-      if (anyNA(subperiodsX)) stop("'subperiodsX' has missing values")
-      if (any(duplicated(names(subperiodsX))))
-                 stop("'subperiodsX' are duplicate column names: ",
-                          paste(names(subperiodsX)[duplicated(names(subperiodsX))], collapse = ","))
-      if (nrow(subperiodsX) != nrow(X)) stop("'subperiodsX' length must be equal with 'X' row count")
-      if (ncol(subperiodsX) != ncol(years)) stop("'subperiodsX' length must be equal with 'subperiods' column count")
-      if (names(subperiodsX) != names(subperiods)) stop("'subperiodsX' must be equal with 'subperiods' names")
-
-      peri <- data.table(years, subperiods)
-      periX <- data.table(yearsX, subperiodsX)
-      if (!is.null(country)) peri <- data.table(country, peri)
-      if (!is.null(countryX)) periX <- data.table(countryX, periX)
-      periX <- periX[, .N, keyby = names(periX)][, N := NULL]
-      peri <- peri[, .N, keyby = names(peri)][, N := NULL]
-      if (any(peri != periX) & is.null(country)) stop("'unique(years, subperiods)' and 'unique(yearsX, subperiodsX)' records have different")
-      if (any(peri != periX) & !is.null(country)) stop("'unique(country, years, subperiods)' and 'unique(countryX, yearsX, subperiodsX)' records have different")
-     }
-
-    # X_ID_level1
-      if (is.null(X_ID_level1)) stop("'X_ID_level1' must be defined")
-      X_ID_level1 <- data.table(X_ID_level1)
-      X_ID_level1[, (names(X_ID_level1)) := lapply(.SD, as.character)]
-      if (anyNA(X_ID_level1)) stop("'X_ID_level1' has missing values")
-      if (nrow(X) != nrow(X_ID_level1)) stop("'X' and 'X_ID_level1' have different row count")
-      if (ncol(X_ID_level1) != 1) stop("'X_ID_level1' must be 1 column data.frame, matrix, data.table")
-      if (any(names(X_ID_level1) != names(ID_level1))) stop("'X_ID_level1' and 'ID_level1' must be equal names")
-
-      ID_level1h <- data.table(years, subperiods, ID_level1)
-      X_ID_level1h <- data.table(yearsX, subperiodsX, X_ID_level1)
-      if (!is.null(countryX)) {X_ID_level1 <- data.table(countryX, X_ID_level1)
-                               ID_level1h <- data.table(country, ID_level1h)}
-      ID_level1h <- ID_level1h[, .N, by = names(ID_level1h)][, N := NULL]
-      if (nrow(X_ID_level1h[,.N, by = names(X_ID_level1h)][N > 1]) > 0) stop("'X_ID_level1' have duplicates")
-
-      setkeyv(X_ID_level1h, names(X_ID_level1h))
-      setkeyv(ID_level1h, names(ID_level1h))
-      if (!is.null(country)) {
-             if (nrow(ID_level1h) != nrow(X_ID_level1h)) stop("'unique(countryX, yearsX, subperiodsX, X_ID_level1)' and 'unique(country, years, subperiods, ID_level1)' have different row count")
-             if (any(ID_level1h != X_ID_level1h)) stop("''unique(countryX, periodX, X_ID_level1)' and 'unique(country, period, ID_level1)' records have different")
-           } else {
-             if (nrow(ID_level1h) != nrow(X_ID_level1h)) stop("'unique(yearsX, subperiodsX, X_ID_level1)' and 'unique(years, subperiods, ID_level1)' have different row count")
-             if (any(ID_level1h != X_ID_level1h)) stop("''unique(yearsX, subperiodsX, X_ID_level1)' and 'unique(years, subperiods, ID_level1)' records have different")  }
-      ID_level1h <- X_ID_level1h <- NULL
-   }
    dataset <- datasetX <- NULL
-
 
 
    ids <- nams <- cros_se <- num1 <- totalY <- totalZ <- NULL
@@ -260,7 +184,7 @@ vardchangannual <- function(Y, H, PSU, w_final,
                                       linratio = !is.null(Z), percentratio = percentratio,
                                       use.estVar = use.estVar, outp_res = outp_res,
                                       confidence = confidence, change_type = "absolute",
-                                      checking = FALSE)
+                                      subfunction = FALSE)
 
                  crossectional_results <- datas$crossectional_results
                  crossectional_results <- merge(sarak, crossectional_results, all.y = TRUE, by = "pers")

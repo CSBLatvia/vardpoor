@@ -23,7 +23,8 @@ vardchanges(Y, H, PSU, w_final,
             use.estVar = FALSE,
             outp_res = FALSE,
             confidence = 0.95,
-            change_type = "absolute")}
+            change_type = "absolute",
+            checking = TRUE)}
 
 \arguments{
 
@@ -82,6 +83,8 @@ vardchanges(Y, H, PSU, w_final,
 \item{confidence}{optional; either a positive value for confidence interval. This variable by default is 0.95 .}
 
 \item{change_type}{character value net changes type - absolute or relative.}
+
+\item{checking}{Optional variable if this variable is TRUE, then function checks preparation bugs. This variable by default is FALSE.}
 
 }
 

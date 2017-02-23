@@ -9,12 +9,6 @@ vardgpgcrosannual <- function(Y, H, PSU, w_final, ID_level1,
                               datasetX = NULL, percentratio = 1,
                               use.estVar = FALSE, confidence = 0.95) {
 
-  ### Checking
-  vars = Y
-  varn = "Y"
-  ncols = 0
-  Yncol = 0
-  Ynrow = 0
   Y <- check_var(vars = Y, varn = "Y", dataset = dataset,
                  check.names = TRUE, ncols = 0, Yncol = 0,
                  Ynrow = 0, isnumeric = TRUE, grepls = "__")
@@ -89,7 +83,13 @@ vardgpgcrosannual <- function(Y, H, PSU, w_final, ID_level1,
   if (!is.null(Dom)) dataset <- data.table(dataset, Dom)
   Dom <- names(Dom)
 
- if(!is.null(X)) {
+  yearsgender <- paste0(years, "gender")
+  dataset <- rbindlist(lapply(1:2, function(i) { dats <- copy(dataset)
+                                                 dats[, (yearsgender) := paste0(get(years), "_", i)]
+                                                 dats[get(gender) != i, (c(Y, Z)):= 0]
+                                                 return(dats)}))
+
+  if(!is.null(X)) {
         X <- check_var(vars = X, varn = "X", dataset = dataset,
                        check.names = TRUE, ncols = 0, Yncol = 0,
                        Ynrow = 0, Xnrow = 0, isnumeric = TRUE,
@@ -108,54 +108,74 @@ vardgpgcrosannual <- function(Y, H, PSU, w_final, ID_level1,
                             check.names = TRUE, ncols = 1, Yncol = 0, Ynrow = 0,
                             Xnrow = Xnrow, ascharacter = TRUE)
 
-        if (is.null(yearsX)) stop("'yearsX' must be defined")
-        if (is.null(subperiodsX)) stop("'subperiodsX' must be defined")
-        if (is.null(X_ID_level1)) stop("'X_ID_level1' must be defined")
+        countryX <- check_var(vars = countryX, varn = "countryX",
+                              dataset = datasetX, ncols = 1, Yncol = 0,
+                              Ynrow = 0, Xnrow = Xnrow, ischaracter = TRUE,
+                              mustbedefined = !is.null(country), varnout = "country",
+                              varname = names(country), country = country)
 
+        yearsX <- check_var(vars = yearsX, varn = "yearsX", dataset = datasetX,
+                            ncols = 1, Yncol = 0, Xnrow = Xnrow, ischaracter = TRUE,
+                            mustbedefined = !is.null(years), varnout = "years",
+                            varname = names(years), country = country,
+                            countryX = countryX, years = years)
+
+        subperiodsX <- check_var(vars = subperiodsX, varn = "subperiodsX",
+                                 dataset = datasetX, ncols = 1, Yncol = 0,
+                                 Xnrow = Xnrow, ischaracter = TRUE,
+                                 mustbedefined = !is.null(subperiods),
+                                 varnout = "subperiods", varname = names(subperiods),
+                                 country = country, countryX = countryX,
+                                 years = years, yearsX = yearsX,
+                                 periods = subperiods)
+
+        X_ID_level1 <- check_var(vars = X_ID_level1, varn = "X_ID_level1",
+                                 dataset = datasetX, ncols = 1, Yncol = 0,
+                                 Xnrow = Xnrow, ischaracter = TRUE,
+                                 varnout = "ID_level1", varname = names(ID_level1),
+                                 country = country, countryX = countryX,
+                                 years = years, yearsX = yearsX,
+                                 periods = subperiods, periodsX = subperiodsX,
+                                 ID_level1 = ID_level1)
+        
         datasetX <- data.table(X, yearsX, subperiodsX, X_ID_level1, ind_gr, g, q)
+        if (!is.null(countryX)) datasetX <- data.table(datasetX, countryX)
+        countryX <- names(countryX)
         X <- names(X)
-        yearsX <-  ifelse(is.null(names(yearsX)), "yearsX", names(yearsX))
-        subperiodsX <- ifelse(is.null(names(subperiodsX)), "subperiodsX", names(subperiodsX))
+        yearsX <-  names(yearsX)
+        subperiodsX <- names(subperiodsX)
         X_ID_level1 <- names(X_ID_level1)
-
         ind_gr <- names(ind_gr)
         g <- "g"
         q <- "q"
-        if (!is.null(countryX)) datasetX <- data.table(datasetX, countryX)
-        countryX <- names(countryX)
-
-        yearsgender <- paste0(years, "gender")
-        dataset <- rbindlist(lapply(1:2, function(i) { dats <- copy(dataset)
-                                                       dats[, (yearsgender) := paste0(get(years), "_", i)]
-                                                       dats[get(gender) != i, (c(Y, Z)):= 0]
-                                                       return(dats)}))
-
+  
         datasetX <- rbindlist(lapply(1:2, function(i) { dats <- copy(datasetX)
                                                         dats[, (yearsgender) := paste0(get(yearsX), "_", i)]
                                                         return(dats)}))
+   }
+   year1 <- paste0(unique(dataset[[years]]), "_2")
+   year2 <- paste0(unique(dataset[[years]]), "_1")
 
-        year1 <- paste0(unique(dataset[[years]]), "_2")
-        year2 <- paste0(unique(dataset[[years]]), "_1")
+   rez <- vardchangannual(Y = Y, H = H, PSU = PSU,
+                          w_final = w_final, ID_level1 = ID_level1,
+                          ID_level2 = ID_level2, Dom = Dom,
+                          Z = Z, country = country, years = yearsnew,
+                          subperiods = subperiods, dataset = dataset,
+                          year1 = year1, year2 = year2, X = X,
+                          countryX = countryX, yearsX = yearsnew,
+                          subperiodsX = subperiodsX, X_ID_level1 = X_ID_level1,
+                          ind_gr = ind_gr, g = g, q = q, datasetX = datasetX,
+                          percentratio = percentratio, use.estVar = FALSE,
+                          confidence = confidence)
 
-        rez <- vardchangannual(Y = Y, H = H, PSU = PSU,
-                               w_final = w_final, ID_level1 = ID_level1,
-                               ID_level2 = ID_level2, Dom = Dom,
-                               Z = Z, country = country, years = yearsnew,
-                               subperiods = subperiods, dataset = dataset,
-                               year1 = year1, year2 = year2, X = X,
-                               countryX = NULL, yearsX = yearsnew,
-                               subperiodsX = subperiodsX, X_ID_level1 = X_ID_level1,
-                               ind_gr = ind_gr, g = g, q = q, datasetX = datasetX,
-                               percentratio = percentratio, use.estVar = FALSE,
-                               confidence = confidence)
+  list(crossectional_results = crossectional_results,
+       crossectional_var_grad = crossectional_var_grad,
+       vardchanges_grad_var = grad_var,
+       vardchanges_rho = rho,
+      vardchanges_var_tau = var_tau,
+       vardchanges_results = vardchanges_results,
+       X_annual = X_annual, A_matrix = A_matrix,
+       annual_sum = ysum,
+       annual_cros = annual_cros)
 
-#  list(crossectional_results = crossectional_results,
-#       crossectional_var_grad = crossectional_var_grad,
-#       vardchanges_grad_var = grad_var,
-#       vardchanges_rho = rho,
-#      vardchanges_var_tau = var_tau,
-#       vardchanges_results = vardchanges_results,
-#       X_annual = X_annual, A_matrix = A_matrix,
-#       annual_sum = ysum,
-#       annual_cros = annual_cros)
-
+}

@@ -6,9 +6,9 @@ check_var <- function(vars, varn, dataset, check.names = FALSE,
                       grepls = NULL, dif_name = "", namesID1 = "id",
                       duplicatednames = FALSE, withperiod = TRUE,
                       varnout = NULL, varname = NULL, PSUs = NULL,
-                      periods = NULL, periods_varn  = NULL,
-                      periodsX = NULL, country = NULL,
-                      countryX = NULL, ID_level1 = NULL){
+                      country = NULL, countryX = NULL, years = NULL,
+                      yearsX = NULL, periods = NULL, periodsX = NULL,
+                      ID_level1 = NULL){
 
   if (varn %in%  c("g", "q") & (is.null(class(vars)) | any(class(vars) == "function"))) stop("'g' must be numeric", call. = FALSE)
   if (is.null(vars)) {
@@ -44,25 +44,31 @@ check_var <- function(vars, varn, dataset, check.names = FALSE,
       if (any(vars == 0) & varn == "g") stop("'g' value can not be 0", call. = FALSE)
       if (varn == "q") if (any(is.infinite(vars))) stop("'q' value can not be infinite", call. = FALSE)
 
+      varns <- c(switch(as.integer(!is.null(country)) + 1, NULL, "country"),
+                 switch(as.integer(!is.null(years)) + 1, NULL, "years"),
+                 switch(as.integer(!is.null(periods) & varn != "yearX") + 1, NULL,
+                        paste0(ifelse(varn %in% c("ID_level2", "subperiodsX", "X_ID_level1"), "sub", ""), "periods")))
+
       if (varn %in% c("id", "ID_level2")) {
              dd <- vars
+             if (!is.null(years)) dd <- data.table(years, vars)
              if (!is.null(periods)) dd <- data.table(periods, vars)
              if (!is.null(country)) dd <- data.table(country, vars)
              dd <- any(duplicated(dd, by = names(dd)))
-             if (dd) {
-               if (!is.null(country)) {
-                   if (!is.null(periods)) { stop(paste0("'", varn, "' by period and country are duplicate values"), call. = FALSE)
-                         } else   stop(paste0("'", varn, "' by period and country are duplicate values"), call. = FALSE)
-                 } else if (!is.null(periods)) { stop(paste0("'", varn, "' by period are duplicate values"), call. = FALSE)
-                           } else   stop(paste0("'", varn, "' are duplicate values"), call. = FALSE)
-             }
+             if (dd) stop(paste0("'", varn, "' by ", paste(varns, collapse = ", "), " are duplicate values"), call. = FALSE)
         }
 
       if (varn %in% c("year1", "year2")) {
-        setnames(vars, names(vars), names(periods))
+        setnames(vars, names(vars), names(years))
+        if (anyNA(merge(vars, years, all.x = TRUE,
+                        by = names(periods), allow.cartesian = TRUE)))
+                               stop(paste0("'", varn, "' row must be exist in 'years'"), call. = FALSE)}
+
+      if (varn %in% c("period1", "period2")) {
+        setnames(vars, names(vars), names(period))
         if (anyNA(merge(vars, periods, all.x = TRUE,
                         by = names(periods), allow.cartesian = TRUE)))
-                               stop(paste0("'", varn, "' row must be exist in '", periods_varn, "'"), call. = FALSE)}
+                              stop(paste0("'", varn, "' row must be exist in 'period'"), call. = FALSE)}
 
       if (varn == "PSU_sort") {
         psuag <- data.table(vars, PSUs)
@@ -77,7 +83,7 @@ check_var <- function(vars, varn, dataset, check.names = FALSE,
          if (!all(vars %in% 1:2)) stop("'gender' must be value 1 for male, 2 for females", call. = FALSE) }
 
       if (varn %in% c("countryX", "periodX", "yearsX", "subperiodsX", "X_ID_level1")) {
-               if (names(vars) != varname) stop(paste0("'", varn, "' must be equal with '", varnout,"' names"))
+               if (names(vars) != varname) stop(paste0("'", varn, "' must be equal with '", varnout,"' names"), call. = FALSE)
                ncolvars <- ifelse(is.null(vars),0,ncol(vars))
                if (ncolvars != length(varname)) stop(paste0("'", varn, "' length must be equal with '",varnout,"' row count"), call. = FALSE)
       }
@@ -85,56 +91,35 @@ check_var <- function(vars, varn, dataset, check.names = FALSE,
       if (varn == "countryX") {
                varsX <- vars[, .N, keyby = names(vars)][, N := NULL]
                country <- country[, .N, keyby = names(country)][, N := NULL]
-               if (!identical(country, varsX)) stop("'unique(country)' and 'unique(countryX)' records have different")
-       }
-
-      print(vars)
-
-      if (varn %in% c("periodX", "yearsX", "subperiodsX")) {
-               peri <- periods
-               periX <- copy(vars)
-               if (!is.null(country)) peri <- data.table(country, peri)
-               if (!is.null(countryX)) periX <- data.table(countryX, periX)
-               periX <- periX[, .N, keyby = names(periX)][, N := NULL]
-               peri <- peri[, .N, keyby = names(peri)][, N := NULL]
-               if (!identical(peri, periX)) {
-                   if (is.null(country)) { stop(paste0("'unique(", periods_varn, ")' and 'unique(", periods_varnX, ")' records have different"))
-                                } else stop("'unique(country, period)' and 'unique(countryX, periodX)' records have different")
-                 }
-               peri <- periX <- NULL
+               if (!identical(country, varsX)) stop("'unique(country)' and 'unique(countryX)' records have different", call. = FALSE)
       }
 
-      if (varn == "X_ID_level1") {
-             ID_level1h <- copy(ID_level1)
-             X_ID_level1h <- copy(vars)
-             if (!is.null(countryX)) {X_ID_level1h <- data.table(countryX, X_ID_level1h)
-             ID_level1h <- data.table(country, ID_level1h)}
-             if (!is.null(periodsX)) {X_ID_level1h <- data.table(periodsX, X_ID_level1h)
-             ID_level1h <- data.table(periods, ID_level1h)}
+      if (varn %in% c("periodX", "yearsX", "subperiodsX", "X_ID_level1")) {
+               periX <- copy(vars)
+               if (!is.null(periodsX)) periX <- data.table(periodsX, periX)
+               if (!is.null(yearsX)) periX <- data.table(yearsX, periX)
+               if (!is.null(countryX)) periX <- data.table(countryX, periX)
 
-             ID_level1h <- ID_level1h[, .N, keyby = names(ID_level1h)][, N := NULL]
-             X_ID_level1h <- X_ID_level1h[, .N, keyby = names(X_ID_level1h)]
-             if (nrow(X_ID_level1h[N > 1]) > 0) stop("'X_ID_level1' have duplicates")
-             X_ID_level1h[, .N := NULL]
+               peri <- NULL
+               if (!is.null(ID_level1)) peri <- ID_level1
+               if (!is.null(periods)) peri <- switch(as.integer(!is.null(peri)) + 1, data.table(periods), data.table(periods, peri))
+               if (!is.null(years)) peri <- switch(as.integer(!is.null(peri)) + 1, data.table(years), data.table(years, peri))
+               if (!is.null(country)) peri <- switch(as.integer(!is.null(peri)) + 1, data.table(country), data.table(country, peri))
+               peri <- peri[, .N, keyby = names(peri)][, N := NULL]
+               periX <- periX[, .N, keyby = names(periX)]
+               if (varn == "X_ID_level1" & nrow(periX[N > 1]) > 0) stop("'X_ID_level1' have duplicates", call. = FALSE)
 
-             if (!identical(ID_level1h, X_ID_level1h)) {
-               if (!is.null(periodsX)) {
-                 if (!is.null(country)) {
-                       if (nrow(ID_level1h) != nrow(X_ID_level1h)) stop("'unique(countryX, periodX, X_ID_level1)' and 'unique(country, period, ID_level1)' have different row count")
-                       if (any(ID_level1h != X_ID_level1h)) stop("''unique(countryX, periodX, X_ID_level1)' and 'unique(country, period, ID_level1)' records have different")
-                   } else {
-                       if (nrow(ID_level1h) != nrow(X_ID_level1h)) stop("'unique(periodX, X_ID_level1)' and 'unique(period, ID_level1)' have different row count")
-                       if (any(ID_level1h != X_ID_level1h)) stop("''unique(periodX, X_ID_level1)' and 'unique(period, ID_level1)' records have different")  }
-                 } else {
-                    if (!is.null(country)) {
-                        if (nrow(ID_level1h) != nrow(X_ID_level1h)) stop("'unique(countryX, X_ID_level1)' and 'unique(country, ID_level1)' have different row count")
-                        if (any(ID_level1h != X_ID_level1h)) stop("''unique(countryX, X_ID_level1)' and 'unique(country, ID_level1)' records have different")
-                     } else {
-                        if (nrow(ID_level1h) != nrow(X_ID_level1h)) stop("'unique(X_ID_level1)' and 'unique(ID_level1)' have different row count")
-                        if (any(ID_level1h != X_ID_level1h)) stop("''unique(X_ID_level1)' and 'unique(ID_level1)' records have different") }}
+               periX[, N := NULL]
+               varns <- c(varns, "ID_level1")
+               varnsX <- c(paste0(varns, "X"), "X_ID_level1")
+
+               if (!identical(peri, periX)) {
+                 stop(paste0("'unique(", paste(varns, collapse= ", "), ")' and 'unique(",
+                                          paste(varnsX, collapse= ", "), ")' records have different"), call. = FALSE)
                }
-             ID_level1h <- X_ID_level1h <- NULL
-         }
+               peri <- periX <- NULL
+            }
+
     } else if (mustbedefined) stop(paste0("'", varn, "' must be defined!"), call. = FALSE)
 
     return(vars[])
@@ -158,7 +143,7 @@ domain <- function(Y, D, dataset = NULL) {
   Ynrow <- nrow(Y)
   D <- check_var(vars = D, varn = "Dom", dataset = dataset, check.names = TRUE,
                  ncols = 0, Yncol = 0, Ynrow = Ynrow, isnumeric = FALSE,
-                 ascharacter = TRUE, dif_name = "percoun", grepls = "__")
+                 ischaracter = TRUE, dif_name = "percoun", grepls = "__")
 
   Dom_agg <- unique(D)
   setkeyv(Dom_agg, names(Dom_agg))

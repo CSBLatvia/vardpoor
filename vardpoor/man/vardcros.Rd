@@ -17,7 +17,8 @@ vardcros(Y, H, PSU, w_final, ID_level1,
          linratio = FALSE, percentratio=1,
          use.estVar = FALSE, ID_level1_max = TRUE,
          outp_res = FALSE, withperiod = TRUE,
-         netchanges = TRUE, confidence = .95)}
+         netchanges = TRUE, confidence = .95,
+         checking = FALSE)}
 
 \arguments{
 
@@ -74,6 +75,9 @@ vardcros(Y, H, PSU, w_final, ID_level1,
 \item{netchanges}{Logical value. If value is TRUE, then produce two objects: the first object is aggregation of weighted data by period (if available), country, strata and PSU, the second object is an estimation for Y, the variance, gradient for numerator and denominator by country and period (if available). If value is FALSE, then both objects containing \code{NULL}.}
 
 \item{confidence}{Optional positive value for confidence interval. This variable by default is 0.95.}
+
+\item{checking}{Optional variable if this variable is TRUE, then function checks preparation bugs. This variable by default is FALSE.}
+
 }
 
 \value{

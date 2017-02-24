@@ -21,21 +21,19 @@ domain <- function(Y, D, dataset = NULL) {
   Dom_agg <- unique(D)
   setkeyv(Dom_agg, names(Dom_agg))
   i <- k <- NULL
-  domen <- foreach(i = 1 : ncol(Y), .combine = data.table) %:%
-    foreach(k = 1:nrow(Dom_agg), .combine = data.table) %do%
-    ifelse(rowSums(D == Dom_agg[k, ][rep(1, Ynrow), ]) == ncol(D), Y[[i]], 0)
 
-  if (!is.data.table(domen)) domen <- data.table(domen)
-
-  setnames(domen, names(domain), namesD(Y, D))
-  domen <- data.table(domen, check.names = TRUE)
+  domen <- foreach(i = 1 : ncol(Y), .combine = 'data.frame') %:%
+              foreach(k = 1:nrow(Dom_agg), .combine = 'data.table') %do%
+                 ifelse(rowSums(D == Dom_agg[k, ][rep(1, Ynrow), ]) == ncol(D), Y[i], 0)
+  domen <- data.table(domen)
+  setnames(domen, names(domen), namesD(Y, D))
   return(domen)
 }
 
 
 
 check_var <- function(vars, varn, dataset, check.names = FALSE,
-                      ncols = NULL, Yncol = 0, Ynrow = 0, Xnrow = 0,
+                      ncols = 0, Yncol = 0, Ynrow = 0, Xnrow = 0,
                       isnumeric = FALSE, ischaracter = FALSE,
                       mustbedefined = TRUE, isvector = FALSE,
                       grepls = NULL, dif_name = "", namesID1 = "id",
@@ -61,9 +59,9 @@ check_var <- function(vars, varn, dataset, check.names = FALSE,
         if (min(vars %in% names(dataset)) == 1)  vars <- dataset[, vars, with = FALSE]}
 
       vars <- data.table(vars, check.names = check.names)
-      mkvars <- make.names(rep(vars, length(vars)), unique = TRUE)
+      mkvars <- make.names(rep("vars", length(vars)), unique = TRUE)
       mkvarn <- make.names(rep(varn, length(vars)), unique = TRUE)
-      if (names(vars) == mkvars) setnames(vars, mkvars, mkvarn)
+      if (all(names(vars) == mkvars)) setnames(vars, mkvars, mkvarn)
       if (ischaracter) vars[, (names(vars)) := lapply(.SD, as.character)]
       if (anyNA(vars)) stop(paste0("'", varn, "' has missing values"), call. = FALSE)
       if (Ynrow > 0) if (nrow(vars) != Ynrow) stop(paste0("'", varn, "' length must be equal with 'Y' row count"), call. = FALSE)

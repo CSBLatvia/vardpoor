@@ -18,7 +18,7 @@ vardcros(Y, H, PSU, w_final, ID_level1,
          use.estVar = FALSE, ID_level1_max = TRUE,
          outp_res = FALSE, withperiod = TRUE,
          netchanges = TRUE, confidence = .95,
-         checking = FALSE)}
+         checking = TRUE)}
 
 \arguments{
 

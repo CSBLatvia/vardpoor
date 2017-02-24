@@ -1,7 +1,6 @@
 vardchanges <- function(Y, H, PSU, w_final,
                         ID_level1, ID_level2,
                         Dom = NULL, Z = NULL,
-                        gender = NULL,
                         country = NULL, period,
                         dataset = NULL,
                         period1, period2,
@@ -16,7 +15,7 @@ vardchanges <- function(Y, H, PSU, w_final,
                         outp_res = FALSE,
                         confidence = 0.95,
                         change_type = "absolute",
-                        checking = FALSE) {
+                        checking = TRUE) {
 
   ### Checking
 
@@ -69,11 +68,11 @@ vardchanges <- function(Y, H, PSU, w_final,
                             ischaracter = TRUE, duplicatednames = TRUE,
                             dif_name = c("percoun", names(country)))
 
-        period1 <- check_var(period = period1, varn = "period1",
+        period1 <- check_var(vars = period1, varn = "period1",
                              dataset = NULL, ncols = 1, Ynrow = Ynrow,
                              ischaracter = TRUE, periods = period)
 
-        period2 <- check_var(period = period2, varn = "period2",
+        period2 <- check_var(vars = period2, varn = "period2",
                              dataset = NULL, ncols = 1, Ynrow = Ynrow,
                              ischaracter = TRUE, periods = period)
 
@@ -88,7 +87,7 @@ vardchanges <- function(Y, H, PSU, w_final,
                                periods = period)
 
         PSU <- check_var(vars = PSU, varn = "PSU", dataset = dataset,
-                         ncol = 1, Yncol = 0, Ynrow = Ynrow,
+                         ncols = 1, Yncol = 0, Ynrow = Ynrow,
                          ischaracter = TRUE, namesID1 = names(ID_level1))
 
         if(!is.null(X)) {
@@ -136,7 +135,7 @@ vardchanges <- function(Y, H, PSU, w_final,
              }
     }
   dataset <- datasetX <- NULL
-
+  namesZ <- names(Z)
 
   datas <- vardcros(Y = Y, H = H, PSU = PSU, w_final = w_final,
                     ID_level1 = ID_level1, ID_level2 = ID_level2,

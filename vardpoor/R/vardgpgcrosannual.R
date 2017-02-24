@@ -16,57 +16,57 @@ vardgpgcrosannual <- function(Y, H, PSU, w_final, ID_level1,
   Yncol <- ncol(Y)
 
   H <- check_var(vars = H, varn = "H", dataset = dataset,
-                 check.names = TRUE, ncols = 1, Yncol = 0,
-                 Ynrow = Ynrow, isnumeric = FALSE, ascharacter = TRUE)
+                 ncols = 1, Yncol = 0, Ynrow = Ynrow,
+                 ischaracter = TRUE, dif_name = "dataH_stratas")
 
-  ID_level1 <- check_var(vars = ID_level1, varn = "ID_level1", dataset = dataset,
-                         check.names = TRUE, ncols = 1, Yncol = 0, Ynrow = Ynrow,
-                         isnumeric = FALSE, ascharacter = TRUE)
+  w_final <- check_var(vars = w_final, varn = "w_final",
+                       dataset = dataset, ncols = 1, Yncol = 0,
+                       Ynrow = Ynrow, isnumeric = TRUE, isvector = TRUE)
 
-  Dom <- check_var(vars = Dom, varn = "Dom", dataset = dataset, check.names = TRUE,
-                   ncols = 0, Yncol = 0, Ynrow = Ynrow, isnumeric = FALSE,
-                   ascharacter = TRUE, dif_name = "percoun", grepls = "__")
+  Z <- check_var(vars = Z, varn = "Z", dataset = dataset, ncols = 0,
+                 check.names = TRUE, Yncol = Yncol, Ynrow = Ynrow,
+                 isnumeric = TRUE, mustbedefined = FALSE)
 
-  PSU <- check_var(vars = PSU, varn = "PSU", dataset = dataset, check.names = TRUE,
-                   ncol = 1, Yncol = 0, Ynrow = Ynrow, isnumeric = FALSE,
-                   ascharacter = TRUE, namesID1 = names(ID_level1))
+  Dom <- check_var(vars = Dom, varn = "Dom", dataset = dataset,
+                   ncols = 0, Yncol = 0, Ynrow = Ynrow,
+                   ischaracter = TRUE, mustbedefined = FALSE,
+                   duplicatednames = TRUE, grepls = "__")
 
-  w_final <- check_var(vars = w_final, varn = "w_final", dataset = dataset,
-                       check.names = TRUE, ncols = 1, Yncol = 0, Ynrow = Ynrow,
-                       isnumeric = TRUE, ascharacter = FALSE, asvector = TRUE)
-
-  ID_level2 <- check_var(vars = ID_level2, varn = "ID_level2", dataset = dataset,
-                         check.names = TRUE, ncols = 1, Yncol = 0, Ynrow = Ynrow,
-                         isnumeric = FALSE, ascharacter = TRUE, asvector = FALSE,
-                         namesID1 = names(ID_level1))
-
-  country <- check_var(vars = country, varn = "country", dataset = dataset,
-                       check.names = TRUE, ncols = 1, Yncol = 0, Ynrow = Ynrow,
-                       isnumeric = FALSE, ascharacter = TRUE, dif_name = "percoun")
-
-  Z <- check_var(vars = Z, varn = "Z", dataset = dataset,
-                 data_type = "data.table", check.names = TRUE, ncols = 0,
-                 Yncol = Yncol, Ynrow = Ynrow, isnumeric = FALSE,
-                 ascharacter = TRUE, dif_name = "percoun")
+  country <- check_var(vars = country, varn = "country",
+                       dataset = dataset, ncols = 1, Yncol = 0,
+                       Ynrow = Ynrow, ischaracter = TRUE,
+                       mustbedefined = FALSE, dif_name = c("percoun", "period_country"))
 
   years <- check_var(vars = years, varn = "years", dataset = dataset,
-                     data_type = "data.table", check.names = TRUE, ncols = 1,
-                     Yncol = 0, Ynrow = Ynrow, isnumeric = FALSE,
-                     ascharacter = TRUE, dif_name = "percoun")
+                     ncols = 1, Yncol = 0, Ynrow = Ynrow, ischaracter = TRUE,
+                     dif_name = c("percoun", "period_country", names(country)))
 
-  subperiods <- check_var(vars = subperiods, varn = "subperiods", dataset = dataset,
-                     data_type = "data.table", check.names = TRUE, ncols = 1,
-                     Yncol = 0, Ynrow = Ynrow, isnumeric = FALSE,
-                     ascharacter = TRUE, dif_name = "percoun")
+  subperiods <- check_var(vars = subperiods, varn = "subperiods",
+                          dataset = dataset, ncols = 1, Yncol = 0,
+                          Ynrow = Ynrow, ischaracter = TRUE,
+                          dif_name = c("percoun", names(country)))
+
+  ID_level1 <- check_var(vars = ID_level1, varn = "ID_level1",
+                         dataset = dataset, ncols = 1, Yncol = 0,
+                         Ynrow = Ynrow, ischaracter = TRUE)
+
+  ID_level2 <- check_var(vars = ID_level2, varn = "ID_level2",
+                         dataset = dataset, ncols = 1, Yncol = 0,
+                         Ynrow = Ynrow, ischaracter = TRUE,
+                         namesID1 = names(ID_level1), country = country,
+                         years = years, periods = subperiods)
+
+  PSU <- check_var(vars = PSU, varn = "PSU", dataset = dataset,
+                   ncols = 1, Yncol = 0, Ynrow = Ynrow,
+                   ischaracter = TRUE, namesID1 = names(ID_level1))
 
   gender <- check_var(vars = gender, varn = "gender",
-                      dataset = dataset, data_type = "data.frame",
-                      check.names = TRUE, ncols = 1, Yncol = 0,
-                      Ynrow = Ynrow, isnumeric = TRUE,
-                      ascharacter = TRUE, asvector = TRUE)
+                      dataset = dataset, ncols = 1, Yncol = 0,
+                      Ynrow = Ynrow, isnumeric = TRUE, isvector = TRUE)
 
   dataset <- data.table(Y, H, ID_level1, ID_level2,
                         PSU, w_final, Z, gender)
+
   Y <- names(Y)
   H <- names(H)
   ID_level1 <- names(ID_level1)
@@ -106,7 +106,7 @@ vardgpgcrosannual <- function(Y, H, PSU, w_final, ID_level1,
 
         ind_gr <- check_var(vars = ind_gr, varn = "ind_gr", dataset = dataset,
                             check.names = TRUE, ncols = 1, Yncol = 0, Ynrow = 0,
-                            Xnrow = Xnrow, ascharacter = TRUE)
+                            Xnrow = Xnrow, ischaracter = TRUE)
 
         countryX <- check_var(vars = countryX, varn = "countryX",
                               dataset = datasetX, ncols = 1, Yncol = 0,
@@ -137,7 +137,7 @@ vardgpgcrosannual <- function(Y, H, PSU, w_final, ID_level1,
                                  years = years, yearsX = yearsX,
                                  periods = subperiods, periodsX = subperiodsX,
                                  ID_level1 = ID_level1)
-        
+
         datasetX <- data.table(X, yearsX, subperiodsX, X_ID_level1, ind_gr, g, q)
         if (!is.null(countryX)) datasetX <- data.table(datasetX, countryX)
         countryX <- names(countryX)
@@ -148,7 +148,7 @@ vardgpgcrosannual <- function(Y, H, PSU, w_final, ID_level1,
         ind_gr <- names(ind_gr)
         g <- "g"
         q <- "q"
-  
+
         datasetX <- rbindlist(lapply(1:2, function(i) { dats <- copy(datasetX)
                                                         dats[, (yearsgender) := paste0(get(yearsX), "_", i)]
                                                         return(dats)}))
@@ -159,23 +159,23 @@ vardgpgcrosannual <- function(Y, H, PSU, w_final, ID_level1,
    rez <- vardchangannual(Y = Y, H = H, PSU = PSU,
                           w_final = w_final, ID_level1 = ID_level1,
                           ID_level2 = ID_level2, Dom = Dom,
-                          Z = Z, country = country, years = yearsnew,
+                          Z = Z, country = country, years = yearsgender,
                           subperiods = subperiods, dataset = dataset,
                           year1 = year1, year2 = year2, X = X,
-                          countryX = countryX, yearsX = yearsnew,
+                          countryX = countryX, yearsX = yearsgender,
                           subperiodsX = subperiodsX, X_ID_level1 = X_ID_level1,
                           ind_gr = ind_gr, g = g, q = q, datasetX = datasetX,
                           percentratio = percentratio, use.estVar = FALSE,
                           confidence = confidence)
 
-  list(crossectional_results = crossectional_results,
-       crossectional_var_grad = crossectional_var_grad,
-       vardchanges_grad_var = grad_var,
-       vardchanges_rho = rho,
-      vardchanges_var_tau = var_tau,
-       vardchanges_results = vardchanges_results,
-       X_annual = X_annual, A_matrix = A_matrix,
-       annual_sum = ysum,
-       annual_cros = annual_cros)
+  list(crossectional_results = rez$crossectional_results,
+       crossectional_var_grad = rez$crossectional_var_grad,
+       vardchanges_grad_var = rez$vardchanges_grad_var,
+       vardchanges_rho = rez$vardchanges_rho,
+       vardchanges_var_tau = rez$vardchanges_var_tau,
+       vardchanges_results = rez$vardchanges_results,
+       X_annual = rez$X_annual, A_matrix = rez$A_matrix,
+       annual_sum = rez$annual_sum,
+       annual_cros = rez$annual_cros)
 
 }

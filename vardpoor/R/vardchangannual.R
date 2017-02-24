@@ -83,7 +83,7 @@ vardchangannual <- function(Y, H, PSU, w_final,
                          years = years, periods = subperiods)
 
   PSU <- check_var(vars = PSU, varn = "PSU", dataset = dataset,
-                   ncol = 1, Yncol = 0, Ynrow = Ynrow,
+                   ncols = 1, Yncol = 0, Ynrow = Ynrow,
                    ischaracter = TRUE, namesID1 = names(ID_level1))
 
   if(!is.null(X)) {
@@ -184,7 +184,7 @@ vardchangannual <- function(Y, H, PSU, w_final,
                                       linratio = !is.null(Z), percentratio = percentratio,
                                       use.estVar = use.estVar, outp_res = outp_res,
                                       confidence = confidence, change_type = "absolute",
-                                      subfunction = FALSE)
+                                      checking = TRUE)
 
                  crossectional_results <- datas$crossectional_results
                  crossectional_results <- merge(sarak, crossectional_results, all.y = TRUE, by = "pers")

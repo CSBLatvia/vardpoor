@@ -48,11 +48,11 @@ vardom <- function(Y, H, PSU, w_final,
 
   H <- check_var(vars = H, varn = "H", dataset = dataset,
                  ncols = 1, Yncol = 0, Ynrow = Ynrow,
-                 isnumeric = FALSE, ascharacter = TRUE)
+                 isnumeric = FALSE, ischaracter = TRUE)
 
   period <- check_var(vars = period, varn = "period",
                         dataset = dataset, Yncol = 0, Ynrow = Ynrow,
-                        ischaracter = TRUE, duplicatednames = TRUE))
+                        ischaracter = TRUE, duplicatednames = TRUE)
   np <- sum(ncol(period))
 
   id <- check_var(vars = id, varn = "id", dataset = dataset,
@@ -60,7 +60,7 @@ vardom <- function(Y, H, PSU, w_final,
                   ischaracter = TRUE, periods = period)
 
   PSU <- check_var(vars = PSU, varn = "PSU", dataset = dataset,
-                   ncol = 1, Yncol = 0, Ynrow = Ynrow,
+                   ncols = 1, Yncol = 0, Ynrow = Ynrow,
                    ischaracter = TRUE, namesID1 = names(id))
 
   Dom <- check_var(vars = Dom, varn = "Dom", dataset = dataset,
@@ -79,7 +79,7 @@ vardom <- function(Y, H, PSU, w_final,
 
   PSU_sort <- check_var(vars = PSU_sort, varn = "PSU_sort", dataset = dataset,
                         ncols = 1, Yncol = 0, Ynrow = Ynrow, ischaracter = TRUE,
-                        isvector = TRUE, mustdefined = FALSE)
+                        isvector = TRUE, mustbedefined = FALSE)
 
 
   if (!is.null(X)) {
@@ -90,9 +90,9 @@ vardom <- function(Y, H, PSU, w_final,
          Xnrow <- nrow(X)
 
          ind_gr <- check_var(vars = ind_gr, varn = "ind_gr",
-                             dataset = datasetX, ncols = 1,
+                             dataset = dataset, ncols = 1,
                              Yncol = 0, Ynrow = 0, Xnrow = Xnrow,
-                             ischaracter = TRUE, dif_name = c(names(period), names(country)))
+                             ischaracter = TRUE, dif_name = c(names(period)))
 
          g <- check_var(vars = g, varn = "g", dataset = dataset,
                         ncols = 1, Yncol = 0, Ynrow = 0, Xnrow = Xnrow,

@@ -6,7 +6,7 @@
 
 \description{Computes the estimation residuals of calibration.}
 
-\usage{residual_est(Y, X, weight, q)}
+\usage{residual_est(Y, X, weight, q, dataset = NULL)}
 
 \arguments{
 
@@ -17,6 +17,8 @@
 \item{weight}{Weight variable. One dimensional object convertible to one-column \code{data.frame}.}
 
 \item{q}{Variable of the positive values accounting for heteroscedasticity. One dimensional object convertible to one-column \code{data.frame}.}
+
+\item{dataset}{Optional survey data object convertible to \code{data.table}.}
 }
 
 \value{

@@ -1,4 +1,39 @@
 
+namesD <- function(Y, D) {
+  Dom_agg <- unique(D)
+  h <- vector(mode = "character", length = nrow(Dom_agg))
+  for (i in 1:nrow(Dom_agg)) {
+    cc <- paste(names(D), Dom_agg[i, ], sep = ".")
+    h[i] <- paste(cc, collapse = "__")
+  }
+  foreach(i = 1 : ncol(Y), .combine = c) %do% paste(names(Y)[i], h, sep="__")
+}
+
+
+domain <- function(Y, D, dataset = NULL) {
+  Y <- check_var(vars = Y, varn = "Y", dataset = dataset, check.names = TRUE,
+                 ncols = 0, Yncol = 0, Ynrow = 0, isnumeric = TRUE, grepls = "__")
+  Ynrow <- nrow(Y)
+  D <- check_var(vars = D, varn = "Dom", dataset = dataset, check.names = TRUE,
+                 ncols = 0, Yncol = 0, Ynrow = Ynrow, isnumeric = FALSE,
+                 ischaracter = TRUE, dif_name = "percoun", grepls = "__")
+
+  Dom_agg <- unique(D)
+  setkeyv(Dom_agg, names(Dom_agg))
+  i <- k <- NULL
+  domen <- foreach(i = 1 : ncol(Y), .combine = data.table) %:%
+    foreach(k = 1:nrow(Dom_agg), .combine = data.table) %do%
+    ifelse(rowSums(D == Dom_agg[k, ][rep(1, Ynrow), ]) == ncol(D), Y[[i]], 0)
+
+  if (!is.data.table(domen)) domen <- data.table(domen)
+
+  setnames(domen, names(domain), namesD(Y, D))
+  domen <- data.table(domen, check.names = TRUE)
+  return(domen)
+}
+
+
+
 check_var <- function(vars, varn, dataset, check.names = FALSE,
                       ncols = NULL, Yncol = 0, Ynrow = 0, Xnrow = 0,
                       isnumeric = FALSE, ischaracter = FALSE,
@@ -10,6 +45,7 @@ check_var <- function(vars, varn, dataset, check.names = FALSE,
                       yearsX = NULL, periods = NULL, periodsX = NULL,
                       ID_level1 = NULL){
 
+  N <- NULL
   if (varn %in%  c("g", "q") & (is.null(class(vars)) | any(class(vars) == "function"))) stop("'g' must be numeric", call. = FALSE)
   if (is.null(vars)) {
     if (Xnrow > 0 & varn %in% c("q", "ind_gr", "id")) { vars <- rep(1, Xnrow)
@@ -25,6 +61,9 @@ check_var <- function(vars, varn, dataset, check.names = FALSE,
         if (min(vars %in% names(dataset)) == 1)  vars <- dataset[, vars, with = FALSE]}
 
       vars <- data.table(vars, check.names = check.names)
+      mkvars <- make.names(rep(vars, length(vars)), unique = TRUE)
+      mkvarn <- make.names(rep(varn, length(vars)), unique = TRUE)
+      if (names(vars) == mkvars) setnames(vars, mkvars, mkvarn)
       if (ischaracter) vars[, (names(vars)) := lapply(.SD, as.character)]
       if (anyNA(vars)) stop(paste0("'", varn, "' has missing values"), call. = FALSE)
       if (Ynrow > 0) if (nrow(vars) != Ynrow) stop(paste0("'", varn, "' length must be equal with 'Y' row count"), call. = FALSE)
@@ -65,7 +104,7 @@ check_var <- function(vars, varn, dataset, check.names = FALSE,
                                stop(paste0("'", varn, "' row must be exist in 'years'"), call. = FALSE)}
 
       if (varn %in% c("period1", "period2")) {
-        setnames(vars, names(vars), names(period))
+        setnames(vars, names(vars), names(periods))
         if (anyNA(merge(vars, periods, all.x = TRUE,
                         by = names(periods), allow.cartesian = TRUE)))
                               stop(paste0("'", varn, "' row must be exist in 'period'"), call. = FALSE)}
@@ -124,43 +163,5 @@ check_var <- function(vars, varn, dataset, check.names = FALSE,
 
     return(vars[])
 }
-
-
-namesD <- function(Y, D) {
-  Dom_agg <- unique(D)
-  h <- vector(mode = "character", length = nrow(Dom_agg))
-  for (i in 1:nrow(Dom_agg)) {
-    cc <- paste(names(D), Dom_agg[i, ], sep = ".")
-    h[i] <- paste(cc, collapse = "__")
-  }
-  foreach(i = 1 : ncol(Y), .combine = c) %do% paste(names(Y)[i], h, sep="__")
-}
-
-
-domain <- function(Y, D, dataset = NULL) {
-  Y <- check_var(vars = Y, varn = "Y", dataset = dataset, check.names = TRUE,
-                 ncols = 0, Yncol = 0, Ynrow = 0, isnumeric = TRUE, grepls = "__")
-  Ynrow <- nrow(Y)
-  D <- check_var(vars = D, varn = "Dom", dataset = dataset, check.names = TRUE,
-                 ncols = 0, Yncol = 0, Ynrow = Ynrow, isnumeric = FALSE,
-                 ischaracter = TRUE, dif_name = "percoun", grepls = "__")
-
-  Dom_agg <- unique(D)
-  setkeyv(Dom_agg, names(Dom_agg))
-
-  i <- k <- NULL
-  domen <- foreach(i = 1 : ncol(Y), .combine = data.table) %:%
-    foreach(k = 1:nrow(Dom_agg), .combine = data.table) %do%
-    ifelse(rowSums(D == Dom_agg[k, ][rep(1, n), ]) == ncol(D), Y[[i]], 0)
-
-  if (!is.data.table(domen)) domen <- data.table(domen)
-
-  setnames(domen, names(Y), namesD(Y, D))
-  domen <- data.table(domen, check.names = TRUE)
-  return(domen)
-}
-
-
-
 
 

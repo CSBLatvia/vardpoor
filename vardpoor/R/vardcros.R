@@ -91,7 +91,7 @@ vardcros <- function(Y, H, PSU, w_final,
                            periods = period)
 
     PSU <- check_var(vars = PSU, varn = "PSU", dataset = dataset,
-                     ncol = 1, Yncol = 0, Ynrow = Ynrow,
+                     ncols = 1, Yncol = 0, Ynrow = Ynrow,
                      ischaracter = TRUE, namesID1 = names(ID_level1))
 
 
@@ -285,7 +285,7 @@ vardcros <- function(Y, H, PSU, w_final,
          res <- rbindlist(res)
          setnames(res, namesY2, namesY2w)
          DTc <- merge(DTc, res, by = nos)
-         if (outp_res) res_outp <- DTc[, c(names(ID_level1h), names_PSU, "w_final", namesY2w), with = FALSE]
+         if (outp_res) res_outp <- DTc[, c(nos, names_PSU, "w_final", namesY2w), with = FALSE]
      } else DTc[, (namesY2w) := .SD[, namesY2, with = FALSE]]
 
 

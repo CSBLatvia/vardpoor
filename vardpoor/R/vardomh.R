@@ -35,6 +35,12 @@ vardomh <- function(Y, H, PSU, w_final,
     if (is.null(datasetX)) datasetX <- copy(dataset)
     if (identical(dataset, datasetX) & !is.null(dataset)) X_ID_level1 <- ID_level1 }
 
+  Y <- check_var(vars = Y, varn = "Y", dataset = dataset,
+                 check.names = TRUE, ncols = 0, Yncol = 0,
+                 Ynrow = 0, isnumeric = TRUE, grepls = "__")
+  Ynrow <- nrow(Y)
+  Yncol <- ncol(Y)
+
   H <- check_var(vars = H, varn = "H", dataset = dataset,
                  ncols = 1, Yncol = 0, Ynrow = Ynrow,
                  ischaracter = TRUE, dif_name = "dataH_stratas")
@@ -51,11 +57,6 @@ vardomh <- function(Y, H, PSU, w_final,
                    ncols = 0, Yncol = 0, Ynrow = Ynrow,
                    ischaracter = TRUE, mustbedefined = FALSE,
                    duplicatednames = TRUE, grepls = "__")
-
-  country <- check_var(vars = country, varn = "country",
-                       dataset = dataset, ncols = 1, Yncol = 0,
-                       Ynrow = Ynrow, ischaracter = TRUE,
-                       mustbedefined = FALSE, dif_name = c("percoun", "period_country"))
 
   period <- check_var(vars = period, varn = "period",
                       dataset = dataset, Ynrow = Ynrow,

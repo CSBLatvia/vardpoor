@@ -126,10 +126,10 @@ varpoord <- function(Y, w_final,
                          dataset = dataset, ncols = 1,
                          Ynrow = Ynrow, ischaracter = TRUE)
 
-  ID_level12 <- check_var(vars = ID_level2, varn = "ID_level2",
-                          dataset = dataset, ncols = 1, Yncol = 0,
-                          Ynrow = Ynrow, ischaracter = TRUE,
-                          namesID1 = names(ID_level1), periods = period)
+  ID_level2 <- check_var(vars = ID_level2, varn = "ID_level2",
+                         dataset = dataset, ncols = 1, Yncol = 0,
+                         Ynrow = Ynrow, ischaracter = TRUE,
+                         namesID1 = names(ID_level1), periods = period)
 
   PSU <- check_var(vars = PSU, varn = "PSU", dataset = dataset,
                    ncols = 1, Yncol = 0, Ynrow = Ynrow,

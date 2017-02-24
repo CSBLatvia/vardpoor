@@ -14,7 +14,8 @@ Estimation of gender pay (wage) gap and computation of linearized variables for 
 lingpg(Y, gender = NULL, id = NULL, 
        weight = NULL, sort = NULL, Dom = NULL,
        period = NULL, dataset = NULL,
-       var_name = "lin_gpg")
+       var_name = "lin_gpg",
+       checking = TRUE)
 }
 
 
@@ -37,6 +38,8 @@ lingpg(Y, gender = NULL, id = NULL,
 \item{dataset}{Optional survey data object convertible to \code{data.table}.}
 
 \item{var_name}{A character specifying the name of the linearized variable.}
+
+\item{checking}{Optional variable if this variable is TRUE, then function checks data preparation errors, otherwise not checked. This variable by default is TRUE.}
 
 }
 

@@ -6,7 +6,7 @@
 
 \description{Computes the estimation residuals of calibration.}
 
-\usage{residual_est(Y, X, weight, q, dataset = NULL)}
+\usage{residual_est(Y, X, weight, q, dataset = NULL, checking = TRUE)}
 
 \arguments{
 
@@ -19,6 +19,8 @@
 \item{q}{Variable of the positive values accounting for heteroscedasticity. One dimensional object convertible to one-column \code{data.frame}.}
 
 \item{dataset}{Optional survey data object convertible to \code{data.table}.}
+
+\item{checking}{Optional variable if this variable is TRUE, then function checks data preparation errors, otherwise not checked. This variable by default is TRUE.}
 }
 
 \value{

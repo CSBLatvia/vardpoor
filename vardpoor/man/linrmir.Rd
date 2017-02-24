@@ -17,7 +17,8 @@ linrmir(Y, id = NULL, age,
   period = NULL,
   dataset = NULL,
   order_quant = 50,
-  var_name = "lin_rmir")
+  var_name = "lin_rmir",
+  checking = TRUE)
 }
 
 
@@ -43,6 +44,8 @@ linrmir(Y, id = NULL, age,
 For example, to compute the relative median income ratio to some percentage of median income, \eqn{\alpha} should be set equal to 50.}
 
 \item{var_name}{A character specifying the name of the linearized variable.}
+
+\item{checking}{Optional variable if this variable is TRUE, then function checks data preparation errors, otherwise not checked. This variable by default is TRUE.}
 
 }
 

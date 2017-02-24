@@ -6,7 +6,7 @@
 
 \description{Computes linearized variable for the ratio estimator.}
 
-\usage{lin.ratio(Y, Z, weight, Dom = NULL, percentratio = 1)}
+\usage{lin.ratio(Y, Z, weight, Dom = NULL, dataset = NULL, percentratio = 1, checking = TRUE)}
 
 \arguments{
 
@@ -18,8 +18,11 @@
 
 \item{Dom}{Optional variables used to define population domains. If supplied, the linearized variables are computed for each domain. An object convertible to \code{data.table}.}
 
+\item{dataset}{Optional survey data object convertible to \code{data.table}.}
+
 \item{percentratio}{Positive integer value. All linearized variables are multiplied with percentratio value, by default - 1.}
 
+\item{checking}{Optional variable if this variable is TRUE, then function checks data preparation errors, otherwise not checked. This variable by default is TRUE.}
 }
 
 \value{The function returns the \code{data.table} of the linearized variables for the ratio estimator.}

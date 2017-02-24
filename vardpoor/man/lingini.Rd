@@ -11,7 +11,8 @@
 \usage{
   lingini(Y, id = NULL, weight = NULL,
           sort = NULL, Dom = NULL, period = NULL,
-          dataset = NULL, var_name = "lin_gini")
+          dataset = NULL, var_name = "lin_gini",
+          checking = TRUE)
 }
 
 \arguments{
@@ -31,6 +32,8 @@
   \item{dataset}{Optional survey data object convertible to \code{data.table}.}
 
   \item{var_name}{A character specifying the name of the linearized variable.}
+
+  \item{checking}{Optional variable if this variable is TRUE, then function checks data preparation errors, otherwise not checked. This variable by default is TRUE.}
 }
 
 \value{

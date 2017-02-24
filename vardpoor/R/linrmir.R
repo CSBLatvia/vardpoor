@@ -1,9 +1,9 @@
 #******************************************************************************************
 #******************************************************************************************
 #******************************************************************************************
-#                                                                                
-#                                                                                
-#                       LINEARIZATION OF THE RELATIVE MEDIAN INCOME RATIO     
+#
+#
+#                       LINEARIZATION OF THE RELATIVE MEDIAN INCOME RATIO
 #
 #
 #******************************************************************************************
@@ -13,8 +13,8 @@
 linrmir <- function(Y, id = NULL, age, weight = NULL,
                     sort = NULL, Dom = NULL, period = NULL,
                     dataset = NULL, order_quant = 50,
-                    var_name = "lin_rmir") {
- 
+                    var_name = "lin_rmir", checking = TRUE) {
+
    ## initializations
    if (min(dim(data.table(var_name)) == 1) != 1) {
        stop("'var_name' must have defined one name of the linearized variable")}
@@ -24,151 +24,92 @@ linrmir <- function(Y, id = NULL, age, weight = NULL,
    if(length(oq) != 1 | any(!is.numeric(oq) | oq < 0 | oq > 100)) {
           stop("'order_quant' must be a numeric value in [0, 100]") }
 
-   if(!is.null(dataset)) {
-       dataset <- data.table(dataset)
-       if (checker(Y, dataset, "Y"))  Y <- dataset[, Y, with = FALSE] 
+   if (checking) {
+          Y <- check_var(vars = Y, varn = "Y", dataset = dataset,
+                         ncols = 1, isnumeric = TRUE,
+                         isvector = TRUE, grepls = "__")
+          Ynrow <- length(Y)
 
-       if(!is.null(id)) {
-          if (checker(id, dataset, "id")) id <- dataset[, id, with = FALSE] }
+          age <- check_var(vars = age, varn = "age",
+                           dataset = dataset, ncols = 1,
+                           Ynrow = Ynrow, isnumeric = TRUE,
+                           isvector = TRUE)
 
-       if(!is.null(age)) {
-           if (checker(age, dataset, "age")) age <- dataset[, age, with = FALSE] }
+          weight <- check_var(vars = weight, varn = "weight",
+                              dataset = dataset, ncols = 1,
+                              Ynrow = Ynrow, isnumeric = TRUE,
+                              isvector = TRUE)
 
-       if(!is.null(weight)) {
-           if (checker(weight, dataset, "weight")) weight <- dataset[, weight, with = FALSE] }
+          sort <- check_var(vars = sort, varn = "sort",
+                            dataset = dataset, ncols = 1,
+                            Ynrow = Ynrow, mustbedefined = FALSE,
+                            isnumeric = TRUE, isvector = TRUE)
 
-       if(!is.null(sort)) {
-           if (checker(sort, dataset, "sort")) sort <- dataset[, sort, with = FALSE] }
+          period <- check_var(vars = period, varn = "period",
+                              dataset = dataset, Ynrow = Ynrow,
+                              ischaracter = TRUE, mustbedefined = FALSE,
+                              duplicatednames = TRUE)
 
-       if (!is.null(period)) {
-            if (min(period %in% names(dataset)) != 1) stop("'period' does not exist in 'dataset'!")
-            if (min(period %in% names(dataset)) == 1) period <- dataset[, period, with = FALSE] }
+          Dom <- check_var(vars = Dom, varn = "Dom", dataset = dataset,
+                           Ynrow = Ynrow, ischaracter = TRUE,
+                           mustbedefined = FALSE, duplicatednames = TRUE,
+                           grepls = "__")
 
-       if (!is.null(Dom)) {
-            if (checker(Dom, dataset, "Dom")) Dom <- dataset[, Dom, with = FALSE] }
+          id <- check_var(vars = id, varn = "id", dataset = dataset,
+                          ncols = 1, Ynrow = Ynrow, ischaracter = TRUE,
+                          periods = period)
       }
 
-   # check vectors
-   # Y
-   Y <- data.frame(Y)
-   n <- nrow(Y)
-   if (anyNA(Y)) stop("'Y' has missing values")
-   if (ncol(Y) != 1) stop("'Y' must be a vector or 1 column data.frame, matrix, data.table")
-   Y <- Y[, 1]
-   if(!is.numeric(Y)) stop("'Y' must be numeric")
 
-   # weight
-   weight <- data.frame(weight)
-   if (anyNA(weight)) stop("'weight' has missing values")
-   if (nrow(weight) != n) stop("'weight' must be the same length as 'Y'")
-   if (ncol(weight) != 1) stop("'weight' must be a vector or 1 column data.frame, matrix, data.table")
-   weight <- weight[, 1]
-   if (!is.numeric(weight)) stop("'weight' must be numerical")
-   
-   # age
-   if (is.null(age)) stop("'age' must be numeric")
-   age <- data.frame(age)
-   if (anyNA(age)) stop("'age' has missing values")
-   if (nrow(age) != n) stop("'age' must be the same length as 'Y'")
-   if (ncol(age) != 1) stop("'age' must be a vector or 1 column data.frame, matrix, data.table")
-   age <- age[, 1]
-   if (!is.numeric(age)) stop("'age' must be numeric")
-   
-   # sort
-   if (!is.null(sort)) {
-        sort <- data.frame(sort)
-        if (anyNA(sort)) stop("'sort' has missing values")
-        if (length(sort) != n) stop("'sort' must have the same length as 'Y'")
-        if (ncol(sort) != 1) stop("'sort' must be vector or 1 column data.frame, matrix, data.table")
-        sort <- sort[, 1]
-   }
+  ## computations
+  ind0 <- rep.int(1, length(Y))
+  period_agg <- period1 <- NULL
+  if (!is.null(period)) { period1 <- copy(period)
+                          period_agg <- data.table(unique(period))
+                      } else period1 <- data.table(ind=ind0)
+  period1_agg <- data.table(unique(period1))
 
-   # period     
-   if (!is.null(period)) {
-       period <- data.table(period)
-       if (any(duplicated(names(period)))) 
-                 stop("'period' are duplicate column names: ", 
-                      paste(names(period)[duplicated(names(period))], collapse = ","))
-       if (nrow(period) != n) stop("'period' must be the same length as 'Y'")
-       period[, (names(period)) := lapply(.SD, as.character)]
-       if(anyNA(period)) stop("'period' has missing values")
-   }   
-   
-   # id
-   if (is.null(id)) id <- 1 : n
-   id <- data.table(id)
-   if (any(is.na(id))) stop("'id' has missing values")
-   if (ncol(id) != 1) stop("'id' must be 1 column data.frame, matrix, data.table")
-   if (nrow(id) != n) stop("'id' must be the same length as 'Y'")
-   if (names(id) == "id") setnames(id, names(id), "ID")
-   if (is.null(period)){ if (any(duplicated(id))) stop("'id' are duplicate values") 
-                       } else {
-                          id1 <- data.table(period, id)
-                          if (any(duplicated(id1))) stop("'id' by period are duplicate values")
-                         }
+  # RMIR by domain (if requested)
+  age_under_65s <- data.table(age_under_65s = as.integer(age < 65))
+  if (!is.null(Dom)) age_under_65s <- data.table(age_under_65s, Dom)
 
-   # Dom     
-   if (!is.null(Dom)) {
-             Dom <- data.table(Dom)
-             if (any(duplicated(names(Dom)))) 
-                 stop("'Dom' are duplicate column names: ", 
-                      paste(names(Dom)[duplicated(names(Dom))], collapse = ","))
-             if (nrow(Dom) != n) stop("'Dom' must be the same length as 'Y'")
-             Dom[, (names(Dom)) := lapply(.SD, as.character)]
-             if (anyNA(Dom)) stop("'Dom' has missing values")
-             if (any(grepl("__", names(Dom)))) stop("'Dom' is not allowed column names with '__'")
-       }
-
-    ## computations
-    ind0 <- rep.int(1, n)
-    period_agg <- period1 <- NULL
-    if (!is.null(period)) { period1 <- copy(period)
-                            period_agg <- data.table(unique(period))
-                        } else period1 <- data.table(ind=ind0)
-    period1_agg <- data.table(unique(period1))
-
-    # RMIR by domain (if requested)
-    age_under_65s <- data.table(age_under_65s = as.integer(age < 65))
-    if (!is.null(Dom)) age_under_65s <- data.table(age_under_65s, Dom)
-
-    quantile <- incPercentile(Y = Y,
-                              weights = weight,
-                              sort = sort,
-                              Dom = age_under_65s,
-                              period = period,
-                              k = order_quant,
-                              dataset = NULL)
-    quantile <- data.table(quantile)
-    quantile_under_65 <- quantile[age_under_65s == 1][, age_under_65s := NULL]
-    quantile_over_65 <- quantile[age_under_65s == 0][, age_under_65s := NULL]
-    setnames(quantile_under_65, names(quantile_under_65)[ncol(quantile_under_65)], "quantile_under_65")
-    setnames(quantile_over_65, names(quantile_over_65)[ncol(quantile_over_65)], "quantile_over_65")
-    sk <- length(names(quantile_under_65)) - 1
-    if (sk > 0) {
+  quantile <- incPercentile(Y = Y,
+                            weights = weight,
+                            sort = sort,
+                            Dom = age_under_65s,
+                            period = period,
+                            k = order_quant,
+                            dataset = NULL,
+                            checking = TRUE)
+  quantile_under_65 <- quantile[age_under_65s == 1][, age_under_65s := NULL]
+  quantile_over_65 <- quantile[age_under_65s == 0][, age_under_65s := NULL]
+  setnames(quantile_under_65, names(quantile_under_65)[ncol(quantile_under_65)], "quantile_under_65")
+  setnames(quantile_over_65, names(quantile_over_65)[ncol(quantile_over_65)], "quantile_over_65")
+  sk <- length(names(quantile_under_65)) - 1
+  if (sk > 0) {
                setkeyv(quantile_under_65, names(quantile_under_65)[1 : sk])
                setkeyv(quantile_over_65, names(quantile_over_65)[1 : sk])
                quantile <- merge(quantile_under_65, quantile_over_65, all = TRUE)
         } else quantile <- data.table(quantile_under_65, quantile_over_65)
-  
-    rmir_id <- id
-    age_under_65s <- age_under_65s[["age_under_65s"]]
-    if (!is.null(period)) rmir_id <- data.table(rmir_id, period)
+
+  rmir_id <- id
+  age_under_65s <- age_under_65s[["age_under_65s"]]
+  if (!is.null(period)) rmir_id <- data.table(rmir_id, period)
 
   if (!is.null(Dom)) {
-        Dom_agg <- data.table(unique(Dom))
-        setkeyv(Dom_agg, names(Dom_agg))
-          
-        rmir_v <- c()
-        rmir_m <- copy(rmir_id)
-        for(i in 1:nrow(Dom_agg)) {
+       Dom_agg <- data.table(unique(Dom))
+       setkeyv(Dom_agg, names(Dom_agg))
 
-              g <- c(var_name, paste(names(Dom), as.matrix(Dom_agg[i,]), sep = "."))
-              var_nams <- do.call(paste, as.list(c(g, sep = "__")))
-              ind <- as.integer(rowSums(Dom  ==  Dom_agg[i,][ind0,])  ==  ncol(Dom))
+       rmir_v <- c()
+       rmir_m <- copy(rmir_id)
 
-              rmirl <- lapply(1 : nrow(period1_agg), function(j) {
+       for(i in 1:nrow(Dom_agg)) {
+             g <- c(var_name, paste(names(Dom), as.matrix(Dom_agg[i,]), sep = "."))
+             var_nams <- do.call(paste, as.list(c(g, sep = "__")))
+             ind <- as.integer(rowSums(Dom  ==  Dom_agg[i,][ind0,])  ==  ncol(Dom))
 
-                               if (!is.null(period)) { 
+             rmirl <- lapply(1 : nrow(period1_agg), function(j) {
+                               if (!is.null(period)) {
                                        rown <- cbind(period_agg[j], Dom_agg[i])
                                        setkeyv(rown, names(rown))
                                        rown2 <- copy(rown)
@@ -176,34 +117,34 @@ linrmir <- function(Y, id = NULL, age, weight = NULL,
                                      } else {rown <- quantile[i]
                                              rown2 <- Dom_agg[i] }
 
-                               indj <- (rowSums(period1  ==  period1_agg[j,][ind0,])  ==  ncol(period1))
+                                indj <- (rowSums(period1  ==  period1_agg[j,][ind0,])  ==  ncol(period1))
 
-                               rmir_l <- rmirlinCalc(Y1 = Y[indj],
-                                                     ids = rmir_id[indj],
-                                                     wght = weight[indj],
-                                                     indicator = ind[indj],
-                                                     order_quants = order_quant,
-                                                     age_under_65 = age_under_65s[indj],
-                                                     quant_under_65 = rown[["quantile_under_65"]],
-                                                     quant_over_65 = rown[["quantile_over_65"]])
+                                rmir_l <- rmirlinCalc(Y1 = Y[indj],
+                                                      ids = rmir_id[indj],
+                                                      wght = weight[indj],
+                                                      indicator = ind[indj],
+                                                      order_quants = order_quant,
+                                                      age_under_65 = age_under_65s[indj],
+                                                      quant_under_65 = rown[["quantile_under_65"]],
+                                                      quant_over_65 = rown[["quantile_over_65"]])
 
-                      list(rmir = data.table(rown2, rmir = rmir_l$rmir_val), lin = rmir_l$lin)
-                      })
-                 rmirs <- rbindlist(lapply(rmirl, function(x) x[[1]]))
-                 rmirlin <- rbindlist(lapply(rmirl, function(x) x[[2]]))
+                                list(rmir = data.table(rown2, rmir = rmir_l$rmir_val), lin = rmir_l$lin)
+                            })
+             rmirs <- rbindlist(lapply(rmirl, function(x) x[[1]]))
+             rmirlin <- rbindlist(lapply(rmirl, function(x) x[[2]]))
 
-                 setnames(rmirlin, names(rmirlin), c(names(rmir_id), var_nams))
-                 rmir_m <- merge(rmir_m, rmirlin, all.x = TRUE, by = names(rmir_id))
-                 rmir_v <- rbind(rmir_v, rmirs) 
-           }
+             setnames(rmirlin, names(rmirlin), c(names(rmir_id), var_nams))
+             rmir_m <- merge(rmir_m, rmirlin, all.x = TRUE, by = names(rmir_id))
+             rmir_v <- rbind(rmir_v, rmirs)
+         }
      } else { rmirl <- lapply(1:nrow(period1_agg), function(j) {
-                           if (!is.null(period)) { 
+                           if (!is.null(period)) {
                                          rown <- period_agg[j]
                                          rown <- merge(rown, quantile, all.x = TRUE,
                                                         by = names(rown))
                                        } else rown <- quantile
                            ind2 <- (rowSums(period1  ==  period1_agg[j,][ind0,])  ==  ncol(period1))
-      
+
                            rmir_l <- rmirlinCalc(Y1 = Y[ind2],
                                                  ids = rmir_id[ind2],
                                                  wght = weight[ind2],
@@ -212,7 +153,7 @@ linrmir <- function(Y, id = NULL, age, weight = NULL,
                                                  age_under_65 = age_under_65s[ind2],
                                                  quant_under_65 = rown[["quantile_under_65"]],
                                                  quant_over_65 = rown[["quantile_over_65"]])
-                          if (!is.null(period)) { 
+                          if (!is.null(period)) {
                                    rmirs <- data.table(period_agg[j], rmir = rmir_l$rmir_val)
                              } else rmirs <- data.table(rmir = rmir_l$rmir_val)
                           list(rmir = rmirs, lin = rmir_l$lin)
@@ -220,13 +161,11 @@ linrmir <- function(Y, id = NULL, age, weight = NULL,
                rmir_v <- rbindlist(lapply(rmirl, function(x) x[[1]]))
                rmir_m <- rbindlist(lapply(rmirl, function(x) x[[2]]))
                setnames(rmir_m, names(rmir_m), c(names(rmir_id), var_name))
-            } 
-     rmir_m[is.na(rmir_m)] <- 0
-     setkeyv(rmir_m, names(rmir_id))
-     return(list(value = rmir_v, lin = rmir_m))
+            }
+   rmir_m[is.na(rmir_m)] <- 0
+   setkeyv(rmir_m, names(rmir_id))
+   return(list(value = rmir_v, lin = rmir_m))
 }
-
-
 
 
 
@@ -235,16 +174,16 @@ rmirlinCalc <- function(Y1, ids, wght, indicator, order_quants, age_under_65, qu
 
     dom1 <- (age_under_65 == 1) * indicator
     dom2 <- (age_under_65 == 0) * indicator
- 
+
    # Size of the domains
-    N1 <- sum(wght * dom1)   
-    N2 <- sum(wght * dom2) 
-				
+    N1 <- sum(wght * dom1)
+    N2 <- sum(wght * dom2)
+
     rmir_val <- quant_over_65 / quant_under_65  # Estimated relative median income ratio
 
-    # Bandwith parameter - h=S/N^(1/5) (calculated over the whole population) 
+    # Bandwith parameter - h=S/N^(1/5) (calculated over the whole population)
 
-    h <- sqrt((sum(wght * Y1 * Y1) - sum(wght * Y1) * sum(wght * Y1) / sum(wght)) / sum(wght)) / exp(0.2 * log(sum(wght))) 
+    h <- sqrt((sum(wght * Y1 * Y1) - sum(wght * Y1) * sum(wght * Y1) / sum(wght)) / sum(wght)) / exp(0.2 * log(sum(wght)))
 
 
     #---- 1. Linearization of the median income of people aged below 65 ----

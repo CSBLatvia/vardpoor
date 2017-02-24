@@ -35,12 +35,6 @@ vardomh <- function(Y, H, PSU, w_final,
     if (is.null(datasetX)) datasetX <- copy(dataset)
     if (identical(dataset, datasetX) & !is.null(dataset)) X_ID_level1 <- ID_level1 }
 
-  Y <- check_var(vars = Y, varn = "Y", dataset = dataset,
-                 check.names = TRUE, ncols = 0, Yncol = 0,
-                 Ynrow = 0, isnumeric = TRUE, grepls = "__")
-  Ynrow <- nrow(Y)
-  Yncol <- ncol(Y)
-
   H <- check_var(vars = H, varn = "H", dataset = dataset,
                  ncols = 1, Yncol = 0, Ynrow = Ynrow,
                  ischaracter = TRUE, dif_name = "dataH_stratas")
@@ -58,62 +52,63 @@ vardomh <- function(Y, H, PSU, w_final,
                    ischaracter = TRUE, mustbedefined = FALSE,
                    duplicatednames = TRUE, grepls = "__")
 
+  country <- check_var(vars = country, varn = "country",
+                       dataset = dataset, ncols = 1, Yncol = 0,
+                       Ynrow = Ynrow, ischaracter = TRUE,
+                       mustbedefined = FALSE, dif_name = c("percoun", "period_country"))
+
   period <- check_var(vars = period, varn = "period",
-                      dataset = dataset, Yncol = 0, Ynrow = Ynrow,
+                      dataset = dataset, Ynrow = Ynrow,
                       ischaracter = TRUE, duplicatednames = TRUE,
                       mustbedefined = FALSE)
 
   ID_level1 <- check_var(vars = ID_level1, varn = "ID_level1",
-                         dataset = dataset, ncols = 1, Yncol = 0,
+                         dataset = dataset, ncols = 1,
                          Ynrow = Ynrow, ischaracter = TRUE)
 
-  ID_level2 <- check_var(vars = ID_level2, varn = "ID_level2",
-                         dataset = dataset, ncols = 1, Yncol = 0,
-                         Ynrow = Ynrow, ischaracter = TRUE,
-                         namesID1 = names(ID_level1), periods = period)
+  ID_level12 <- check_var(vars = ID_level2, varn = "ID_level2",
+                          dataset = dataset, ncols = 1, Yncol = 0,
+                          Ynrow = Ynrow, ischaracter = TRUE,
+                          namesID1 = names(ID_level1), periods = period)
 
   PSU <- check_var(vars = PSU, varn = "PSU", dataset = dataset,
                    ncols = 1, Yncol = 0, Ynrow = Ynrow,
                    ischaracter = TRUE, namesID1 = names(ID_level1))
 
   PSU_sort <- check_var(vars = PSU_sort, varn = "PSU_sort", dataset = dataset,
-                        ncols = 1, Yncol = 0, Ynrow = Ynrow, ischaracter = TRUE,
-                        isvector = TRUE, mustbedefined = FALSE)
+                        ncols = 1, Ynrow = Ynrow, ischaracter = TRUE,
+                        isvector = TRUE, mustbedefined = FALSE, PSUs = PSU)
 
   if(!is.null(X)) {
-    X <- check_var(vars = X, varn = "X", dataset = datasetX,
-                   check.names = TRUE, ncols = 0, Yncol = 0,
-                   Ynrow = 0, Xnrow = 0, isnumeric = TRUE,
-                   grepls = "__")
-    Xnrow <- nrow(X)
+      X <- check_var(vars = X, varn = "X", dataset = datasetX,
+                     check.names = TRUE, isnumeric = TRUE,
+                     grepls = "__")
+      Xnrow <- nrow(X)
 
-    ind_gr <- check_var(vars = ind_gr, varn = "ind_gr",
-                        dataset = datasetX, ncols = 1,
-                        Yncol = 0, Ynrow = 0, Xnrow = Xnrow,
-                        ischaracter = TRUE, dif_name = names(period))
+     ind_gr <- check_var(vars = ind_gr, varn = "ind_gr",
+                         dataset = datasetX, ncols = 1, Xnrow = Xnrow,
+                         ischaracter = TRUE, dif_name = names(period))
 
-    g <- check_var(vars = g, varn = "g", dataset = datasetX,
-                   ncols = 1, Yncol = 0, Ynrow = 0, Xnrow = Xnrow,
-                   isnumeric = TRUE, isvector = TRUE)
+     g <- check_var(vars = g, varn = "g", dataset = datasetX,
+                    ncols = 1, Xnrow = Xnrow, isnumeric = TRUE,
+                    isvector = TRUE)
 
-    q <- check_var(vars = q, varn = "q", dataset = datasetX,
-                   ncols = 1, Yncol = 0, Ynrow = 0, Xnrow = Xnrow,
-                   isnumeric = TRUE, isvector = TRUE)
+     q <- check_var(vars = q, varn = "q", dataset = datasetX,
+                    ncols = 1, Xnrow = Xnrow, isnumeric = TRUE,
+                    isvector = TRUE)
 
-    periodX <- check_var(vars = periodX, varn = "periodX",
-                         dataset = datasetX, ncols = 1, Yncol = 0,
-                         Xnrow = Xnrow, ischaracter = TRUE,
-                         mustbedefined = !is.null(period),
-                         duplicatednames = TRUE, varnout = "period",
-                         varname = names(period))
+     periodX <- check_var(vars = periodX, varn = "periodX",
+                          dataset = datasetX, ncols = 1, Xnrow = Xnrow,
+                          ischaracter = TRUE, mustbedefined = !is.null(period),
+                          duplicatednames = TRUE, varnout = "period",
+                          varname = names(period))
 
-    X_ID_level1 <- check_var(vars = X_ID_level1, varn = "X_ID_level1",
-                             dataset = datasetX, ncols = 1, Yncol = 0,
-                             Ynrow = 0, Xnrow = Xnrow, ischaracter = TRUE,
-                             varnout = "ID_level1", varname = names(ID_level1),
-                             periods = period, periodsX = periodX,
-                             ID_level1 = ID_level1)
-  }
+     X_ID_level1 <- check_var(vars = X_ID_level1, varn = "X_ID_level1",
+                              dataset = datasetX, ncols = 1, Xnrow = Xnrow,
+                              ischaracter = TRUE, varnout = "ID_level1",
+                              varname = names(ID_level1), periods = period,
+                              periodsX = periodX, ID_level1 = ID_level1)
+   }
   N <- dataset <- datasetX <- NULL
 
 
@@ -199,13 +194,17 @@ vardomh <- function(Y, H, PSU, w_final,
   if (!is.null(Z)) {
      if (!is.null(Dom)) Z1 <- domain(Z, Dom) else Z1 <- Z
      if (is.null(period)) {
-          Y2 <- lin.ratio(Y1, Z1, w_final, Dom = NULL, percentratio = percentratio)
+          Y2 <- lin.ratio(Y1, Z1, w_final, Dom = NULL,
+                          dataset = NULL, percentratio = percentratio,
+                          checking = FALSE)
         } else {
           periodap <- do.call("paste", c(as.list(period), sep="_"))
           lin1 <- lapply(split(Y1[, .I], periodap), function(i)
                          data.table(sar_nr = i,
                               lin.ratio(Y1[i], Z1[i], w_final[i],
-                                        Dom = NULL, percentratio = percentratio)))
+                                        Dom = NULL, dataset = NULL,
+                                        percentratio = percentratio,
+                                        checking = FALSE)))
           Y2 <- rbindlist(lin1)
           setkeyv(Y2, "sar_nr")
           Y2[, sar_nr := NULL]
@@ -294,7 +293,8 @@ vardomh <- function(Y, H, PSU, w_final,
                             residual_est(Y = Y3[i],
                                          X = D1[i, (np + 5) : ncol(D1), with = FALSE],
                                          weight = w_design2[i],
-                                         q = D1[i, np + 3, with = FALSE])))
+                                         q = D1[i, np + 3, with = FALSE],
+                                         checking = FALSE)))
        Y4 <- rbindlist(lin1)
        setkeyv(Y4, "sar_nr")
        Y4[, sar_nr := NULL]

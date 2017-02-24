@@ -12,7 +12,7 @@
 linqsr(Y, id = NULL, weight = NULL,
        sort = NULL, Dom = NULL, period = NULL,
        dataset = NULL, alpha = 20,
-       var_name = "lin_qsr")
+       var_name = "lin_qsr", checking = TRUE)
 }
 
 \arguments{
@@ -34,6 +34,9 @@ linqsr(Y, id = NULL, weight = NULL,
   \item{alpha}{a numeric value in range \eqn{[0,100]} for the order of the Quintile Share Ratio.}
 
   \item{var_name}{A character specifying the name of the linearized variable.}
+
+  \item{checking}{Optional variable if this variable is TRUE, then function checks data preparation errors, otherwise not checked. This variable by default is TRUE.}
+
 }
 
 

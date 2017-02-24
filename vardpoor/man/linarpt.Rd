@@ -12,7 +12,8 @@ Estimates the at-risk-of-poverty threshold (defined as percentage (usualy 60\%) 
 linarpt(Y, id = NULL, weight = NULL, 
         sort = NULL, Dom = NULL, period = NULL,
         dataset = NULL, percentage = 60,
-        order_quant = 50, var_name = "lin_arpt")
+        order_quant = 50, var_name = "lin_arpt",
+        checking = TRUE)
 }
 
 
@@ -41,6 +42,8 @@ For example, to compute poverty threshold equal to 60\% of some income quantile,
 For example, to compute poverty threshold equal to some percentage of median income, \eqn{\alpha} should be set equal to 50.}
 
 \item{var_name}{A character specifying the name of the linearized variable.}
+
+\item{checking}{Optional variable if this variable is TRUE, then function checks data preparation errors, otherwise not checked. This variable by default is TRUE.}
 
 }
 

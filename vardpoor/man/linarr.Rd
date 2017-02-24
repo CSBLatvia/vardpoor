@@ -14,7 +14,7 @@ linarr(Y, Y_den, id = NULL, age, pl085,
        month_at_work, weight = NULL,
        sort = NULL, Dom = NULL, period = NULL,
        dataset = NULL, order_quant = 50,
-       var_name = "lin_arr")
+       var_name = "lin_arr", checking = TRUE)
 }
 
 
@@ -46,6 +46,8 @@ linarr(Y, Y_den, id = NULL, age, pl085,
 For example, to compute at-risk-of-poverty threshold equal to some percentage of median income, \eqn{\alpha} should be set equal to 50.}
 
 \item{var_name}{A character specifying the name of the linearized variable.}
+
+\item{checking}{Optional variable if this variable is TRUE, then function checks data preparation errors, otherwise not checked. This variable by default is TRUE.}
 
 }
 

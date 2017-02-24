@@ -14,7 +14,8 @@ linarpr(Y, id = NULL, weight = NULL,
         Y_thres = NULL, wght_thres = NULL,
         sort = NULL, Dom = NULL, period = NULL,
         dataset = NULL, percentage = 60,
-        order_quant = 50, var_name = "lin_arpr")
+        order_quant = 50, var_name = "lin_arpr",
+        checking = TRUE)
 }
 
 
@@ -47,6 +48,7 @@ For example, to compute at-risk-of-poverty threshold equal to some percentage of
 
 \item{var_name}{A character specifying the name of the linearized variable.}
 
+\item{checking}{Optional variable if this variable is TRUE, then function checks data preparation errors, otherwise not checked. This variable by default is TRUE.}
 }
 
 

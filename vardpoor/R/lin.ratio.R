@@ -1,31 +1,27 @@
 
-lin.ratio <- function(Y, Z, weight, Dom = NULL, percentratio = 1) {
-  
+lin.ratio <- function(Y, Z, weight, Dom = NULL, dataset = NULL, percentratio = 1, checking = TRUE) {
+
   if (length(percentratio) != 1 | !any(is.integer(percentratio) | percentratio > 0)) stop("'percentratio' must be a positive integer")
- 
-  # Y
-  Y <- data.table(Y, check.names = TRUE) 
-  if (anyNA(Y)) stop("'Y' has missing values")
-  if (!all(sapply(Y, is.numeric))) stop("'Y' must be numeric")
+
+  if (checking) {
+       Y <- check_var(vars = Y, varn = "Y", dataset = dataset,
+                      check.names = TRUE, ncols = 0, Yncol = 0,
+                      Ynrow = 0, isnumeric = TRUE, grepls = "__")
+       Ynrow <- nrow(Y)
+       Yncol <- ncol(Y)
+
+       Z <- check_var(vars = Z, varn = "Z", dataset = dataset, ncols = 0,
+                      check.names = TRUE, Yncol = Yncol, Ynrow = Ynrow,
+                      isnumeric = TRUE, mustbedefined = FALSE)
+
+       weight <- check_var(vars = weight, varn = "weight",
+                           dataset = dataset, ncols = 1, Yncol = 0,
+                           Ynrow = Ynrow, isnumeric = TRUE, isvector = TRUE)
+   }
 
   if (!is.null(Dom)) Yd <- domain(Y, Dom) else Yd <- Y
-
-  # Z
-  Z <- data.table(Z, check.names = TRUE)
-  if (anyNA(Z)) stop("'Z' has missing values")
-  if (nrow(Z)!= nrow(Y)) stop("'Y' and 'Z' have different row count")
-  if (ncol(Z)!= ncol(Y)) stop("'Y' and 'Z' have different column count") 
-  if (!all(sapply(Z, is.numeric))) stop("'Z' must be numeric")
   if (!is.null(Dom)) Zd <- domain(Z, Dom) else Zd <- Z
 
-  # weight
-  weight <- data.frame(weight)
-  if (anyNA(weight)) stop("'weight' has missing values")
-  if (nrow(weight) != nrow(Y)) stop("'weight' length is not equal with 'Y' row count")
-  if (ncol(weight) != 1) stop("'weight' must be a vector or 1 column data frame, data matrix, data table")
-  weight <- weight[, 1]
-  if (!is.numeric(weight)) stop("'weight' must be numeric")
- 
   Y_est <- colSums(Yd * weight)
   Z_est <- colSums(Zd * weight)
   R_est <- Y_est / Z_est

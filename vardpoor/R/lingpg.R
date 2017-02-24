@@ -13,7 +13,8 @@
 lingpg <- function(Y, gender = NULL, id = NULL,
                    weight = NULL, sort = NULL,
                    Dom = NULL, period = NULL,
-                   dataset = NULL, var_name = "lin_gpg") {
+                   dataset = NULL, var_name = "lin_gpg",
+                   checking = TRUE) {
 
    ## initializations
 
@@ -22,152 +23,92 @@ lingpg <- function(Y, gender = NULL, id = NULL,
 
    if (is.null(gender)) stop("'gender' must be supplied")
 
-   if (!is.null(dataset)) {
-        dataset <- data.table(dataset)
-        if (checker(Y, dataset, "Y")) Y <- dataset[, Y, with = FALSE] 
-        if (checker(gender, dataset, "gender")) gender <- dataset[, gender, with = FALSE]  
+   if (checking) {
+          Y <- check_var(vars = Y, varn = "Y", dataset = dataset,
+                         ncols = 1, isnumeric = TRUE,
+                         isvector = TRUE, grepls = "__")
+          Ynrow <- length(Y)
 
-        if (!is.null(id)) {
-              if (checker(id, dataset, "id")) id <- dataset[, id, with = FALSE] }
+          gender <- check_var(vars = gender, varn = "gender",
+                              dataset = dataset, ncols = 1,
+                              Ynrow = Ynrow, isnumeric = TRUE,
+                              isvector = TRUE)
 
-        if (!is.null(weight)) {
-             if (checker(weight, dataset, "weight")) weight <- dataset[, weight, with = FALSE] }
+          weight <- check_var(vars = weight, varn = "weight",
+                              dataset = dataset, ncols = 1,
+                              Ynrow = Ynrow, isnumeric = TRUE,
+                              isvector = TRUE)
 
-        if(!is.null(sort)) {
-            if (checker(sort, dataset, "sort")) sort <- dataset[, sort, with = FALSE] }
+          sort <- check_var(vars = sort, varn = "sort",
+                            dataset = dataset, ncols = 1,
+                            Ynrow = Ynrow, mustbedefined = FALSE,
+                            isnumeric = TRUE, isvector = TRUE)
 
-        if (!is.null(period)) {
-            if (min(period %in% names(dataset)) != 1) stop("'period' does not exist in 'dataset'!")
-            if (min(period %in% names(dataset)) == 1) dataset[, period, with = FALSE] }
+          period <- check_var(vars = period, varn = "period",
+                              dataset = dataset, Ynrow = Ynrow,
+                              ischaracter = TRUE, mustbedefined = FALSE,
+                              duplicatednames = TRUE)
 
-        if (!is.null(Dom)) {
-             if (checker(Dom, dataset, "Dom")) Dom <- dataset[, Dom, with = FALSE]}
-    }
+          Dom <- check_var(vars = Dom, varn = "Dom", dataset = dataset,
+                           Ynrow = Ynrow, ischaracter = TRUE,
+                           mustbedefined = FALSE, duplicatednames = TRUE,
+                           grepls = "__")
 
-   # check vectors
-   # Y
-   Y <- data.frame(Y)
-   n <- nrow(Y)
-   if (anyNA(Y)) stop("'Y' has missing values")
-   if (ncol(Y) != 1) stop("'Y' must be a vector or 1 column data.frame, matrix, data.table")
-   Y <- Y[, 1]
-   if(!is.numeric(Y)) stop("'Y' must be a numeric vector")                   
-
-   # gender
-   if (is.null(gender)) stop("'gender' must be numeric")
-   gender <- data.frame(gender)
-   if (nrow(gender) != n) stop("'gender' must be the same length as 'Y'")
-   if (ncol(gender) != 1) stop("'gender' must be a vector or 1 column data.frame, matrix, data.table")
-   gender <- gender[, 1]
-   if (!is.numeric(gender)) stop("'gender' must be numeric")
-   if (length(unique(gender)) != 2) stop("'gender' must be exactly two values")
-   if (!all(gender %in% 1:2)) stop("'gender' must be value 1 for male, 2 for females")
- 
-   # weight
-   weight <- data.frame(weight)
-   if (anyNA(weight)) stop("'weight' has missing values")
-   if (is.null(weight)) weight <- data.frame(rep.int(1, n))
-   if (nrow(weight) != n) stop("'weight' must be the same length as 'Y'")
-   if (ncol(weight) != 1) stop("'weight' must be a vector or 1 column data.frame, matrix, data.table")
-   weight <- weight[, 1]
-   if (!is.numeric(weight)) stop("'weight' must be a numeric")
- 
-   # sort
-   if (!is.null(sort)) {
-        sort <- data.frame(sort)
-        if (anyNA(sort)) stop("'sort' has missing values")
-        if (length(sort) != n) stop("'sort' must have the same length as 'Y'")
-        if (ncol(sort) != 1) stop("'sort' must be a vector or 1 column data.frame, matrix, data.table")
-        sort <- sort[, 1]
-   }
- 
-  # period     
-   if (!is.null(period)) {
-       period <- data.table(period)
-       if (any(duplicated(names(period)))) 
-                 stop("'period' are duplicate column names: ", 
-                      paste(names(period)[duplicated(names(period))], collapse = ","))
-       if (nrow(period) != n) stop("'period' must be the same length as 'Y'")
-       if (length(unique(gender)) != 2) stop("'gender' must be exactly two values")
-       period[, (names(period)) := lapply(.SD, as.character)]
-       if(anyNA(period)) stop("'period' has missing values")
-   }
-
-   # id
-   if (is.null(id)) id <- 1 : n
-   id <- data.table(id)
-   if (anyNA(id)) stop("'id' has missing values")
-   if (ncol(id) != 1) stop("'id' must be 1 column data.frame, matrix, data.table")
-   if (nrow(id) != n) stop("'id' must be the same length as 'Y'")
-   if (names(id) == "id") setnames(id, names(id), "id")
-   if (is.null(period)){ if (any(duplicated(id))) stop("'id' are duplicate values") 
-                       } else {
-                          id1 <- data.table(period, id)
-                          if (any(duplicated(id1))) stop("'id' by period are duplicate values")
-                         }
-
-   # Dom
-   if (!is.null(Dom)) {
-             Dom <- data.table(Dom)
-             if (any(duplicated(names(Dom))))
-                 stop("'Dom' are duplicate column names: ",
-                      paste(names(Dom)[duplicated(names(Dom))], collapse = ","))
-             if (nrow(Dom) != n) stop("'Dom' must be the same length as 'Y'")
-             Dom[, (names(Dom)) := lapply(.SD, as.character)]
-             if (anyNA(Dom)) stop("'Dom' has missing values")
-             if (any(grepl("__", names(Dom)))) stop("'Dom' is not allowed column names with '__'")
-       }
+          id <- check_var(vars = id, varn = "id", dataset = dataset,
+                          ncols = 1, Ynrow = Ynrow, ischaracter = TRUE,
+                          periods = period)
+     }
 
 
-   ## computations
-   ind0 <- rep.int(1, n)
-   period_agg <- period1 <- NULL
-   if (!is.null(period)) { period1 <- copy(period)
-                           period_agg <- data.table(unique(period))
-                       } else period1 <- data.table(ind = ind0)
-   period1_agg <- data.table(unique(period1))
+  ## computations
+  ind0 <- rep.int(1, length(Y))
+  period_agg <- period1 <- NULL
+  if (!is.null(period)) { period1 <- copy(period)
+                          period_agg <- data.table(unique(period))
+                      } else period1 <- data.table(ind = ind0)
+  period1_agg <- data.table(unique(period1))
 
-   # GPG by domain (if requested)
-   gpg_id <- id
-   if (!is.null(period)) gpg_id <- data.table(gpg_id, period)
+  # GPG by domain (if requested)
+  gpg_id <- id
+  if (!is.null(period)) gpg_id <- data.table(gpg_id, period)
 
-   if(!is.null(Dom)) {
-        Dom_agg <- data.table(unique(Dom))
-        setkeyv(Dom_agg, names(Dom_agg))
+  if(!is.null(Dom)) {
+       Dom_agg <- data.table(unique(Dom))
+       setkeyv(Dom_agg, names(Dom_agg))
 
-        gpg_v <- c()
-        gpg_m <- copy(gpg_id)
+       gpg_v <- c()
+       gpg_m <- copy(gpg_id)
 
-        for(i in 1 : nrow(Dom_agg)) {
-            g <- c(var_name, paste(names(Dom), as.matrix(Dom_agg[i,]), sep = "."))
-            var_nams <- do.call(paste, as.list(c(g, sep = "__")))
-            indi <- (rowSums(Dom  ==  Dom_agg[i,][ind0,]) == ncol(Dom))
-            
-            gpg_l <- lapply(1 : nrow(period1_agg), function(j) {
-                 indj <- ((rowSums(period1 == period1_agg[j,][ind0,])  ==  ncol(period1))&(indi))
-                 if (!is.null(period)) { rown <- cbind(period_agg[j], Dom_agg[i])
-                                     } else rown <- Dom_agg[i]
-                 gpgl <- linGapCalc(x = Y[indj], gend = gender[indj],
-                                    ids = gpg_id[indj], weights = weight[indj],
-                                    sort = sort[indj])
-                 list(data.table(rown, gpg = gpgl$gpg_pr), gpgl$lin)
-              })
+       for(i in 1 : nrow(Dom_agg)) {
+           g <- c(var_name, paste(names(Dom), as.matrix(Dom_agg[i,]), sep = "."))
+           var_nams <- do.call(paste, as.list(c(g, sep = "__")))
+           indi <- (rowSums(Dom  ==  Dom_agg[i,][ind0,]) == ncol(Dom))
 
-            gpgs <- rbindlist(lapply(gpg_l, function(x) x[[1]]))
-            gpglin <- rbindlist(lapply(gpg_l, function(x) x[[2]]))
+           gpg_l <- lapply(1 : nrow(period1_agg), function(j) {
+                indj <- ((rowSums(period1 == period1_agg[j,][ind0,])  ==  ncol(period1))&(indi))
+                if (!is.null(period)) { rown <- cbind(period_agg[j], Dom_agg[i])
+                                    } else rown <- Dom_agg[i]
+                gpgl <- linGapCalc(x = Y[indj], gend = gender[indj],
+                                   ids = gpg_id[indj], weights = weight[indj],
+                                   sort = sort[indj])
+                list(data.table(rown, gpg = gpgl$gpg_pr), gpgl$lin)
+             })
 
-            setnames(gpglin, names(gpglin), c(names(gpg_id), var_nams))
-            gpg_m <- merge(gpg_m, gpglin, all.x = TRUE, by = names(gpg_id))
-            gpg_v <- rbind(gpg_v, gpgs) 
-          }
-      } else { gpg_l <- lapply(1 : nrow(period1_agg), function(j) {
+           gpgs <- rbindlist(lapply(gpg_l, function(x) x[[1]]))
+           gpglin <- rbindlist(lapply(gpg_l, function(x) x[[2]]))
+
+           setnames(gpglin, names(gpglin), c(names(gpg_id), var_nams))
+           gpg_m <- merge(gpg_m, gpglin, all.x = TRUE, by = names(gpg_id))
+           gpg_v <- rbind(gpg_v, gpgs)
+         }
+     } else { gpg_l <- lapply(1 : nrow(period1_agg), function(j) {
                            indj <- (rowSums(period1 == period1_agg[j,][ind0,]) == ncol(period1))
-      
+
                            gpg_l <- linGapCalc(x = Y[indj], gend = gender[indj],
                                                ids = gpg_id[indj], weights = weight[indj],
                                                sort = sort[indj])
 
-                           if (!is.null(period)) { 
+                           if (!is.null(period)) {
                                     gpgs <- data.table(period_agg[j], gpg = gpg_l$gpg_pr)
                               } else gpgs <- data.table(gpg = gpg_l$gpg_pr)
                            list(gpg = gpgs, lin = gpg_l$lin)
@@ -175,8 +116,8 @@ lingpg <- function(Y, gender = NULL, id = NULL,
                gpg_v <- rbindlist(lapply(gpg_l, function(x) x[[1]]))
                gpg_m <- rbindlist(lapply(gpg_l, function(x) x[[2]]))
                setnames(gpg_m, names(gpg_m), c(names(gpg_id), var_name))
-            } 
-    gpg_m[is.na(gpg_m)] <- 0  
+            }
+    gpg_m[is.na(gpg_m)] <- 0
     setkeyv(gpg_m, names(gpg_id))
     return(list(value = gpg_v, lin = gpg_m))
  }
@@ -187,24 +128,24 @@ lingpg <- function(Y, gender = NULL, id = NULL,
     if(is.null(gend)) stop("'gender' must be supplied")
     if (length(gend) != length(x)) stop("'x' is not the same as 'gend'")
     if (length(gend) != length(weights)) stop("'weights' is not the same as 'gend'")
-   
+
     if (is.null(weights)) weights <- rep.int(1, length(x))  # equal weights
 
     indic_men <- ifelse(gend == 1, 1, 0)
     indic_women <- ifelse(gend == 2, 1, 0)
- 
+
     x[is.na(x)] <- 0
-   
+
     Nmen <- sum(weights * indic_men)
     Nwomen <- sum(weights * indic_women)
     SINCmen <- sum(weights * x * indic_men)
-    SINCwomen <- sum(weights * x * indic_women)     
-    
+    SINCwomen <- sum(weights * x * indic_women)
+
     Num <- SINCmen / Nmen - SINCwomen / Nwomen
     Den <- SINCmen / Nmen
-    gpg <- Num / Den # Estimated gender pay gap 
+    gpg <- Num / Den # Estimated gender pay gap
     gpg_pr <- gpg * 100
- 
+
  #-------------------------- Linearized variable (in %) -----------------------
     lin <- 100 * (1 - gpg) * ((indic_women / Nwomen) - (indic_men / Nmen) + ((x * indic_men) / SINCmen) - ((x * indic_women) / SINCwomen))
  #-----------------------------------------------------------------------------

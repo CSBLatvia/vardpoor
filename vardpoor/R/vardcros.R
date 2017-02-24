@@ -1,3 +1,4 @@
+
 vardcros <- function(Y, H, PSU, w_final,
                      ID_level1,
                      ID_level2,
@@ -75,7 +76,7 @@ vardcros <- function(Y, H, PSU, w_final,
                          mustbedefined = FALSE, dif_name = c("percoun", "period_country"))
 
     period <- check_var(vars = period, varn = "period",
-                        dataset = dataset, Yncol = 0, Ynrow = Ynrow,
+                        dataset = dataset, Ynrow = Ynrow,
                         ischaracter = TRUE, duplicatednames = TRUE,
                         withperiod = withperiod,
                         dif_name = c("percoun", "period_country", names(country)))
@@ -84,7 +85,7 @@ vardcros <- function(Y, H, PSU, w_final,
                            dataset = dataset, ncols = 1, Yncol = 0,
                            Ynrow = Ynrow, ischaracter = TRUE)
 
-    ID_level2 <- check_var(vars = ID_level2, varn = "ID_level2",
+    ID_level12 <- check_var(vars = ID_level2, varn = "ID_level2",
                            dataset = dataset, ncols = 1, Yncol = 0,
                            Ynrow = Ynrow, ischaracter = TRUE,
                            namesID1 = names(ID_level1), country = country,

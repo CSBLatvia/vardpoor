@@ -14,98 +14,47 @@
 
 lingini2 <- function(Y, id = NULL, weight = NULL,
                      sort = NULL, Dom = NULL, period = NULL,
-                     dataset = NULL, var_name = "lin_gini2") {
+                     dataset = NULL, var_name = "lin_gini2",
+                     checking = TRUE) {
 
    ## initializations
    if (min(dim(as.data.frame(var_name)) == 1) != 1) {
        stop("'var_name' must have defined name of the linearized variable")}
 
-   if (!is.null(dataset)) {
-        dataset <- data.table(dataset)
-        if (checker(Y, dataset, "Y")) Y <- dataset[, Y, with = FALSE] 
+   if (checking) {
+          Y <- check_var(vars = Y, varn = "Y", dataset = dataset,
+                         ncols = 1, isnumeric = TRUE,
+                         isvector = TRUE, grepls = "__")
+          Ynrow <- length(Y)
 
-        if (!is.null(id)) {
-             if (checker(id, dataset, "id")) id <- dataset[, id, with = FALSE]}
+          weight <- check_var(vars = weight, varn = "weight",
+                              dataset = dataset, ncols = 1,
+                              Ynrow = Ynrow, isnumeric = TRUE,
+                              isvector = TRUE)
 
-        if (!is.null(weight)) {
-             if (checker(weight, dataset, "weight")) weight <- dataset[, weight, with = FALSE] }
+          sort <- check_var(vars = sort, varn = "sort",
+                            dataset = dataset, ncols = 1,
+                            Ynrow = Ynrow, mustbedefined = FALSE,
+                            isnumeric = TRUE, isvector = TRUE)
 
-        if (!is.null(sort)) {
-             if (checker(sort, dataset, "sort")) sort <- dataset[, sort, with = FALSE] }
+          period <- check_var(vars = period, varn = "period",
+                              dataset = dataset, Ynrow = Ynrow,
+                              ischaracter = TRUE, mustbedefined = FALSE,
+                              duplicatednames = TRUE)
 
-        if (!is.null(period)) {
-            if (min(period %in% names(dataset)) != 1) stop("'period' does not exist in 'dataset'!")
-            if (min(period %in% names(dataset)) == 1) period <- dataset[, period, with = FALSE]}
+          Dom <- check_var(vars = Dom, varn = "Dom", dataset = dataset,
+                           Ynrow = Ynrow, ischaracter = TRUE,
+                           mustbedefined = FALSE, duplicatednames = TRUE,
+                           grepls = "__")
 
-        if (!is.null(Dom)) {
-             if (checker(Dom, dataset, "Dom")) Dom <- dataset[, Dom, with = FALSE] }
-    } 
+          id <- check_var(vars = id, varn = "id", dataset = dataset,
+                          ncols = 1, Ynrow = Ynrow, ischaracter = TRUE,
+                          periods = period)
+     }
 
-   # check vectors
-   # Y
-   Y <- data.frame(Y)
-   n <- nrow(Y)
-   if (ncol(Y) != 1) stop("'Y' must be a vector or 1 column data.frame, matrix, data.table")
-   Y <- Y[, 1]
-   if(!is.numeric(Y)) stop("'Y' must be a numeric")
-   if (anyNA(Y)) stop("'Y' has missing values")
- 
-   # weight
-   weight <- data.frame(weight)
-   if (is.null(weight)) weight <- data.frame(rep.int(1, n))
-   if (anyNA(weight)) stop("'weight' has missing values")
-   if (nrow(weight) != n) stop("'weight' must be the same length as 'Y'")
-   if (ncol(weight) != 1) stop("'weight' must be a vector or 1 column data.frame, matrix, data.table")
-   weight <- weight[, 1]
-   if (!is.numeric(weight)) stop("'weight' must be numeric")
 
-   # sort
-   if (!is.null(sort)) {    
-        sort <- data.frame(sort)
-        if (length(sort) != n) stop("'sort' must have the same length as 'Y'")
-        if (ncol(sort) != 1) stop("'sort' must be a vector or 1 column data.frame, matrix, data.table")
-        sort <- sort[, 1]
-   }
-
-   # period     
-   if (!is.null(period)) {
-       period <- data.table(period)
-       if (any(duplicated(names(period)))) 
-                 stop("'period' are duplicate column names: ", 
-                      paste(names(period)[duplicated(names(period))], collapse = ","))
-       if (nrow(period) != n) stop("'period' must be the same length as 'Y'")
-       period[, (names(period)) := lapply(.SD, as.character)]
-       if(anyNA(period)) stop("'period' has missing values")
-   }
-
-   # id
-   if (is.null(id)) id <- 1 : n
-   id <- data.table(id)
-   if (anyNA(id)) stop("'id' has missing values")
-   if (ncol(id) != 1) stop("'id' must be 1 column data.frame, matrix, data.table")
-   if (nrow(id) != n) stop("'id' must be the same length as 'Y'")
-   if (names(id) == "id") setnames(id, names(id), "ID")
-   if (is.null(period)){ if (any(duplicated(id))) stop("'id' are duplicate values") 
-                       } else {
-                          id1 <- data.table(period, id)
-                          if (any(duplicated(id1))) stop("'id' by period are duplicate values")
-                          id1 <- NULL
-                         }
-
-   # Dom     
-   if (!is.null(Dom)) {
-             Dom <- data.table(Dom)
-             if (any(duplicated(names(Dom)))) 
-                 stop("'Dom' are duplicate column names: ", 
-                      paste(names(Dom)[duplicated(names(Dom))], collapse = ","))
-             if (nrow(Dom) != n) stop("'Dom' must be the same length as 'Y'")
-             Dom[, (names(Dom)) := lapply(.SD, as.character)]
-             if (anyNA(Dom)) stop("'Dom' has missing values")
-             if (any(grepl("__", names(Dom)))) stop("'Dom' is not allowed column names with '__'")
-       }
-         
    ## computations
-   ind0 <- rep.int(1, n)
+   ind0 <- rep.int(1, length(Y))
    period_agg <- period1 <- NULL
    if (!is.null(period)) { period1 <- copy(period)
                            period_agg <- data.table(unique(period))
@@ -131,9 +80,9 @@ lingini2 <- function(Y, id = NULL, weight = NULL,
             gini_l <- lapply(1 : nrow(period1_agg), function(j) {
                indj <- ((rowSums(period1 == period1_agg[j,][ind0,]) == ncol(period1))&(indi))
                if (!is.null(period)) { rown <- cbind(period_agg[j], Dom_agg[i])
-                                     } else rown <- Dom_agg[i] 
-               
-               ginil <- lingini2Calc(x = Y[indj], 
+                                     } else rown <- Dom_agg[i]
+
+               ginil <- lingini2Calc(x = Y[indj],
                                      ids = gini_id[indj],
                                      weights = weight[indj],
                                      sort = sort[indj])
@@ -152,14 +101,14 @@ lingini2 <- function(Y, id = NULL, weight = NULL,
                            ginil <- lingini2Calc(x = Y[indj],
                                                  ids = gini_id[indj],
                                                  weights = weight[indj],
-                                                 sort = sort[indj])                                                 
+                                                 sort = sort[indj])
                            if (!is.null(period)) {
                                   list(data.table(period_agg[j], ginil$Gini), ginil$lin)
                                 }  else ginil
                          })
             Gini <- rbindlist(lapply(gini_l, function(x) x[[1]]))
             gini_m <- rbindlist(lapply(gini_l, function(x) x[[2]]))
-            setnames(gini_m, names(gini_m), c(names(gini_id), var_name))   
+            setnames(gini_m, names(gini_m), c(names(gini_id), var_name))
      }
     gini_m[is.na(gini_m)] <- 0
     setkeyv(gini_m, names(gini_id))
@@ -167,21 +116,21 @@ lingini2 <- function(Y, id = NULL, weight = NULL,
 }
 
 
-# workhorse 
-lingini2Calc <- function(x, ids, weights = NULL, sort = NULL) { 
+# workhorse
+lingini2Calc <- function(x, ids, weights = NULL, sort = NULL) {
 
-    # sort values and weights 
-    order <- if(is.null(sort)) order(x) else order(x, sort) 
-    x <- x[order]  # order values 
-    ids <- ids[order]  # order values 
-    if (is.null(weights)) { weights <- rep.int(1, length(x))  # equal weights 
-     } else weights <- weights[order]  # order weights 
+    # sort values and weights
+    order <- if(is.null(sort)) order(x) else order(x, sort)
+    x <- x[order]  # order values
+    ids <- ids[order]  # order values
+    if (is.null(weights)) { weights <- rep.int(1, length(x))  # equal weights
+     } else weights <- weights[order]  # order weights
 
-    ## calculations 
-    wx <- weights * x       # weighted values 
-    N <- sum(weights)     # Estimated population size 
-    cw <- cumsum(weights)   # cumulative sum of weights 
-    T <- sum(wx)             # Estimated total income 
+    ## calculations
+    wx <- weights * x       # weighted values
+    N <- sum(weights)     # Estimated population size
+    cw <- cumsum(weights)   # cumulative sum of weights
+    T <- sum(wx)             # Estimated total income
 
     dt <- data.table(x = x, weights = weights, wx = wx, key = "x")
     weights0 <- wx0 <- NULL
@@ -191,7 +140,7 @@ lingini2Calc <- function(x, ids, weights = NULL, sort = NULL) {
                 wx1 := cumsum(wx0)]
     dt <- merge(dt, dt1)
 
-    # Nk - estimation of the cumulative distribution function 
+    # Nk - estimation of the cumulative distribution function
     Nk <- dt[["Nk"]]
 
     # wx - weighted partial sum
@@ -206,17 +155,17 @@ lingini2Calc <- function(x, ids, weights = NULL, sort = NULL) {
     Gini <- Num / Den - 1
 
     Gini_pr <- 100 * Gini
-        
+
 
     # LINEARIZED VARIABLE OF THE GINI COEFFICIENT (IN %)
 
     lin <- 100 * (2 * Nk * (x - wx1 / Nk) + T - N * x - Gini * (T + N * x)) / (N * T)
-    
+
     if (is.nan(Gini))  Gini_pr <- lin <- 0
 
     Gini_pr <- data.table(Gini = Gini_pr, Gini_eu = Gini_eu)
     lin_id <- data.table(ids, lin = lin)
-    
+
     return(list(Gini=Gini_pr, lin = lin_id))
 }
 

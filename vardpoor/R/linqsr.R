@@ -12,8 +12,9 @@
 
 linqsr <- function(Y, id = NULL, weight = NULL,
                    sort = NULL, Dom = NULL, period = NULL,
-                   dataset = NULL, alpha = 20, 
-                   var_name = "lin_qsr") {
+                   dataset = NULL, alpha = 20,
+                   var_name = "lin_qsr",
+                   checking = TRUE) {
 
    ## initializations
    if (min(dim(as.data.frame(var_name)) == 1) != 1) {
@@ -22,104 +23,52 @@ linqsr <- function(Y, id = NULL, weight = NULL,
    if(length(alpha) != 1 | any(!is.numeric(alpha) | alpha < 0 | alpha > 100)) {
           stop("'alpha' must be a numeric value in [0, 100]")  }
 
-   if(!is.null(dataset)) {
-       dataset <- data.table(dataset) 
-       if (checker(Y, dataset, "Y")) Y <- dataset[, Y, with = FALSE] 
+  if (checking) {
+         Y <- check_var(vars = Y, varn = "Y", dataset = dataset,
+                        ncols = 1, isnumeric = TRUE,
+                        isvector = TRUE, grepls = "__")
+         Ynrow <- length(Y)
 
-       if(!is.null(id)) {
-          if (checker(id, dataset, "id")) id <- dataset[, id, with = FALSE]}
+         weight <- check_var(vars = weight, varn = "weight",
+                             dataset = dataset, ncols = 1,
+                             Ynrow = Ynrow, isnumeric = TRUE,
+                             isvector = TRUE)
 
-       if(!is.null(weight)) {
-           if (checker(weight, dataset, "weight")) weight <- dataset[, weight, with = FALSE] }
+         sort <- check_var(vars = sort, varn = "sort",
+                           dataset = dataset, ncols = 1,
+                           Ynrow = Ynrow, mustbedefined = FALSE,
+                           isnumeric = TRUE, isvector = TRUE)
 
-       if(!is.null(sort)) {
-           if (checker(sort, dataset, "sort")) sort <- dataset[, sort, with = FALSE] }
+         period <- check_var(vars = period, varn = "period",
+                            dataset = dataset, Ynrow = Ynrow,
+                            ischaracter = TRUE, mustbedefined = FALSE,
+                            duplicatednames = TRUE)
 
-       if (!is.null(period)) {
-            if (min(period %in% names(dataset)) != 1) stop("'period' does not exist in 'dataset'!")
-            if (min(period %in% names(dataset)) == 1) period <- dataset[, period, with = FALSE] }
+         Dom <- check_var(vars = Dom, varn = "Dom", dataset = dataset,
+                          Ynrow = Ynrow, ischaracter = TRUE,
+                          mustbedefined = FALSE, duplicatednames = TRUE,
+                          grepls = "__")
 
-       if (!is.null(Dom)) {
-            if (checker(Dom, dataset, "Dom")) Dom <- dataset[, Dom, with = FALSE] }
-   }
+         id <- check_var(vars = id, varn = "id", dataset = dataset,
+                         ncols = 1, Ynrow = Ynrow, ischaracter = TRUE,
+                         periods = period)
+     }
 
-   # check vectors
-   # Y
-   Y <- data.frame(Y)
-   n <- nrow(Y)
-   if (anyNA(Y)) stop("'Y' has missing values")
-   if (ncol(Y) != 1) stop("'Y' must be a vector or 1 column data.frame, data matrix, data table")
-   Y <- Y[, 1] 
-   if (!is.numeric(Y)) stop("'Y' must be a numeric vector")
- 
-   # weight
-   weight <- data.frame(weight)
-   if (is.null(weight)) weight <- data.frame(rep.int(1, n))
-   if (anyNA(weight)) stop("'weight' has missing values")
-   if (nrow(weight) != n) stop("'weight' must be the same length as 'Y'")
-   if (ncol(weight) != 1) stop("'weight' must be a vector or 1 column data.frame, matrix, data.table")
-   weight <- weight[, 1] 
-   if (!is.numeric(weight)) stop("'weight' must be numeric")
 
-   # sort
-   if (!is.null(sort)) {
-        sort <- data.frame(sort)
-        if (anyNA(sort)) stop("'sort' has missing values")
-        if (length(sort) != n) stop("'sort' must have the same length as 'Y'")
-        if (ncol(sort) != 1) stop("'sort' must be a vector or 1 column data.frame, matrix, data.table")
-        sort <- sort[, 1]
-   }
+  ## computations
+  ind0 <- rep.int(1, length(Y))
+  period_agg <- period1 <- NULL
+  if (!is.null(period)) { period1 <- copy(period)
+                          period_agg <- data.table(unique(period))
+                       } else period1 <- data.table(ind = ind0)
+  period1_agg <- data.table(unique(period1))
 
-   # period     
-   if (!is.null(period)) {
-       period <- data.table(period)
-       if (any(duplicated(names(period)))) 
-                 stop("'period' are duplicate column names: ", 
-                      paste(names(period)[duplicated(names(period))], collapse = ","))
-       if (nrow(period) != n) stop("'period' must be the same length as 'Y'")
-       period[, (names(period)) := lapply(.SD, as.character)]
-       if(anyNA(period)) stop("'period' has missing values")
-   }   
+  # QSR by domain (if requested)
 
-   # id
-   if (is.null(id)) id <- 1 : n
-   id <- data.table(id)
-   if (anyNA(id)) stop("'id' has missing values")
-   if (ncol(id) != 1) stop("'id' must be 1 column data.frame, matrix, data.table")
-   if (nrow(id) != n) stop("'id' must be the same length as 'Y'")
-   if (names(id) == "id") setnames(id, names(id), "ID")
-   if (is.null(period)){ if (any(duplicated(id))) stop("'id' are duplicate values") 
-                       } else {
-                          id1 <- data.table(period, id)
-                          if (any(duplicated(id1))) stop("'id' by period are duplicate values")
-                         }
+  QSR_id <- id
+  if (!is.null(period)) QSR_id <- data.table(QSR_id, period)
 
-   # Dom
-   if (!is.null(Dom)) {
-             Dom <- data.table(Dom)
-             if (any(duplicated(names(Dom)))) 
-                 stop("'Dom' are duplicate column names: ", 
-                      paste(names(Dom)[duplicated(names(Dom))], collapse = ","))
-             if (nrow(Dom) != n) stop("'Dom' must be the same length as 'Y'")
-             Dom[, (names(Dom)) := lapply(.SD, as.character)]
-             if (anyNA(Dom)) stop("'Dom' has missing values")
-             if (any(grepl("__", names(Dom)))) stop("'Dom' is not allowed column names with '__'")
-       }
-
-   ## computations
-   ind0 <- rep.int(1, n)
-   period_agg <- period1 <- NULL
-   if (!is.null(period)) { period1 <- copy(period)
-                           period_agg <- data.table(unique(period))
-                        } else period1 <- data.table(ind = ind0)
-   period1_agg <- data.table(unique(period1))
-
-   # QSR by domain (if requested)  
-
-   QSR_id <- id
-   if (!is.null(period)) QSR_id <- data.table(QSR_id, period)
-    
-   if (!is.null(Dom)) {
+  if (!is.null(Dom)) {
         Dom_agg <- data.table(unique(Dom))
         setkeyv(Dom_agg, names(Dom_agg))
 
@@ -139,8 +88,8 @@ linqsr <- function(Y, id = NULL, weight = NULL,
                                                    weights = weight[indj],
                                                    sort = sort[indj],
                                                    ind = ind[indj],
-                                                   alpha = alpha) 
-                               if (!is.null(period)) { 
+                                                   alpha = alpha)
+                               if (!is.null(period)) {
                                      list(QSR = data.table(period_agg[j], Dom_agg[i], QSR_l$QSR), lin = QSR_l$lin)
                                    } else list(QSR = data.table(Dom_agg[i], QSR_l$QSR), lin = QSR_l$lin)
                          })
@@ -152,7 +101,7 @@ linqsr <- function(Y, id = NULL, weight = NULL,
                  QSR_v <- rbind(QSR_v, QSRs)
            }
     } else { QSRl <- lapply(1:nrow(period1_agg), function(j) {
-                            
+
                            indj <- (rowSums(period1 == period1_agg[j,][ind0,]) == ncol(period1))
 
                            QSR_l <- linQSRCalc(income = Y[indj],
@@ -161,7 +110,7 @@ linqsr <- function(Y, id = NULL, weight = NULL,
                                                sort = sort[indj],
                                                ind = ind0[indj],
                                                alpha = alpha)
-                           if (!is.null(period)) { 
+                           if (!is.null(period)) {
                                        list(QSR = data.table(period_agg[j], QSR_l$QSR), lin = QSR_l$lin)
                                   } else list(QSR = data.table(QSR_l$QSR), lin = QSR_l$lin)
                        })
@@ -170,7 +119,7 @@ linqsr <- function(Y, id = NULL, weight = NULL,
 
              setnames(QSR_m, names(QSR_m), c(names(QSR_id), var_name))
            }
-  QSR_m[is.na(QSR_m)] <- 0               
+  QSR_m[is.na(QSR_m)] <- 0
   setkeyv(QSR_m, names(QSR_id))
   return(list(value = QSR_v, lin = QSR_m))
 }
@@ -183,15 +132,15 @@ linQSRCalc<-function(income, ids, weights = NULL, sort = NULL, ind = NULL, alpha
    if (is.null(ind)) ind <- data.frame(ind = rep.int(1, length(ids)))
 
    alpha2 <- 100 - alpha
-   
-   if (sum(weights) > 0 & sum(ind) > 0) {                                   
+
+   if (sum(weights) > 0 & sum(ind) > 0) {
 
         quantile <- incPercentile(Y = income, weights = weights,
                                   sort = sort, Dom = data.table(ind),
                                   period = NULL, k = c(alpha, alpha2),
-                                  dataset = NULL) 
-        quant_inf <- quantile[ind == 1][[paste0("x", alpha)]] 
-        quant_sup <- quantile[ind == 1][[paste0("x", alpha2)]] 
+                                  dataset = NULL, checking = FALSE)
+        quant_inf <- quantile[ind == 1][[paste0("x", alpha)]]
+        quant_sup <- quantile[ind == 1][[paste0("x", alpha2)]]
 
         wght <- weights * ind
         v <- weights * income * ind
@@ -199,14 +148,14 @@ linQSRCalc<-function(income, ids, weights = NULL, sort = NULL, ind = NULL, alpha
         indinf <- (income <= quant_inf)
         indsup <- (income > quant_sup)
 
-        num_eu <- sum(v * indsup) / sum(wght[indsup]) # Numerator 
-        den_eu <- sum(v * indinf) / sum(wght[indinf]) # Denominator 
+        num_eu <- sum(v * indsup) / sum(wght[indsup]) # Numerator
+        den_eu <- sum(v * indinf) / sum(wght[indinf]) # Denominator
 
-        num <- sum(v * indsup) # Numerator 
-        den <- sum(v * indinf) # Denominator 
-    
+        num <- sum(v * indsup) # Numerator
+        den <- sum(v * indinf) # Denominator
+
         QSR <- num / den
-        QSR_eu <- num_eu / den_eu   
+        QSR_eu <- num_eu / den_eu
 
    #**********************************************************************
    #*          LINEARIZATION OF THE INCOME QUANTILE SHARE RATIO          *
@@ -216,55 +165,55 @@ linQSRCalc<-function(income, ids, weights = NULL, sort = NULL, ind = NULL, alpha
    #----- LINEARIZATION OF THE TWO QUANTILES -----
    #----------------------------------------------
 
-       N <- sum(wght) # Estimated (sub)population size  
-       h <- sqrt((sum(wght * income * income) - sum(wght * income) * sum(wght * income) / sum(wght)) / sum(wght)) / exp(0.2 * log(sum(wght))) 
-       # h=S/N^(1/5) 
+       N <- sum(wght) # Estimated (sub)population size
+       h <- sqrt((sum(wght * income * income) - sum(wght * income) * sum(wght * income) / sum(wght)) / sum(wght)) / exp(0.2 * log(sum(wght)))
+       # h=S/N^(1/5)
 
-       # 1. Linearization of the bottom quantile 
- 
+       # 1. Linearization of the bottom quantile
+
        u1 <- (quant_inf - income) / h;
        vect_f1 <- exp(-(u1^2) / 2) / sqrt(2 * pi)
-       f_quant1 <- sum(vect_f1 * wght) / (N * h) 
+       f_quant1 <- sum(vect_f1 * wght) / (N * h)
 
        lin_inf <- -(1 / N) * ((income <= quant_inf) - alpha / 100) / f_quant1
 
 
-       # 2. Linearization of the top quantile 
- 
+       # 2. Linearization of the top quantile
+
        u2 <- (quant_sup - income) / h
        vect_f2 <- exp( - (u2^2) / 2) / sqrt(2 * pi)
        f_quant2 <- sum(vect_f2 * wght) / (N * h)
 
-       lin_sup <- - (1 / N) * ((income <= quant_sup) - alpha2 / 100) / f_quant2 
+       lin_sup <- - (1 / N) * ((income <= quant_sup) - alpha2 / 100) / f_quant2
 
 
        # 3. Linearization of the total income for the top quintile
-  
+
        u3 <- (quant_sup - income) / h
        vect_f3 <- exp(- (u3^2) / 2) / sqrt(2 * pi)
        f_quant3 <- sum(vect_f3 * v) / h
- 
-       lin_num <- ind * (income - income * (income <= quant_sup) - f_quant3 * lin_sup)
- 
 
-       # 4. Linearization of the total income for the bottom quintile 
-  
+       lin_num <- ind * (income - income * (income <= quant_sup) - f_quant3 * lin_sup)
+
+
+       # 4. Linearization of the total income for the bottom quintile
+
        u4 <- (quant_inf - income) / h
        vect_f4 <- exp( - (u4^2) / 2) / sqrt(2 * pi)
        f_quant4 <- sum(vect_f4 * v) / h
- 
+
        lin_den <- ind * (income * (income <= quant_inf) + f_quant4 * lin_inf)
 
       #****************************************************************************
-      #                 LINEARIZED VARIABLE OF THE QUANTILE SHARE RATIO                  
+      #                 LINEARIZED VARIABLE OF THE QUANTILE SHARE RATIO
       #****************************************************************************
 
       lin <- (den * lin_num - num * lin_den) / (den * den)
     } else { QSR <- lin <- 0
              QSR_eu <- NaN }
-   
+
     if (is.nan(QSR)) QSR <- lin <- 0
-   
+
    lin_id <- data.table(ids, lin = lin)
    QSR <- data.table(QSR = QSR, QSR_eu = QSR_eu)
    return(list(QSR = QSR, lin = lin_id))

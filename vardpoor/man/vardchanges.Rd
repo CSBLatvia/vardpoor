@@ -84,7 +84,7 @@ vardchanges(Y, H, PSU, w_final,
 
 \item{change_type}{character value net changes type - absolute or relative.}
 
-\item{checking}{Optional variable if this variable is TRUE, then function checks preparation bugs. This variable by default is FALSE.}
+\item{checking}{Optional variable if this variable is TRUE, then function checks data preparation errors, otherwise not checked. This variable by default is TRUE.}
 
 }
 

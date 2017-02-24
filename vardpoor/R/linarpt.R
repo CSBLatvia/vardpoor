@@ -10,10 +10,10 @@
 #***********************************************************************************************
 #***********************************************************************************************
 
-linarpt <- function(Y, id = NULL, weight = NULL, sort = NULL, 
+linarpt <- function(Y, id = NULL, weight = NULL, sort = NULL,
                     Dom = NULL, period=NULL, dataset = NULL,
                     percentage = 60, order_quant=50,
-                    var_name="lin_arpt") {
+                    var_name="lin_arpt", checking = TRUE) {
 
    ## initializations
    if (min(dim(as.data.frame(var_name)) == 1) != 1) {
@@ -29,160 +29,110 @@ linarpt <- function(Y, id = NULL, weight = NULL, sort = NULL,
    if(length(oq) != 1 | any(!is.numeric(oq) | oq < 0 | oq > 100)) {
           stop("'order_quant' must be a numeric value in [0, 100]")  }
 
-   if(!is.null(dataset)) {
-       dataset <- data.table(dataset)
-       if (checker(Y, dataset, "Y")) Y <- dataset[, Y, with=FALSE] 
+   if (checking) {
+       Y <- check_var(vars = Y, varn = "Y", dataset = dataset,
+                      ncols = 1, isnumeric = TRUE,
+                      isvector = TRUE, grepls = "__")
+       Ynrow <- length(Y)
 
-       if(!is.null(id)) {
-          if (checker(id, dataset, "id")) id <- dataset[, id, with=FALSE]}
+       weight <- check_var(vars = weight, varn = "weight",
+                           dataset = dataset, ncols = 1,
+                           Ynrow = Ynrow, isnumeric = TRUE,
+                           isvector = TRUE)
 
-       if(!is.null(weight)) {
-           if (checker(weight, dataset, "weight")) weight <- dataset[, weight, with=FALSE] }
+       sort <- check_var(vars = sort, varn = "sort",
+                         dataset = dataset, ncols = 1,
+                         Ynrow = Ynrow, mustbedefined = FALSE,
+                         isnumeric = TRUE, isvector = TRUE)
 
-       if(!is.null(sort)) {
-           if (checker(sort, dataset, "sort")) sort <- dataset[, sort, with=FALSE] }
+       period <- check_var(vars = period, varn = "period",
+                           dataset = dataset, Ynrow = Ynrow,
+                           ischaracter = TRUE, mustbedefined = FALSE,
+                           duplicatednames = TRUE)
 
-       if (!is.null(period)) {
-            if (min(period %in% names(dataset)) != 1) stop("'period' does not exist in 'dataset'!")
-            if (min(period %in% names(dataset)) == 1) period <- dataset[, period, with=FALSE] }
+       Dom <- check_var(vars = Dom, varn = "Dom", dataset = dataset,
+                        Ynrow = Ynrow, ischaracter = TRUE,
+                        mustbedefined = FALSE, duplicatednames = TRUE,
+                        grepls = "__")
 
-       if(!is.null(Dom)) {
-            if (checker(Dom, dataset, "Dom")) Dom <- dataset[, Dom, with=FALSE] }
-      }
+       id <- check_var(vars = id, varn = "id", dataset = dataset,
+                       ncols = 1, Ynrow = Ynrow, ischaracter = TRUE,
+                       periods = period)
+    }
+   dataset <- NULL
 
-   # check vectors
-   # Y
-   Y <- data.frame(Y)
-   n <- nrow(Y)
-   if (anyNA(Y)) stop("'Y' has missing values")
-   if (ncol(Y) != 1) stop("'Y' must be a vector or 1 column data.frame, matrix, data.table")
-   Y <- Y[, 1]
-   if(!is.numeric(Y)) stop("'Y' must be numeric")
+   ## computations
+   ind0 <- rep.int(1, length(Y))
+   period_agg <- period1 <- NULL
+   if (!is.null(period)) { period1 <- copy(period)
+                           period_agg <- data.table(unique(period))
+                       } else period1 <- data.table(ind = ind0)
+   period1_agg <- data.table(unique(period1))
 
-   # weight
-   weight <- data.frame(weight)
-   if (anyNA(weight)) stop("'weight' has missing values")
-   if (nrow(weight) != n) stop("'weight' must be the same length as 'Y'")
-   if (ncol(weight) != 1) stop("'weight' must be a vector or 1 column data.frame, matrix, data.table")
-   weight <- weight[, 1]
-   if (!is.numeric(weight)) stop("'weight' must be numeric")
+   # ARPT by domain (if requested)
 
-   # sort
-   if (!is.null(sort)) {
-        sort <- data.frame(sort)
-        if (anyNA(sort)) stop("'sort' has missing values")
-        if (length(sort) != n) stop("'sort' must have the same length as 'Y'")
-        if (ncol(sort) != 1) stop("'sort' must be a vector or 1 column data.frame, matrix, data.table")
-        sort <- sort[, 1]
-   }
-   
-   # period     
-   if (!is.null(period)) {
-       period <- data.table(period)
-       if (any(duplicated(names(period)))) 
-                 stop("'period' are duplicate column names: ", 
-                      paste(names(period)[duplicated(names(period))], collapse = ","))
-       if (nrow(period) != n) stop("'period' must be the same length as 'Y'")
-       period[, (names(period)) := lapply(.SD, as.character)]
-       if(anyNA(period)) stop("'period' has missing values")
-   }   
-      
-   # id
-   if (is.null(id)) id <- 1 : n
-   id <- data.table(id)
-   if (anyNA(id)) stop("'id' has unknown values")
-   if (ncol(id) != 1) stop("'id' must be 1 column data.frame, matrix, data.table")
-   if (nrow(id) != n) stop("'id' must be the same length as 'Y'")
-   if (names(id) == "id") setnames(id, names(id), "ID")
-   if (is.null(period)){ if (any(duplicated(id))) stop("'id' are duplicate values") 
-                       } else {
-                          id1 <- data.table(period, id)
-                          if (any(duplicated(id1))) stop("'id' by period are duplicate values")
-                         }
-   
-   # Dom     
-   if (!is.null(Dom)) {
-             Dom <- data.table(Dom)
-             if (any(duplicated(names(Dom)))) 
-                 stop("'Dom' are duplicate column names: ", 
-                      paste(names(Dom)[duplicated(names(Dom))], collapse = ","))
-             if (nrow(Dom) != n) stop("'Dom' must be the same length as 'Y'")
-             Dom[, (names(Dom)) := lapply(.SD, as.character)]
-             if (anyNA(Dom)) stop("'Dom' has unknown values")
-             if (any(grepl("__", names(Dom)))) stop("'Dom' is not allowed column names with '__'")
-       }
+   quantile <- incPercentile(Y = Y,
+                             weights = weight,
+                             sort = sort,
+                             Dom = Dom,
+                             period = period,
+                             k = order_quant,
+                             dataset = NULL,
+                             checking = FALSE)
 
-    ## computations
-    ind0 <- rep.int(1, n)
-    period_agg <- period1 <- NULL
-    if (!is.null(period)) { period1 <- copy(period)
-                            period_agg <- data.table(unique(period))
-                        } else period1 <- data.table(ind = ind0)
-    period1_agg <- data.table(unique(period1))
+   quantile <- data.table(quantile)
+   setnames(quantile, names(quantile)[ncol(quantile)], "quantile")
+   if (ncol(quantile) > 1) setkeyv(quantile, head(names(quantile), -1))
+   threshold <- copy(quantile)
+   threshold[, threshold := p / 100 * quantile]
+   threshold[, quantile := NULL]
 
-    # ARPT by domain (if requested)  
+   arpt_id <- id
+   if (!is.null(period)) arpt_id <- data.table(arpt_id, period)
 
-    quantile <- incPercentile(Y = Y,
-                              weights = weight,
-                              sort = sort,
-                              Dom = Dom,
-                              period = period,
-                              k = order_quant,
-                              dataset = NULL)
+   if(!is.null(Dom)) {
+       Dom_agg <- data.table(unique(Dom))
+       setkeyv(Dom_agg, names(Dom_agg))
 
-    quantile <- data.table(quantile)
-    setnames(quantile, names(quantile)[ncol(quantile)], "quantile")
-    if (ncol(quantile) > 1) setkeyv(quantile, head(names(quantile), -1))
-    threshold <- copy(quantile)
-    threshold[, threshold := p / 100 * quantile]
-    threshold[, quantile := NULL]
-    
-    arpt_id <- id       
-    if (!is.null(period)) arpt_id <- data.table(arpt_id, period)
-    
-    if(!is.null(Dom)) {
-        Dom_agg <- data.table(unique(Dom))
-        setkeyv(Dom_agg, names(Dom_agg))
+       arpt_m <- copy(arpt_id)
+       for(i in 1 : nrow(Dom_agg)) {
+             g <- c(var_name, paste(names(Dom), as.matrix(Dom_agg[i,]), sep = "."))
+             var_nams <- do.call(paste, as.list(c(g, sep = "__")))
+             ind <- as.integer(rowSums(Dom == Dom_agg[i,][ind0,]) == ncol(Dom))
+             arpt_l <- lapply(1:nrow(period1_agg), function(j) {
+                              if (!is.null(period)) {
+                                      rown <- cbind(period_agg[j], Dom_agg[i])
+                                      } else rown <- Dom_agg[i]
 
-        arpt_m <- copy(arpt_id)
-        for(i in 1 : nrow(Dom_agg)) {
-              g <- c(var_name, paste(names(Dom), as.matrix(Dom_agg[i,]), sep = "."))
-              var_nams <- do.call(paste, as.list(c(g, sep = "__")))
-              ind <- as.integer(rowSums(Dom == Dom_agg[i,][ind0,]) == ncol(Dom))
-              arpt_l <- lapply(1:nrow(period1_agg), function(j) {
-                               if (!is.null(period)) { 
-                                       rown <- cbind(period_agg[j], Dom_agg[i])
-                                       } else rown <- Dom_agg[i]
+                              setkeyv(rown, names(rown))
+                              rown2 <- copy(rown)
+                              rown <- merge(rown, quantile, all.x = TRUE)
+                              ind2 <- (rowSums(period1 == period1_agg[j,][ind0,]) == ncol(period1))
 
-                               setkeyv(rown, names(rown))
-                               rown2 <- copy(rown)
-                               rown <- merge(rown, quantile, all.x = TRUE)
-                               ind2 <- (rowSums(period1 == period1_agg[j,][ind0,]) == ncol(period1))
-                               
-                               arptl <- arptlinCalc(inco = Y[ind2], 
-                                                    ids = arpt_id[ind2],
-                                                    wght = weight[ind2],
-                                                    indicator = ind[ind2], 
-                                                    order_quan = order_quant,
-                                                    quant_val = rown[["quantile"]],
-                                                    percentag = p)
+                              arptl <- arptlinCalc(inco = Y[ind2],
+                                                   ids = arpt_id[ind2],
+                                                   wght = weight[ind2],
+                                                   indicator = ind[ind2],
+                                                   order_quan = order_quant,
+                                                   quant_val = rown[["quantile"]],
+                                                   percentag = p)
                                })
-             arptl <- rbindlist(arpt_l)
-             setnames(arptl, names(arptl), c(names(arpt_id), var_nams))
-             arpt_m <- merge(arpt_m, arptl, all.x = TRUE, by = names(arpt_id))
-          }
-      } else { arptl <- lapply(1 : nrow(period1_agg), function(j) {
-                           if (!is.null(period)) { 
+           arptl <- rbindlist(arpt_l)
+           setnames(arptl, names(arptl), c(names(arpt_id), var_nams))
+           arpt_m <- merge(arpt_m, arptl, all.x = TRUE, by = names(arpt_id))
+        }
+    } else { arptl <- lapply(1 : nrow(period1_agg), function(j) {
+                           if (!is.null(period)) {
                                          rown <- period_agg[j]
                                          setkeyv(rown, names(rown))
                                          rown <- merge(rown, quantile, all.x = TRUE)
                                        } else rown <- quantile
                            ind2 <- (rowSums(period1 == period1_agg[j,][ind0,]) == ncol(period1))
- 
-                           arptl <- arptlinCalc(inco = Y[ind2], 
+
+                           arptl <- arptlinCalc(inco = Y[ind2],
                                                 ids = arpt_id[ind2],
                                                 wght = weight[ind2],
-                                                indicator = ind0[ind2], 
+                                                indicator = ind0[ind2],
                                                 order_quan = order_quant,
                                                 quant_val = rown[["quantile"]],
                                                 percentag = p)
@@ -192,7 +142,7 @@ linarpt <- function(Y, id = NULL, weight = NULL, sort = NULL,
             }
     arpt_m[is.na(arpt_m)] <- 0
     setkeyv(arpt_m, names(arpt_id))
-    return(list(quantile = quantile, value = threshold, lin = arpt_m)) 
+    return(list(quantile = quantile, value = threshold, lin = arpt_m))
  }
 
     ## workhorse
@@ -200,8 +150,8 @@ arptlinCalc <- function(inco, ids, wght, indicator, order_quan, quant_val, perce
     wt <- wght * indicator
     N <- sum(wt); # Estimated (sub)population size
 
-    # h=S/N^(1/5) 
-    h <- sqrt((sum(wght * inco * inco) - sum(wght * inco) * sum(wght * inco) / sum(wght)) / sum(wght)) / exp(0.2 * log(sum(wght))) 
+    # h=S/N^(1/5)
+    h <- sqrt((sum(wght * inco * inco) - sum(wght * inco) * sum(wght * inco) / sum(wght)) / sum(wght)) / exp(0.2 * log(sum(wght)))
 
     u <- (quant_val - inco) / h
     vect_f <- exp(-(u^2) / 2) / sqrt(2 * pi)

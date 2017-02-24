@@ -68,13 +68,11 @@ vardchanges <- function(Y, H, PSU, w_final,
                             ischaracter = TRUE, duplicatednames = TRUE,
                             dif_name = c("percoun", names(country)))
 
-        period1 <- check_var(vars = period1, varn = "period1",
-                             dataset = NULL, ncols = 1, Ynrow = Ynrow,
-                             ischaracter = TRUE, periods = period)
+        period1 <- check_var(vars = period1, varn = "period1", dataset = NULL,
+                             ncols = 1, ischaracter = TRUE, periods = period)
 
-        period2 <- check_var(vars = period2, varn = "period2",
-                             dataset = NULL, ncols = 1, Ynrow = Ynrow,
-                             ischaracter = TRUE, periods = period)
+        period2 <- check_var(vars = period2, varn = "period2", dataset = NULL,
+                              ncols = 1, ischaracter = TRUE, periods = period)
 
         ID_level1 <- check_var(vars = ID_level1, varn = "ID_level1",
                                dataset = dataset, ncols = 1, Yncol = 0,

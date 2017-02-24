@@ -74,7 +74,6 @@ vardgpgcrosannual <- function(Y, H, PSU, w_final, ID_level1,
   PSU <- names(PSU)
   Z <- names(Z)
   w_final <- "w_final"
-  gender <- "gender"
   if (!is.null(country)) dataset <- data.table(dataset, country)
   country <- names(country)
   dataset <- data.table(dataset, years, subperiods)
@@ -86,7 +85,7 @@ vardgpgcrosannual <- function(Y, H, PSU, w_final, ID_level1,
   yearsgender <- paste0(years, "gender")
   dataset <- rbindlist(lapply(1:2, function(i) { dats <- copy(dataset)
                                                  dats[, (yearsgender) := paste0(get(years), "_", i)]
-                                                 dats[get(gender) != i, (c(Y, Z)):= 0]
+                                                 dats[get("gender") != i, (c(Y, Z)):= 0]
                                                  return(dats)}))
 
   if(!is.null(X)) {

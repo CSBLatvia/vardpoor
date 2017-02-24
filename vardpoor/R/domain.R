@@ -24,12 +24,13 @@ domain <- function(Y, D, dataset = NULL) {
 
   domen <- foreach(i = 1 : ncol(Y), .combine = 'data.frame') %:%
               foreach(k = 1:nrow(Dom_agg), .combine = 'data.table') %do%
-                 ifelse(rowSums(D == Dom_agg[k, ][rep(1, Ynrow), ]) == ncol(D), Y[i], 0)
-  domen <- data.table(domen)
-  setnames(domen, names(domen), namesD(Y, D))
-  return(domen)
-}
+                 ifelse(rowSums(D == Dom_agg[k, ][rep(1, Ynrow), ]) == ncol(D), Y[[i]], 0)
 
+  if (!is.data.table(domen)) domen <- data.table(domen)
+  setnames(domen, names(domen), namesD(Y, D))
+  domen <- data.table(domen, check.names = TRUE)
+  return(domen[])
+}
 
 
 check_var <- function(vars, varn, dataset, check.names = FALSE,
@@ -88,9 +89,9 @@ check_var <- function(vars, varn, dataset, check.names = FALSE,
 
       if (varn %in% c("id", "ID_level2")) {
              dd <- vars
-             if (!is.null(years)) dd <- data.table(years, vars)
-             if (!is.null(periods)) dd <- data.table(periods, vars)
-             if (!is.null(country)) dd <- data.table(country, vars)
+             if (!is.null(years)) dd <- data.table(years, dd)
+             if (!is.null(periods)) dd <- data.table(periods, dd)
+             if (!is.null(country)) dd <- data.table(country, dd)
              dd <- any(duplicated(dd, by = names(dd)))
              if (dd) stop(paste0("'", varn, "' by ", paste(varns, collapse = ", "), " are duplicate values"), call. = FALSE)
         }
@@ -116,8 +117,8 @@ check_var <- function(vars, varn, dataset, check.names = FALSE,
         if (nrow(psuag[N > 1]) > 0) stop("'PSU_sort' must be equal for each 'PSU'", call. = FALSE)}
 
       if (varn == "gender") {
-         if (length(unique(vars)) != 2) stop("'gender' must be exactly two values", call. = FALSE)
-         if (!all(vars %in% 1:2)) stop("'gender' must be value 1 for male, 2 for females", call. = FALSE) }
+           if (length(unique(vars)) != 2) stop("'gender' must be exactly two values", call. = FALSE)
+           if (!all(vars %in% 1:2)) stop("'gender' must be value 1 for male, 2 for females", call. = FALSE) }
 
       if (varn %in% c("countryX", "periodX", "yearsX", "subperiodsX", "X_ID_level1")) {
                if (names(vars) != varname) stop(paste0("'", varn, "' must be equal with '", varnout,"' names"), call. = FALSE)

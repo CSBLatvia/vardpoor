@@ -2,10 +2,7 @@
 variance_othstr <- function(Y, H, H2, w_final, N_h = NULL, N_h2, period = NULL, dataset = NULL, checking = TRUE) {
 
   ### Checking
-  if (checking) {
-    if (!is.logical(fh_zero)) stop("'fh_zero' must be logical")
-    if (!is.logical(PSU_level)) stop("'PSU_level' must be logical")
-    
+  if (checking) {   
     Y <- check_var(vars = Y, varn = "Y", dataset = dataset,
                    check.names = TRUE, ncols = 0, Yncol = 0,
                    Ynrow = 0, isnumeric = TRUE, grepls = "__")

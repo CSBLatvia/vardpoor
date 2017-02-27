@@ -272,7 +272,7 @@ vardcros <- function(Y, H, PSU, w_final,
          if (!is.null(countryX)) X0 <- data.table(countryX, X0)
          if (!is.null(periodX)) X0 <- data.table(periodX, X0)
          nos <- c(names(periodX), names(countryX), names(ID_level1))
-         DT1 <- merge(DTc, X0, by = nos)
+         DT1 <- merge(DTc, X0, by = nos, sort = FALSE)
 
          ind_gr <- DT1[, c(namesperc, names(ind_gr)), with = FALSE]
          ind_period <- do.call("paste", c(as.list(ind_gr), sep = "_"))

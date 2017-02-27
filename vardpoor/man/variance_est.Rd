@@ -5,7 +5,7 @@
 \usage{variance_est(Y, H, PSU, w_final, N_h = NULL,
                     fh_zero = FALSE, PSU_level = TRUE,
                     PSU_sort = NULL, period = NULL,
-                    dataset = NULL, msg = "")} 
+                    dataset = NULL, msg = "", checking = TRUE)} 
 \arguments{
 \item{Y}{Variables of interest. Object convertible to \code{data.table} or variable names as character, column numbers.}
 
@@ -35,6 +35,8 @@
 \item{dataset}{an optional name of the individual dataset  \code{data.table}.}
 
 \item{msg}{an optional printed text, when function print error.}
+
+\item{checking}{Optional variable if this variable is TRUE, then function checks data preparation errors, otherwise not checked. This variable by default is TRUE.}
 
 }
 \value{a \code{data.table} containing the  values of the

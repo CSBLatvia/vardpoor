@@ -1,5 +1,5 @@
 
-variance_othstr <- function(Y, H, H2, w_final, N_h = NULL, N_h2, period = NULL, dataset = NULL) {
+variance_othstr <- function(Y, H, H2, w_final, N_h = NULL, N_h2, period = NULL, dataset = NULL, checking = TRUE) {
 
   ### Checking
   if (checking) {

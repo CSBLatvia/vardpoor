@@ -5,7 +5,7 @@
 
 \description{Computes s2g and the variance estimation by the new stratification.}
 
-\usage{variance_othstr(Y, H, H2, w_final, N_h = NULL, N_h2, period  =NULL, dataset = NULL)}
+\usage{variance_othstr(Y, H, H2, w_final, N_h = NULL, N_h2, period = NULL, dataset = NULL, checking = TRUE)}
 
 \arguments{
 
@@ -24,6 +24,8 @@
 \item{period}{Optional variable for the survey periods. If supplied, the values for each period are computed independently. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset}).}
 
 \item{dataset}{Optional survey data object convertible to \code{data.table}.}
+
+\item{checking}{Optional variable if this variable is TRUE, then function checks data preparation errors, otherwise not checked. This variable by default is TRUE.}
 
 }
 

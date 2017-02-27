@@ -283,6 +283,7 @@ vardomh <- function(Y, H, PSU, w_final,
        if (np > 0) ID_level1h <- data.table(period, ID_level1h)
        setnames(ID_level1h, names(ID_level1h), names(X_ID_level1))
        X0 <- data.table(X_ID_level1, ind_gr, q, g, X)
+       if (!is.null(periodX)) X0 <- data.table(periodX, X0)
        D1 <- merge(ID_level1h, X0, by = names(ID_level1h), sort = FALSE)
 
        ind_gr <- D1[, np + 2, with = FALSE]

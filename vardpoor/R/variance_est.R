@@ -5,7 +5,7 @@ round2 <- function(x, n) {
 
 variance_est <- function(Y, H, PSU, w_final, N_h = NULL, fh_zero = FALSE,
                          PSU_level = TRUE, PSU_sort = NULL, period = NULL, 
-                         dataset = NULL, msg = "") {
+                         dataset = NULL, msg = "", checking = TRUE) {
 
   ### Checking
 

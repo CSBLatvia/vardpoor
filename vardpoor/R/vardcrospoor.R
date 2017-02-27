@@ -180,7 +180,7 @@ vardcrospoor <- function(Y, age = NULL, pl085 = NULL,
   
   if (is.null(Y_thres)) Y_thres <- Y
   if (is.null(wght_thres)) wght_thres <- w_final
-  
+  namesDom <- names(Dom)  
 
   # Calculation
   Dom1 <- n_h <- stratasf <- name1 <- nhcor <- n_h <- var <- NULL
@@ -195,7 +195,7 @@ vardcrospoor <- function(Y, age = NULL, pl085 = NULL,
   countryperid2 <- c(names(countryper), names(ID_level2))
   
   size <- copy(countryper)
-  if (!is.null(namesDom)) size <- data.table(size, Dom)
+  if (!is.null(Dom)) size <- data.table(size, Dom)
   names_size <- names(size)
   size <- data.table(size, sk = 1, w_final)
   size <- size[, .(count_respondents = .N,
@@ -367,14 +367,18 @@ vardcrospoor <- function(Y, age = NULL, pl085 = NULL,
 
    if (!is.null(X)) {
         X0 <- data.table(X_ID_level1, ind_gr, q, g, X)
-        DT1 <- merge(DTc, X0, by = names(ID_level1h))
+        X0 <- data.table(X_ID_level1, ind_gr, q, g, X)
+        if (!is.null(countryX)) X0 <- data.table(countryX, X0)
+        if (!is.null(periodX)) X0 <- data.table(periodX, X0)
+        nos <- c(names(periodX), names(countryX), names(ID_level1))
+        DT1 <- merge(DTc, X0, by = nos)
         DT1[, w_design := w_final / g ]
 
         ind_gr <- DT1[, c(namesperc, names(ind_gr)), with = FALSE]
-        ind_period <- do.call("paste", c(as.list(ind_gr), sep="_"))
+        ind_period <- do.call("paste", c(as.list(ind_gr), sep = "_"))
      
         res <- lapply(split(DT1[, .I], ind_period), function(i)                  
-                       data.table(DT1[i, names(ID_level1h), with = FALSE],
+                       data.table(DT1[i, nos, with = FALSE],
                                   res <- residual_est(Y = DT1[i, namesY2, with = FALSE],
                                                       X = DT1[i, names(X), with = FALSE],
                                                       weight = DT1[i, "w_design", with = FALSE],
@@ -382,8 +386,8 @@ vardcrospoor <- function(Y, age = NULL, pl085 = NULL,
  
         res <- rbindlist(res)
         setnames(res, namesY2, namesY2w)
-        DTc <- merge(DTc, res, by = names(ID_level1h)) 
-        if (outp_res) res_outp <- DTc[, c(names(ID_level1h), names_PSU, "w_final", namesY2w), with = FALSE]
+        DTc <- merge(DTc, res, by = nos) 
+        if (outp_res) res_outp <- DTc[, c(nos, names_PSU, "w_final", namesY2w), with = FALSE]
     } else DTc[, (namesY2w) := .SD[, namesY2, with = FALSE]]
 
    DTc[, (namesY2w) := .SD[, namesY2, with = FALSE] * get("w_final")]

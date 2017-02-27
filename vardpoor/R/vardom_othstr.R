@@ -181,22 +181,12 @@ vardom_othstr <- function(Y, H, H2, PSU, w_final,
                                                  checking = FALSE)))
             Y2 <- rbindlist(lin1)
             setkeyv(Y2, "sar_nr")
-            lin2 <- lapply(split(Y1[, .I], periodap), function(i)
-                            data.table(sar_nr = i, 
-                                       lin.ratio(Y1[i], Z1[i], w_design[i],
-                                       Dom = NULL, , dataset = NULL,
-                                       percentratio = percentratio,
-                                       checking = FALSE)))
-            Y2a <- rbindlist(lin2)
-            setkeyv(Y2a, "sar_nr")
             Y2[, sar_nr := NULL]
-            Y2a[, sar_nr := NULL]
         }
     if (any(is.na(Y2))) print("Results are calculated, but there are cases where Z = 0")
     if (outp_lin) linratio_outp <- data.table(idper, PSU, Y2) 
   } else {
           Y2 <- Y1
-          Y2a <- Y1
          }
   Y <- Z <- NULL
 
@@ -235,7 +225,7 @@ vardom_othstr <- function(Y, H, H2, PSU, w_final,
   all_result <- merge(all_result, n_nonzero, all = TRUE)
 
   # Variance of HT estimator under current design
-  var_cur_HT <- variance_othstr(Y = Y2a, H = H, H2 = H2, 
+  var_cur_HT <- variance_othstr(Y = Y2, H = H, H2 = H2, 
                                 w_final = w_design, N_h = N_h,
                                 N_h2 = N_h2, period = period,
                                 dataset = NULL, checking = FALSE)
@@ -246,7 +236,7 @@ vardom_othstr <- function(Y, H, H2, PSU, w_final,
 
   # Variance of HT estimator under SRS
   if (is.null(period)) {
-           var_srs_HT <- var_srs(Y2a, w = w_design)$varsrs
+           var_srs_HT <- var_srs(Y2, w = w_design)$varsrs
        } else {
            period_agg <- unique(period)
            lin1 <- lapply(1 : nrow(period_agg), function(i) {

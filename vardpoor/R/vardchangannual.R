@@ -9,7 +9,8 @@ vardchangannual <- function(Y, H, PSU, w_final,
                             subperiodsX = NULL, X_ID_level1 = NULL,
                             ind_gr = NULL, g = NULL, q = NULL,
                             datasetX = NULL, percentratio = 1,
-                            use.estVar = FALSE, confidence = 0.95) {
+                            use.estVar = FALSE, use.gender = FALSE,
+                            confidence = 0.95) {
 
   ### Checking
   outp_res <- FALSE

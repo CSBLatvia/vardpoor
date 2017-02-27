@@ -102,26 +102,30 @@ data(eusilc)
 
 # Example 1
 eusilc1 <- eusilc[1:1000, ]
-dataset <- data.table(IDd=1:nrow(eusilc1), eusilc1)
-N_h2 <- dataset[, sum(rb050, na.rm = FALSE), keyby="db040"]
+dataset <- data.table(IDd = 1:nrow(eusilc1), eusilc1)
+dataset[, db040_2 := get("db040")]
+N_h2 <- dataset[, sum(rb050, na.rm = FALSE), keyby = "db040_2"]
 
-aa<-vardom_othstr(Y="eqIncome", H="db040",H2="db040", PSU="db030", w_final="rb050",
-           id="rb030", Dom = "db040", period=NULL, N_h=NULL, N_h2=N_h2, Z = NULL,
-           X=NULL, g=NULL, q=NULL, dataset=dataset,           
-           confidence = .95, outp_lin=TRUE, outp_res=TRUE)
+aa<-vardom_othstr(Y = "eqIncome", H = "db040", H2 = "db040_2",  
+                  PSU = "db030", w_final = "rb050", id = "rb030",
+                  Dom = "db040", period = NULL, N_h = NULL,
+                  N_h2 = N_h2, Z = NULL, X = NULL, g = NULL,
+                  q = NULL, dataset = dataset, confidence = .95,           
+                  outp_lin = TRUE, outp_res = TRUE)
 
 
 \dontrun{
 # Example 2
-dataset <- data.table(IDd=1:nrow(eusilc), eusilc)
-N_h2 <- dataset[, sum(rb050, na.rm = FALSE), keyby="db040"]
+dataset <- data.table(IDd = 1:nrow(eusilc), eusilc)
+dataset[, db040_2 := get("db040")]
+N_h2 <- dataset[, sum(rb050, na.rm = FALSE), keyby = "db040_2"]
 
-aa<-vardom_othstr(Y="eqIncome", H="db040",H2="db040", PSU="db030", w_final="rb050",
-           id="rb030", Dom = "db040", period=NULL, N_h=NULL, N_h2=N_h2, Z = NULL,
-           X = NULL, g = NULL, dataset = dataset,
-           q = rep(1, if (is.null(dataset)) 
-                       nrow(as.data.frame(H)) else nrow(dataset)),
-           confidence = .95, outp_lin=TRUE, outp_res=TRUE)
+aa <- vardom_othstr(Y = "eqIncome", H = "db040", H2 = "db040_2",
+                    PSU = "db030", w_final = "rb050", id = "rb030",
+                    Dom = "db040", period = NULL, N_h2 = N_h2,
+                    Z = NULL, X = NULL, g = NULL, dataset = dataset,
+                    q = NULL, confidence = .95, outp_lin = TRUE,
+                    outp_res = TRUE)
 }
 
 }

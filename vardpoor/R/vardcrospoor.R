@@ -123,7 +123,7 @@ vardcrospoor <- function(Y, age = NULL, pl085 = NULL,
                                 dataset = dataset, ncols = 1, Yncol = 0,
                                 Ynrow = Ynrow, ischaracter = TRUE)
          
-         ID_level12 <- check_var(vars = ID_level2, varn = "ID_level2",
+         ID_level2 <- check_var(vars = ID_level2, varn = "ID_level2",
                                  dataset = dataset, ncols = 1, Yncol = 0,
                                  Ynrow = Ynrow, ischaracter = TRUE,
                                  namesID1 = names(ID_level1), country = country,

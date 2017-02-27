@@ -130,7 +130,7 @@ vardchangespoor <- function(Y, age = NULL,
                          dataset = dataset, ncols = 1, Yncol = 0,
                          Ynrow = Ynrow, ischaracter = TRUE)
   
-  ID_level12 <- check_var(vars = ID_level2, varn = "ID_level2",
+  ID_level2 <- check_var(vars = ID_level2, varn = "ID_level2",
                           dataset = dataset, ncols = 1, Yncol = 0,
                           Ynrow = Ynrow, ischaracter = TRUE,
                           namesID1 = names(ID_level1), country = country,
@@ -187,9 +187,9 @@ vardchangespoor <- function(Y, age = NULL,
   if (is.null(wght_thres)) wght_thres <- w_final
 
   data <- vardcrospoor(Y = Y, age = age, pl085 = pl085,
-                      month_at_work = month_at_work,
+                       month_at_work = month_at_work,
                        Y_den = Y_den, Y_thres = Y_thres,
-                       H = H, PSU=PSU, w_final = w_final,
+                       H = H, PSU = PSU, w_final = w_final,
                        ID_level1 = ID_level1, ID_level2 = ID_level2,
                        Dom = Dom, country = country,
                        period = period, sort = sort, 

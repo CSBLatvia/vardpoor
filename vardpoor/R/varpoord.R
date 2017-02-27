@@ -40,10 +40,8 @@ varpoord <- function(Y, w_final,
 
   all_choices <- c("linarpr","linarpt","lingpg","linpoormed",
                    "linrmpg","lingini","lingini2", "linqsr", "linrmir", "linarr")
-  choices <- c("all_choices", all_choices)
   type <- tolower(type)
-  type <- match.arg(type, choices, length(type) > 1)
-  if (any(type == "all_choices")) type <- all_choices
+  type <- match.arg(type, all_choices, length(type) > 1)
 
   # check 'p'
   p <- percentage
@@ -78,12 +76,12 @@ varpoord <- function(Y, w_final,
 
   pl085 <- check_var(vars = pl085, varn = "pl085", dataset = dataset,
                      ncols = 1, Ynrow = Ynrow, isnumeric = TRUE, isvector = TRUE,
-                     mustbedefined = any("linarr" == type))
+                     mustbedefined = any(type == "linarr"))
 
   month_at_work <- check_var(vars = month_at_work, varn = "month_at_work",
                              dataset = dataset, ncols = 1, Ynrow = Ynrow,
                              isnumeric = TRUE, isvector = TRUE,
-                             mustbedefined = any("linarr" ==  type))
+                             mustbedefined = any(type == "linarr"))
 
   gender <- check_var(vars = gender, varn = "gender", dataset = dataset,
                       ncols = 1, Ynrow = Ynrow, isnumeric = TRUE,
@@ -248,7 +246,8 @@ varpoord <- function(Y, w_final,
        varpt <- linarpt(Y = Y, id = ID_level2, weight = w_final,
                         sort = sort, Dom = Dom, period = period,
                         dataset = NULL, percentage = percentage,
-                        order_quant = order_quant, var_name = "lin_arpt")
+                        order_quant = order_quant, var_name = "lin_arpt",
+                        checking = FALSE)
        Y1 <- merge(Y1, varpt$lin, all.x = TRUE)
        esti <- data.table("ARPT", varpt$value, NA)
        setnames(esti, names(esti)[c(1, -1 : 0 + ncol(esti))],
@@ -263,7 +262,8 @@ varpoord <- function(Y, w_final,
                         Dom = Dom, period = period, dataset = NULL,
                         percentage = percentage,
                         order_quant = order_quant,
-                        var_name = "lin_arpr")
+                        var_name = "lin_arpr",
+                        checking = FALSE)
 
        Y1 <- merge(Y1, varpr$lin, all.x = TRUE)
 
@@ -277,7 +277,7 @@ varpoord <- function(Y, w_final,
         vgpg <- lingpg(Y = Y, gender = gender, id = ID_level2,
                        weight = w_final, sort = sort,
                        Dom = Dom, period = period, dataset = NULL,
-                       var_name = "lin_gpg")
+                       var_name = "lin_gpg", checking = FALSE)
 
         Y1 <- merge(Y1, vgpg$lin, all.x = TRUE)
 
@@ -291,7 +291,8 @@ varpoord <- function(Y, w_final,
         vporm <- linpoormed(Y = Y, id = ID_level2, weight = w_final,
                             sort = sort, Dom = Dom, period = period,
                             dataset = NULL, percentage = percentage,
-                            order_quant = order_quant, var_name = "lin_poormed")
+                            order_quant = order_quant, var_name = "lin_poormed",
+                            checking = FALSE)
         Y1 <- merge(Y1, vporm$lin, all.x = TRUE)
 
         esti <- data.table("POORMED", vporm$value, NA)
@@ -304,7 +305,8 @@ varpoord <- function(Y, w_final,
         vrmpg <- linrmpg(Y = Y, id = ID_level2, weight = w_final,
                          sort = sort, Dom = Dom, period = period,
                          dataset = NULL, percentage = percentage,
-                         order_quant = order_quant, var_name = "lin_rmpg")
+                         order_quant = order_quant, var_name = "lin_rmpg",
+                         checking = FALSE)
         Y1 <- merge(Y1, vrmpg$lin, all.x = TRUE)
 
         esti <- data.table("RMPG", vrmpg$value, NA)
@@ -316,7 +318,8 @@ varpoord <- function(Y, w_final,
   if ("linqsr" %in% type) {
         vqsr <- linqsr(Y = Y, id = ID_level2, weight = w_final,
                        sort = sort, Dom = Dom, period = period,
-                       dataset = NULL, alpha = alpha, var_name = "lin_qsr")
+                       dataset = NULL, alpha = alpha, var_name = "lin_qsr",
+                       checking = FALSE)
         Y1 <- merge(Y1, vqsr$lin, all.x = TRUE)
 
         esti <- data.table("QSR", vqsr$value)
@@ -328,7 +331,8 @@ varpoord <- function(Y, w_final,
   if ("lingini" %in% type) {
         vgini <- lingini(Y = Y, id = ID_level2, weight = w_final,
                          sort = sort, Dom=Dom, period = period,
-                         dataset = NULL, var_name = "lin_gini")
+                         dataset = NULL, var_name = "lin_gini",
+                         checking = FALSE)
         Y1 <- merge(Y1, vgini$lin, all.x = TRUE)
 
         esti <- data.table("GINI", vgini$value)
@@ -340,7 +344,8 @@ varpoord <- function(Y, w_final,
   if ("lingini2" %in% type) {
        vgini2 <- lingini2(Y = Y, id = ID_level2, weight = w_final,
                           sort = sort, Dom = Dom, period = period,
-                          dataset = NULL, var_name = "lin_gini2")
+                          dataset = NULL, var_name = "lin_gini2",
+                          checking = FALSE)
        Y1 <- merge(Y1, vgini2$lin, all.x = TRUE)
 
        esti <- data.table("GINI2", vgini2$value)
@@ -354,7 +359,8 @@ varpoord <- function(Y, w_final,
                         weight = w_final, sort = sort, Dom = Dom,
                         period = period, dataset = NULL,
                         order_quant = order_quant,
-                        var_name = "lin_rmir")
+                        var_name = "lin_rmir",
+                        checking = FALSE)
        Y1 <- merge(Y1, vrmir$lin, all.x = TRUE)
 
        esti <- data.table("RMIR", vrmir$value, NA)
@@ -371,7 +377,8 @@ varpoord <- function(Y, w_final,
                       weight = w_final, sort = sort, Dom = Dom,
                       period = period, dataset = NULL,
                       order_quant = order_quant,
-                      var_name = "lin_arr")
+                      var_name = "lin_arr",
+                      checking = FALSE)
        Y1 <- merge(Y1, varr$lin, all.x = TRUE)
 
        esti <- data.table("ARR", varr$value, NA)

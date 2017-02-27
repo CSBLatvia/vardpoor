@@ -98,7 +98,7 @@ For example, to compute poverty threshold equal to some percentage of median inc
 \item{outp_res}{Logical value. If \code{TRUE} estimated residuals of calibration will be printed out.}
 
 \item{type}{a character vector (of length one unless several.ok is TRUE), example "linarpr","linarpt", "lingpg", "linpoormed", "linrmpg",
-   "lingini", "lingini2", "linqsr", "linarr", "linrmir", "all_choices".}
+   "lingini", "lingini2", "linqsr", "linarr", "linrmir".}
 
 }
 

@@ -184,7 +184,9 @@ vardcros <- function(Y, H, PSU, w_final,
                    lin1 <- lapply(split(Y1[, .I], period_country),
                                   function(i) data.table(sar_nr = i,
                                                          lin.ratio(Y1[i], Z1[i], w_final[i],
-                                                                   Dom = NULL, percentratio = percentratio)))
+                                                                   Dom = NULL, dataset = NULL,
+                                                                   percentratio = percentratio,
+                                                                   checking = FALSE)))
                    Y2 <- rbindlist(lin1)
                    setkeyv(Y2, "sar_nr")
                    Y2[, sar_nr := NULL]
@@ -278,7 +280,8 @@ vardcros <- function(Y, H, PSU, w_final,
                                    res <- residual_est(Y = DT1[i, namesY2, with = FALSE],
                                                        X = DT1[i, names(X), with = FALSE],
                                                        weight = DT1[i, w_design, with = FALSE],
-                                                       q = DT1[i, q, with = FALSE])))
+                                                       q = DT1[i, q, with = FALSE],
+                                                       dataset = NULL, checking = FALSE)))
          res <- rbindlist(res)
          setnames(res, namesY2, namesY2w)
          DTc <- merge(DTc, res, by = nos)

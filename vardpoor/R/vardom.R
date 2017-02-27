@@ -230,6 +230,7 @@ vardom <- function(Y, H, PSU, w_final,
                                                 X = X[i],
                                                 weight = w_design[i],
                                                 q = q[i],
+                                                dataset = NULL,
                                                 checking = FALSE)))
         Y3 <- rbindlist(lin1)
         X <- g <- q <- NULL

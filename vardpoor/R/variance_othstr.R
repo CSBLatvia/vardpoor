@@ -22,11 +22,7 @@ variance_othstr <- function(Y, H, H2, w_final, N_h = NULL, N_h2, period = NULL, 
     period <- check_var(vars = period, varn = "period",
                         dataset = dataset, Ynrow = Ynrow,
                         ischaracter = TRUE, mustbedefined = FALSE,
-                        duplicatednames = TRUE)
-    
-    PSU <- check_var(vars = PSU, varn = "PSU", dataset = dataset,
-                     ncols = 1, Ynrow = Ynrow, ischaracter = TRUE,
-                      namesID1 = names(id))
+                        duplicatednames = TRUE)    
   }
   
   np <- sum(ncol(period))

@@ -63,10 +63,6 @@ vardom_othstr <- function(Y, H, H2, PSU, w_final,
                  check.names = TRUE, Yncol = Yncol, Ynrow = Ynrow,
                  isnumeric = TRUE, mustbedefined = FALSE)
 
-  PSU_sort <- check_var(vars = PSU_sort, varn = "PSU_sort", dataset = dataset,
-                        ncols = 1, Ynrow = Ynrow, ischaracter = TRUE,
-                        isvector = TRUE, mustbedefined = FALSE, PSUs = PSU)
-
   if (!is.null(X)) {
          X <- check_var(vars = X, varn = "X", dataset = dataset,
                         check.names = TRUE, Ynrow = Ynrow,
@@ -180,13 +176,17 @@ vardom_othstr <- function(Y, H, H2, PSU, w_final,
             lin1 <- lapply(split(Y1[, .I], periodap), function(i)
                             data.table(sar_nr = i, 
                                        lin.ratio(Y1[i], Z1[i], w_final[i],
-                                                 Dom = NULL, percentratio = percentratio)))
+                                                 Dom = NULL, dataset = NULL,
+                                                 percentratio = percentratio,
+                                                 checking = FALSE)))
             Y2 <- rbindlist(lin1)
             setkeyv(Y2, "sar_nr")
             lin2 <- lapply(split(Y1[, .I], periodap), function(i)
                             data.table(sar_nr = i, 
                                        lin.ratio(Y1[i], Z1[i], w_design[i],
-                                       Dom = NULL, percentratio = percentratio)))
+                                       Dom = NULL, , dataset = NULL,
+                                       percentratio = percentratio,
+                                       checking = FALSE)))
             Y2a <- rbindlist(lin2)
             setkeyv(Y2a, "sar_nr")
             Y2[, sar_nr := NULL]
@@ -212,7 +212,9 @@ vardom_othstr <- function(Y, H, H2, PSU, w_final,
                                    residual_est(Y = Y2[i],
                                                 X = X[i],
                                                 weight = w_design[i],
-                                                q = q[i])))
+                                                q = q[i],
+                                                dataset = NULL,
+                                                checking = FALSE)))
         Y3 <- rbindlist(lin1)
         setkeyv(Y3, "sar_nr")
         Y3[, sar_nr := NULL] 
@@ -222,7 +224,8 @@ vardom_othstr <- function(Y, H, H2, PSU, w_final,
 
   var_est <- variance_othstr(Y = Y3, H = H, H2 = H2,  
                              w_final = w_final, N_h = N_h,
-                             N_h2 = N_h2, period = period, dataset = NULL)
+                             N_h2 = N_h2, period = period,
+                             dataset = NULL, checking = FALSE)
   s2g <- var_est$s2g
   var_est <- var_est$var_est
   var_est <- transpos(var_est, is.null(period), "var_est", names(period))
@@ -235,7 +238,7 @@ vardom_othstr <- function(Y, H, H2, PSU, w_final,
   var_cur_HT <- variance_othstr(Y = Y2a, H = H, H2 = H2, 
                                 w_final = w_design, N_h = N_h,
                                 N_h2 = N_h2, period = period,
-                                dataset = NULL)
+                                dataset = NULL, checking = FALSE)
   var_cur_HT <- var_cur_HT$var_est
   var_cur_HT <- transpos(var_cur_HT, is.null(period), "var_cur_HT", names(period))
   all_result <- merge(all_result, var_cur_HT)

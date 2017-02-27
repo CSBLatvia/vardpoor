@@ -379,7 +379,8 @@ vardcrospoor <- function(Y, age = NULL, pl085 = NULL,
                                   res <- residual_est(Y = DT1[i, namesY2, with = FALSE],
                                                       X = DT1[i, names(X), with = FALSE],
                                                       weight = DT1[i, "w_design", with = FALSE],
-                                                      q = DT1[i, "q", with = FALSE])))
+                                                      q = DT1[i, "q", with = FALSE],
+                                                      dataset = NULL, checking = FALSE)))
  
         res <- rbindlist(res)
         setnames(res, namesY2, namesY2w)

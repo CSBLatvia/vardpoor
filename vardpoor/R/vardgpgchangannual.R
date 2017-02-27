@@ -1,13 +1,14 @@
 
-vardgpgcrosannual <- function(Y, H, PSU, w_final, ID_level1,
-                              ID_level2, Dom = NULL, Z = NULL,
-                              gender, country = NULL, years,
-                              subperiods, dataset = NULL, X = NULL,
-                              countryX = NULL, yearsX = NULL,
-                              subperiodsX = NULL, X_ID_level1 = NULL,
-                              ind_gr = NULL, g = NULL, q = NULL,
-                              datasetX = NULL, percentratio = 1,
-                              use.estVar = FALSE, confidence = 0.95) {
+vardgpgchangannual <- function(Y, H, PSU, w_final, ID_level1,
+                               ID_level2, Dom = NULL, Z = NULL,
+                               gender, country = NULL, years,
+                               subperiods, dataset = NULL, year1,
+                               year2, X = NULL, countryX = NULL, 
+                               yearsX = NULL, subperiodsX = NULL, 
+                               X_ID_level1 = NULL, ind_gr = NULL,
+                               g = NULL, q = NULL, datasetX = NULL,
+                               percentratio = 1, use.estVar = FALSE,
+                               confidence = 0.95) {
 
   Y <- check_var(vars = Y, varn = "Y", dataset = dataset,
                  check.names = TRUE, isnumeric = TRUE, grepls = "__")
@@ -39,6 +40,13 @@ vardgpgcrosannual <- function(Y, H, PSU, w_final, ID_level1,
   years <- check_var(vars = years, varn = "years", dataset = dataset,
                      ncols = 1, Ynrow = Ynrow, ischaracter = TRUE,
                      dif_name = c("percoun", "period_country", names(country)))
+  yearm <- names(years)
+  
+  year1 <- check_var(vars = year1, varn = "year1", dataset = NULL,
+                     ncols = 1, ischaracter = TRUE, years = years)
+  
+  year2 <- check_var(vars = year2, varn = "year2", dataset = NULL,
+                     ncols = 1, ischaracter = TRUE, years = years)
 
   subperiods <- check_var(vars = subperiods, varn = "subperiods",
                           dataset = dataset, ncols = 1, 

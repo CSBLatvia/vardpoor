@@ -54,6 +54,8 @@ export("vardcrosannual")
 
 export("vardchangannual")
 export("vardgpgcrosannual")
+export("vardgpgchangannual")
+
 
 
 

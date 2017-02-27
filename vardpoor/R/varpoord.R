@@ -446,6 +446,7 @@ varpoord <- function(Y, w_final,
                                           X = D1[i, (np + 5) : ncol(D1), with = FALSE],
                                           weight = w_design2[i],
                                           q = D1[i, np + 3, with = FALSE],
+                                          dataset = NULL,
                                           checking = FALSE)))
        Y4 <- rbindlist(lin1)
        setkeyv(Y4, "sar_nr")

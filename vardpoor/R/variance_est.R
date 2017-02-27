@@ -9,88 +9,41 @@ variance_est <- function(Y, H, PSU, w_final, N_h = NULL, fh_zero = FALSE,
 
   ### Checking
 
-    if (!is.logical(fh_zero)) stop("'fh_zero' must be logical")
-    if (!is.logical(PSU_level)) stop("'PSU_level' must be logical")
+  if (checking) {
+        if (!is.logical(fh_zero)) stop("'fh_zero' must be logical")
+        if (!is.logical(PSU_level)) stop("'PSU_level' must be logical")
+    
+        Y <- check_var(vars = Y, varn = "Y", dataset = dataset,
+                       check.names = TRUE, ncols = 0, Yncol = 0,
+                       Ynrow = 0, isnumeric = TRUE, grepls = "__")
+        Ynrow <- nrow(Y)
+        Yncol <- ncol(Y)
+    
+        H <- check_var(vars = H, varn = "H", dataset = dataset,
+                       ncols = 1, Yncol = 0, Ynrow = Ynrow,
+                       isnumeric = FALSE, ischaracter = TRUE)
+    
+        w_final <- check_var(vars = w_final, varn = "w_final",
+                             dataset = dataset, ncols = 1, Ynrow = Ynrow,
+                             isnumeric = TRUE, isvector = TRUE)
+        
+        period <- check_var(vars = period, varn = "period",
+                           dataset = dataset, Yncol = 0, Ynrow = Ynrow,
+                           ischaracter = TRUE, mustbedefined = FALSE,
+                           duplicatednames = TRUE)
 
-    if(!is.null(dataset)) {
-      dataset <- data.table(dataset)
-      if (min(Y %in% names(dataset)) != 1) stop("'Y' does not exist in 'dataset'!")
-      if (min(Y %in% names(dataset)) == 1) Y <- dataset[, Y, with = FALSE] 
-      if(!is.null(H)) {
-          if (min(H %in% names(dataset)) != 1) stop("'H' does not exist in 'dataset'!")
-          if (min(H %in% names(dataset)) == 1) H <- dataset[, H, with = FALSE] }
-      if(!is.null(PSU)) {
-          if (min(PSU %in% names(dataset)) != 1) stop("'PSU' does not exist in 'dataset'!")
-          if (min(PSU %in% names(dataset)) == 1) PSU <- dataset[, PSU, with = FALSE] }
-      if(!is.null(w_final)) {
-          if (min(w_final %in% names(dataset)) != 1) stop("'w_final' does not exist in 'dataset'!")
-          if (min(w_final %in% names(dataset)) == 1) w_final <- dataset[, w_final, with = FALSE] }
-       if (!is.null(period)) {
-            if (min(period %in% names(dataset)) != 1) stop("'period' does not exist in 'dataset'!")
-            if (min(period %in% names(dataset)) == 1) period <- dataset[, period, with = FALSE] }
-       if (!is.null(PSU_sort)) {
-            if (min(PSU_sort %in% names(dataset)) != 1) stop("'PSU_sort' does not exist in 'dataset'!")
-            if (min(PSU_sort %in% names(dataset)) == 1) PSU_sort <- dataset[, PSU_sort, with = FALSE] }
-      }
+        PSU <- check_var(vars = PSU, varn = "PSU", dataset = dataset,
+                         ncols = 1, Yncol = 0, Ynrow = Ynrow,
+                         ischaracter = TRUE, namesID1 = names(id))
+     
+        PSU_sort <- check_var(vars = PSU_sort, varn = "PSU_sort", dataset = dataset,
+                              ncols = 1, Ynrow = Ynrow, ischaracter = TRUE,
+                              isvector = TRUE, mustbedefined = FALSE, PSUs = PSU)
+    }
 
-  # Y
-  Y <- data.table(Y, check.names = TRUE)
-  n <- nrow(Y)
-  m <- ncol(Y)
-  if (anyNA(Y)) print("'Y' has missing values")
-  if (!all(sapply(Y, is.numeric))) stop("'Y' must be numeric values")
-  
-  # H
-  H <- data.table(H)
-  if (nrow(H) != n) stop("'H' length must be equal with 'Y' row count")
-  if (ncol(H) != 1) stop("'H' must be 1 column data.frame, matrix, data.table")
-  H[, (names(H)) := lapply(.SD, as.character)]
-  if (anyNA(H)) stop("'H' has missing values")
-  
-  # PSU
-  PSU <- data.table(PSU)
-  if (nrow(PSU) != n) stop("'PSU' length must be equal with 'Y' row count")
-  if (ncol(PSU) != 1) stop("'PSU' must be 1 column data.frame, matrix, data.table")
-  PSU[, (names(PSU)) := lapply(.SD, as.character)]
-  if (anyNA(PSU)) stop("'PSU' has missing values")
-  
-  # w_final
-  w_final <- data.frame(w_final)
-  if (nrow(w_final) != n) stop("'w_final' must be equal with 'Y' row count")
-  if (ncol(w_final) != 1) stop("'w_final' must be vector or 1 column data.frame, matrix, data.table")
-  w_final <- w_final[, 1]
-  if (!is.numeric(w_final)) stop("'w_final' must be numerical")
-  if (anyNA(w_final)) stop("'w_final' has missing values")
-
-  # period     
-  if (!is.null(period)) {
-       period <- data.table(period)
-       if (any(duplicated(names(period)))) 
-                 stop("'period' are duplicate column names: ", 
-                      paste(names(period)[duplicated(names(period))], collapse = ","))
-       if (nrow(period) != n) stop("'period' must be the same length as 'inc'")
-       period[, (names(period)) := lapply(.SD, as.character)]
-       if(anyNA(period)) stop("'period' has missing values")  
-  }   
   np <- sum(ncol(period))
   vars <- names(period)
 
-
-  # PSU_sort
-  if (!is.null(PSU_sort)) {
-          PSU_sort <- data.frame(PSU_sort)
-          if (nrow(PSU_sort) != n) stop("'PSU_sort' must be equal with 'Y' row count")
-          if (ncol(PSU_sort) != 1) stop("'PSU_sort' must be a vector or 1 column data.frame, matrix, data.table")
-          PSU_sort <- PSU_sort[, 1]
-          if (!is.numeric(PSU_sort)) stop("'PSU_sort' must be numeric")
-          if (anyNA(PSU_sort)) stop("'PSU_sort' has missing values")
-
-          psuag <- data.table(PSU, PSU_sort)
-          if (!is.null(period)) psuag <- data.table(period, psuag)
-          psuag <- psuag[, .N, by = names(psuag)][, N := NULL]
-          psuag <- psuag[, .N, by = c(names(period), names(PSU))]
-          if (nrow(psuag[N > 1]) > 0) stop("'PSU_sort' must be equal for each 'PSU'")
-  }
 
   # N_h
   if (!is.null(N_h)) {

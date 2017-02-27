@@ -22,103 +22,72 @@ vardom_othstr <- function(Y, H, H2, PSU, w_final,
   if(length(confidence) != 1 | any(!is.numeric(confidence) | confidence < 0 | confidence > 1)) {
          stop("'confidence' must be a numeric value in [0, 1]")  }
 
-  if(!is.null(dataset)) {
-      dataset <- data.table(dataset)
-      if (min(Y %in% names(dataset)) != 1) stop("'Y' does not exist in 'dataset'!")
-      if (min(Y %in% names(dataset)) == 1) Y <- dataset[, Y, with = FALSE] 
-      if(!is.null(id)) {
-          if (min(id %in% names(dataset)) != 1) stop("'id' does not exist in 'dataset'!")
-          if (min(id %in% names(dataset)) == 1) id <- dataset[, id, with = FALSE]  }
+  Y <- check_var(vars = Y, varn = "Y", dataset = dataset,
+                 check.names = TRUE, ncols = 0, Yncol = 0,
+                 Ynrow = 0, isnumeric = TRUE, grepls = "__")
+  Ynrow <- nrow(Y)
+  Yncol <- ncol(Y)
 
-      if (!is.null(period)) {
-           if (min(period %in% names(dataset)) != 1) stop("'period' does not exist in 'dataset'!")
-           if (min(period %in% names(dataset)) == 1) period <- dataset[, period, with = FALSE] }
-      if(!is.null(H)) {
-          if (min(H %in% names(dataset)) != 1) stop("'H' does not exist in 'dataset'!")
-          if (min(H %in% names(dataset)) == 1) H <- dataset[, H, with = FALSE] }
-      if(!is.null(H2)) {
-          if (min(H2 %in% names(dataset)) != 1) stop("'H2' does not exist in 'dataset'!")
-          if (min(H2 %in% names(dataset)) == 1) H2 <- dataset[, H2, with = FALSE] }
-      if(!is.null(PSU)) {
-          if (min(PSU %in% names(dataset)) != 1) stop("'PSU' does not exist in 'dataset'!")
-          if (min(PSU %in% names(dataset)) == 1) PSU <- dataset[, PSU, with = FALSE] }
-      if(!is.null(w_final)) {
-          if (min(w_final %in% names(dataset)) != 1) stop("'w_final' does not exist in 'dataset'!")
-          if (min(w_final %in% names(dataset)) == 1) w_final <- dataset[, w_final, with = FALSE] }
-      if(!is.null(Z)) {
-          if (min(Z %in% names(dataset)) != 1) stop("'Z' does not exist in 'dataset'!")
-          if (min(Z %in% names(dataset)) == 1) Z <- dataset[, Z, with = FALSE] }
-      if(!is.null(X)) {
-          if (min(X %in% names(dataset)) != 1) stop("'X' does not exist in 'dataset'!")
-          if (min(X %in% names(dataset)) == 1) X <- dataset[, X, with = FALSE] }
-      if(!is.null(g)) {
-          if (min(g %in% names(dataset)) != 1) stop("'g' does not exist in 'dataset'!")
-          if (min(g %in% names(dataset)) == 1) g <- dataset[, g, with = FALSE] }
-      if(!is.null(q)) {
-          if (min(q %in% names(dataset)) != 1) {
-              if (length(q) != nrow(dataset))  stop("'q' does not exist in 'dataset'!") }
-          if (min(q %in% names(dataset)) == 1) q <- dataset[, q, with = FALSE] } 
-      if (!is.null(Dom)) {
-          if (min(Dom %in% names(dataset)) != 1) stop("'Dom' does not exist in 'data'!")
-          if (min(Dom %in% names(dataset)) == 1) Dom <- dataset[, Dom, with = FALSE]   }
-    }
+  H <- check_var(vars = H, varn = "H", dataset = dataset,
+                 ncols = 1, Yncol = 0, Ynrow = Ynrow,
+                 isnumeric = FALSE, ischaracter = TRUE)
 
-  # Y
-  Y <- data.table(Y, check.names = TRUE)
-  n <- nrow(Y)
-  m <- ncol(Y)
-  if (anyNA(Y)) stop("'Y' has missing values")
-  if (!all(sapply(Y, is.numeric))) stop("'Y' must be numeric values")
-  if (any(grepl("__", names(Y)))) stop("'Y' is not allowed column names with '__'")
+  H2 <- check_var(vars = H2, varn = "H2", dataset = dataset,
+                 ncols = 1, Yncol = 0, Ynrow = Ynrow,
+                 isnumeric = FALSE, ischaracter = TRUE,
+                 dif_name = names(H))
 
-  # H
-  H <- data.table(H)
-  if (nrow(H) != n) stop("'H' length must be equal with 'Y' row count")
-  if (ncol(H) != 1) stop("'H' must be 1 column data.frame, matrix, data.table")
-  H[, (names(H)) := lapply(.SD, as.character)]
-  if (anyNA(H)) stop("'H' has missing values")
-  
-  # H2
-  H2 <- data.table(H2)
-  if (nrow(H2) != n) stop("'H2' length must be equal with 'Y' row count")
-  if (ncol(H2) != 1) stop("'H2' must be 1 column data.frame, matrix, data.table")
-  H2[, (names(H2)) := lapply(.SD, as.character)]
-  if (anyNA(H2)) stop("'H2' has missing values")
-
-  # PSU
-  PSU <- data.table(PSU)
-  if (nrow(PSU) != n) stop("'PSU' length must be equal with 'Y' row count")
-  if (ncol(PSU) != 1) stop("'PSU' has more than 1 column")
-  PSU[, (names(PSU)) := lapply(.SD, as.character)]
-  if (anyNA(PSU)) stop("'PSU' has missing values")
-  
-  # id
-  if (is.null(id)) id <- PSU
-  id <- data.table(id)
-  if (anyNA(id)) stop("'id' has missing values")
-  if (nrow(id) != n) stop("'id' length must be equal with 'Y' row count")
-  if (ncol(id) != 1) stop("'id' must be 1 column data.frame, matrix, data.table")
-  if (names(id) == "id") setnames(id, names(id), "ID")
-
-  # period     
-  if (!is.null(period)) {
-      period <- data.table(period)
-      if (any(duplicated(names(period)))) 
-                stop("'period' are duplicate column names: ", 
-                     paste(names(period)[duplicated(names(period))], collapse = ","))
-      if (nrow(period) != n) stop("'period' must be the same length as 'Y'")
-      period[, (names(period)) := lapply(.SD, as.character)]
-      if(anyNA(period)) stop("'period' has missing values")
-  } 
+  period <- check_var(vars = period, varn = "period",
+                      dataset = dataset, Yncol = 0, Ynrow = Ynrow,
+                      ischaracter = TRUE, mustbedefined = FALSE,
+                      duplicatednames = TRUE)
   np <- sum(ncol(period))
 
-  # w_final 
-  w_final <- data.frame(w_final)
-  if (anyNA(w_final)) stop("'w_final' has missing values") 
-  if (nrow(w_final) != n) stop("'w_final' must be equal with 'Y' row count")
-  if (ncol(w_final) != 1) stop("'w_final' must be a vector or 1 column data.frame, matrix, data.table")
-  w_final <- w_final[, 1]
-  if (!is.numeric(w_final)) stop("'w_final' must be numeric")
+  id <- check_var(vars = id, varn = "id", dataset = dataset,
+                  ncols = 1, Yncol = 0, Ynrow = Ynrow,
+                  ischaracter = TRUE, periods = period)
+
+  PSU <- check_var(vars = PSU, varn = "PSU", dataset = dataset,
+                   ncols = 1, Yncol = 0, Ynrow = Ynrow,
+                   ischaracter = TRUE, namesID1 = names(id))
+
+  Dom <- check_var(vars = Dom, varn = "Dom", dataset = dataset,
+                   Ynrow = Ynrow, ischaracter = TRUE,
+                   mustbedefined = FALSE, duplicatednames = TRUE,
+                   grepls = "__")
+  namesDom <- names(Dom)
+
+  w_final <- check_var(vars = w_final, varn = "w_final",
+                       dataset = dataset, ncols = 1, Ynrow = Ynrow,
+                       isnumeric = TRUE, isvector = TRUE)
+
+  Z <- check_var(vars = Z, varn = "Z", dataset = dataset,
+                 check.names = TRUE, Yncol = Yncol, Ynrow = Ynrow,
+                 isnumeric = TRUE, mustbedefined = FALSE)
+
+  PSU_sort <- check_var(vars = PSU_sort, varn = "PSU_sort", dataset = dataset,
+                        ncols = 1, Ynrow = Ynrow, ischaracter = TRUE,
+                        isvector = TRUE, mustbedefined = FALSE, PSUs = PSU)
+
+  if (!is.null(X)) {
+         X <- check_var(vars = X, varn = "X", dataset = dataset,
+                        check.names = TRUE, Ynrow = Ynrow,
+                        isnumeric = TRUE, grepls = "__")
+         Xnrow <- nrow(X)
+
+         ind_gr <- check_var(vars = ind_gr, varn = "ind_gr",
+                             dataset = dataset, ncols = 1, Xnrow = Xnrow,
+                             ischaracter = TRUE, dif_name = c(names(period)))
+
+         g <- check_var(vars = g, varn = "g", dataset = dataset,
+                        ncols = 1, Xnrow = Xnrow, isnumeric = TRUE,
+                        isvector = TRUE)
+
+         q <- check_var(vars = q, varn = "q", dataset = dataset,
+                        ncols = 1, Xnrow = Xnrow, isnumeric = TRUE,
+                        isvector = TRUE)
+    }
+  dataset <- NULL
 
   # N_h
   if (!is.null(N_h)) {
@@ -162,67 +131,6 @@ vardom_othstr <- function(Y, H, H2, PSU, w_final,
                 } 
     setkeyv(N_h2, names(N_h2)[c(1 : (1 + np))])
   } else stop ("N_h2 is not defined!")
-
-  if (all(names(H) == names(H2))) {
-      if (!is.null(N_h2))  setnames(N_h2, names(N_h2), paste0(names(N_h2), "2"))  
-     setnames(H2, names(H2), paste0(names(H), "2"))  }
-
-  # Dom
-  namesDom <- NULL
-  if (!is.null(Dom)) {
-    Dom <- data.table(Dom)
-    if (any(duplicated(names(Dom)))) 
-           stop("'Dom' are duplicate column names: ", 
-                 paste(names(Dom)[duplicated(names(Dom))], collapse = ","))
-    if (nrow(Dom) != n) stop("'Dom' and 'Y' must be equal row count")
-    Dom[, (names(Dom)) := lapply(.SD, as.character)]
-    if (anyNA(Dom)) stop("'Dom' has missing values")
-    if (any(grepl("__", names(Dom)))) stop("'Dom' is not allowed column names with '__'")
-    namesDom <- names(Dom)
-  }
-  
-  # Z
-  if (!is.null(Z)) {
-    Z <- data.table(Z)
-    if (anyNA(Z)) stop("'Z' has missing values")
-    if (nrow(Z) != n) stop("'Z' and 'Y' must be equal row count")
-    if (ncol(Z) != m) stop("'Z' and 'Y' must be equal column count")
-    if (!all(sapply(Z, is.numeric))) stop("'Z' must be numeric values")
-    if (any(grepl("__", names(Z)))) stop("'Z' is not allowed column names with '__'")
-  }
-      
-  # X
-  if (!is.null(X)) {
-    X <- data.table(X)
-    if (anyNA(X)) stop("'X' has missing values")
-    if (!all(sapply(X, is.numeric))) stop("'X' must be numeric values")
-    if (nrow(X) != n) stop("'X' and 'Y' must be equal row count")
-  }
-      
-  # g
-  if (!is.null(X)) {
-    if (is.null(class(g)) | all(class(g) == "function")) stop("'g' must be numeric")
-    g <- data.frame(g)
-    if (anyNA(g)) stop("'g' has missing values")
-    if (nrow(g) != nrow(X)) stop("'g' length must be equal with 'X' row count")
-    if (ncol(g) != 1) stop("'g' must be 1 column data.frame, matrix, data.table")
-    g <- g[, 1]
-    if (!is.numeric(g)) stop("'g' must be numeric")
-    if (any(g == 0)) stop("'g' value can not be 0")
-   }
-    
-  # q
-  if (!is.null(X)) {
-    if (is.null(q))  q <- rep(1, nrow(X))
-    if (is.null(class(q)) | all(class(q) == "function")) stop("'q' must be numeric")
-    q <- data.frame(q)
-    if (anyNA(q)) stop("'q' has missing values")
-    if (nrow(q) != nrow(X)) stop("'q' length must be equal with 'X' row count")
-    if (ncol(q) != 1) stop("'q' must be 1 column data.frame, matrix, data.table")
-    q <- q[, 1]
-    if (!is.numeric(q)) stop("'q' must be numeric")
-    if (any(is.infinite(q))) stop("'q' value can not be infinite")
-  }
 
 
   ### Calculation

@@ -1,23 +1,4 @@
 
-checker <- function(variables, datasets, varname) {
-      vars <- 0
-      if (sum(variables %in% names(datasets)) > 0) { vars <- vars + 100
-         } else vars <- vars + 1
-      if (is.numeric(variables)) {
-         if ((variables <= ncol(datasets))*(0 < variables)) { vars <- vars + 100
-            } else vars <- vars + 10 }
-      if (is.logical(variables)) {
-         if (length(variables) == ncol(datasets)) { vars <- vars + 100
-            } else vars <- vars + 20 }
-
-      if (vars == 1)  stop(paste(variables,"does not exist in 'dataset'!", sep = " "))
-      if (vars == 11) stop(paste("Column",variables,"does not exist in 'dataset'!", sep = " "))
-      if (vars == 21) stop(paste0("'",varname,"' logical vector must be the same length as 'dataset' column count!"))
-
-      return(ifelse(vars >= 100, TRUE, FALSE))
- }
-
-
 incPercentile <- function(Y, weights = NULL, sort = NULL,
                           Dom = NULL, period = NULL,
                           k = c(20, 80), dataset = NULL,

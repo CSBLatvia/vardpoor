@@ -61,12 +61,13 @@ vardchanges <- function(Y, H, PSU, w_final,
         country <- check_var(vars = country, varn = "country",
                              dataset = dataset, ncols = 1, Yncol = 0,
                              Ynrow = Ynrow, ischaracter = TRUE,
-                             mustbedefined = FALSE, dif_name = "percoun")
+                             mustbedefined = FALSE,
+                             dif_name = c("percoun", "period_country"))
 
         period <- check_var(vars = period, varn = "period",
                             dataset = dataset, ncols = 1, Ynrow = Ynrow,
                             ischaracter = TRUE, duplicatednames = TRUE,
-                            dif_name = c("percoun", names(country)))
+                            dif_name = c("percoun", "period_country", names(country)))
 
         period1 <- check_var(vars = period1, varn = "period1", dataset = NULL,
                              ncols = 1, ischaracter = TRUE, periods = period)
@@ -150,7 +151,7 @@ vardchanges <- function(Y, H, PSU, w_final,
                     withperiod = TRUE,
                     netchanges = TRUE,
                     confidence = confidence,
-                    checking = TRUE)
+                    checking = FALSE)
   res_out <- datas$res_out
   crossectional_results <- datas$results
 

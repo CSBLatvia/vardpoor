@@ -14,27 +14,26 @@ variance_est <- function(Y, H, PSU, w_final, N_h = NULL, fh_zero = FALSE,
         if (!is.logical(PSU_level)) stop("'PSU_level' must be logical")
     
         Y <- check_var(vars = Y, varn = "Y", dataset = dataset,
-                       check.names = TRUE, ncols = 0, Yncol = 0,
-                       Ynrow = 0, isnumeric = TRUE, grepls = "__")
+                       check.names = TRUE, isnumeric = TRUE)
         Ynrow <- nrow(Y)
         Yncol <- ncol(Y)
     
         H <- check_var(vars = H, varn = "H", dataset = dataset,
-                       ncols = 1, Yncol = 0, Ynrow = Ynrow,
-                       isnumeric = FALSE, ischaracter = TRUE)
+                       ncols = 1, Ynrow = Ynrow, isnumeric = FALSE,
+                       ischaracter = TRUE)
     
         w_final <- check_var(vars = w_final, varn = "w_final",
                              dataset = dataset, ncols = 1, Ynrow = Ynrow,
                              isnumeric = TRUE, isvector = TRUE)
         
         period <- check_var(vars = period, varn = "period",
-                           dataset = dataset, Yncol = 0, Ynrow = Ynrow,
+                           dataset = dataset, Ynrow = Ynrow,
                            ischaracter = TRUE, mustbedefined = FALSE,
                            duplicatednames = TRUE)
 
         PSU <- check_var(vars = PSU, varn = "PSU", dataset = dataset,
-                         ncols = 1, Yncol = 0, Ynrow = Ynrow,
-                         ischaracter = TRUE, namesID1 = names(id))
+                         ncols = 1, Ynrow = Ynrow, ischaracter = TRUE,
+                         namesID1 = names(id))
      
         PSU_sort <- check_var(vars = PSU_sort, varn = "PSU_sort", dataset = dataset,
                               ncols = 1, Ynrow = Ynrow, ischaracter = TRUE,

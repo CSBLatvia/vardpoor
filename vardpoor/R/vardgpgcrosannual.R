@@ -10,20 +10,19 @@ vardgpgcrosannual <- function(Y, H, PSU, w_final, ID_level1,
                               use.estVar = FALSE, confidence = 0.95) {
 
   Y <- check_var(vars = Y, varn = "Y", dataset = dataset,
-                 check.names = TRUE, ncols = 0, Yncol = 0,
-                 Ynrow = 0, isnumeric = TRUE, grepls = "__")
+                 check.names = TRUE, isnumeric = TRUE, grepls = "__")
   Ynrow <- nrow(Y)
   Yncol <- ncol(Y)
 
   H <- check_var(vars = H, varn = "H", dataset = dataset,
-                 ncols = 1, Yncol = 0, Ynrow = Ynrow,
-                 ischaracter = TRUE, dif_name = "dataH_stratas")
+                 ncols = 1, Ynrow = Ynrow, ischaracter = TRUE,
+                 dif_name = "dataH_stratas")
 
   w_final <- check_var(vars = w_final, varn = "w_final",
-                       dataset = dataset, ncols = 1, Yncol = 0,
-                       Ynrow = Ynrow, isnumeric = TRUE, isvector = TRUE)
+                       dataset = dataset, ncols = 1, Ynrow = Ynrow,
+                       isnumeric = TRUE, isvector = TRUE)
 
-  Z <- check_var(vars = Z, varn = "Z", dataset = dataset, ncols = 0,
+  Z <- check_var(vars = Z, varn = "Z", dataset = dataset,
                  check.names = TRUE, Yncol = Yncol, Ynrow = Ynrow,
                  isnumeric = TRUE, mustbedefined = FALSE)
 
@@ -33,16 +32,16 @@ vardgpgcrosannual <- function(Y, H, PSU, w_final, ID_level1,
                    duplicatednames = TRUE, grepls = "__")
 
   country <- check_var(vars = country, varn = "country",
-                       dataset = dataset, ncols = 1, Yncol = 0,
-                       Ynrow = Ynrow, ischaracter = TRUE,
-                       mustbedefined = FALSE, dif_name = c("percoun", "period_country"))
+                       dataset = dataset, ncols = 1, Ynrow = Ynrow,
+                       ischaracter = TRUE, mustbedefined = FALSE,
+                       dif_name = c("percoun", "period_country"))
 
   years <- check_var(vars = years, varn = "years", dataset = dataset,
-                     ncols = 1, Yncol = 0, Ynrow = Ynrow, ischaracter = TRUE,
+                     ncols = 1, Ynrow = Ynrow, ischaracter = TRUE,
                      dif_name = c("percoun", "period_country", names(country)))
 
   subperiods <- check_var(vars = subperiods, varn = "subperiods",
-                          dataset = dataset, ncols = 1, Yncol = 0,
+                          dataset = dataset, ncols = 1, 
                           Ynrow = Ynrow, ischaracter = TRUE,
                           dif_name = c("percoun", names(country)))
 
@@ -61,8 +60,9 @@ vardgpgcrosannual <- function(Y, H, PSU, w_final, ID_level1,
                    ischaracter = TRUE, namesID1 = names(ID_level1))
 
   gender <- check_var(vars = gender, varn = "gender",
-                      dataset = dataset, ncols = 1, Yncol = 0,
-                      Ynrow = Ynrow, isnumeric = TRUE, isvector = TRUE)
+                      dataset = dataset, ncols = 1,
+                      Ynrow = Ynrow, isnumeric = TRUE,
+                      isvector = TRUE)
 
   dataset <- data.table(Y, H, ID_level1, ID_level2,
                         PSU, w_final, Z, gender)
@@ -90,31 +90,30 @@ vardgpgcrosannual <- function(Y, H, PSU, w_final, ID_level1,
 
   if(!is.null(X)) {
         X <- check_var(vars = X, varn = "X", dataset = dataset,
-                       check.names = TRUE, ncols = 0, Yncol = 0,
-                       Ynrow = 0, Xnrow = 0, isnumeric = TRUE,
+                       check.names = TRUE, isnumeric = TRUE,
                        grepls = "__")
         Xnrow <- nrow(X)
 
         g <- check_var(vars = g, varn = "g", dataset = dataset,
-                       check.names = TRUE, ncols = 1, Yncol = 0,
-                       Ynrow = 0, Xnrow = Xnrow, isnumeric = TRUE)
+                       check.names = TRUE, ncols = 1, Xnrow = Xnrow,
+                       isnumeric = TRUE)
 
         q <- check_var(vars = q, varn = "q", dataset = dataset,
-                       check.names = TRUE, ncols = 1, Yncol = 0,
-                       Ynrow = 0, Xnrow = Xnrow, isnumeric = TRUE)
+                       check.names = TRUE, ncols = 1, Xnrow = Xnrow,
+                       isnumeric = TRUE)
 
         ind_gr <- check_var(vars = ind_gr, varn = "ind_gr", dataset = dataset,
-                            check.names = TRUE, ncols = 1, Yncol = 0, Ynrow = 0,
-                            Xnrow = Xnrow, ischaracter = TRUE)
+                            check.names = TRUE, ncols = 1, Xnrow = Xnrow,
+                            ischaracter = TRUE)
 
         countryX <- check_var(vars = countryX, varn = "countryX",
-                              dataset = datasetX, ncols = 1, Yncol = 0,
-                              Ynrow = 0, Xnrow = Xnrow, ischaracter = TRUE,
-                              mustbedefined = !is.null(country), varnout = "country",
-                              varname = names(country), country = country)
+                              dataset = datasetX, ncols = 1, Xnrow = Xnrow,
+                              ischaracter = TRUE, mustbedefined = !is.null(country),
+                              varnout = "country", varname = names(country),
+                               country = country)
 
         yearsX <- check_var(vars = yearsX, varn = "yearsX", dataset = datasetX,
-                            ncols = 1, Yncol = 0, Xnrow = Xnrow, ischaracter = TRUE,
+                            ncols = 1, Xnrow = Xnrow, ischaracter = TRUE,
                             mustbedefined = !is.null(years), varnout = "years",
                             varname = names(years), country = country,
                             countryX = countryX, years = years)

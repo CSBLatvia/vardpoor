@@ -5,17 +5,16 @@ lin.ratio <- function(Y, Z, weight, Dom = NULL, dataset = NULL, percentratio = 1
 
   if (checking) {
        Y <- check_var(vars = Y, varn = "Y", dataset = dataset,
-                      check.names = TRUE, ncols = 0, Yncol = 0,
-                      Ynrow = 0, isnumeric = TRUE, grepls = "__")
+                      check.names = TRUE, isnumeric = TRUE, grepls = "__")
        Ynrow <- nrow(Y)
        Yncol <- ncol(Y)
 
-       Z <- check_var(vars = Z, varn = "Z", dataset = dataset, ncols = 0,
+       Z <- check_var(vars = Z, varn = "Z", dataset = dataset,
                       check.names = TRUE, Yncol = Yncol, Ynrow = Ynrow,
                       isnumeric = TRUE, mustbedefined = FALSE)
 
        weight <- check_var(vars = weight, varn = "weight",
-                           dataset = dataset, ncols = 1, Yncol = 0,
+                           dataset = dataset, ncols = 1,
                            Ynrow = Ynrow, isnumeric = TRUE, isvector = TRUE)
    }
 

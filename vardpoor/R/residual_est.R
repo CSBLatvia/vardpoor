@@ -10,17 +10,16 @@ residual_est <- function (Y, X, weight, q, dataset = NULL, checking = TRUE) {
 
   if (checking) {
          X <- check_var(vars = X, varn = "X", dataset = dataset,
-                        check.names = TRUE, ncols = 0, Yncol = 0,
-                        Ynrow = Ynrow, Xnrow = 0, isnumeric = TRUE,
-                        grepls = "__")
+                        check.names = TRUE, Ynrow = Ynrow, 
+                        isnumeric = TRUE, grepls = "__")
 
          weight <- check_var(vars = weight, varn = "weight", dataset = dataset,
-                             ncols = 1, Yncol = 0, Ynrow = Ynrow,
-                             isnumeric = TRUE, isvector = TRUE)
+                             ncols = 1, Ynrow = Ynrow, isnumeric = TRUE,
+                             isvector = TRUE)
 
          q <- check_var(vars = q, varn = "q", dataset = dataset,
-                        ncols = 1, Yncol = 0, Ynrow = Ynrow,
-                        isnumeric = TRUE, isvector = TRUE)
+                        ncols = 1, Ynrow = Ynrow, isnumeric = TRUE,
+                        isvector = TRUE)
     }
   X <- as.matrix(X)
 

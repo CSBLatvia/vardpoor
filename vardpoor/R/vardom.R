@@ -41,28 +41,27 @@ vardom <- function(Y, H, PSU, w_final,
          stop("'confidence' must be a numeric value in [0, 1]")  }
 
   Y <- check_var(vars = Y, varn = "Y", dataset = dataset,
-                 check.names = TRUE, ncols = 0, Yncol = 0,
-                 Ynrow = 0, isnumeric = TRUE, grepls = "__")
+                 check.names = TRUE, isnumeric = TRUE, grepls = "__")
   Ynrow <- nrow(Y)
   Yncol <- ncol(Y)
 
   H <- check_var(vars = H, varn = "H", dataset = dataset,
-                 ncols = 1, Yncol = 0, Ynrow = Ynrow,
-                 isnumeric = FALSE, ischaracter = TRUE)
+                 ncols = 1, Ynrow = Ynrow, isnumeric = FALSE,
+                 ischaracter = TRUE)
 
   period <- check_var(vars = period, varn = "period",
-                      dataset = dataset, Yncol = 0, Ynrow = Ynrow,
+                      dataset = dataset, Ynrow = Ynrow,
                       ischaracter = TRUE, mustbedefined = FALSE,
                       duplicatednames = TRUE)
   np <- sum(ncol(period))
 
   id <- check_var(vars = id, varn = "id", dataset = dataset,
-                  ncols = 1, Yncol = 0, Ynrow = Ynrow,
-                  ischaracter = TRUE, periods = period)
+                  ncols = 1, Ynrow = Ynrow, ischaracter = TRUE,
+                  periods = period)
 
   PSU <- check_var(vars = PSU, varn = "PSU", dataset = dataset,
-                   ncols = 1, Yncol = 0, Ynrow = Ynrow,
-                   ischaracter = TRUE, namesID1 = names(id))
+                   ncols = 1, Ynrow = Ynrow, ischaracter = TRUE,
+                    namesID1 = names(id))
 
   Dom <- check_var(vars = Dom, varn = "Dom", dataset = dataset,
                    Ynrow = Ynrow, ischaracter = TRUE,
@@ -246,7 +245,8 @@ vardom <- function(Y, H, PSU, w_final,
                           PSU_sort = PSU_sort,
                           period = period,
                           dataset = NULL,
-                          msg = "Current variance estimation")
+                          msg = "Current variance estimation",
+                          checking = FALSE)
   var_est <- transpos(var_est, is.null(period), "var_est", names(period))
   all_result <- merge(all_result, var_est, all = TRUE, by = c(names(period), "variable"))
 
@@ -258,7 +258,8 @@ vardom <- function(Y, H, PSU, w_final,
                              PSU_sort = PSU_sort,
                              period = period,
                              dataset = NULL,
-                             msg = "Variance of HT estimator under current design")
+                             msg = "Variance of HT estimator under current design",
+                             checking = FALSE)
   idper <- H <- PSU <- PSU_sort <- N_h <- NULL
   var_cur_HT <- transpos(var_cur_HT, is.null(period), "var_cur_HT", names(period))
   all_result <- merge(all_result, var_cur_HT, all = TRUE, by = c(names(period), "variable"))

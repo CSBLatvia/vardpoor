@@ -36,27 +36,26 @@ vardomh <- function(Y, H, PSU, w_final,
     if (identical(dataset, datasetX) & !is.null(dataset)) X_ID_level1 <- ID_level1 }
 
   Y <- check_var(vars = Y, varn = "Y", dataset = dataset,
-                 check.names = TRUE, ncols = 0, Yncol = 0,
-                 Ynrow = 0, isnumeric = TRUE, grepls = "__")
+                 check.names = TRUE, isnumeric = TRUE, grepls = "__")
   Ynrow <- nrow(Y)
   Yncol <- ncol(Y)
 
   H <- check_var(vars = H, varn = "H", dataset = dataset,
-                 ncols = 1, Yncol = 0, Ynrow = Ynrow,
-                 ischaracter = TRUE, dif_name = "dataH_stratas")
+                 ncols = 1, Ynrow = Ynrow, ischaracter = TRUE,
+                 dif_name = "dataH_stratas")
 
   w_final <- check_var(vars = w_final, varn = "w_final",
-                       dataset = dataset, ncols = 1, Yncol = 0,
+                       dataset = dataset, ncols = 1,
                        Ynrow = Ynrow, isnumeric = TRUE, isvector = TRUE)
 
-  Z <- check_var(vars = Z, varn = "Z", dataset = dataset, ncols = 0,
+  Z <- check_var(vars = Z, varn = "Z", dataset = dataset,
                  check.names = TRUE, Yncol = Yncol, Ynrow = Ynrow,
                  isnumeric = TRUE, mustbedefined = FALSE)
 
   Dom <- check_var(vars = Dom, varn = "Dom", dataset = dataset,
-                   ncols = 0, Yncol = 0, Ynrow = Ynrow,
-                   ischaracter = TRUE, mustbedefined = FALSE,
-                   duplicatednames = TRUE, grepls = "__")
+                   Ynrow = Ynrow, ischaracter = TRUE,
+                   mustbedefined = FALSE, duplicatednames = TRUE,
+                   grepls = "__")
 
   period <- check_var(vars = period, varn = "period",
                       dataset = dataset, Ynrow = Ynrow,
@@ -68,13 +67,13 @@ vardomh <- function(Y, H, PSU, w_final,
                          Ynrow = Ynrow, ischaracter = TRUE)
 
   ID_level12 <- check_var(vars = ID_level2, varn = "ID_level2",
-                          dataset = dataset, ncols = 1, Yncol = 0,
-                          Ynrow = Ynrow, ischaracter = TRUE,
-                          namesID1 = names(ID_level1), periods = period)
+                          dataset = dataset, ncols = 1, Ynrow = Ynrow,
+                          ischaracter = TRUE, namesID1 = names(ID_level1),
+                          periods = period)
 
   PSU <- check_var(vars = PSU, varn = "PSU", dataset = dataset,
-                   ncols = 1, Yncol = 0, Ynrow = Ynrow,
-                   ischaracter = TRUE, namesID1 = names(ID_level1))
+                   ncols = 1, Ynrow = Ynrow, ischaracter = TRUE,
+                   namesID1 = names(ID_level1))
 
   PSU_sort <- check_var(vars = PSU_sort, varn = "PSU_sort", dataset = dataset,
                         ncols = 1, Ynrow = Ynrow, ischaracter = TRUE,
@@ -310,7 +309,8 @@ vardomh <- function(Y, H, PSU, w_final,
                           PSU_level = PSU_level,
                           PSU_sort = PSU_sort,
                           period = period, dataset = NULL,
-                          msg = "Current variance estimation")
+                          msg = "Current variance estimation",
+                          checking = FALSE)
   var_est <- transpos(var_est, is.null(period), "var_est", names(period))
   all_result <- merge(all_result, var_est, all = TRUE, by = c(names(period), "variable"))
 
@@ -321,7 +321,8 @@ vardomh <- function(Y, H, PSU, w_final,
                              PSU_level = PSU_level,
                              PSU_sort = PSU_sort,
                              period = period, dataset = NULL,
-                             msg = "Variance of HT estimator under current design")
+                             msg = "Variance of HT estimator under current design",
+                             checking = FALSE)
   var_cur_HT <- transpos(var_cur_HT, is.null(period), "var_cur_HT", names(period))
   all_result <- merge(all_result, var_cur_HT, all = TRUE, by = c(names(period), "variable"))
   n_nonzero <- var_est <- var_cur_HT <- NULL

@@ -11,11 +11,11 @@ namesD <- function(Y, D) {
 
 
 domain <- function(Y, D, dataset = NULL) {
-  Y <- check_var(vars = Y, varn = "Y", dataset = dataset, check.names = TRUE,
-                 ncols = 0, Yncol = 0, Ynrow = 0, isnumeric = TRUE, grepls = "__")
+  Y <- check_var(vars = Y, varn = "Y", dataset = dataset,
+                 check.names = TRUE, isnumeric = TRUE, grepls = "__")
   Ynrow <- nrow(Y)
-  D <- check_var(vars = D, varn = "Dom", dataset = dataset, check.names = TRUE,
-                 ncols = 0, Yncol = 0, Ynrow = Ynrow, isnumeric = FALSE,
+  D <- check_var(vars = D, varn = "Dom", dataset = dataset,
+                 check.names = TRUE, Ynrow = Ynrow, isnumeric = FALSE,
                  ischaracter = TRUE, dif_name = "percoun", grepls = "__")
 
   Dom_agg <- unique(D)

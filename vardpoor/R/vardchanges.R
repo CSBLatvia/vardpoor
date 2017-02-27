@@ -36,20 +36,19 @@ vardchanges <- function(Y, H, PSU, w_final,
             countryX <- country }}
 
         Y <- check_var(vars = Y, varn = "Y", dataset = dataset,
-                       check.names = TRUE, ncols = 0, Yncol = 0,
-                       Ynrow = 0, isnumeric = TRUE, grepls = "__")
+                       check.names = TRUE, isnumeric = TRUE, grepls = "__")
         Ynrow <- nrow(Y)
         Yncol <- ncol(Y)
 
         H <- check_var(vars = H, varn = "H", dataset = dataset,
-                       ncols = 1, Yncol = 0, Ynrow = Ynrow,
-                       ischaracter = TRUE, dif_name = "dataH_stratas")
+                       ncols = 1, Ynrow = Ynrow, ischaracter = TRUE,
+                        dif_name = "dataH_stratas")
 
         w_final <- check_var(vars = w_final, varn = "w_final",
-                             dataset = dataset, ncols = 1, Yncol = 0,
-                             Ynrow = Ynrow, isnumeric = TRUE, isvector = TRUE)
+                             dataset = dataset, ncols = 1, Ynrow = Ynrow,
+                             isnumeric = TRUE, isvector = TRUE)
 
-        Z <- check_var(vars = Z, varn = "Z", dataset = dataset, ncols = 0,
+        Z <- check_var(vars = Z, varn = "Z", dataset = dataset,
                        check.names = TRUE, Yncol = Yncol, Ynrow = Ynrow,
                        isnumeric = TRUE, mustbedefined = FALSE)
 
@@ -59,9 +58,8 @@ vardchanges <- function(Y, H, PSU, w_final,
                          duplicatednames = TRUE, grepls = "__")
 
         country <- check_var(vars = country, varn = "country",
-                             dataset = dataset, ncols = 1, Yncol = 0,
-                             Ynrow = Ynrow, ischaracter = TRUE,
-                             mustbedefined = FALSE,
+                             dataset = dataset, ncols = 1, Ynrow = Ynrow,
+                             ischaracter = TRUE, mustbedefined = FALSE,
                              dif_name = c("percoun", "period_country"))
 
         period <- check_var(vars = period, varn = "period",
@@ -76,14 +74,13 @@ vardchanges <- function(Y, H, PSU, w_final,
                               ncols = 1, ischaracter = TRUE, periods = period)
 
         ID_level1 <- check_var(vars = ID_level1, varn = "ID_level1",
-                               dataset = dataset, ncols = 1, Yncol = 0,
-                               Ynrow = Ynrow, ischaracter = TRUE)
+                               dataset = dataset, ncols = 1, Ynrow = Ynrow,
+                               ischaracter = TRUE)
 
         ID_level2 <- check_var(vars = ID_level2, varn = "ID_level2",
-                               dataset = dataset, ncols = 1, Yncol = 0,
-                               Ynrow = Ynrow, ischaracter = TRUE,
-                               namesID1 = names(ID_level1), country = country,
-                               periods = period)
+                               dataset = dataset, ncols = 1, Ynrow = Ynrow,
+                               ischaracter = TRUE, namesID1 = names(ID_level1),
+                               country = country, periods = period)
 
         PSU <- check_var(vars = PSU, varn = "PSU", dataset = dataset,
                          ncols = 1, Yncol = 0, Ynrow = Ynrow,
@@ -91,33 +88,31 @@ vardchanges <- function(Y, H, PSU, w_final,
 
         if(!is.null(X)) {
                 X <- check_var(vars = X, varn = "X", dataset = datasetX,
-                               check.names = TRUE, ncols = 0, Yncol = 0,
-                               Ynrow = 0, Xnrow = 0, isnumeric = TRUE,
+                               check.names = TRUE, isnumeric = TRUE,
                                grepls = "__")
                 Xnrow <- nrow(X)
 
-
                 ind_gr <- check_var(vars = ind_gr, varn = "ind_gr",
                                     dataset = datasetX, ncols = 1,
-                                    Yncol = 0, Ynrow = 0, Xnrow = Xnrow,
-                                    ischaracter = TRUE, dif_name = c(names(period), names(country)))
+                                    Xnrow = Xnrow, ischaracter = TRUE, 
+                                    dif_name = c(names(period), names(country)))
 
                 g <- check_var(vars = g, varn = "g", dataset = datasetX,
-                               ncols = 1, Yncol = 0, Ynrow = 0, Xnrow = Xnrow,
-                               isnumeric = TRUE, isvector = TRUE)
+                               ncols = 1, Xnrow = Xnrow, isnumeric = TRUE,
+                               isvector = TRUE)
 
                 q <- check_var(vars = q, varn = "q", dataset = datasetX,
-                               ncols = 1, Yncol = 0, Ynrow = 0, Xnrow = Xnrow,
-                               isnumeric = TRUE, isvector = TRUE)
+                               ncols = 1, Xnrow = Xnrow, isnumeric = TRUE,
+                               isvector = TRUE)
 
                 countryX <- check_var(vars = countryX, varn = "countryX",
-                                      dataset = datasetX, ncols = 1, Yncol = 0,
-                                      Ynrow = 0, Xnrow = Xnrow, ischaracter = TRUE,
-                                      mustbedefined = !is.null(country), varnout = "country",
-                                      varname = names(country), country = country)
+                                      dataset = datasetX, ncols = 1, Xnrow = Xnrow,
+                                      ischaracter = TRUE, mustbedefined = !is.null(country),
+                                      varnout = "country", varname = names(country),
+                                      country = country)
 
                 periodX <- check_var(vars = periodX, varn = "periodX",
-                                     dataset = datasetX, ncols = 1, Yncol = 0,
+                                     dataset = datasetX, ncols = 1,
                                      Xnrow = Xnrow, ischaracter = TRUE,
                                      mustbedefined = !is.null(period),
                                      duplicatednames = TRUE, varnout = "period",
@@ -125,12 +120,11 @@ vardchanges <- function(Y, H, PSU, w_final,
                                      countryX = countryX)
 
                 X_ID_level1 <- check_var(vars = X_ID_level1, varn = "X_ID_level1",
-                                         dataset = datasetX, ncols = 1, Yncol = 0,
-                                         Ynrow = 0, Xnrow = Xnrow, ischaracter = TRUE,
-                                         varnout = "ID_level1", varname = names(ID_level1),
-                                         country = country, countryX = countryX,
-                                         periods = period, periodsX = periodX,
-                                         ID_level1 = ID_level1)
+                                         dataset = datasetX, ncols = 1, Xnrow = Xnrow,
+                                         ischaracter = TRUE, varnout = "ID_level1",
+                                         varname = names(ID_level1), country = country,
+                                         countryX = countryX, periods = period,
+                                         periodsX = periodX, ID_level1 = ID_level1)
              }
     }
   dataset <- datasetX <- NULL

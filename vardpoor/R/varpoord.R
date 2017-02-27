@@ -125,7 +125,7 @@ varpoord <- function(Y, w_final,
                          Ynrow = Ynrow, ischaracter = TRUE)
 
   ID_level2 <- check_var(vars = ID_level2, varn = "ID_level2",
-                         dataset = dataset, ncols = 1, Yncol = 0,
+                         dataset = dataset, ncols = 1, 
                          Ynrow = Ynrow, ischaracter = TRUE,
                          namesID1 = names(ID_level1), periods = period)
 
@@ -445,7 +445,8 @@ varpoord <- function(Y, w_final,
                              residual_est(Y = Y3[i],
                                           X = D1[i, (np + 5) : ncol(D1), with = FALSE],
                                           weight = w_design2[i],
-                                          q = D1[i, np + 3, with = FALSE])))
+                                          q = D1[i, np + 3, with = FALSE],
+                                          checking = FALSE)))
        Y4 <- rbindlist(lin1)
        setkeyv(Y4, "sar_nr")
        Y4[, sar_nr := NULL]
@@ -456,7 +457,8 @@ varpoord <- function(Y, w_final,
   var_est <- variance_est(Y = Y4, H = H, PSU = PSU, w_final = w_final2,
                           N_h = N_h, fh_zero = fh_zero, PSU_level = PSU_level,
                           PSU_sort = PSU_sort, period = period, dataset = NULL,
-                          msg = "Current variance estimation")
+                          msg = "Current variance estimation",
+                          checking = FALSE)
   var_est <- transpos(var_est, is.null(period), "var_est", names(period))
   all_result <- merge(var_est, all_result, all = TRUE, by = c(names(period), "variable"))
 
@@ -464,7 +466,8 @@ varpoord <- function(Y, w_final,
   var_cur_HT <- variance_est(Y = Y3, H = H, PSU = PSU, w_final = w_design2,
                              N_h = N_h, fh_zero = fh_zero, PSU_level = PSU_level,
                              PSU_sort = PSU_sort, period = period, dataset = NULL,
-                             msg = "Variance of HT estimator under current design")
+                             msg = "Variance of HT estimator under current design",
+                             checking = FALSE)
   var_cur_HT <- transpos(var_cur_HT, is.null(period), "var_cur_HT", names(period))
   all_result <- merge(all_result, var_cur_HT, by = c(names(period), "variable"))
   H <- PSU <- PSU_sort <-  N_h <- var_est <- var_cur_HT <- NULL

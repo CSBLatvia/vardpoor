@@ -111,9 +111,9 @@ vardchangespoor <- function(Y, age = NULL,
                    grepls = "__")
   
   country <- check_var(vars = country, varn = "country",
-                       dataset = dataset, ncols = 1, Yncol = 0,
-                       Ynrow = Ynrow, ischaracter = TRUE,
-                       mustbedefined = FALSE, dif_name = c("percoun", "period_country"))
+                       dataset = dataset, ncols = 1, Ynrow = Ynrow,
+                       ischaracter = TRUE, mustbedefined = FALSE,
+                       dif_name = c("percoun", "period_country"))
   
   period <- check_var(vars = period, varn = "period",
                       dataset = dataset, Ynrow = Ynrow,
@@ -142,32 +142,31 @@ vardchangespoor <- function(Y, age = NULL,
   
   if(!is.null(X)) {
          X <- check_var(vars = X, varn = "X", dataset = datasetX,
-                        check.names = TRUE, ncols = 0, Yncol = 0,
-                        Ynrow = 0, Xnrow = 0, isnumeric = TRUE,
+                        check.names = TRUE, isnumeric = TRUE,
                         grepls = "__")
          Xnrow <- nrow(X)
     
          ind_gr <- check_var(vars = ind_gr, varn = "ind_gr",
                              dataset = datasetX, ncols = 1,
-                             Yncol = 0, Ynrow = 0, Xnrow = Xnrow,
-                             ischaracter = TRUE, dif_name = c(names(period), names(country)))
+                             Xnrow = Xnrow, ischaracter = TRUE, 
+                             dif_name = c(names(period), names(country)))
     
          g <- check_var(vars = g, varn = "g", dataset = datasetX,
-                        ncols = 1, Yncol = 0, Ynrow = 0, Xnrow = Xnrow,
-                        isnumeric = TRUE, isvector = TRUE)
+                        ncols = 1, Xnrow = Xnrow, isnumeric = TRUE,
+                        isvector = TRUE)
        
          q <- check_var(vars = q, varn = "q", dataset = datasetX,
-                        ncols = 1, Yncol = 0, Ynrow = 0, Xnrow = Xnrow,
-                        isnumeric = TRUE, isvector = TRUE)
+                        ncols = 1, Xnrow = Xnrow, isnumeric = TRUE,
+                        isvector = TRUE)
      
          countryX <- check_var(vars = countryX, varn = "countryX",
-                               dataset = datasetX, ncols = 1, Yncol = 0,
-                               Ynrow = 0, Xnrow = Xnrow, ischaracter = TRUE,
-                               mustbedefined = !is.null(country), varnout = "country",
-                               varname = names(country), country = country)
+                               dataset = datasetX, ncols = 1, Xnrow = Xnrow,
+                               ischaracter = TRUE, mustbedefined = !is.null(country),
+                               varnout = "country", varname = names(country),
+                               country = country)
     
          periodX <- check_var(vars = periodX, varn = "periodX",
-                              dataset = datasetX, ncols = 1, Yncol = 0,
+                              dataset = datasetX, ncols = 1, 
                               Xnrow = Xnrow, ischaracter = TRUE,
                               mustbedefined = !is.null(period),
                               duplicatednames = TRUE, varnout = "period",
@@ -175,12 +174,11 @@ vardchangespoor <- function(Y, age = NULL,
                               countryX = countryX)
     
          X_ID_level1 <- check_var(vars = X_ID_level1, varn = "X_ID_level1",
-                                  dataset = datasetX, ncols = 1, Yncol = 0,
-                                  Ynrow = 0, Xnrow = Xnrow, ischaracter = TRUE,
-                                  varnout = "ID_level1", varname = names(ID_level1),
-                                  country = country, countryX = countryX,
-                                  periods = period, periodsX = periodX,
-                                  ID_level1 = ID_level1)
+                                  dataset = datasetX, ncols = 1, Xnrow = Xnrow,
+                                  ischaracter = TRUE, varnout = "ID_level1",
+                                  varname = names(ID_level1), country = country,
+                                  countryX = countryX, periods = period,
+                                  periodsX = periodX, ID_level1 = ID_level1)
      } 
 
   if (is.null(Y_thres)) Y_thres <- Y

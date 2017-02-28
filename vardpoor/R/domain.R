@@ -47,9 +47,9 @@ check_var <- function(vars, varn, dataset, check.names = FALSE,
   N <- NULL
   if (varn %in%  c("g", "q") & (is.null(class(vars)) | any(class(vars) == "function"))) stop("'g' must be numeric", call. = FALSE)
   if (is.null(vars)) {
-    if (Xnrow > 0 & varn %in% c("q", "ind_gr", "id")) { vars <- rep(1, Xnrow)
-                                                        dataset <- NULL}
-    if (Ynrow > 0 & varn == "id") { vars <- rep(1, Ynrow)
+    if (Xnrow > 0 & varn %in% c("q", "ind_gr")) { vars <- rep(1, Xnrow)
+                                                  dataset <- NULL}
+    if (Ynrow > 0 & varn == "id") { vars <- 1:Ynrow
                                     dataset <- NULL}}
 
   if (!is.null(vars)) {

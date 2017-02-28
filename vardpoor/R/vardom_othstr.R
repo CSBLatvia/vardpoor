@@ -210,7 +210,6 @@ vardom_othstr <- function(Y, H, H2, PSU, w_final,
         Y3[, sar_nr := NULL] 
       if (outp_res) res_outp <- data.table(idper, PSU, Y3)
   } else Y3 <- Y2
-  Y2 <- NULL
 
   var_est <- variance_othstr(Y = Y3, H = H, H2 = H2,  
                              w_final = w_final, N_h = N_h,

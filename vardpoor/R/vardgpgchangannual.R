@@ -171,8 +171,8 @@ vardgpgchangannual <- function(Y, H, PSU, w_final, ID_level1,
                           countryX = countryX, yearsX = yearsgender,
                           subperiodsX = subperiodsX, X_ID_level1 = X_ID_level1,
                           ind_gr = ind_gr, g = g, q = q, datasetX = datasetX,
-                          percentratio = percentratio, use.estVar = FALSE,
-                          confidence = confidence)
+                          percentratio = percentratio, use.estVar = use.estVar,
+                          use.gender = TRUE, confidence = confidence)
 
   list(crossectional_results = rez$crossectional_results,
        crossectional_var_grad = rez$crossectional_var_grad,

@@ -27,19 +27,19 @@ vardcros <- function(Y, H, PSU, w_final,
 
   ### Checking
   if (checking) {
-    if (length(linratio) != 1 | !any(is.logical(linratio))) stop("'linratio' must be logical")
-    if (length(percentratio) != 1 | !any(is.numeric(percentratio) | percentratio > 0)) stop("'percentratio' must be a positive numeric value")
-    if (length(netchanges) != 1 | !any(is.logical(netchanges))) stop("'netchanges' must be logical")
-    if (length(withperiod) != 1 | !any(is.logical(withperiod))) stop("'withperiod' must be logical")
-    if (length(use.estVar) != 1 | !any(is.logical(use.estVar))) stop("'use.estVar' must be logical")
-    if (length(ID_level1_max) != 1 | !any(is.logical(ID_level1_max))) stop("'ID_level1_max' must be logical")
-    if (length(outp_res) != 1 | !any(is.logical(outp_res))) stop("'outp_res' must be logical")
-    if (all(ID_level1_max, !is.null(X))) stop("'ID_level1_max' must be ", !ID_level1_max, "!")
+    if (length(linratio) != 1 | !any(is.logical(linratio))) stop("'linratio' must be logical", call. = FALSE)
+    if (length(percentratio) != 1 | !any(is.numeric(percentratio) | percentratio > 0)) stop("'percentratio' must be a positive numeric value", call. = FALSE)
+    if (length(netchanges) != 1 | !any(is.logical(netchanges))) stop("'netchanges' must be logical", call. = FALSE)
+    if (length(withperiod) != 1 | !any(is.logical(withperiod))) stop("'withperiod' must be logical", call. = FALSE)
+    if (length(use.estVar) != 1 | !any(is.logical(use.estVar))) stop("'use.estVar' must be logical", call. = FALSE)
+    if (length(ID_level1_max) != 1 | !any(is.logical(ID_level1_max))) stop("'ID_level1_max' must be logical", call. = FALSE)
+    if (length(outp_res) != 1 | !any(is.logical(outp_res))) stop("'outp_res' must be logical", call. = FALSE)
+    if (all(ID_level1_max, !is.null(X))) stop("'ID_level1_max' must be ", !ID_level1_max, "!", call. = FALSE)
 
     if(length(confidence) != 1 | any(!is.numeric(confidence) |  confidence < 0 | confidence > 1)) {
-                                               stop("'confidence' must be a numeric value in [0, 1]")  }
-    if (all(!is.null(Z), !is.null(X), !linratio)) stop("'linratio' must be TRUE")
-    if (all(is.null(Z), linratio)) stop("'linratio' must be FALSE")
+                                               stop("'confidence' must be a numeric value in [0, 1]", call. = FALSE)  }
+    if (all(!is.null(Z), !is.null(X), !linratio)) stop("'linratio' must be TRUE", call. = FALSE)
+    if (all(is.null(Z), linratio)) stop("'linratio' must be FALSE", call. = FALSE)
 
     if(!is.null(X)) {
          if (is.null(datasetX)) datasetX <- copy(dataset)

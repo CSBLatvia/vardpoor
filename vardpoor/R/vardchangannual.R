@@ -14,10 +14,10 @@ vardchangannual <- function(Y, H, PSU, w_final,
 
   ### Checking
   outp_res <- FALSE
-  if (length(percentratio) != 1 | !any(is.numeric(percentratio) | percentratio > 0)) stop("'percentratio' must be a positive numeric value")
-  if (length(use.estVar) != 1 | !any(is.logical(use.estVar))) stop("'use.estVar' must be logical")
+  if (length(percentratio) != 1 | !any(is.numeric(percentratio) | percentratio > 0)) stop("'percentratio' must be a positive numeric value", call. = FALSE)
+  if (length(use.estVar) != 1 | !any(is.logical(use.estVar))) stop("'use.estVar' must be logical", call. = FALSE)
   if(length(confidence) != 1 | any(!is.numeric(confidence) |  confidence < 0 | confidence > 1)) {
-          stop("'confidence' must be a numeric value in [0, 1]")  }
+          stop("'confidence' must be a numeric value in [0, 1]", call. = FALSE)  }
 
   if(!is.null(X)) {
          if (is.null(datasetX)) datasetX <- copy(dataset)

@@ -23,7 +23,7 @@ vardchangespoor <- function(Y, age = NULL,
                             change_type = "absolute") {
  
   ### Checking
-  if (!change_type %in% c("absolute", "relative")) stop("'change_type' must be 'absolute' or 'relative'")
+  if (!change_type %in% c("absolute", "relative")) stop("'change_type' must be 'absolute' or 'relative'", call. = FALSE)
  
   all_choices <- c("linarpr", "linarpt", "lingpg",
                    "linpoormed", "linrmpg", "lingini",
@@ -34,20 +34,20 @@ vardchangespoor <- function(Y, age = NULL,
   # check 'p'
   p <- percentage
    if(length(p) != 1 | any(!is.numeric(p) | p < 0 | p > 100)) {
-          stop("'percentage' must be a numeric value in [0, 100]")  }
+          stop("'percentage' must be a numeric value in [0, 100]", call. = FALSE)  }
 
   # check 'order_quant'
   oq <- order_quant
   if(length(oq) != 1 | any(!is.numeric(oq) | oq < 0 | oq > 100)) {
-          stop("'order_quant' must be a numeric value in [0, 100]")  }
+          stop("'order_quant' must be a numeric value in [0, 100]", call. = FALSE)  }
 
   if(length(alpha) != 1 | any(!is.numeric(alpha) | alpha < 0 | alpha > 100)) {
-         stop("'alpha' must be a numeric value in [0, 100]")  }
+         stop("'alpha' must be a numeric value in [0, 100]", call. = FALSE)  }
 
-  if (!is.logical(use.estVar)) stop("'use.estVar' must be logical")
+  if (!is.logical(use.estVar)) stop("'use.estVar' must be logical", call. = FALSE)
 
   if(length(confidence) != 1 | any(!is.numeric(confidence) | confidence < 0 | confidence > 1)) {
-         stop("'confidence' must be a numeric value in [0, 1]")  }
+         stop("'confidence' must be a numeric value in [0, 1]", call. = FALSE)  }
 
   if(!is.null(X)) {
          if (is.null(datasetX)) datasetX <- copy(dataset)

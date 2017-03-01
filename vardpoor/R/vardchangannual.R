@@ -282,20 +282,18 @@ vardchangannual <- function(Y, H, PSU, w_final,
   vardchanges_results[, (c("pers_1", "pers_2",
                            "ids_1", "ids_2", "ids")) := NULL]
 
-  vars <- c(paste0(yearm, c(1,2)), yearm, names(country),
-            namesDom, "namesY", "namesZ", "cols", "cros_se")
+  vars_all <- c(names(country), yearm, paste0(yearm, c(1, 2)),  
+                namesDom, "namesY", "namesZ")
+  vars <- c(vars_all, "cols", "cros_se")
   X_annual <- X_annual[, vars[vars %in% names(X_annual)], with = FALSE]
 
-  vars <- c(paste0(yearm, c(1,2)), names(country), namesDom,
-            "namesY", "namesZ", "cols", paste0("V", 1 : 8))
+  vars <- c(vars_all, "cols", "cros_se")
   A_matrix <- A_matrix[, vars[vars %in% names(A_matrix)], with = FALSE]
 
-  vars <- c(names(country), yearm, namesDom, "namesY",
-            "namesZ", "totalY", "totalZ", "estim")
+  vars <- c(vars_all, "totalY", "totalZ", "estim")
   ysum <- ysum[, vars[vars %in% names(ysum)], with = FALSE]
 
-  vars <- c(paste0(yearm, c(1, 2)), names(country), namesDom, "namesY",
-                 "namesZ", paste0("estim_", c(1, 2)), "estim", "var")
+  vars <- c(vars_all, paste0("estim_", c(1, 2)), "estim", "var") 
   annual_changes <- annual_changes[, vars[vars %in% names(annual_changes)], with = FALSE]
 
   annual_changes[, var_est2 := var]

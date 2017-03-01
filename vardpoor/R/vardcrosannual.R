@@ -268,13 +268,13 @@ vardcrosannual <- function(Y, H, PSU, w_final,
   vardchanges_results[, (c("pers_1", "pers_2",
                            "ids_1", "ids_2", "ids")) := NULL]
 
-  vars_all <- c(paste0(yearm, c(1, 2)), yearm, names(country),
+  vars_all <- c(names(country), yearm, paste0(yearm, c(1, 2)),  
                 namesDom, "namesY", "namesZ")
   vars <- c(vars_all, "cols", "cros_se")
   X_annual <- X_annual[, vars[vars %in% names(X_annual)], with = FALSE]
 
   vars <- c(vars_all, "cols", paste0("V", 1 : 8))
-  A_matrix1 <- A_matrix[, vars[vars %in% names(A_matrix)], with = FALSE] 
+  A_matrix <- A_matrix[, vars[vars %in% names(A_matrix)], with = FALSE] 
 
   vars <- c(vars_all, "totalY", "totalZ", "estim")
   ysum <- ysum[, vars[vars %in% names(ysum)], with = FALSE] 

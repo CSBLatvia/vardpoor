@@ -66,12 +66,13 @@ vardom_othstr <- function(Y, H, H2, PSU, w_final,
   if (!is.null(X)) {
          X <- check_var(vars = X, varn = "X", dataset = dataset,
                         check.names = TRUE, Ynrow = Ynrow,
-                        isnumeric = TRUE, grepls = "__")
+                        isnumeric = TRUE, grepls = "__",
+                        dif_name = c(names(period), "g", "q"))
          Xnrow <- nrow(X)
 
          ind_gr <- check_var(vars = ind_gr, varn = "ind_gr",
                              dataset = dataset, ncols = 1, Xnrow = Xnrow,
-                             ischaracter = TRUE, dif_name = c(names(period)))
+                             ischaracter = TRUE, dif_name = c(names(period), "g", "q"))
 
          g <- check_var(vars = g, varn = "g", dataset = dataset,
                         ncols = 1, Xnrow = Xnrow, isnumeric = TRUE,
@@ -169,13 +170,16 @@ vardom_othstr <- function(Y, H, H2, PSU, w_final,
   if (!is.null(Z)) {
     if (!is.null(Dom)) Z1 <- domain(Z, Dom) else Z1 <- Z
     if (is.null(period)) {
-          Y2 <- lin.ratio(Y1, Z1, w_final, Dom = NULL)
-          Y2a <- lin.ratio(Y1, Z1, w_design, Dom = NULL)
+          Y2 <- lin.ratio(Y = Y1, Z = Z1, weight = w_final,
+                          Dom = NULL, dataset = NULL,
+                          percentratio = percentratio,
+                          checking = FALSE)
         } else {
             periodap <- do.call("paste", c(as.list(period), sep = "_"))
             lin1 <- lapply(split(Y1[, .I], periodap), function(i)
                             data.table(sar_nr = i, 
-                                       lin.ratio(Y1[i], Z1[i], w_final[i],
+                                       lin.ratio(Y = Y1[i], Z = Z1[i],
+                                                 weight = w_final[i],
                                                  Dom = NULL, dataset = NULL,
                                                  percentratio = percentratio,
                                                  checking = FALSE)))

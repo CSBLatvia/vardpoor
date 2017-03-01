@@ -140,12 +140,12 @@ varpoord <- function(Y, w_final,
   if(!is.null(X)) {
        X <- check_var(vars = X, varn = "X", dataset = datasetX,
                       check.names = TRUE, isnumeric = TRUE,
-                      grepls = "__")
+                      grepls = "__", dif_name = c(names(period) , "g", "q"))
        Xnrow <- nrow(X)
 
        ind_gr <- check_var(vars = ind_gr, varn = "ind_gr",
                            dataset = datasetX, ncols = 1, Xnrow = Xnrow,
-                           ischaracter = TRUE, dif_name = names(period))
+                           ischaracter = TRUE, dif_name = c(names(period) , "g", "q"))
 
        g <- check_var(vars = g, varn = "g", dataset = datasetX,
                       ncols = 1, Xnrow = Xnrow, isnumeric = TRUE,
@@ -445,7 +445,7 @@ varpoord <- function(Y, w_final,
                              residual_est(Y = Y3[i],
                                           X = D1[i, (np + 5) : ncol(D1), with = FALSE],
                                           weight = w_design2[i],
-                                          q = D1[i, np + 3, with = FALSE],
+                                          q = D1[i][["q"]],
                                           dataset = NULL,
                                           checking = FALSE)))
        Y4 <- rbindlist(lin1)

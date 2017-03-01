@@ -80,13 +80,18 @@ vardcrosannual <- function(Y, H, PSU, w_final,
   
   if(!is.null(X)) {
          X <- check_var(vars = X, varn = "X", dataset = datasetX,
-                        isnumeric = TRUE, grepls = "__")
+                        isnumeric = TRUE, grepls = "__",
+                        dif_name = c(names(period), names(country), names(H),
+                                     names(PSU), names(ID_level1), "w_final",
+                                     names(Y), "w_design", "g", "q"))
          Xnrow <- nrow(X)
     
          ind_gr <- check_var(vars = ind_gr, varn = "ind_gr",
                              dataset = datasetX, ncols = 1,
                              Xnrow = Xnrow, ischaracter = TRUE,
-                             dif_name = c(names(years), names(subperiods), names(country)))
+                             dif_name = c(names(period), names(country), names(H),
+                                          names(PSU), names(ID_level1), "w_final",
+                                          names(X), names(Y), "w_design", "g", "q"))
     
          g <- check_var(vars = g, varn = "g", dataset = datasetX,
                         ncols = 1, Xnrow = Xnrow, isnumeric = TRUE,
@@ -140,7 +145,9 @@ vardcrosannual <- function(Y, H, PSU, w_final,
    namesDom <- names(Dom)  
    year1 <- years[, .N, by = yearm][, N := NULL]
 
-   apst <- lapply(1 : nrow(year1), function(i) {
+ #  apst <- lapply(1 : nrow(year1), function(i) {
+
+i=1
                  atsyear <- year1[i]
                  atsyear <- merge(atsyear, sarak, all.x = TRUE, by = yearm, sort = FALSE)
                  atsyear[, ids := .I]
@@ -155,6 +162,12 @@ vardcrosannual <- function(Y, H, PSU, w_final,
                            data.table(atsy1, atsy2)                           
                          }))
                  yrs[, ids := .I]
+
+period = pers[, "pers"]
+period1 = yrs[["pers_1"]]
+period2 = yrs[["pers_2"]]
+periodX = persX[, "pers"]
+linratio = !is.null(Z)
 
                  datas <- vardchanges(Y = Y, H = H, PSU = PSU, w_final = w_final,
                                       ID_level1 = ID_level1, ID_level2 = ID_level2,

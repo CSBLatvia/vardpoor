@@ -134,15 +134,19 @@ vardcrospoor <- function(Y, age = NULL, pl085 = NULL,
          
         if(!is.null(X)) {
               X <- check_var(vars = X, varn = "X", dataset = datasetX,
-                             check.names = TRUE, isnumeric = TRUE,
-                             grepls = "__")
+                             check.names = TRUE, isnumeric = TRUE, grepls = "__",
+                             dif_name = c(names(period), names(country), names(H),
+                                           names(PSU), names(ID_level1), "w_final",
+                                           "w_design", "g", "q"))
               Xnrow <- nrow(X)
            
            
-             ind_gr <- check_var(vars = ind_gr, varn = "ind_gr",
+              ind_gr <- check_var(vars = ind_gr, varn = "ind_gr",
                                  dataset = datasetX, ncols = 1,
                                  Xnrow = Xnrow, ischaracter = TRUE,
-                                 dif_name = c(names(period), names(country)))
+                                 dif_name = c(names(period), names(country), names(H),
+                                              names(PSU), names(ID_level1), "w_final",
+                                              names(X), "w_design", "g", "q"))
            
              g <- check_var(vars = g, varn = "g", dataset = datasetX,
                             ncols = 1, Xnrow = Xnrow, isnumeric = TRUE,
@@ -164,7 +168,7 @@ vardcrospoor <- function(Y, age = NULL, pl085 = NULL,
                                   mustbedefined = !is.null(period),
                                   duplicatednames = TRUE, varnout = "period",
                                   varname = names(period), country = country,
-                                  countryX = countryX)
+                                  countryX = countryX, periods = period)
            
              X_ID_level1 <- check_var(vars = X_ID_level1, varn = "X_ID_level1",
                                       dataset = datasetX, ncols = 1, Xnrow = Xnrow,
@@ -378,9 +382,9 @@ vardcrospoor <- function(Y, age = NULL, pl085 = NULL,
                        data.table(DT1[i, nos, with = FALSE],
                                   res <- residual_est(Y = DT1[i, namesY2, with = FALSE],
                                                       X = DT1[i, names(X), with = FALSE],
-                                                      weight = DT1[i, "w_design", with = FALSE],
-                                                      q = DT1[i, "q", with = FALSE],
-                                                      dataset = NULL, checking = FALSE)))
+                                                      weight = DT1[i][["w_design"]],
+                                                      q = DT1[i][["q"]], dataset = NULL,
+                                                      checking = FALSE)))
  
         res <- rbindlist(res)
         setnames(res, namesY2, namesY2w)

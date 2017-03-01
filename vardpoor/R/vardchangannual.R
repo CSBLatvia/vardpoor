@@ -86,50 +86,57 @@ vardchangannual <- function(Y, H, PSU, w_final,
 
   if(!is.null(X)) {
          X <- check_var(vars = X, varn = "X", dataset = datasetX,
-                        isnumeric = TRUE, grepls = "__")
+                        isnumeric = TRUE, grepls = "__",
+                        dif_name = c(names(years), names(subperiods),
+                                     names(country), names(H), names(PSU),
+                                     names(ID_level1), "w_final", names(Y),
+                                     "w_design", "g", "q"))
          Xnrow <- nrow(X)
 
-        ind_gr <- check_var(vars = ind_gr, varn = "ind_gr",
-                            dataset = datasetX, ncols = 1,
-                            Xnrow = Xnrow, ischaracter = TRUE,
-                            dif_name = c(names(years), names(subperiods), names(country)))
-
-         g <- check_var(vars = g, varn = "g", dataset = datasetX,
-                        ncols = 1, Xnrow = Xnrow, isnumeric = TRUE,
-                        isvector = TRUE)
-
-         q <- check_var(vars = q, varn = "q", dataset = datasetX,
-                        ncols = 1, Xnrow = Xnrow, isnumeric = TRUE,
-                        isvector = TRUE)
-
-         countryX <- check_var(vars = countryX, varn = "countryX",
-                               dataset = datasetX, ncols = 1, Xnrow = Xnrow,
-                               ischaracter = TRUE, mustbedefined = !is.null(country),
-                               varnout = "country", varname = names(country),
-                               country = country)
+         ind_gr <- check_var(vars = ind_gr, varn = "ind_gr",
+                             dataset = datasetX, ncols = 1,
+                             Xnrow = Xnrow, ischaracter = TRUE,
+                             dif_name = c(names(years), names(subperiods),
+                                          names(country), names(H), names(PSU),
+                                          names(ID_level1), "w_final", names(Y),
+                                          names(X), "w_design", "g", "q"))
  
-          yearsX <- check_var(vars = yearsX, varn = "yearsX", dataset = datasetX,
-                              ncols = 1, Xnrow = Xnrow, ischaracter = TRUE,
-                              mustbedefined = !is.null(years), varnout = "years",
-                              varname = names(years), country = country,
-                              countryX = countryX, years = years)
+          g <- check_var(vars = g, varn = "g", dataset = datasetX,
+                         ncols = 1, Xnrow = Xnrow, isnumeric = TRUE,
+                         isvector = TRUE)
 
-          subperiodsX <- check_var(vars = subperiodsX, varn = "subperiodsX",
-                                   dataset = datasetX, ncols = 1, Xnrow = Xnrow,
-                                   ischaracter = TRUE, mustbedefined = !is.null(subperiods),
-                                   varnout = "subperiods", varname = names(subperiods),
-                                   country = country, countryX = countryX,
-                                   years = years, yearsX = yearsX, periods = subperiods)
+          q <- check_var(vars = q, varn = "q", dataset = datasetX,
+                         ncols = 1, Xnrow = Xnrow, isnumeric = TRUE,
+                         isvector = TRUE)
 
-           X_ID_level1 <- check_var(vars = X_ID_level1, varn = "X_ID_level1",
+          countryX <- check_var(vars = countryX, varn = "countryX",
+                                 dataset = datasetX, ncols = 1, Xnrow = Xnrow,
+                                ischaracter = TRUE, mustbedefined = !is.null(country),
+                                varnout = "country", varname = names(country),
+                                country = country)
+ 
+           yearsX <- check_var(vars = yearsX, varn = "yearsX", dataset = datasetX,
+                               ncols = 1, Xnrow = Xnrow, ischaracter = TRUE,
+                               mustbedefined = !is.null(years), varnout = "years",
+                               varname = names(years), country = country,
+                               countryX = countryX, years = years)
+
+           subperiodsX <- check_var(vars = subperiodsX, varn = "subperiodsX",
                                     dataset = datasetX, ncols = 1, Xnrow = Xnrow,
-                                    ischaracter = TRUE, varnout = "ID_level1",
-                                    varname = names(ID_level1), country = country,
-                                    countryX = countryX, years = years, yearsX = yearsX,
-                                    periods = subperiods, periodsX = subperiodsX,
-                                    ID_level1 = ID_level1)
+                                    ischaracter = TRUE, mustbedefined = !is.null(subperiods),
+                                    varnout = "subperiods", varname = names(subperiods),
+                                    country = country, countryX = countryX,
+                                    years = years, yearsX = yearsX, periods = subperiods)
+ 
+            X_ID_level1 <- check_var(vars = X_ID_level1, varn = "X_ID_level1",
+                                     dataset = datasetX, ncols = 1, Xnrow = Xnrow,
+                                     ischaracter = TRUE, varnout = "ID_level1",
+                                     varname = names(ID_level1), country = country,
+                                     countryX = countryX, years = years, yearsX = yearsX,
+                                     periods = subperiods, periodsX = subperiodsX,
+                                     ID_level1 = ID_level1)
          }
-  dataset <- datasetX <- NULL
+   dataset <- datasetX <- NULL
 
    ids <- nams <- cros_se <- num1 <- totalY <- totalZ <- NULL
    estim_1 <- estim_2 <- avar <- N <- estim <- NULL

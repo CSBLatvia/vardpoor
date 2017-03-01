@@ -122,7 +122,7 @@ check_var <- function(vars, varn, dataset, check.names = FALSE,
 
       if (varn %in% c("countryX", "periodX", "yearsX", "subperiodsX", "X_ID_level1")) {
                if (names(vars) != varname) stop(paste0("'", varn, "' must be equal with '", varnout,"' names"), call. = FALSE)
-               ncolvars <- ifelse(is.null(vars),0,ncol(vars))
+               ncolvars <- ifelse(is.null(vars), 0, ncol(vars))
                if (ncolvars != length(varname)) stop(paste0("'", varn, "' length must be equal with '",varnout,"' row count"), call. = FALSE)
       }
 

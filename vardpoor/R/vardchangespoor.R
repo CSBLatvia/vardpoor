@@ -142,14 +142,18 @@ vardchangespoor <- function(Y, age = NULL,
   
   if(!is.null(X)) {
          X <- check_var(vars = X, varn = "X", dataset = datasetX,
-                        check.names = TRUE, isnumeric = TRUE,
-                        grepls = "__")
+                        check.names = TRUE, isnumeric = TRUE, grepls = "__", 
+                        dif_name = c(names(period), names(country), names(H),
+                                     names(PSU), names(ID_level1), "w_final",
+                                     "w_design", "g", "q"))
          Xnrow <- nrow(X)
     
          ind_gr <- check_var(vars = ind_gr, varn = "ind_gr",
                              dataset = datasetX, ncols = 1,
                              Xnrow = Xnrow, ischaracter = TRUE, 
-                             dif_name = c(names(period), names(country)))
+                             dif_name = c(names(period), names(country), names(H),
+                                          names(PSU), names(ID_level1), "w_final",
+                                          "w_design", "g", "q"))
     
          g <- check_var(vars = g, varn = "g", dataset = datasetX,
                         ncols = 1, Xnrow = Xnrow, isnumeric = TRUE,
@@ -171,7 +175,7 @@ vardchangespoor <- function(Y, age = NULL,
                               mustbedefined = !is.null(period),
                               duplicatednames = TRUE, varnout = "period",
                               varname = names(period), country = country,
-                              countryX = countryX)
+                              countryX = countryX, periods = period)
     
          X_ID_level1 <- check_var(vars = X_ID_level1, varn = "X_ID_level1",
                                   dataset = datasetX, ncols = 1, Xnrow = Xnrow,

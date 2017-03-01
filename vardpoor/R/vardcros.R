@@ -98,14 +98,19 @@ vardcros <- function(Y, H, PSU, w_final,
     if(!is.null(X)) {
         X <- check_var(vars = X, varn = "X", dataset = datasetX,
                        check.names = TRUE, isnumeric = TRUE,
-                       grepls = "__")
+                       grepls = "__",
+                       dif_name = c(names(period), names(country), names(H),
+                                    names(PSU), names(ID_level1), names(Y),
+                                    "w_final", "w_design", "g", "q"))
         Xnrow <- nrow(X)
 
 
         ind_gr <- check_var(vars = ind_gr, varn = "ind_gr",
                             dataset = datasetX, ncols = 1,
                             Xnrow = Xnrow, ischaracter = TRUE,
-                            dif_name = c(names(period), names(country)))
+                            dif_name = c(names(period), names(country), names(H),
+                                         names(PSU), names(ID_level1), names(Y),
+                                         names(X), "w_final", "w_design", "g", "q"))
 
         g <- check_var(vars = g, varn = "g", dataset = datasetX,
                        ncols = 1, Xnrow = Xnrow, isnumeric = TRUE,
@@ -126,7 +131,7 @@ vardcros <- function(Y, H, PSU, w_final,
                               ischaracter = TRUE, mustbedefined = !is.null(period),
                               duplicatednames = TRUE, varnout = "period",
                               varname = names(period), country = country,
-                              countryX = countryX)
+                              countryX = countryX, periods = period)
 
          X_ID_level1 <- check_var(vars = X_ID_level1, varn = "X_ID_level1",
                                   dataset = datasetX, ncols = 1, Xnrow = Xnrow,
@@ -183,7 +188,8 @@ vardcros <- function(Y, H, PSU, w_final,
                    sorts <- unlist(split(Y1[, .I], period_country))
                    lin1 <- lapply(split(Y1[, .I], period_country),
                                   function(i) data.table(sar_nr = i,
-                                                         lin.ratio(Y1[i], Z1[i], w_final[i],
+                                                         lin.ratio(Y = Y1[i], Z = Z1[i],
+                                                                   weight = w_final[i],
                                                                    Dom = NULL, dataset = NULL,
                                                                    percentratio = percentratio,
                                                                    checking = FALSE)))
@@ -279,9 +285,9 @@ vardcros <- function(Y, H, PSU, w_final,
                         data.table(DT1[i, nos, with = FALSE],
                                    res <- residual_est(Y = DT1[i, namesY2, with = FALSE],
                                                        X = DT1[i, names(X), with = FALSE],
-                                                       weight = DT1[i, w_design, with = FALSE],
-                                                       q = DT1[i, q, with = FALSE],
-                                                       dataset = NULL, checking = FALSE)))
+                                                       weight = DT1[i][["w_design"]],
+                                                       q = DT1[i][["q"]], dataset = NULL,
+                                                       checking = FALSE)))
          res <- rbindlist(res)
          setnames(res, namesY2, namesY2w)
          DTc <- merge(DTc, res, by = nos)

@@ -91,7 +91,11 @@ vardgpgcrosannual <- function(Y, H, PSU, w_final, ID_level1,
   if(!is.null(X)) {
         X <- check_var(vars = X, varn = "X", dataset = dataset,
                        check.names = TRUE, isnumeric = TRUE,
-                       grepls = "__")
+                       grepls = "__", 
+                       dif_name = c(names(years), names(subperiods),
+                                    names(country), names(H), names(PSU),
+                                    names(ID_level1), "w_final", names(Y),
+                                    names(X), "w_design", "g", "q"))
         Xnrow <- nrow(X)
 
         g <- check_var(vars = g, varn = "g", dataset = dataset,
@@ -104,7 +108,11 @@ vardgpgcrosannual <- function(Y, H, PSU, w_final, ID_level1,
 
         ind_gr <- check_var(vars = ind_gr, varn = "ind_gr", dataset = dataset,
                             check.names = TRUE, ncols = 1, Xnrow = Xnrow,
-                            ischaracter = TRUE)
+                            ischaracter = TRUE,
+                            dif_name = c(names(years), names(subperiods),
+                                         names(country), names(H), names(PSU),
+                                         names(ID_level1), "w_final", names(Y),
+                                         names(X), "w_design", "g", "q"))
 
         countryX <- check_var(vars = countryX, varn = "countryX",
                               dataset = datasetX, ncols = 1, Xnrow = Xnrow,

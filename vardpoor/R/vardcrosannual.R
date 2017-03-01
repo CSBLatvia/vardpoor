@@ -145,9 +145,7 @@ vardcrosannual <- function(Y, H, PSU, w_final,
    namesDom <- names(Dom)  
    year1 <- years[, .N, by = yearm][, N := NULL]
 
- #  apst <- lapply(1 : nrow(year1), function(i) {
-
-i=1
+   apst <- lapply(1 : nrow(year1), function(i) {
                  atsyear <- year1[i]
                  atsyear <- merge(atsyear, sarak, all.x = TRUE, by = yearm, sort = FALSE)
                  atsyear[, ids := .I]
@@ -162,12 +160,6 @@ i=1
                            data.table(atsy1, atsy2)                           
                          }))
                  yrs[, ids := .I]
-
-period = pers[, "pers"]
-period1 = yrs[["pers_1"]]
-period2 = yrs[["pers_2"]]
-periodX = persX[, "pers"]
-linratio = !is.null(Z)
 
                  datas <- vardchanges(Y = Y, H = H, PSU = PSU, w_final = w_final,
                                       ID_level1 = ID_level1, ID_level2 = ID_level2,
@@ -276,20 +268,18 @@ linratio = !is.null(Z)
   vardchanges_results[, (c("pers_1", "pers_2",
                            "ids_1", "ids_2", "ids")) := NULL]
 
-  vars <- c(paste0(yearm, c(1, 2)), yearm, names(country),
-            namesDom, "namesY", "namesZ", "cols", "cros_se")
+  vars_all <- c(paste0(yearm, c(1, 2)), yearm, names(country),
+                namesDom, "namesY", "namesZ")
+  vars <- c(vars_all, "cols", "cros_se")
   X_annual <- X_annual[, vars[vars %in% names(X_annual)], with = FALSE]
 
-  vars <- c(paste0(yearm, c(1, 2)), names(country), namesDom, 
-            "namesY", "namesZ", "cols", paste0("V", 1 : 8))
-  A_matrix <- A_matrix[, vars[vars %in% names(A_matrix)], with = FALSE] 
+  vars <- c(vars_all, "cols", paste0("V", 1 : 8))
+  A_matrix1 <- A_matrix[, vars[vars %in% names(A_matrix)], with = FALSE] 
 
-  vars <- c(names(country), yearm, namesDom, "namesY", 
-            "namesZ", "totalY", "totalZ", "estim")
+  vars <- c(vars_all, "totalY", "totalZ", "estim")
   ysum <- ysum[, vars[vars %in% names(ysum)], with = FALSE] 
 
-  vars <- c(paste0(yearm, c(1, 2)), names(country), namesDom, "namesY", 
-             "namesZ", paste0("estim_", c(1, 2)), "estim", "var")       
+  vars <- c(vars_all, paste0("estim_", c(1, 2)), "estim", "var")       
   annual_cros <- annual_cros[, vars[vars %in% names(annual_cros)], with = FALSE] 
  
   se <- rse <- cv <- NULL

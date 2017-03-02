@@ -31,7 +31,7 @@ vardcrosannual <- function(Y, H, PSU, w_final,
   
   H <- check_var(vars = H, varn = "H", dataset = dataset,
                  ncols = 1, Ynrow = Ynrow, ischaracter = TRUE,
-                 dif_name = "dataH_stratas")
+                 dif_name = c("w_final", "dataH_stratas"))
   
   w_final <- check_var(vars = w_final, varn = "w_final",
                        dataset = dataset, ncols = 1, Ynrow = Ynrow,
@@ -81,17 +81,19 @@ vardcrosannual <- function(Y, H, PSU, w_final,
   if(!is.null(X)) {
          X <- check_var(vars = X, varn = "X", dataset = datasetX,
                         isnumeric = TRUE, grepls = "__",
-                        dif_name = c(names(period), names(country), names(H),
-                                     names(PSU), names(ID_level1), "w_final",
-                                     names(Y), "w_design", "g", "q"))
+                        dif_name = c(names(years), names(subperiods),
+                                     names(country), names(H), names(PSU),
+                                     names(ID_level1), names(Y), "w_final",
+                                     "w_design", "g", "q"))
          Xnrow <- nrow(X)
     
          ind_gr <- check_var(vars = ind_gr, varn = "ind_gr",
                              dataset = datasetX, ncols = 1,
                              Xnrow = Xnrow, ischaracter = TRUE,
-                             dif_name = c(names(period), names(country), names(H),
-                                          names(PSU), names(ID_level1), "w_final",
-                                          names(X), names(Y), "w_design", "g", "q"))
+                             dif_name = c(names(years), names(subperiods),
+                                          names(country), names(H), names(PSU),
+                                          names(ID_level1), names(Y), names(X),
+                                          "w_final", "w_design", "g", "q"))
     
          g <- check_var(vars = g, varn = "g", dataset = datasetX,
                         ncols = 1, Xnrow = Xnrow, isnumeric = TRUE,

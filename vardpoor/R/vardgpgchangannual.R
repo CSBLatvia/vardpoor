@@ -40,13 +40,6 @@ vardgpgchangannual <- function(Y, H, PSU, w_final, ID_level1,
   years <- check_var(vars = years, varn = "years", dataset = dataset,
                      ncols = 1, Ynrow = Ynrow, ischaracter = TRUE,
                      dif_name = c("percoun", "period_country", names(country)))
-  yearm <- names(years)
-  
-  year1 <- check_var(vars = year1, varn = "year1", dataset = NULL,
-                     ncols = 1, ischaracter = TRUE, years = years)
-  
-  year2 <- check_var(vars = year2, varn = "year2", dataset = NULL,
-                     ncols = 1, ischaracter = TRUE, years = years)
 
   subperiods <- check_var(vars = subperiods, varn = "subperiods",
                           dataset = dataset, ncols = 1, 
@@ -72,50 +65,27 @@ vardgpgchangannual <- function(Y, H, PSU, w_final, ID_level1,
                       Ynrow = Ynrow, isnumeric = TRUE,
                       isvector = TRUE)
 
-  dataset <- data.table(Y, H, ID_level1, ID_level2,
-                        PSU, w_final, Z, gender)
-
-  Y <- names(Y)
-  H <- names(H)
-  ID_level1 <- names(ID_level1)
-  ID_level2 <- names(ID_level2)
-  PSU <- names(PSU)
-  Z <- names(Z)
-  w_final <- "w_final"
-  if (!is.null(country)) dataset <- data.table(dataset, country)
-  country <- names(country)
-  dataset <- data.table(dataset, years, subperiods)
-  years <- names(years)
-  subperiods <- names(subperiods)
-  if (!is.null(Dom)) dataset <- data.table(dataset, Dom)
-  Dom <- names(Dom)
-
-  yearsgender <- paste0(years, "gender")
-  dataset <- rbindlist(lapply(1:2, function(i) { dats <- copy(dataset)
-                                                 dats[, (yearsgender) := paste0(get(years), "_", i)]
-                                                 dats[get("gender") != i, (c(Y, Z)):= 0]
-                                                 return(dats)}))
-
   if(!is.null(X)) {
-        X <- check_var(vars = X, varn = "X", dataset = dataset,
+        X <- check_var(vars = X, varn = "X", dataset = datasetX,
                        check.names = TRUE, isnumeric = TRUE,
-                       grepls = "__",
+                       grepls = "__", 
                        dif_name = c(names(years), names(subperiods),
                                     names(country), names(H), names(PSU),
                                     names(ID_level1), "w_final", names(Y),
-                                    "w_design", "g", "q"))
+                                    names(X), "w_design", "g", "q"))
         Xnrow <- nrow(X)
 
-        g <- check_var(vars = g, varn = "g", dataset = dataset,
-                       check.names = TRUE, ncols = 1, Xnrow = Xnrow,
-                       isnumeric = TRUE)
+        g <- check_var(vars = g, varn = "g", dataset = datasetX,
+                       ncols = 1, Xnrow = Xnrow, isnumeric = TRUE,
+                       isvector = TRUE)
+    
+        q <- check_var(vars = q, varn = "q", dataset = datasetX,
+                       ncols = 1, Xnrow = Xnrow, isnumeric = TRUE,
+                       isvector = TRUE)
 
-        q <- check_var(vars = q, varn = "q", dataset = dataset,
-                       check.names = TRUE, ncols = 1, Xnrow = Xnrow,
-                       isnumeric = TRUE)
-
-        ind_gr <- check_var(vars = ind_gr, varn = "ind_gr", dataset = dataset,
+        ind_gr <- check_var(vars = ind_gr, varn = "ind_gr", dataset = datasetX,
                             check.names = TRUE, ncols = 1, Xnrow = Xnrow,
+                            ischaracter = TRUE,
                             dif_name = c(names(years), names(subperiods),
                                          names(country), names(H), names(PSU),
                                          names(ID_level1), "w_final", names(Y),
@@ -150,7 +120,34 @@ vardgpgchangannual <- function(Y, H, PSU, w_final, ID_level1,
                                  years = years, yearsX = yearsX,
                                  periods = subperiods, periodsX = subperiodsX,
                                  ID_level1 = ID_level1)
+    }
 
+  dataset <- data.table(Y, H, ID_level1, ID_level2,
+                        PSU, w_final, Z, gender)
+
+  Y <- names(Y)
+  H <- names(H)
+  ID_level1 <- names(ID_level1)
+  ID_level2 <- names(ID_level2)
+  PSU <- names(PSU)
+  Z <- names(Z)
+  w_final <- "w_final"
+  if (!is.null(country)) dataset <- data.table(dataset, country)
+  country <- names(country)
+  dataset <- data.table(dataset, years, subperiods)
+  years <- names(years)
+  subperiods <- names(subperiods)
+  if (!is.null(Dom)) dataset <- data.table(dataset, Dom)
+  Dom <- names(Dom)
+
+  yearsgender <- paste0(years, "gender")
+  dataset <- rbindlist(lapply(1:2, function(i) { dats <- copy(dataset)
+                                                 dats[, (yearsgender) := paste0(get(years), "_", i)]
+                                                 dats[get("gender") != i, (c(Y, Z)):= 0]
+                                                 return(dats)}))
+
+
+  if (!is.null(X)) {
         datasetX <- data.table(X, yearsX, subperiodsX, X_ID_level1, ind_gr, g, q)
         if (!is.null(countryX)) datasetX <- data.table(datasetX, countryX)
         countryX <- names(countryX)
@@ -165,7 +162,7 @@ vardgpgchangannual <- function(Y, H, PSU, w_final, ID_level1,
         datasetX <- rbindlist(lapply(1:2, function(i) { dats <- copy(datasetX)
                                                         dats[, (yearsgender) := paste0(get(yearsX), "_", i)]
                                                         return(dats)}))
-   }
+    }
    year1 <- paste0(unique(dataset[[years]]), "_2")
    year2 <- paste0(unique(dataset[[years]]), "_1")
 

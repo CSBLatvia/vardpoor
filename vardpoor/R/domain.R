@@ -152,8 +152,8 @@ check_var <- function(vars, varn, dataset, check.names = FALSE,
                varnsX <- c(paste0(varns, "X"), "X_ID_level1")
 
                if (!identical(peri, periX)) {
-                 stop(paste0("'unique(", paste(varns, collapse= ", "), ")' and 'unique(",
-                                          paste(varnsX, collapse= ", "), ")' records have different"), call. = FALSE)
+                 stop(paste0("'unique(", paste(varns, collapse = ", "), ")' and 'unique(",
+                                          paste(varnsX, collapse = ", "), ")' records have different"), call. = FALSE)
                }
                peri <- periX <- NULL
             }

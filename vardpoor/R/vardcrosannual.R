@@ -167,13 +167,15 @@ vardcrosannual <- function(Y, H, PSU, w_final,
                                       ID_level1 = ID_level1, ID_level2 = ID_level2,
                                       Dom = Dom, Z = Z, country = country,
                                       period = pers[, "pers"], dataset = NULL,
-                                      period1 = yrs[["pers_1"]], period2 = yrs[["pers_2"]],
+                                      period1 = yrs[, .(pers = get("pers_1"))],
+                                      period2 = yrs[, .(pers = get("pers_2"))],
                                       X = X, countryX = countryX, periodX = persX[, "pers"],
                                       X_ID_level1 = X_ID_level1, ind_gr = ind_gr,
                                       g = g, q = q, datasetX = NULL, annual = TRUE,
                                       linratio = !is.null(Z), percentratio = percentratio,
                                       use.estVar = use.estVar, outp_res = outp_res,
-                                      confidence = confidence, change_type = "absolute")
+                                      confidence = confidence, change_type = "absolute",
+                                      checking = FALSE)
 
                  crossectional_results <- datas$crossectional_results
                  crossectional_results <- merge(sarak, crossectional_results, all.y = TRUE, by = "pers")

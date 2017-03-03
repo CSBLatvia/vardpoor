@@ -9,7 +9,6 @@ namesD <- function(Y, D) {
   foreach(i = 1 : ncol(Y), .combine = c) %do% paste(names(Y)[i], h, sep="__")
 }
 
-
 domain <- function(Y, D, dataset = NULL) {
   Y <- check_var(vars = Y, varn = "Y", dataset = dataset,
                  check.names = TRUE, isnumeric = TRUE, grepls = "__")
@@ -31,7 +30,6 @@ domain <- function(Y, D, dataset = NULL) {
   domen <- data.table(domen, check.names = TRUE)
   return(domen[])
 }
-
 
 check_var <- function(vars, varn, dataset, check.names = FALSE,
                       ncols = 0, Yncol = 0, Ynrow = 0, Xnrow = 0,

@@ -55,7 +55,8 @@ vardchangannual <- function(Y, H, PSU, w_final,
   
   years <- check_var(vars = years, varn = "years", dataset = dataset,
                      ncols = 1, Yncol = 0, Ynrow = Ynrow, ischaracter = TRUE,
-                     dif_name = c("percoun", "period_country", names(country)))
+                     dif_name = c("percoun", "period_country", names(country)),
+                     use.gender = use.gender)
   yearm <- names(years)
   
   year1 <- check_var(vars = year1, varn = "year1", dataset = NULL,
@@ -119,7 +120,7 @@ vardchangannual <- function(Y, H, PSU, w_final,
                                ncols = 1, Xnrow = Xnrow, ischaracter = TRUE,
                                mustbedefined = !is.null(years), varnout = "years",
                                varname = names(years), country = country,
-                               countryX = countryX, years = years)
+                               countryX = countryX, years = years, use.gender = use.gender)
 
            subperiodsX <- check_var(vars = subperiodsX, varn = "subperiodsX",
                                     dataset = datasetX, ncols = 1, Xnrow = Xnrow,

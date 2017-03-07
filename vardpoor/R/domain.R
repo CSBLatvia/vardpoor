@@ -72,9 +72,9 @@ check_var <- function(vars, varn, dataset, check.names = FALSE,
       if (any(names(vars) %in% dif_name)) stop(paste0("'", varn, "' must be different name"), call. = FALSE)
       if (any(names(vars) == namesID1)) setnames(vars, names(vars), paste0(names(vars), "_", varn))
       if (!is.null(use.gender) & varn %in% c("years", "yearsX")){
-                parb <- unique(substr(vars[[1]], nchar(vars[[1]])-1, nchar(vars[[1]]))
-                if (all(parb) %in% c("_1", "_2")) | length(parb) != 2) {
-                  stop(paste0("'", varn, "' must be ended with '_1' and '_2'"), call. = FALSE) }}
+                parb <- unique(substr(vars[[1]], nchar(vars[[1]])-1, nchar(vars[[1]])))
+                if (all(parb) %in% c("_1", "_2") | length(parb) != 2) {
+                     stop(paste0("'", varn, "' must be ended with '_1' and '_2'"), call. = FALSE) }}
 
       if (duplicatednames == TRUE & !is.null(vars)) {
         if (any(duplicated(names(vars))))

@@ -55,22 +55,23 @@ vardchangannual <- function(Y, H, PSU, w_final,
   
   years <- check_var(vars = years, varn = "years", dataset = dataset,
                      ncols = 1, Yncol = 0, Ynrow = Ynrow, ischaracter = TRUE,
-                     dif_name = c("percoun", "period_country", names(country)),
+                     dif_name = c("percoun", "period_country", names(country), "yearg"),
                      use.gender = use.gender)
-  yearm <- names(years)
+  years[, yearg := substr(get(names(years)), 1, nchar(get(names(years))) - ifelse(use.gender, 2, 0))]
+  yearm <- names(years)[1 + use.gender]
   
-  year1 <- check_var(vars = year1, varn = "year1", dataset = NULL,
-                     ncols = 1, ischaracter = TRUE, years = years)
-  
-  year2 <- check_var(vars = year2, varn = "year2", dataset = NULL,
-                     ncols = 1, ischaracter = TRUE, years = years)
-  
+  year1 <- check_var(vars = year1, varn = "year1", dataset = NULL, ncols = 1,
+                     ischaracter = TRUE, years = years[, 1 + use.gender, with = FALSE])
+
+  year2 <- check_var(vars = year2, varn = "year2", dataset = NULL,  ncols = 1, 
+                     ischaracter = TRUE, years = years[, 1 + use.gender, with = FALSE])
+
   subperiods <- check_var(vars = subperiods, varn = "subperiods",
                           dataset = dataset, ncols = 1, Ynrow = Ynrow,
                           ischaracter = TRUE, dif_name = c("percoun", names(country)))
-  subn <- data.table(years, subperiods)
-  subn <- nrow(subn[, .N, by = names(subn)]) / nrow(unique(years))
   subpm <- names(subperiods)
+  subn <- data.table(years, subperiods)
+  subn <- nrow(subn[, .N, by = names(subn)]) / length(unique(subn[["yearg"]]))
   
   ID_level1 <- check_var(vars = ID_level1, varn = "ID_level1",
                          dataset = dataset, ncols = 1, Ynrow = Ynrow,
@@ -116,26 +117,29 @@ vardchangannual <- function(Y, H, PSU, w_final,
                                 varnout = "country", varname = names(country),
                                 country = country)
  
-           yearsX <- check_var(vars = yearsX, varn = "yearsX", dataset = datasetX,
-                               ncols = 1, Xnrow = Xnrow, ischaracter = TRUE,
-                               mustbedefined = !is.null(years), varnout = "years",
-                               varname = names(years), country = country,
-                               countryX = countryX, years = years, use.gender = use.gender)
+          yearsX <- check_var(vars = yearsX, varn = "yearsX", dataset = datasetX,
+                              ncols = 1, Xnrow = Xnrow, ischaracter = TRUE,
+                              mustbedefined = !is.null(years), varnout = "years",
+                              varname = names(years)[1], country = country,
+                              countryX = countryX, years = years[, 1, with = FALSE],
+                              use.gender = use.gender)
 
-           subperiodsX <- check_var(vars = subperiodsX, varn = "subperiodsX",
-                                    dataset = datasetX, ncols = 1, Xnrow = Xnrow,
-                                    ischaracter = TRUE, mustbedefined = !is.null(subperiods),
-                                    varnout = "subperiods", varname = names(subperiods),
-                                    country = country, countryX = countryX,
-                                    years = years, yearsX = yearsX, periods = subperiods)
+          subperiodsX <- check_var(vars = subperiodsX, varn = "subperiodsX",
+                                   dataset = datasetX, ncols = 1, Xnrow = Xnrow,
+                                   ischaracter = TRUE, mustbedefined = !is.null(subperiods),
+                                   varnout = "subperiods", varname = names(subperiods),
+                                   country = country, countryX = countryX,
+                                   years = years[, 1, with = FALSE],
+                                   yearsX = yearsX, periods = subperiods)
  
-            X_ID_level1 <- check_var(vars = X_ID_level1, varn = "X_ID_level1",
-                                     dataset = datasetX, ncols = 1, Xnrow = Xnrow,
-                                     ischaracter = TRUE, varnout = "ID_level1",
-                                     varname = names(ID_level1), country = country,
-                                     countryX = countryX, years = years, yearsX = yearsX,
-                                     periods = subperiods, periodsX = subperiodsX,
-                                     ID_level1 = ID_level1)
+          X_ID_level1 <- check_var(vars = X_ID_level1, varn = "X_ID_level1",
+                                    dataset = datasetX, ncols = 1, Xnrow = Xnrow,
+                                    ischaracter = TRUE, varnout = "ID_level1",
+                                    varname = names(ID_level1), country = country,
+                                    countryX = countryX, years = years[, 1, with = FALSE],
+                                    yearsX = yearsX, periods = subperiods,
+                                    periodsX = subperiodsX, ID_level1 = ID_level1)
+                                    
          }
    dataset <- datasetX <- NULL
 
@@ -144,19 +148,23 @@ vardchangannual <- function(Y, H, PSU, w_final,
    var_est2 <- se  <- CI_lower <- CI_upper <- NULL
 
    pers <- data.table(years, subperiods,
-                      pers = paste0(years[[names(years)]], "__", subperiods[[names(subperiods)]]))
-
+                      pers = paste0(years[[1]], "__", subperiods[[1]]))
+   pers[, yearg := substr(get(names(years)), 1, nchar(get(names(years))) - ifelse(use.gender, 2, 0))]
+ 
    if (!is.null(X)) persX <- data.table(yearsX, subperiodsX,
                                   pers = paste0(yearsX[[names(yearsX)]], "__", subperiodsX[[names(subperiodsX)]]))
 
    sarak <- pers[,.N, keyby = names(pers)][, N := NULL]
 
    namesDom <- names(Dom)
-   apst <- lapply(1 : nrow(year1), function(i) {
+ #  apst <- lapply(1 : nrow(year1), function(i) {
+
+i=1
                  atsyear <- rbindlist(list(year1[i], year2[i]))
+
                  atsyear <- merge(atsyear, sarak, all.x = TRUE, by = yearm, sort = FALSE)
                  yr12 <- data.table(year1 = year1[i][[1]], year2 = year2[i][[1]])
-                 setnames(yr12, paste0("year", c(1, 2)), paste0(yearm, c(1, 2)))
+                 setnames(yr12, paste0("year", c(1, 2)), paste0(names(year1), c(1, 2)))
                  atsyrm <- names(atsyear)
                  atsyear[, ids := .I]
 

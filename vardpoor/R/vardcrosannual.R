@@ -54,12 +54,16 @@ vardcrosannual <- function(Y, H, PSU, w_final,
   
   years <- check_var(vars = years, varn = "years", dataset = dataset,
                      ncols = 1, Ynrow = Ynrow, ischaracter = TRUE,
-                     dif_name = c("percoun", "period_country", names(country)))
+                     dif_name = c("percoun", "yearg", "period_country",
+                                   names(country)))
   yearm <- names(years)
   
   subperiods <- check_var(vars = subperiods, varn = "subperiods",
-                          dataset = dataset, ncols = 1, Ynrow = Ynrow,
-                          ischaracter = TRUE, dif_name = c("percoun", names(country)))
+                          dataset = dataset, ncols = 1, 
+                          Ynrow = Ynrow, ischaracter = TRUE,
+                          dif_name = c("percoun", "yearg",
+                                       "period_country",
+                                        names(country)))
   subn <- data.table(years, subperiods)
   subn <- nrow(subn[, .N, by = names(subn)]) / nrow(unique(years))
   subpm <- names(subperiods)

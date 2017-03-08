@@ -38,12 +38,15 @@ vardgpgcrosannual <- function(Y, H, PSU, w_final, ID_level1,
 
   years <- check_var(vars = years, varn = "years", dataset = dataset,
                      ncols = 1, Ynrow = Ynrow, ischaracter = TRUE,
-                     dif_name = c("percoun", "period_country", names(country)))
+                     dif_name = c("percoun", "yearg", "period_country",
+                                   names(country)))
 
   subperiods <- check_var(vars = subperiods, varn = "subperiods",
                           dataset = dataset, ncols = 1, 
                           Ynrow = Ynrow, ischaracter = TRUE,
-                          dif_name = c("percoun", names(country)))
+                          dif_name = c("percoun", "yearg",
+                                       "period_country",
+                                        names(country)))
 
   ID_level1 <- check_var(vars = ID_level1, varn = "ID_level1",
                          dataset = dataset, ncols = 1, Yncol = 0,

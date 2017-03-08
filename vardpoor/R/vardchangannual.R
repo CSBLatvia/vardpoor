@@ -213,7 +213,7 @@ i=1
                  rho <- merge(yrs, rho, all.y = TRUE, by = c("pers_1", "pers_2"))
                  sar <- c("country", "namesY", "namesZ", namesDom)
                  sar <- sar[sar %in% names(rho)]
-                 rhoj <- rho[,.N, keyby=sar][, N := NULL]
+                 rhoj <- rho[,.N, keyby = sar][, N := NULL]
 
                  apstr <- lapply(1 : nrow(rhoj), function(j){
                                rho0 <- rhoj[j]

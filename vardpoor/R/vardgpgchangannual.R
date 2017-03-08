@@ -39,12 +39,15 @@ vardgpgchangannual <- function(Y, H, PSU, w_final, ID_level1,
 
   years <- check_var(vars = years, varn = "years", dataset = dataset,
                      ncols = 1, Ynrow = Ynrow, ischaracter = TRUE,
-                     dif_name = c("percoun", "period_country", names(country)))
+                     dif_name = c("percoun", "yearg", "period_country",
+                                   names(country)))
 
   subperiods <- check_var(vars = subperiods, varn = "subperiods",
                           dataset = dataset, ncols = 1, 
                           Ynrow = Ynrow, ischaracter = TRUE,
-                          dif_name = c("percoun", names(country)))
+                          dif_name = c("percoun", "yearg",
+                                       "period_country",
+                                        names(country)))
 
   ID_level1 <- check_var(vars = ID_level1, varn = "ID_level1",
                          dataset = dataset, ncols = 1, Yncol = 0,
@@ -163,8 +166,6 @@ vardgpgchangannual <- function(Y, H, PSU, w_final, ID_level1,
                                                         dats[, (yearsgender) := paste0(get(yearsX), "_", i)]
                                                         return(dats)}))
     }
-   year1 <- paste0(unique(dataset[[years]]), "_2")
-   year2 <- paste0(unique(dataset[[years]]), "_1")
 
    rez <- vardchangannual(Y = Y, H = H, PSU = PSU,
                           w_final = w_final, ID_level1 = ID_level1,

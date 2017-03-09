@@ -23,8 +23,8 @@ vardchangespoor <- function(Y, age = NULL,
                             change_type = "absolute") {
  
   ### Checking
-  if (!change_type %in% c("absolute", "relative")) stop("'change_type' must be 'absolute' or 'relative'", call. = FALSE)
- 
+  change_type <- check_var(vars = change_type, varn = "change_type", varntype = "change_type") 
+
   all_choices <- c("linarpr", "linarpt", "lingpg",
                    "linpoormed", "linrmpg", "lingini",
                    "lingini2", "linqsr", "linrmir", "linarr")

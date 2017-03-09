@@ -1,5 +1,5 @@
 
-vardgpgchangannual <- function(Y, H, PSU, w_final, ID_level1,
+vardgpgannual <- function(Y, H, PSU, w_final, ID_level1,
                                ID_level2, Dom = NULL, Z = NULL,
                                gender, country = NULL, years,
                                subperiods, dataset = NULL, year1,
@@ -8,11 +8,15 @@ vardgpgchangannual <- function(Y, H, PSU, w_final, ID_level1,
                                X_ID_level1 = NULL, ind_gr = NULL,
                                g = NULL, q = NULL, datasetX = NULL,
                                percentratio = 1, use.estVar = FALSE,
-                               confidence = 0.95) {
+                               confidence = 0.95, method = "cros") {
+
+  method <- check_var(vars = change_type, varn = "method", varntype = "method") 
+  use.gender <- method == "changes"
 
   percentratio <- check_var(vars = percentratio, varn = "percentratio", varntype = "pinteger")  
   use.estVar <- check_var(vars = use.estVar, varn = "use.estVar", varntype = "logical") 
   confidence <- check_var(vars = confidence, varn = "confidence", varntype = "numeric01") 
+
 
   Y <- check_var(vars = Y, varn = "Y", dataset = dataset,
                  check.names = TRUE, isnumeric = TRUE, grepls = "__")
@@ -171,17 +175,21 @@ vardgpgchangannual <- function(Y, H, PSU, w_final, ID_level1,
                                                         return(dats)}))
     }
 
-   rez <- vardchangannual(Y = Y, H = H, PSU = PSU,
-                          w_final = w_final, ID_level1 = ID_level1,
-                          ID_level2 = ID_level2, Dom = Dom,
-                          Z = Z, country = country, years = yearsgender,
-                          subperiods = subperiods, dataset = dataset,
-                          year1 = year1, year2 = year2, X = X,
-                          countryX = countryX, yearsX = yearsgender,
-                          subperiodsX = subperiodsX, X_ID_level1 = X_ID_level1,
-                          ind_gr = ind_gr, g = g, q = q, datasetX = datasetX,
-                          percentratio = percentratio, use.estVar = use.estVar,
-                          use.gender = TRUE, confidence = confidence)
+  if (!use.gender) {
+               year1 <- paste0(unique(dataset[[years]]), "_2")
+               year2 <- paste0(unique(dataset[[years]]), "_1") }
+ 
+  rez <- vardchangannual(Y = Y, H = H, PSU = PSU,
+                         w_final = w_final, ID_level1 = ID_level1,
+                         ID_level2 = ID_level2, Dom = Dom,
+                         Z = Z, country = country, years = yearsgender,
+                         subperiods = subperiods, dataset = dataset,
+                         year1 = year1, year2 = year2, X = X,
+                         countryX = countryX, yearsX = yearsgender,
+                         subperiodsX = subperiodsX, X_ID_level1 = X_ID_level1,
+                         ind_gr = ind_gr, g = g, q = q, datasetX = datasetX,
+                         percentratio = percentratio, use.estVar = use.estVar,
+                         use.gender = use.gender, confidence = confidence)
 
   list(crossectional_results = rez$crossectional_results,
        crossectional_var_grad = rez$crossectional_var_grad,

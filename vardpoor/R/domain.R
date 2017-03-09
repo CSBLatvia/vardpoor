@@ -60,6 +60,12 @@ check_var <- function(vars, varn, varntype = NULL, dataset,
   if (varntype == "numeric0100") if (length(vars) != 1 | any(!is.numeric(vars) |  vars < 0 | vars > 100)) {
                                                stop(paste0("'", varn, "' must be a numeric value in [0, 100]"), call. = FALSE)  }
 
+  if (varntype == "change_type") if (length(vars) != 1 | any(!(vars %in% c("absolute", "relative")))) {
+                                               stop("'change_type' must be 'absolute' or 'relative'", call. = FALSE)  }
+
+  if (varntype == "method") if (length(vars) != 1 | any(!(vars %in% c("cross", "changes")))) {
+                                               stop("'method' must be 'cross' or 'changes'", call. = FALSE)  }
+
   if (!is.null(vars) & !is.null(varntype)) mustbedefined <- FALSE
   if (!is.null(vars) & is.null(varntype)) {
       if (!withperiod & varn == "period") stop(paste0("'period' must be NULL for those data"), call. = FALSE)
@@ -172,8 +178,8 @@ check_var <- function(vars, varn, varntype = NULL, dataset,
             }
 
     } else if (mustbedefined) stop(paste0("'", varn, "' must be defined!"), call. = FALSE)
-
-    return(vars[])
+    if (is.data.table(vars)) vars <- vars[]
+    return(vars)
 }
 
 

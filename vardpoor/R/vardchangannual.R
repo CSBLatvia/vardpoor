@@ -157,9 +157,8 @@ vardchangannual <- function(Y, H, PSU, w_final,
    sarak <- pers[,.N, keyby = names(pers)][, N := NULL]
 
    namesDom <- names(Dom)
- #  apst <- lapply(1 : nrow(year1), function(i) {
+   apst <- lapply(1 : nrow(year1), function(i) {
 
-i=1
                  atsyear <- rbindlist(list(year1[i], year2[i]))
 
                  atsyear <- merge(atsyear, sarak, all.x = TRUE, by = yearm, sort = FALSE)

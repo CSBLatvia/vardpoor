@@ -18,8 +18,9 @@ vardchanges <- function(Y, H, PSU, w_final,
                         checking = TRUE) {
 
   ### Checking
-
-  if (checking) {
+  change_type <- check_var(vars = change_type, varn ="change_type", varntype = "change_type") 
+         
+  if (checking) { 
         percentratio <- check_var(vars = percentratio, varn = "percentratio", varntype = "pinteger") 
         linratio <- check_var(vars = linratio, varn = "linratio", varntype = "logical") 
         annual <- check_var(vars = annual, varn = "annual", varntype = "logical") 

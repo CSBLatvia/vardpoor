@@ -31,23 +31,11 @@ vardchangespoor <- function(Y, age = NULL,
   type <- tolower(type)
   type <- match.arg(type, all_choices, length(type) > 1) 
 
-  # check 'p'
-  p <- percentage
-   if(length(p) != 1 | any(!is.numeric(p) | p < 0 | p > 100)) {
-          stop("'percentage' must be a numeric value in [0, 100]", call. = FALSE)  }
-
-  # check 'order_quant'
-  oq <- order_quant
-  if(length(oq) != 1 | any(!is.numeric(oq) | oq < 0 | oq > 100)) {
-          stop("'order_quant' must be a numeric value in [0, 100]", call. = FALSE)  }
-
-  if(length(alpha) != 1 | any(!is.numeric(alpha) | alpha < 0 | alpha > 100)) {
-         stop("'alpha' must be a numeric value in [0, 100]", call. = FALSE)  }
-
-  if (!is.logical(use.estVar)) stop("'use.estVar' must be logical", call. = FALSE)
-
-  if(length(confidence) != 1 | any(!is.numeric(confidence) | confidence < 0 | confidence > 1)) {
-         stop("'confidence' must be a numeric value in [0, 1]", call. = FALSE)  }
+  p <- check_var(vars = percentage, varn = "percentage", varntype = "numeric0100") 
+  order_quant <- check_var(vars = order_quant, varn = "order_quant", varntype = "integer0100") 
+  alpha <- check_var(vars = alpha, varn = "alpha", varntype = "numeric0100") 
+  use.estVar <- check_var(vars = use.estVar, varn = "use.estVar", varntype = "logical") 
+  confidence <- check_var(vars = confidence, varn = "confidence", varntype = "numeric01") 
 
   if(!is.null(X)) {
          if (is.null(datasetX)) datasetX <- copy(dataset)

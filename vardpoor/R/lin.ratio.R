@@ -1,9 +1,9 @@
 
 lin.ratio <- function(Y, Z, weight, Dom = NULL, dataset = NULL, percentratio = 1, checking = TRUE) {
 
-  if (length(percentratio) != 1 | !any(is.integer(percentratio) | percentratio > 0)) stop("'percentratio' must be a positive integer")
-
   if (checking) {
+       percentratio <- check_var(vars = percentratio, varn = "percentratio", varntype = "pinteger") 
+
        Y <- check_var(vars = Y, varn = "Y", dataset = dataset,
                       check.names = TRUE, isnumeric = TRUE, grepls = "__")
        Ynrow <- nrow(Y)

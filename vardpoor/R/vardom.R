@@ -32,13 +32,13 @@ vardom <- function(Y, H, PSU, w_final,
                    outp_res = FALSE) {
 
   ### Checking
-  if (length(fh_zero) != 1 | !any(is.logical(fh_zero))) stop("'fh_zero' must be logical")
-  if (length(PSU_level) != 1 | !any(is.logical(PSU_level))) stop("'PSU_level' must be logical")
-  if (length(percentratio) != 1 | !any(is.numeric(percentratio) | percentratio > 0)) stop("'percentratio' must be a positive numeric value")
-  if (length(outp_lin) != 1 | !any(is.logical(outp_lin))) stop("'outp_lin' must be logical")
-  if (length(outp_res) != 1 | !any(is.logical(outp_res))) stop("'outp_res' must be logical")
-  if(length(confidence) != 1 | any(!is.numeric(confidence) | confidence < 0 | confidence > 1)) {
-         stop("'confidence' must be a numeric value in [0, 1]")  }
+
+  fh_zero <- check_var(vars = fh_zero, varn = "fh_zero", varntype = "logical") 
+  PSU_level <- check_var(vars = PSU_level, varn = "PSU_level", varntype = "logical") 
+  outp_lin <- check_var(vars = outp_lin, varn = "outp_lin", varntype = "logical") 
+  outp_res <- check_var(vars = outp_res, varn = "outp_res", varntype = "logical") 
+  percentratio <- check_var(vars = percentratio, varn = "percentratio", varntype = "pinteger") 
+  confidence <- check_var(vars = confidence, varn = "confidence", varntype = "numeric01") 
 
   Y <- check_var(vars = Y, varn = "Y", dataset = dataset,
                  check.names = TRUE, isnumeric = TRUE, grepls = "__")

@@ -5,11 +5,9 @@ incPercentile <- function(Y, weights = NULL, sort = NULL,
                           checking = TRUE) {
 
    ## initializations
-   if(length(k) == 0 | any(!is.numeric(k) | k < 0 | k > 100)) {
-        stop("'k' must be a vector of integers between 0 and 100")
-    } else k <- round(k)
-
    if (checking) {
+         k <- check_var(vars = k, varn = "k", varntype = "integer0100") 
+
          Y <- check_var(vars = Y, varn = "Y", dataset = dataset,
                         ncols = 1, isnumeric = TRUE,
                         isvector = TRUE, grepls = "__")

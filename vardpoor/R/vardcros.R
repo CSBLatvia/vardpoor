@@ -27,17 +27,16 @@ vardcros <- function(Y, H, PSU, w_final,
 
   ### Checking
   if (checking) {
-    if (length(linratio) != 1 | !any(is.logical(linratio))) stop("'linratio' must be logical", call. = FALSE)
-    if (length(percentratio) != 1 | !any(is.numeric(percentratio) | percentratio > 0)) stop("'percentratio' must be a positive numeric value", call. = FALSE)
-    if (length(netchanges) != 1 | !any(is.logical(netchanges))) stop("'netchanges' must be logical", call. = FALSE)
-    if (length(withperiod) != 1 | !any(is.logical(withperiod))) stop("'withperiod' must be logical", call. = FALSE)
-    if (length(use.estVar) != 1 | !any(is.logical(use.estVar))) stop("'use.estVar' must be logical", call. = FALSE)
-    if (length(ID_level1_max) != 1 | !any(is.logical(ID_level1_max))) stop("'ID_level1_max' must be logical", call. = FALSE)
-    if (length(outp_res) != 1 | !any(is.logical(outp_res))) stop("'outp_res' must be logical", call. = FALSE)
-    if (all(ID_level1_max, !is.null(X))) stop("'ID_level1_max' must be ", !ID_level1_max, "!", call. = FALSE)
+    percentratio <- check_var(vars = percentratio, varn = "percentratio", varntype = "pinteger") 
+    linratio <- check_var(vars = linratio, varn = "linratio", varntype = "logical") 
+    netchanges <- check_var(vars = netchanges, varn = "netchanges", varntype = "logical") 
+    withperiod <- check_var(vars = withperiod, varn = "withperiod", varntype = "logical") 
+    use.estVar <- check_var(vars = use.estVar, varn = "use.estVar", varntype = "logical") 
+    ID_level1_max <- check_var(vars = ID_level1_max, varn = "ID_level1_max", varntype = "logical") 
+    outp_res <- check_var(vars = outp_res, varn = "outp_res", varntype = "logical") 
+    confidence <- check_var(vars = confidence, varn = "confidence", varntype = "numeric01") 
 
-    if(length(confidence) != 1 | any(!is.numeric(confidence) |  confidence < 0 | confidence > 1)) {
-                                               stop("'confidence' must be a numeric value in [0, 1]", call. = FALSE)  }
+    if (all(ID_level1_max, !is.null(X))) stop("'ID_level1_max' must be ", !ID_level1_max, "!", call. = FALSE)
     if (all(!is.null(Z), !is.null(X), !linratio)) stop("'linratio' must be TRUE", call. = FALSE)
     if (all(is.null(Z), linratio)) stop("'linratio' must be FALSE", call. = FALSE)
 

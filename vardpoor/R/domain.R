@@ -31,16 +31,16 @@ domain <- function(Y, D, dataset = NULL) {
   return(domen[])
 }
 
-check_var <- function(vars, varn, dataset, check.names = FALSE,
-                      ncols = 0, Yncol = 0, Ynrow = 0, Xnrow = 0,
-                      isnumeric = FALSE, ischaracter = FALSE,
-                      mustbedefined = TRUE, isvector = FALSE,
-                      grepls = NULL, dif_name = "", namesID1 = "id",
-                      duplicatednames = FALSE, withperiod = TRUE,
-                      varnout = NULL, varname = NULL, PSUs = NULL,
-                      country = NULL, countryX = NULL, years = NULL,
-                      yearsX = NULL, periods = NULL, periodsX = NULL,
-                      ID_level1 = NULL, use.gender = FALSE){
+check_var <- function(vars, varn, varntype = NULL, dataset,
+                      check.names = FALSE, ncols = 0, Yncol = 0,
+                      Ynrow = 0, Xnrow = 0, isnumeric = FALSE,
+                      ischaracter = FALSE, mustbedefined = TRUE,
+                      isvector = FALSE, grepls = NULL, dif_name = "",
+                      namesID1 = "id", duplicatednames = FALSE,
+                      withperiod = TRUE, varnout = NULL, varname = NULL,
+                      PSUs = NULL, country = NULL, countryX = NULL,
+                      years = NULL, yearsX = NULL, periods = NULL,
+                      periodsX = NULL, ID_level1 = NULL, use.gender = FALSE){
 
   N <- NULL
   if (varn %in%  c("g", "q") & (is.null(class(vars)) | any(class(vars) == "function"))) stop("'g' must be numeric", call. = FALSE)
@@ -50,7 +50,18 @@ check_var <- function(vars, varn, dataset, check.names = FALSE,
     if (Ynrow > 0 & varn == "id") { vars <- 1:Ynrow
                                     dataset <- NULL}}
 
-  if (!is.null(vars)) {
+  if (varntype == "pinteger") if (length(vars) != 1 | !any(!is.integer(vars) | vars < 1)) stop(paste0("'", varn, "' must be a positive integer"), call. = FALSE)
+  if (varntype == "logical") if (length(vars) != 1 | !any(is.logical(vars))) stop(paste0("'", varn, "' must be logical"), call. = FALSE)
+  if (varntype == "numeric01") if (length(vars) != 1 | any(!is.numeric(vars) |  vars < 0 | vars > 1)) {
+                                               stop(paste0("'", varn, "' must be a numeric value in [0, 1]"), call. = FALSE)  }
+
+  if (varntype == "integer0100") if (length(vars) != 1 | any(!is.integer(vars) |  vars < 0 | vars > 100)) {
+                                               stop(paste0("'", varn, "' must be a integer value in [0, 100]"), call. = FALSE)  }
+  if (varntype == "numeric0100") if (length(vars) != 1 | any(!is.numeric(vars) |  vars < 0 | vars > 100)) {
+                                               stop(paste0("'", varn, "' must be a numeric value in [0, 100]"), call. = FALSE)  }
+
+  if (!is.null(vars) & !is.null(varntype)) mustbedefined <- FALSE
+  if (!is.null(vars) & is.null(varntype)) {
       if (!withperiod & varn == "period") stop(paste0("'period' must be NULL for those data"), call. = FALSE)
       if(!is.null(dataset)) {
         dataset <- data.table(dataset)

@@ -13,10 +13,9 @@ vardcrosannual <- function(Y, H, PSU, w_final,
  
   ### Checking
   outp_res <- FALSE
-  if (length(percentratio) != 1 | !any(is.integer(percentratio) | percentratio > 0)) stop("'percentratio' must be a positive integer")
-  if (length(use.estVar) != 1 | !any(is.logical(use.estVar))) stop("'use.estVar' must be logical")
-  if(length(confidence) != 1 | any(!is.numeric(confidence) |  confidence < 0 | confidence > 1)) {
-          stop("'confidence' must be a numeric value in [0, 1]")  }
+  percentratio <- check_var(vars = percentratio, varn = "percentratio", varntype = "pinteger") 
+  use.estVar <- check_var(vars = use.estVar, varn = "use.estVar", varntype = "logical") 
+  confidence <- check_var(vars = confidence, varn = "confidence", varntype = "numeric01") 
 
   if(!is.null(X)) {
         if (is.null(datasetX)) datasetX <- copy(dataset)

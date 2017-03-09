@@ -19,12 +19,10 @@ linrmir <- function(Y, id = NULL, age, weight = NULL,
    if (min(dim(data.table(var_name)) == 1) != 1) {
        stop("'var_name' must have defined one name of the linearized variable")}
 
-   # check 'order_quant'
-   oq <- order_quant
-   if(length(oq) != 1 | any(!is.numeric(oq) | oq < 0 | oq > 100)) {
-          stop("'order_quant' must be a numeric value in [0, 100]") }
-
    if (checking) {
+          order_quant <- check_var(vars = order_quant, varn = "order_quant",
+                                   varntype = "integer0100") 
+
           Y <- check_var(vars = Y, varn = "Y", dataset = dataset,
                          ncols = 1, isnumeric = TRUE,
                          isvector = TRUE, grepls = "__")

@@ -10,6 +10,10 @@ vardgpgchangannual <- function(Y, H, PSU, w_final, ID_level1,
                                percentratio = 1, use.estVar = FALSE,
                                confidence = 0.95) {
 
+  percentratio <- check_var(vars = percentratio, varn = "percentratio", varntype = "pinteger")  
+  use.estVar <- check_var(vars = use.estVar, varn = "use.estVar", varntype = "logical") 
+  confidence <- check_var(vars = confidence, varn = "confidence", varntype = "numeric01") 
+
   Y <- check_var(vars = Y, varn = "Y", dataset = dataset,
                  check.names = TRUE, isnumeric = TRUE, grepls = "__")
   Ynrow <- nrow(Y)

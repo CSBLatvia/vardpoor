@@ -10,9 +10,9 @@ variance_est <- function(Y, H, PSU, w_final, N_h = NULL, fh_zero = FALSE,
   ### Checking
 
   if (checking) {
-        if (!is.logical(fh_zero)) stop("'fh_zero' must be logical", call. = FALSE)
-        if (!is.logical(PSU_level)) stop("'PSU_level' must be logical", call. = FALSE)
-    
+        fh_zero <- check_var(vars = fh_zero, varn = "fh_zero", varntype = "logical") 
+        PSU_level <- check_var(vars = PSU_level, varn = "PSU_level", varntype = "logical") 
+  
         Y <- check_var(vars = Y, varn = "Y", dataset = dataset,
                        check.names = TRUE, isnumeric = TRUE)
         Ynrow <- nrow(Y)

@@ -23,28 +23,13 @@ vardcrospoor <- function(Y, age = NULL, pl085 = NULL,
   type <- tolower(type)
   type <- match.arg(type, all_choices, length(type)>1) 
 
-  # check 'p'
-  p <- percentage
-  if(length(p) != 1 | any(!is.numeric(p) | p < 0 | p > 100)) {
-         stop("'percentage' must be a numeric value in [0, 100]")
-     } else p <- percentage[1]
-
-  # check 'order_quant'
-
-  oq <- order_quant
-   if(length(oq) != 1 | any(!is.numeric(oq) | oq < 0 | oq > 100)) {
-          stop("'order_quant' must be a numeric value in [0, 100]")
-      } else order_quant <- order_quant[1]
-
-  if(length(alpha) != 1 | any(!is.numeric(alpha) | alpha < 0 | alpha > 100)) {
-         stop("'alpha' must be a numeric value in [0, 100]")  }
- 
-  if (length(netchanges) != 1 | !any(is.logical(netchanges))) stop("'netchanges' must be logical")
-  if (length(withperiod) != 1 | !any(is.logical(withperiod))) stop("'withperiod' must be logical")
-  if (length(use.estVar) != 1 | !any(is.logical(use.estVar))) stop("'use.estVar' must be logical")
-
-  if(length(confidence) != 1 | any(!is.numeric(confidence) | confidence < 0 | confidence > 1)) {
-         stop("'confidence' must be a numeric value in [0, 1]")  }
+  p <- check_var(vars = percentage, varn = "percentage", varntype = "numeric0100") 
+  order_quant <- check_var(vars = order_quant, varn = "order_quant", varntype = "integer0100") 
+  alpha <- check_var(vars = alpha, varn = "alpha", varntype = "numeric0100") 
+  netchanges <- check_var(vars = netchanges, varn = "netchanges", varntype = "logical") 
+  withperiod <- check_var(vars = withperiod, varn = "withperiod", varntype = "logical") 
+  use.estVar <- check_var(vars = use.estVar, varn = "use.estVar", varntype = "logical") 
+  confidence <- check_var(vars = confidence, varn = "confidence", varntype = "numeric01") 
 
   if (checking){
          if(!is.null(X)) {

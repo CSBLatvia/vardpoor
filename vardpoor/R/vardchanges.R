@@ -19,16 +19,14 @@ vardchanges <- function(Y, H, PSU, w_final,
 
   ### Checking
 
-  if (!change_type %in% c("absolute", "relative")) stop("'change_type' must be 'absolute' or 'relative'", call. = FALSE)
-  if (length(linratio) != 1 | !any(is.logical(linratio))) stop("'linratio' must be logical", call. = FALSE)
-  if (length(annual) != 1 | !any(is.logical(annual))) stop("'annual' must be logical", call. = FALSE)
-  if (length(percentratio) != 1 | !any(is.numeric(percentratio) | percentratio > 0)) stop("'percentratio' must be a numeric integer value", call. = FALSE)
-  if (length(use.estVar) != 1 | !any(is.logical(use.estVar))) stop("'use.estVar' must be logical", call. = FALSE)
-  if (length(outp_res) != 1 | !any(is.logical(outp_res))) stop("'outp_res' must be logical", call. = FALSE)
-  if(length(confidence) != 1 | any(!is.numeric(confidence) |  confidence < 0 | confidence > 1)) {
-          stop("'confidence' must be a numeric value in [0, 1]", call. = FALSE)  }
-
   if (checking) {
+        percentratio <- check_var(vars = percentratio, varn = "percentratio", varntype = "pinteger") 
+        linratio <- check_var(vars = linratio, varn = "linratio", varntype = "logical") 
+        annual <- check_var(vars = annual, varn = "annual", varntype = "logical") 
+        use.estVar <- check_var(vars = use.estVar, varn = "use.estVar", varntype = "logical")
+        outp_res <- check_var(vars = outp_res, varn = "outp_res", varntype = "logical") 
+        confidence <- check_var(vars = confidence, varn = "confidence", varntype = "numeric01")
+
         if(!is.null(X)) {
             if (is.null(datasetX)) datasetX <- copy(dataset)
             equal_dataset <- identical(dataset, datasetX) & !is.null(dataset)

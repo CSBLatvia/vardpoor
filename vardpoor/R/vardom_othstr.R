@@ -16,11 +16,10 @@ vardom_othstr <- function(Y, H, H2, PSU, w_final,
  
   ### Checking
 
-  if (length(outp_lin) != 1 | !any(is.logical(outp_lin))) stop("'outp_lin' must be logical")
-  if (length(outp_res) != 1 | !any(is.logical(outp_res))) stop("'outp_res' must be logical")
-  if (length(percentratio) != 1 | !any(is.numeric(percentratio) | percentratio > 0)) stop("'percentratio' must be a positive numeric value")
-  if(length(confidence) != 1 | any(!is.numeric(confidence) | confidence < 0 | confidence > 1)) {
-         stop("'confidence' must be a numeric value in [0, 1]")  }
+  outp_lin <- check_var(vars = outp_lin, varn = "outp_lin", varntype = "logical") 
+  outp_res <- check_var(vars = outp_res, varn = "outp_res", varntype = "logical") 
+  percentratio <- check_var(vars = percentratio, varn = "percentratio", varntype = "pinteger") 
+  confidence <- check_var(vars = confidence, varn = "confidence", varntype = "numeric01") 
 
   Y <- check_var(vars = Y, varn = "Y", dataset = dataset,
                  check.names = TRUE, isnumeric = TRUE, grepls = "__")

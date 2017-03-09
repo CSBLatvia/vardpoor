@@ -20,17 +20,13 @@ linpoormed <- function(Y, id = NULL, weight = NULL,
    if (min(dim(as.data.frame(var_name)) == 1) != 1) {
        stop("'var_name' must be defined name of the linearized variable")}
 
-   # check 'p'
-   p <- percentage
-   if(length(p) != 1 |  any(!is.numeric(p) | p < 0 | p > 100)) {
-          stop("'percentage' must be a numeric value in [0, 100]") }
-
-   # check 'order_quant'
-   oq <- order_quant
-   if(length(oq) != 1 | any(!is.numeric(oq) | oq < 0 | oq > 100)) {
-          stop("'order_quant' must be a numeric value in [0, 100]") }
-
    if (checking) {
+          p <- check_var(vars = percentage, varn = "percentage",
+                         varntype = "numeric0100") 
+
+          order_quant <- check_var(vars = order_quant, varn = "order_quant",
+                                   varntype = "integer0100") 
+
           Y <- check_var(vars = Y, varn = "Y", dataset = dataset,
                          ncols = 1, isnumeric = TRUE,
                          isvector = TRUE, grepls = "__")

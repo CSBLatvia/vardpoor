@@ -14,10 +14,10 @@ vardchangannual <- function(Y, H, PSU, w_final,
 
   ### Checking
   outp_res <- FALSE
-  if (length(percentratio) != 1 | !any(is.numeric(percentratio) | percentratio > 0)) stop("'percentratio' must be a positive numeric value", call. = FALSE)
-  if (length(use.estVar) != 1 | !any(is.logical(use.estVar))) stop("'use.estVar' must be logical", call. = FALSE)
-  if(length(confidence) != 1 | any(!is.numeric(confidence) |  confidence < 0 | confidence > 1)) {
-          stop("'confidence' must be a numeric value in [0, 1]", call. = FALSE)  }
+  percentratio <- check_var(vars = percentratio, varn = "percentratio", varntype = "pinteger")  
+  use.estVar <- check_var(vars = use.estVar, varn = "use.estVar", varntype = "logical")
+  use.gender <- check_var(vars = use.gender, varn = "use.gender", varntype = "logical")
+  confidence <- check_var(vars = confidence, varn = "confidence", varntype = "numeric01")
 
   if(!is.null(X)) {
          if (is.null(datasetX)) datasetX <- copy(dataset)

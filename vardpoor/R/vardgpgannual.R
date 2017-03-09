@@ -2,21 +2,24 @@
 vardgpgannual <- function(Y, H, PSU, w_final, ID_level1,
                                ID_level2, Dom = NULL, Z = NULL,
                                gender, country = NULL, years,
-                               subperiods, dataset = NULL, year1,
-                               year2, X = NULL, countryX = NULL, 
+                               subperiods, dataset = NULL, year1 = NULL,
+                               year2 = NULL, X = NULL, countryX = NULL, 
                                yearsX = NULL, subperiodsX = NULL, 
                                X_ID_level1 = NULL, ind_gr = NULL,
                                g = NULL, q = NULL, datasetX = NULL,
                                percentratio = 1, use.estVar = FALSE,
                                confidence = 0.95, method = "cros") {
 
-  method <- check_var(vars = change_type, varn = "method", varntype = "method") 
+  method <- check_var(vars = method, varn = "method", varntype = "method") 
   use.gender <- method == "changes"
+  if (!use.gender) { if (!is.null(year1)) stop("'year1' must be NULL")
+                     if (!is.null(year2)) stop("'year2' must be NULL")
+                  } else { if (is.null(year1)) stop("'year1' must be defined!")
+                           if (is.null(year2)) stop("'year2' must be defined!") }
 
   percentratio <- check_var(vars = percentratio, varn = "percentratio", varntype = "pinteger")  
   use.estVar <- check_var(vars = use.estVar, varn = "use.estVar", varntype = "logical") 
   confidence <- check_var(vars = confidence, varn = "confidence", varntype = "numeric01") 
-
 
   Y <- check_var(vars = Y, varn = "Y", dataset = dataset,
                  check.names = TRUE, isnumeric = TRUE, grepls = "__")
@@ -176,8 +179,8 @@ vardgpgannual <- function(Y, H, PSU, w_final, ID_level1,
     }
 
   if (!use.gender) {
-               year1 <- paste0(unique(dataset[[years]]), "_2")
-               year2 <- paste0(unique(dataset[[years]]), "_1") }
+                    year1 <- paste0(unique(dataset[[years]]), "_2")
+                    year2 <- paste0(unique(dataset[[years]]), "_1") }
  
   rez <- vardchangannual(Y = Y, H = H, PSU = PSU,
                          w_final = w_final, ID_level1 = ID_level1,
@@ -199,6 +202,6 @@ vardgpgannual <- function(Y, H, PSU, w_final, ID_level1,
        vardchanges_results = rez$vardchanges_results,
        X_annual = rez$X_annual, A_matrix = rez$A_matrix,
        annual_sum = rez$annual_sum,
-       annual_cros = rez$annual_cros)
+       annualgpg_results = rez$annual_changes)
 
 }

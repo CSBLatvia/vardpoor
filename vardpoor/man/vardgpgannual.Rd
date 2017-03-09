@@ -259,7 +259,7 @@ data[, gender := (as.character(rb090) == "female") + 1]
 data[, all := 1]
 data[, id_lv2 := .I]
 
-result <- vardgpgchangannual(Y = "employed", H = "strata",
+result <- vardgpgannual(Y = "employed", H = "strata",
                              PSU = "PSU", w_final = "rb050",
                              ID_level1 = "db030", ID_level2 = "id_lv2",
                              Dom = NULL, Z = "all", gender = "gender",
@@ -268,7 +268,7 @@ result <- vardgpgchangannual(Y = "employed", H = "strata",
                              percentratio = 100, confidence = 0.95)
 
 \dontrun{
-result <- vardgpgchangannual(Y = "unemployed", H = "strata",
+result <- vardgpgannual(Y = "unemployed", H = "strata",
                              PSU = "PSU", w_final = "rb050",
                              ID_level1 = "db030", ID_level1 = "id_lv2",
                              Dom = NULL, Z = "all", gender = "gender",

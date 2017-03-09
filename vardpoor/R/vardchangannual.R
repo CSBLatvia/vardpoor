@@ -215,6 +215,7 @@ vardchangannual <- function(Y, H, PSU, w_final,
                  rhoj <- rho[,.N, keyby = sar][, N := NULL]
 
                  apstr <- lapply(1 : nrow(rhoj), function(j){
+
                                rho0 <- rhoj[j]
                                rho1 <- merge(rho0, rho, by = sar)[nams == "num2"]
                                A_matrix <- diag(1, nrow(atsyear), nrow(atsyear))

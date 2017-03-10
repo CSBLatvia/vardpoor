@@ -12,7 +12,7 @@
 
 linarr <- function(Y, Y_den, id = NULL, age, pl085, month_at_work,
                    weight = NULL,  sort = NULL, Dom = NULL,
-                   period = NULL, dataset = NULL, order_quant = 50,
+                   period = NULL, dataset = NULL, order_quant = 50L,
                    var_name = "lin_arr", checking = TRUE) {
 
    ## initializations

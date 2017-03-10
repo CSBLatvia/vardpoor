@@ -58,6 +58,7 @@ vardannual <- function(Y, H, PSU, w_final,
                      ncols = 1, Yncol = 0, Ynrow = Ynrow, ischaracter = TRUE,
                      dif_name = c("percoun", "period_country", names(country), "yearg"),
                      use.gender = use.gender)
+  yearg <- NULL
   years[, yearg := substr(get(names(years)), 1, nchar(get(names(years))) - ifelse(use.gender, 2, 0))]
   yearm <- names(years)[1 + use.gender]
   
@@ -67,8 +68,8 @@ vardannual <- function(Y, H, PSU, w_final,
 
             year2 <- check_var(vars = year2, varn = "year2", dataset = NULL,  ncols = 1, 
                                ischaracter = TRUE, years = years[, 1 + use.gender, with = FALSE])
-         } else { if (!is.null(year1)) stop("'year1' must be NULL")
-                  if (!is.null(year1)) stop("'year1' must be NULL")
+         } else { if (!missing(year1)) if (!is.null(year1)) stop("'year1' must be NULL")
+                  if (!missing(year2)) if (!is.null(year2)) stop("'year2' must be NULL")
                   year1 <- years[, .N, by = yearm][, N := NULL]
                   year2 <- years[, .N, by = yearm][, N := NULL] }
 
@@ -164,20 +165,26 @@ vardannual <- function(Y, H, PSU, w_final,
 
    namesDom <- names(Dom)
    apst <- lapply(1 : nrow(year1), function(i) {
-
+                 
+                 
                  atsyear <- rbindlist(list(year1[i], year2[i]))
-
+                 if (method == "cros") atsyear <- year1[i]
                  atsyear <- merge(atsyear, sarak, all.x = TRUE, by = yearm, sort = FALSE)
-                 yr12 <- data.table(year1 = year1[i][[1]], year2 = year2[i][[1]])
-                 setnames(yr12, paste0("year", c(1, 2)), paste0(names(year1), c(1, 2)))
-                 atsyrm <- names(atsyear)
+
+                 if (method == "cros") {  
+                                 yr12 <- data.table(year1 = year1[i][[1]], year2 = year2[i][[1]])
+                                 setnames(yr12, paste0("year", c(1, 2)), paste0(names(year1), c(1, 2)))
+                              } else { yr12 <- year1[i]
                  atsyear[, ids := .I]
 
                  nr1 <- nrow(atsyear)
                  yrs <- rbindlist(lapply(1 : (nr1 - 1), function(j) {
                            atsy1 <- atsyear[j]
                            atsy2 <- atsyear[(j + 1) : nr1]
-                           setnames(atsy1, names(atsy1), paste0(names(atsy1), "_1"))
+                           if (method == "cros") {
+                                       atsy2[, (yearm) := NULL]
+                                       setnames(atsy1, names(atsy1)[-1], paste0(names(atsy1)[-1], "_1"))
+                                } else setnames(atsy1, names(atsy1), paste0(names(atsy1), "_1"))
                            setnames(atsy2, names(atsy2), paste0(names(atsy2), "_2"))
                            data.table(atsy1, atsy2)
                          }))
@@ -213,7 +220,6 @@ vardannual <- function(Y, H, PSU, w_final,
 
                  vardchanges_results <- datas$changes_results
                  vardchanges_results <- merge(yrs, vardchanges_results, all.y = TRUE, by = c("pers_1", "pers_2"))
-
                  rho <- datas$rho
                  rho <- merge(yrs, rho, all.y = TRUE, by = c("pers_1", "pers_2"))
                  sar <- c("country", "namesY", "namesZ", namesDom)
@@ -256,15 +262,19 @@ vardannual <- function(Y, H, PSU, w_final,
                  A_matrix <- rbindlist(lapply(apstr, function(x) x[[2]]))
                  annual_var <- rbindlist(lapply(apstr, function(x) x[[3]]))
 
+print(annual_var)
+print(names(yr12))
                  sars <- c(names(country), yearm, namesDom, "namesY", "namesZ")
                  sars <- sars[sars %in% names(crossectional_var_grad)]
                  sarsb <- sars[!(sars %in% yearm)]
                  sarc <- c("totalY", "totalZ")
+print(sarsb)
                  sarc <- sarc[sarc %in% names(crossectional_var_grad)]
                  ysum <- crossectional_var_grad[, lapply(.SD, mean), by = sars, .SDcols = sarc]
                  if (!is.null(ysum$namesZ)) {
                               ysum[, estim := totalY / totalZ * percentratio]
                        } else ysum[, estim := totalY]
+
                  ysum1 <- ysum[get(yearm) == year1[i][[1]], c(sarsb, "estim"), with = FALSE]
 
                  if (method != "cros") {
@@ -273,6 +283,7 @@ vardannual <- function(Y, H, PSU, w_final,
                              setnames(ysum2, "estim", "estim_2")
                              ysum1 <- data.table(yr12, merge(ysum1, ysum2, by = sarsb))
                              ysum1[, estim := estim_2 - estim_1]  }
+         print(ysum1)
 
                  annual_results <- merge(ysum1, annual_var, by = c(sarsb, names(yr12)))
 

@@ -1,6 +1,6 @@
-\name{vardchangannual}
+\name{vardannual}
 
-\alias{vardchangannual}
+\alias{vardannual}
 
 \title{Variance estimation for measures of annual net change for single and multistage stage cluster sampling designs}
 

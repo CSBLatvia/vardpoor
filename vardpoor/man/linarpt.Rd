@@ -12,7 +12,7 @@ Estimates the at-risk-of-poverty threshold (defined as percentage (usualy 60\%) 
 linarpt(Y, id = NULL, weight = NULL, 
         sort = NULL, Dom = NULL, period = NULL,
         dataset = NULL, percentage = 60,
-        order_quant = 50, var_name = "lin_arpt",
+        order_quant = 50L, var_name = "lin_arpt",
         checking = TRUE)
 }
 
@@ -90,7 +90,7 @@ dati <- data.table(IDd = 1 : nrow(eusilc), eusilc)
 d1 <- linarpt(Y = "eqIncome", id = "IDd",
               weight = "rb050", Dom = NULL,
               dataset = dati, percentage = 60,
-              order_quant = 50)
+              order_quant = 50L)
 d1$value
 
 \dontrun{
@@ -98,7 +98,7 @@ d1$value
 d2 <- linarpt(Y = "eqIncome", id = "IDd",
               weight = "rb050", Dom = "db040",
               dataset = dati, percentage = 60,
-              order_quant = 50)
+              order_quant = 50L)
 d2$value
 } 
 

@@ -12,17 +12,20 @@
 
 linarpt <- function(Y, id = NULL, weight = NULL, sort = NULL,
                     Dom = NULL, period=NULL, dataset = NULL,
-                    percentage = 60, order_quant=50,
+                    percentage = 60, order_quant = 50L,
                     var_name="lin_arpt", checking = TRUE) {
 
    ## initializations
    if (min(dim(as.data.frame(var_name)) == 1) != 1) {
        stop("'var_name' must have defined name of the linearized variable")}
 
-   p <- check_var(vars = percentage, varn = "percentage", varntype = "numeric0100") 
-   order_quant <- check_var(vars = order_quant, varn = "order_quant", varntype = "integer0100") 
-
    if (checking) {
+       percentage <- check_var(vars = percentage, varn = "percentage",
+                               varntype = "numeric0100") 
+
+       order_quant <- check_var(vars = order_quant, varn = "order_quant",
+                                varntype = "integer0100")
+
        Y <- check_var(vars = Y, varn = "Y", dataset = dataset,
                       ncols = 1, isnumeric = TRUE,
                       isvector = TRUE, grepls = "__")
@@ -77,7 +80,7 @@ linarpt <- function(Y, id = NULL, weight = NULL, sort = NULL,
    setnames(quantile, names(quantile)[ncol(quantile)], "quantile")
    if (ncol(quantile) > 1) setkeyv(quantile, head(names(quantile), -1))
    threshold <- copy(quantile)
-   threshold[, threshold := p / 100 * quantile]
+   threshold[, threshold := percentage / 100 * quantile]
    threshold[, quantile := NULL]
 
    arpt_id <- id
@@ -108,7 +111,7 @@ linarpt <- function(Y, id = NULL, weight = NULL, sort = NULL,
                                                    indicator = ind[ind2],
                                                    order_quan = order_quant,
                                                    quant_val = rown[["quantile"]],
-                                                   percentag = p)
+                                                   percentag = percentage)
                                })
            arptl <- rbindlist(arpt_l)
            setnames(arptl, names(arptl), c(names(arpt_id), var_nams))
@@ -128,7 +131,7 @@ linarpt <- function(Y, id = NULL, weight = NULL, sort = NULL,
                                                 indicator = ind0[ind2],
                                                 order_quan = order_quant,
                                                 quant_val = rown[["quantile"]],
-                                                percentag = p)
+                                                percentag = percentage)
                        })
                arpt_m <- rbindlist(arptl)
                setnames(arpt_m, names(arpt_m), c(names(arpt_id), var_name))

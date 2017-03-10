@@ -16,7 +16,7 @@ vardgpgannual(Y, H, PSU, w_final, ID_level1,
                    X_ID_level1 = NULL, ind_gr = NULL,
                    g = NULL, q = NULL, datasetX = NULL,
                    percentratio = 1, use.estVar = FALSE,
-                   confidence = 0.95, method = "netchanges")
+                   confidence = 0.95, method = "cros")
 }
 
 \arguments{
@@ -260,22 +260,36 @@ data[, all := 1]
 data[, id_lv2 := .I]
 
 result <- vardgpgannual(Y = "employed", H = "strata",
-                             PSU = "PSU", w_final = "rb050",
-                             ID_level1 = "db030", ID_level2 = "id_lv2",
-                             Dom = NULL, Z = "all", gender = "gender",
-                             years = "year", subperiods = "quarter",
-                             dataset = data,  year1 = 2010, year2 = 2011,
-                             percentratio = 100, confidence = 0.95)
+                        PSU = "PSU", w_final = "rb050",
+                        ID_level1 = "db030", ID_level2 = "id_lv2",
+                        Dom = NULL, Z = "all", gender = "gender",
+                        years = "year", subperiods = "quarter",
+                        dataset = data,  year1 = 2010, year2 = 2011,
+                        percentratio = 100, confidence = 0.95,
+                        method = "netchanges")
 
 \dontrun{
 result <- vardgpgannual(Y = "unemployed", H = "strata",
-                             PSU = "PSU", w_final = "rb050",
-                             ID_level1 = "db030", ID_level1 = "id_lv2",
-                             Dom = NULL, Z = "all", gender = "gender",
-                             country = "country",  years = "year",
-                             subperiods = "quarter", dataset = data,
-                             year1 = 2010, year2 = 2011,
-                             percentratio = 100, confidence = 0.95) }
+                        PSU = "PSU", w_final = "rb050",
+                        ID_level1 = "db030", ID_level1 = "id_lv2",
+                        Dom = NULL, Z = "all", gender = "gender",
+                        country = "country",  years = "year",
+                        subperiods = "quarter", dataset = data,
+                        percentratio = 100, confidence = 0.95,
+                        method = "cros") 
+
+result <- vardgpgannual(Y = "unemployed", H = "strata",
+                        PSU = "PSU", w_final = "rb050",
+                        ID_level1 = "db030", ID_level1 = "id_lv2",
+                        Dom = NULL, Z = "all", gender = "gender",
+                        country = "country",  years = "year",
+                        subperiods = "quarter", dataset = data,
+                        year1 = 2010, year2 = 2011,
+                        percentratio = 100, confidence = 0.95,
+                        method = "netchanges") 
+
+} 
+
 } 
 
 \seealso{

@@ -12,7 +12,7 @@
   linrmpg(Y, id = NULL, weight = NULL,
           sort = NULL, Dom = NULL, period = NULL,
           dataset = NULL, percentage = 60,
-          order_quant = 50, var_name = "lin_rmpg",
+          order_quant = 50L, var_name = "lin_rmpg",
           checking = TRUE)
 
 }
@@ -73,7 +73,7 @@ dati <- data.table(IDd = 1 : nrow(eusilc), eusilc)
 d <- linrmpg(Y = "eqIncome", id = "IDd",
              weight = "rb050", Dom = NULL,
              dataset = dati, percentage = 60,
-             order_quant = 50)
+             order_quant = 50L)
 d$value
 d$threshold
 
@@ -82,7 +82,7 @@ d$threshold
 dd <- linrmpg(Y = "eqIncome", id = "IDd",
               weight = "rb050", Dom = "db040",
               dataset = dati, percentage = 60,
-              order_quant = 50)
+              order_quant = 50L)
 dd$value}
 }
 

@@ -14,7 +14,7 @@ linarpr(Y, id = NULL, weight = NULL,
         Y_thres = NULL, wght_thres = NULL,
         sort = NULL, Dom = NULL, period = NULL,
         dataset = NULL, percentage = 60,
-        order_quant = 50, var_name = "lin_arpr",
+        order_quant = 50L, var_name = "lin_arpr",
         checking = TRUE)
 }
 
@@ -92,7 +92,7 @@ dati <- data.table(IDd = 1 : nrow(eusilc), eusilc)
 d <- linarpr(Y = "eqIncome", id = "IDd",
              weight = "rb050", Dom = NULL,
              dataset = dati, percentage = 60,
-             order_quant = 50)
+             order_quant = 50L)
 d$value
 
 \dontrun{
@@ -100,7 +100,7 @@ d$value
 dd <- linarpr(Y = "eqIncome", id = "IDd",
               weight = "rb050", Dom = "db040",
               dataset = dati, percentage = 60,
-              order_quant=50)}
+              order_quant=50L)}
 }
 
 \keyword{Linearization}

@@ -16,7 +16,7 @@ linrmir(Y, id = NULL, age,
   Dom = NULL,
   period = NULL,
   dataset = NULL,
-  order_quant = 50,
+  order_quant = 50L,
   var_name = "lin_rmir",
   checking = TRUE)
 }
@@ -81,14 +81,14 @@ dati <- data.table(IDd = 1:nrow(eusilc), eusilc)
 # Full population
 d <- linrmir(Y = "eqIncome", id = "IDd",  age = "age",
              weight = "rb050", Dom = NULL,  
-             dataset = dati, order_quant = 50)
+             dataset = dati, order_quant = 50L)
 d$value
 
 \dontrun{
 # By domains
 dd <- linrmir(Y = "eqIncome", id = "IDd", age = "age",
               weight = "rb050", Dom = "db040",
-              dataset = dati, order_quant = 50)
+              dataset = dati, order_quant = 50L)
 dd}
 }
 

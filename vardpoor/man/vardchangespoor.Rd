@@ -186,7 +186,7 @@ result <- vardchangespoor(Y = "inc", age = "age",
                           period1 = c(2010, 2011),
                           period2 = c(2011, 2010),
                           gender = NULL, dataset = data,
-                          percentage = 60, order_quant = 50,
+                          percentage = 60, order_quant = 50L,
                           alpha = 20, confidence = 0.95,
                           type = "linrmpg")
 }

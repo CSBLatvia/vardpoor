@@ -57,6 +57,7 @@ vardchangannual <- function(Y, H, PSU, w_final,
                      ncols = 1, Yncol = 0, Ynrow = Ynrow, ischaracter = TRUE,
                      dif_name = c("percoun", "period_country", names(country), "yearg"),
                      use.gender = use.gender)
+  yearg <- NULL
   years[, yearg := substr(get(names(years)), 1, nchar(get(names(years))) - ifelse(use.gender, 2, 0))]
   yearm <- names(years)[1 + use.gender]
   

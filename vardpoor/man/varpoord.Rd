@@ -12,8 +12,8 @@
                  fh_zero = FALSE, PSU_level = TRUE, sort = NULL, Dom = NULL, 
                  period = NULL, gender = NULL, dataset = NULL, X = NULL, periodX = NULL,
                  X_ID_level1 = NULL, ind_gr = NULL, g = NULL, q = NULL, datasetX = NULL,
-                 percentage = 60, order_quant = 50, alpha = 20,
-                 confidence = 0.95, outp_lin = FALSE, outp_res = FALSE, type = "linrmpg") }
+                 percentage = 60, order_quant = 50L, alpha = 20, confidence = 0.95,
+                  outp_lin = FALSE, outp_res = FALSE, type = "linrmpg") }
                      
 
 \arguments{
@@ -173,7 +173,7 @@ aa<-varpoord(Y = "eqIncome", w_final = "rb050",
              X_ID_level1 = NULL, g = NULL,
              q=NULL, datasetX = NULL,             
              dataset = dataset1, percentage = 60,
-             order_quant = 50, alpha = 20, 
+             order_quant = 50L, alpha = 20, 
              confidence = .95, outp_lin = FALSE,
              outp_res = FALSE, type = "linarpt")
 aa
@@ -187,10 +187,8 @@ aa1 <-varpoord(Y = "eqIncome", w_final = "rb050",
              fh_zero = FALSE, sort = NULL, Dom = "db040",
              gender = NULL, X = NULL,
              X_ID_level1 = NULL, g = NULL,
-             datasetX = NULL,
-             q = rep(1, if (is.null(datasetX)) 
-                        nrow(as.data.frame(H)) else nrow(datasetX)),
-             dataset =  dataset1, percentage=60, order_quant=50,
+             datasetX = NULL, dataset =  dataset1,
+             percentage = 60, order_quant = 50L,
              alpha = 20, confidence = .95, outp_lin = FALSE,
              outp_res = FALSE, type="linarpt")
 aa1
@@ -202,14 +200,10 @@ aa2 <-varpoord(Y = "eqIncome", w_final = "rb050",
              ID_level1 = "db030", ID_level2 = "IDd", 
              H = "db040", PSU = "rb030", N_h = NULL,
              fh_zero = TRUE, sort = NULL, Dom = "db040",
-             gender = NULL, X = NULL,
-             X_ID_level1 = NULL, g = NULL,
-             datasetX = NULL,
-             q = rep(1, if (is.null(datasetX)) 
-                        nrow(as.data.frame(H)) else nrow(datasetX)),
-             dataset =  dataset1, percentage = 60,
-             order_quant = 50, alpha = 20, 
-             confidence = .95, outp_lin = FALSE,
+             gender = NULL, X = NULL, X_ID_level1 = NULL,
+             g = NULL, datasetX = NULL, dataset =  dataset1,
+             percentage = 60, order_quant = 50L,
+             alpha = 20, confidence = .95, outp_lin = FALSE,
              outp_res = FALSE, type = "linarpt")
 aa2
 aa2$all_result
@@ -223,10 +217,8 @@ aa3 <-varpoord(Y = "eqIncome", w_final = "rb050",
                sort = NULL, Dom = "db040",
                gender = NULL, X = NULL,
                X_ID_level1 = NULL, g = NULL,
-               datasetX = NULL,
-               q = rep(1, if (is.null(datasetX)) 
-                           nrow(as.data.frame(H)) else nrow(datasetX)),
-               dataset =  dataset1, percentage = 60, order_quant = 50,
+               datasetX = NULL, dataset =  dataset1,
+               percentage = 60, order_quant = 50L,
                alpha = 20, confidence = .95, outp_lin = FALSE,
                outp_res = FALSE, type = "all_choices")
 aa3
@@ -240,13 +232,11 @@ aa4 <- varpoord(Y = "eqIncome", w_final = "rb050",
              sort = NULL, Dom = "db040",
              gender = NULL, X = NULL,
              X_ID_level1 = NULL, g = NULL,
-             datasetX = NULL,
-             q = rep(1, if (is.null(datasetX)) 
-                        nrow(as.data.frame(H)) else nrow(datasetX)),
-             dataset =  dataset, percentage = 60,
-             order_quant = 50, alpha = 20, 
-             confidence = .95, outp_lin = TRUE,
-             outp_res = TRUE, type = "all_choices")
+             datasetX = NULL, dataset =  dataset,
+             percentage = 60, order_quant = 50L,
+             alpha = 20, confidence = .95,
+             outp_lin = TRUE, outp_res = TRUE,
+             type = "all_choices")
 aa4$all_result[type == "ARPT"]
 
 aa4$lin_out[20 : 40]

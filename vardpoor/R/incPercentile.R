@@ -1,7 +1,7 @@
 
 incPercentile <- function(Y, weights = NULL, sort = NULL,
                           Dom = NULL, period = NULL,
-                          k = c(20, 80), dataset = NULL,
+                          k = c(20L, 80L), dataset = NULL,
                           checking = TRUE) {
 
    ## initializations

@@ -12,7 +12,7 @@
 
 linrmir <- function(Y, id = NULL, age, weight = NULL,
                     sort = NULL, Dom = NULL, period = NULL,
-                    dataset = NULL, order_quant = 50,
+                    dataset = NULL, order_quant = 50L,
                     var_name = "lin_rmir", checking = TRUE) {
 
    ## initializations

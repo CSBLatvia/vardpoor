@@ -56,14 +56,16 @@ check_var <- function(vars, varn, varntype = NULL, dataset,
       if (varntype == "logical") if (length(vars) != 1 | !any(is.logical(vars))) stop(paste0("'", varn, "' must be logical"), call. = FALSE)
       if (varntype == "numeric01") if (length(vars) != 1 | any(!is.numeric(vars) |  vars < 0 | vars > 1)) {
                                                      stop(paste0("'", varn, "' must be a numeric value in [0, 1]"), call. = FALSE)  }
-      if (varntype == "integer0100") if (length(vars) != 1 | any(!is.integer(vars) |  vars < 0 | vars > 100)) {
-                                                  stop(paste0("'", varn, "' must be a integer value in [0, 100]"), call. = FALSE)  }
-      if (varntype == "numeric0100") if (length(vars) != 1 | any(!is.numeric(vars) |  vars < 0 | vars > 100)) {
+      if (varntype == "integer0100") {
+                      if ((length(vars) != 1 & varn != "k") | any(!is.integer(vars) |  vars < 0 | vars > 100)) {
+                                    stop(paste0("'", varn, "' must be a integer value", ifelse(varn != "k", "s", ""), " in [0, 100]"), call. = FALSE)  }}
+
+     if (varntype == "numeric0100") if (length(vars) != 1 | any(!is.numeric(vars) |  vars < 0 | vars > 100)) {
                                                   stop(paste0("'", varn, "' must be a numeric value in [0, 100]"), call. = FALSE)  }
       if (varntype == "change_type") if (length(vars) != 1 | any(!(vars %in% c("absolute", "relative")))) {
                                                   stop("'change_type' must be 'absolute' or 'relative'", call. = FALSE)  }
-      if (varntype == "method") if (length(vars) != 1 | any(!(vars %in% c("cross", "netchanges")))) {
-                                                  stop("'method' must be 'cross' or 'netchanges'", call. = FALSE)  }
+      if (varntype == "method") if (length(vars) != 1 | any(!(vars %in% c("cros", "netchanges")))) {
+                                                  stop("'method' must be 'cros' or 'netchanges'", call. = FALSE)  }
    }
 
   if (!is.null(vars) & !is.null(varntype)) mustbedefined <- FALSE

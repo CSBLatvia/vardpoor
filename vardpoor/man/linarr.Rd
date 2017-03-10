@@ -13,7 +13,7 @@ Estimates the aggregate replacement ratio (defined as the gross median individua
 linarr(Y, Y_den, id = NULL, age, pl085,
        month_at_work, weight = NULL,
        sort = NULL, Dom = NULL, period = NULL,
-       dataset = NULL, order_quant = 50,
+       dataset = NULL, order_quant = 50L,
        var_name = "lin_arr", checking = TRUE)
 }
 
@@ -87,7 +87,7 @@ d <- linarr(Y = "eqIncome", Y_den = "eqIncome",
             id = "IDd", age = "age",  
             pl085 = "pl085", month_at_work = "month_at_work",
             weight = "rb050",  Dom = NULL,
-            dataset = dati, order_quant = 50)
+            dataset = dati, order_quant = 50L)
 d$value
 
 \dontrun{
@@ -96,7 +96,7 @@ dd <- linarr(Y = "eqIncome", Y_den = "eqIncome",
              id = "IDd", age = "age",  
              pl085 = "pl085", month_at_work = "month_at_work",
              weight = "rb050",  Dom = "db040",
-             dataset = dati, order_quant = 50)
+             dataset = dati, order_quant = 50L)
 dd
 } 
 }

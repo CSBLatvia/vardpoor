@@ -62,8 +62,8 @@ check_var <- function(vars, varn, varntype = NULL, dataset,
                                                   stop(paste0("'", varn, "' must be a numeric value in [0, 100]"), call. = FALSE)  }
       if (varntype == "change_type") if (length(vars) != 1 | any(!(vars %in% c("absolute", "relative")))) {
                                                   stop("'change_type' must be 'absolute' or 'relative'", call. = FALSE)  }
-      if (varntype == "method") if (length(vars) != 1 | any(!(vars %in% c("cross", "changes")))) {
-                                                  stop("'method' must be 'cross' or 'changes'", call. = FALSE)  }
+      if (varntype == "method") if (length(vars) != 1 | any(!(vars %in% c("cross", "netchanges")))) {
+                                                  stop("'method' must be 'cross' or 'netchanges'", call. = FALSE)  }
    }
 
   if (!is.null(vars) & !is.null(varntype)) mustbedefined <- FALSE

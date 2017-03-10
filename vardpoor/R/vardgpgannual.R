@@ -11,7 +11,7 @@ vardgpgannual <- function(Y, H, PSU, w_final, ID_level1,
                                confidence = 0.95, method = "cros") {
 
   method <- check_var(vars = method, varn = "method", varntype = "method") 
-  use.gender <- method == "changes"
+  use.gender <- method == "netchanges"
   if (!use.gender) { if (!is.null(year1)) stop("'year1' must be NULL")
                      if (!is.null(year2)) stop("'year2' must be NULL")
                   } else { if (is.null(year1)) stop("'year1' must be defined!")
@@ -182,17 +182,18 @@ vardgpgannual <- function(Y, H, PSU, w_final, ID_level1,
                     year1 <- paste0(unique(dataset[[years]]), "_2")
                     year2 <- paste0(unique(dataset[[years]]), "_1") }
  
-  rez <- vardchangannual(Y = Y, H = H, PSU = PSU,
-                         w_final = w_final, ID_level1 = ID_level1,
-                         ID_level2 = ID_level2, Dom = Dom,
-                         Z = Z, country = country, years = yearsgender,
-                         subperiods = subperiods, dataset = dataset,
-                         year1 = year1, year2 = year2, X = X,
-                         countryX = countryX, yearsX = yearsgender,
-                         subperiodsX = subperiodsX, X_ID_level1 = X_ID_level1,
-                         ind_gr = ind_gr, g = g, q = q, datasetX = datasetX,
-                         percentratio = percentratio, use.estVar = use.estVar,
-                         use.gender = use.gender, confidence = confidence)
+  rez <- vardannual(Y = Y, H = H, PSU = PSU,
+                    w_final = w_final, ID_level1 = ID_level1,
+                    ID_level2 = ID_level2, Dom = Dom,
+                    Z = Z, country = country, years = yearsgender,
+                    subperiods = subperiods, dataset = dataset,
+                    year1 = year1, year2 = year2, X = X,
+                    countryX = countryX, yearsX = yearsgender,
+                    subperiodsX = subperiodsX, X_ID_level1 = X_ID_level1,
+                    ind_gr = ind_gr, g = g, q = q, datasetX = datasetX,
+                    percentratio = percentratio, use.estVar = use.estVar,
+                    use.gender = use.gender, confidence = confidence,
+                    method = "netchanges")
 
   list(crossectional_results = rez$crossectional_results,
        crossectional_var_grad = rez$crossectional_var_grad,
@@ -202,6 +203,6 @@ vardgpgannual <- function(Y, H, PSU, w_final, ID_level1,
        vardchanges_results = rez$vardchanges_results,
        X_annual = rez$X_annual, A_matrix = rez$A_matrix,
        annual_sum = rez$annual_sum,
-       annualgpg_results = rez$annual_changes)
+       annualgpg_results = rez$annual_results)
 
 }

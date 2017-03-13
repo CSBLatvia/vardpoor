@@ -153,7 +153,7 @@ vardannual <- function(Y, H, PSU, w_final,
 
    ids <- nams <- cros_se <- num1 <- totalY <- totalZ <- NULL
    estim_1 <- estim_2 <- avar <- N <- estim <- NULL
-   var_est2 <- se  <- CI_lower <- CI_upper <- NULL
+   var_est2 <- se <- cv <- CI_lower <- CI_upper <- NULL
 
    pers <- data.table(years, subperiods,
                       pers = paste0(years[[1]], "__", subperiods[[1]]))
@@ -327,7 +327,8 @@ vardannual <- function(Y, H, PSU, w_final,
   annual_results[, se := sqrt(var_est2)]
   annual_results[, var_est2 := NULL]
 
-  if (method == "cros")   annual_results[, cv := se/estim * 100]
+  if (method == "cros")  { annual_results[, rse := se / estim]
+                           annual_results[, cv := rse * 100] }
 
   tsad <- qnorm(0.5 * (1 + confidence))
   annual_results[, CI_lower := estim - tsad * se]

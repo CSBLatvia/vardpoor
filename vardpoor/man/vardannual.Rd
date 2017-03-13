@@ -10,13 +10,13 @@
 vardannual(Y, H, PSU, w_final, ID_level1,
            ID_level2, Dom = NULL, Z = NULL, 
            country = NULL, years, subperiods,
-           dataset = NULL, year1, year2, X = NULL,
-           countryX = NULL, yearsX = NULL,
+           dataset = NULL, year1 = NULL, year2 = NULL,
+           X = NULL, countryX = NULL, yearsX = NULL,
            subperiodsX = NULL, X_ID_level1 = NULL,
            ind_gr = NULL, g = NULL, q = NULL,
            datasetX = NULL, percentratio = 1,
            use.estVar = FALSE, use.gender = FALSE,
-           confidence = 0.95, method = "netchanges")
+           confidence = 0.95, method = "cros")
 }
 
 \arguments{
@@ -258,23 +258,32 @@ data[, labour_force := employed + unemployed]
 data[, id_lv2 := .I]
 
 result <- vardannual(Y = "employed", H = "strata",
-                          PSU = "PSU", w_final = "rb050",
-                          ID_level1 = "db030", ID_level2 = "id_lv2",
-                          Dom = NULL, Z = NULL, country = "country",
-                          years = "year", subperiods = "quarter",
-                          dataset = data, year1 = 2010, year2 = 2011,
-                          percentratio = 100, confidence = 0.95,
-                          method = "netchanges")
+                     PSU = "PSU", w_final = "rb050",
+                     ID_level1 = "db030", ID_level2 = "id_lv2",
+                     Dom = NULL, Z = NULL, country = "country",
+                     years = "year", subperiods = "quarter",
+                     dataset = data, percentratio = 100,
+                     confidence = 0.95, method = "cros")
+
+result2 <- vardannual(Y = "employed", H = "strata",
+                      PSU = "PSU", w_final = "rb050",
+                      ID_level1 = "db030", ID_level2 = "id_lv2",
+                      Dom = NULL, Z = NULL, country = "country",
+                      years = "year", subperiods = "quarter",
+                      dataset = data, year1 = 2010, year2 = 2011,
+                      percentratio = 100, confidence = 0.95,
+                      method = "netchanges")
 
 \dontrun{
-result <- vardchangannual(Y = "unemployed", H = "strata",
-                          PSU = "PSU", w_final = "rb050",
-                          ID_level1 = "db030", ID_level1 = "id_lv2",
-                          Dom = NULL, Z = "labour_force",
-                          country = "country",  years = "year",
-                          subperiods = "quarter", dataset = data,
-                          year1 = 2010, year2 = 2011,
-                          percentratio = 100, confidence = 0.95) }
+result <- vardannual(Y = "unemployed", H = "strata",
+                     PSU = "PSU", w_final = "rb050",
+                     ID_level1 = "db030", ID_level1 = "id_lv2",
+                     Dom = NULL, Z = "labour_force",
+                     country = "country",  years = "year",
+                     subperiods = "quarter", dataset = data,
+                     year1 = 2010, year2 = 2011,
+                     percentratio = 100, confidence = 0.95,
+                     method = "netchanges") }
 }
 
 \seealso{

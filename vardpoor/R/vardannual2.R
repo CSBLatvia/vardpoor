@@ -184,27 +184,35 @@ vardannual <- function(Y, H, PSU, w_final,
    X_ID_level1 <- ind_gr <- g  <- q  <- NULL
 
    crossectional_results <- datas$results
-   crossectional_var_grad <- datas$crossectional_var_grad
+   crossectional_var_grad <- datas$var_grad
    crossectional_var_grad <- merge(sarak, crossectional_var_grad,
                                            all.y = TRUE, by = c("pers"))
 
-   atsyear <- rbindlist(list(data.table(year1, Nr = 1 : nrow(year1), yrs = 1),
-                             data.table(year2, Nr = 1 : nrow(year2), yrs = 2)))
-   if (method == "cros") atsyear <- data.table(year1, yrs = 1, Nr = 1 : nrow(year1))
+   atsyear <- rbindlist(list(data.table(Nr = 1 : nrow(year1), yrs = 1, year1),
+                             data.table(Nr = 1 : nrow(year2), yrs = 2, year2)))
+   if (method == "cros") atsyear <- data.table(Nr = 1 : nrow(year1), yrs = 1, year1)
    atsyear <- merge(atsyear, sarak, all.x = TRUE, by = yearm,
                     sort = FALSE, allow.cartesian = TRUE)
+
    atsyear[, ids := 1:.N, by = "Nr" ] 
+
+   nr1 <- max(atsyear[["ids"]])
 
    yrs <- rbindlist(lapply(1 : (nr1 - 1), function(j) {
                         atsy1 <- atsyear[ids == j]
                         atsy2 <- atsyear[ids %in% c((j + 1) : nr1)]
                         if (method == "cros") {
                                    atsy2[, (yearm) := NULL]
-                                   setnames(atsy1, names(atsy1)[-1], paste0(names(atsy1)[-1], "_1"))
-                            } else setnames(atsy1, names(atsy1), paste0(names(atsy1), "_1"))
-                         setnames(atsy2, names(atsy2), paste0(names(atsy2), "_2"))
-                         data.table(atsy1, atsy2)
+                                   setnames(atsy1, names(atsy1)[-c(1:2)], paste0(names(atsy1)[-c(1:2)], "_1"))
+                                   setnames(atsy2, names(atsy2)[-1], paste0(names(atsy2)[-1], "_2"))
+                            } else { setnames(atsy1, names(atsy1)[-2], paste0(names(atsy1)[-2], "_1"))
+                                     setnames(atsy2, names(atsy2)[-2], paste0(names(atsy2)[-2], "_2")) }
+                        merge(atsy1, atsy2, all = TRUE, by = "Nr")
                      }))
+
+yrs[,sk:=.N, by = c("pers_1", "pers_2")]
+yrs[sk>1]
+
 
   if (method != "cros") {  
              yr12 <- data.table(year1 = year1[[1]], year2 = year2[[1]])
@@ -212,30 +220,48 @@ vardannual <- function(Y, H, PSU, w_final,
         } else yr12 <- year1
 
 
-   namesDom <- names(Dom)
+
+  if (!is.null(Dom)) {
+            Y1 <- namesD(Y, Dom)
+            if (!is.null(Z)) Z1 <- namesD(Z, Dom)
+       } else { Y1 <- names(Y)
+                Z1 <- names(Z) }
+
+  change_res <- vardchanges_calculation(Y = names(Y), Z = names(Z), Y1 = Y1, Z1 = Z1,
+                                        Dom = names(Dom), names_country = names(country),
+                                        per = "pers", PSU = names(PSU), H = names(H),
+                                        period1 = yrs[, .(pers = get("pers_1"))],
+                                        period2 = yrs[, .(pers = get("pers_2"))],
+                                        cros_var_grad = datas$var_grad, change_type = change_type,
+                                        data_net_changes = datas$data_net_changes, linratio = linratio, 
+                                        annual = TRUE, percentratio = percentratio,
+                                        use.estVar = use.estVar)
+
+  grad_var <- change_res$grad_var
+  grad_var <- merge(yrs, grad_var, all.y = TRUE, by = c("pers_1", "pers_2"))
+
+
+
+  var_tau <- datas$var_tau
+  var_tau <- merge(yrs, var_tau, all.y = TRUE, by = c("pers_1", "pers_2"))
+  setkeyv(var_tau, "ids")
+
+  namesDom <- names(Dom)
+
+yrs <- yrs[Nr == 1]
+
+  Y = names(Y)
+  Z = names(Z)
+  Y1 = Y1
+  Z1 = Z1
+  Dom = names(Dom)
+  names_country = names(country)
+  per = "pers"
+  PSU = names(PSU)
+  H = names(H)
+
    apst <- lapply(1 : nrow(year1), function(i) {   
-
 i=1          
-
- atsyear <- rbindlist(list(year1[1], year2[1]))
-
-yrs[Nr_1 == 1]
-                 datas <- vardchanges(Y = Y, H = H, PSU = PSU, w_final = w_final,
-                                      ID_level1 = ID_level1, ID_level2 = ID_level2,
-                                      Dom = Dom, Z = Z, country = country,
-                                      period = pers[, "pers"], period1 = yrs[, .(pers = get("pers_1"))],
-                                      period2 = yrs[, .(pers = get("pers_2"))],
-                                      annual = TRUE,
-                                      linratio = !is.null(Z), percentratio = percentratio,
-                                      use.estVar = use.estVar, outp_res = outp_res,
-                                      confidence = confidence, change_type = "absolute")
-
-                 grad_var <- datas$grad_var
-                 grad_var <- merge(yrs, grad_var, all.y = TRUE, by = c("pers_1", "pers_2               
-
-                 var_tau <- datas$var_tau
-                 var_tau <- merge(yrs, var_tau, all.y = TRUE, by = c("pers_1", "pers_2"))
-                 setkeyv(var_tau, "ids")
 
                  vardchanges_results <- datas$changes_results
                  vardchanges_results <- merge(yrs, vardchanges_results, all.y = TRUE, by = c("pers_1", "pers_2"))

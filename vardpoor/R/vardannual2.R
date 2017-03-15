@@ -210,16 +210,10 @@ vardannual <- function(Y, H, PSU, w_final,
                         merge(atsy1, atsy2, all = TRUE, by = "Nr")
                      }))
 
-yrs[,sk:=.N, by = c("pers_1", "pers_2")]
-yrs[sk>1]
-
-
   if (method != "cros") {  
              yr12 <- data.table(year1 = year1[[1]], year2 = year2[[1]])
              setnames(yr12, paste0("year", c(1, 2)), paste0(names(year1), c(1, 2)))
         } else yr12 <- year1
-
-
 
   if (!is.null(Dom)) {
             Y1 <- namesD(Y, Dom)
@@ -227,24 +221,45 @@ yrs[sk>1]
        } else { Y1 <- names(Y)
                 Z1 <- names(Z) }
 
+  yrs_without <- yrs[, .N, by = c("pers_1", "pers_2")]
+
   change_res <- vardchanges_calculation(Y = names(Y), Z = names(Z), Y1 = Y1, Z1 = Z1,
                                         Dom = names(Dom), names_country = names(country),
                                         per = "pers", PSU = names(PSU), H = names(H),
-                                        period1 = yrs[, .(pers = get("pers_1"))],
-                                        period2 = yrs[, .(pers = get("pers_2"))],
+                                        period1 = yrs_without[, .(pers = get("pers_1"))],
+                                        period2 = yrs_without[, .(pers = get("pers_2"))],
                                         cros_var_grad = datas$var_grad, change_type = change_type,
                                         data_net_changes = datas$data_net_changes, linratio = linratio, 
                                         annual = TRUE, percentratio = percentratio,
                                         use.estVar = use.estVar)
 
   grad_var <- change_res$grad_var
-  grad_var <- merge(yrs, grad_var, all.y = TRUE, by = c("pers_1", "pers_2"))
-
-
+  grad_var <- merge(yrs, grad_var, all.y = TRUE,
+                                   by = c("pers_1", "pers_2"),
+                                   allow.cartesian = TRUE)
 
   var_tau <- datas$var_tau
-  var_tau <- merge(yrs, var_tau, all.y = TRUE, by = c("pers_1", "pers_2"))
+  var_tau <- merge(yrs, var_tau, all.y = TRUE,
+                                 by = c("pers_1", "pers_2"),
+                                 allow.cartesian = TRUE)
+
   setkeyv(var_tau, "ids")
+
+  vardchanges_results <- datas$changes_results
+  vardchanges_results <- merge(yrs, vardchanges_results,
+                                    all.y = TRUE,
+                                    by = c("pers_1", "pers_2"),
+                                    allow.cartesian = TRUE)
+
+  rho <- datas$rho
+  rho <- merge(yrs, rho, all.y = TRUE, 
+                         by = c("pers_1", "pers_2"),
+                         allow.cartesian = TRUE)
+
+  sar <- c("country", "namesY", "namesZ", namesDom)
+  sar <- sar[sar %in% names(rho)]
+  rhoj <- rho[,.N, keyby = sar][, N := NULL]
+
 
   namesDom <- names(Dom)
 
@@ -262,17 +277,7 @@ yrs <- yrs[Nr == 1]
 
    apst <- lapply(1 : nrow(year1), function(i) {   
 i=1          
-
-                 vardchanges_results <- datas$changes_results
-                 vardchanges_results <- merge(yrs, vardchanges_results, all.y = TRUE, by = c("pers_1", "pers_2"))
-                 rho <- datas$rho
-                 rho <- merge(yrs, rho, all.y = TRUE, by = c("pers_1", "pers_2"))
-                 sar <- c("country", "namesY", "namesZ", namesDom)
-                 sar <- sar[sar %in% names(rho)]
-                 rhoj <- rho[,.N, keyby = sar][, N := NULL]
-
-                 apstr <- lapply(1 : nrow(rhoj), function(j){
-
+            apstr <- lapply(1 : nrow(rhoj), function(j){
                                rho0 <- rhoj[j]
                                rho1 <- merge(rho0, rho, by = sar)[nams == "num2"]
                                A_matrix <- diag(1, nrow(atsyear), nrow(atsyear))

@@ -8,7 +8,6 @@ vardchanges <- function(Y, H, PSU, w_final,
                         periodX = NULL, X_ID_level1 = NULL,
                         ind_gr = NULL, g = NULL,
                         q = NULL, datasetX = NULL,
-                        annual = FALSE,
                         linratio = FALSE,
                         percentratio = 1,
                         use.estVar = FALSE,
@@ -23,7 +22,6 @@ vardchanges <- function(Y, H, PSU, w_final,
   if (checking) { 
         percentratio <- check_var(vars = percentratio, varn = "percentratio", varntype = "pinteger") 
         linratio <- check_var(vars = linratio, varn = "linratio", varntype = "logical") 
-        annual <- check_var(vars = annual, varn = "annual", varntype = "logical") 
         use.estVar <- check_var(vars = use.estVar, varn = "use.estVar", varntype = "logical")
         outp_res <- check_var(vars = outp_res, varn = "outp_res", varntype = "logical") 
         confidence <- check_var(vars = confidence, varn = "confidence", varntype = "numeric01")
@@ -133,22 +131,22 @@ vardchanges <- function(Y, H, PSU, w_final,
   dataset <- datasetX <- NULL
   namesZ <- names(Z)
 
-  datas <- vardcros(Y = Y, H = H, PSU = PSU, w_final = w_final,
-                    ID_level1 = ID_level1, ID_level2 = ID_level2,
-                    Dom = Dom, Z = Z, country = country,
-                    period = period, dataset = NULL,
-                    X = X, countryX = countryX, periodX = periodX,
-                    X_ID_level1 = X_ID_level1, ind_gr = ind_gr,
-                    g = g, q = q, datasetX = NULL,
-                    linratio = linratio,
-                    percentratio = percentratio,
-                    use.estVar = use.estVar,
-                    ID_level1_max = is.null(X),
-                    outp_res = outp_res,
-                    withperiod = TRUE,
-                    netchanges = TRUE,
-                    confidence = confidence,
-                    checking = FALSE)
+  cros_calc <- vardcros(Y = Y, H = H, PSU = PSU, w_final = w_final,
+                        ID_level1 = ID_level1, ID_level2 = ID_level2,
+                        Dom = Dom, Z = Z, country = country,
+                        period = period, dataset = NULL,
+                        X = X, countryX = countryX, periodX = periodX,
+                        X_ID_level1 = X_ID_level1, ind_gr = ind_gr,
+                        g = g, q = q, datasetX = NULL,
+                        linratio = linratio,
+                        percentratio = percentratio,
+                        use.estVar = use.estVar,
+                        ID_level1_max = is.null(X),
+                        outp_res = outp_res,
+                        withperiod = TRUE,
+                        netchanges = TRUE,
+                        confidence = confidence,
+                        checking = FALSE)
 
   countryX <- periodX <- X_ID_level1 <- NULL
   X_ID_level1 <- ind_gr <- g  <- q  <- NULL
@@ -160,20 +158,21 @@ vardchanges <- function(Y, H, PSU, w_final,
        } else { Y1 <- names(Y)
                 Z1 <- names(Z) }
 
-  cros_var_grad <- datas$var_grad
   changes_calc <- vardchanges_calculation(Y = names(Y), Z = names(Z), Y1 = Y1, Z1 = Z1,
                                           Dom = names(Dom), names_country = names(country),
                                           per = names(period), PSU = names(PSU), H = names(H),
                                           period1 = period1, period2 = period2,
-                                          cros_var_grad = cros_var_grad, change_type = change_type,
-                                          data_net_changes = datas$data_net_changes, linratio = linratio, 
+                                          cros_var_grad = cros_calc$var_grad, change_type = change_type,
+                                          data = cros_calc$data_net_changes, linratio = linratio, 
                                           annual = FALSE, percentratio = percentratio,
-                                          use.estVar =use.estVar)
-
-  if (!annual & is.null(names_country)) crossectional_results[, percoun := NULL]
+                                          use.estVar = use.estVar)
+  Y <- Z <- Y1 <- Z1 <- Dom <- period <- PSU <- H <- period1 <- period2 <- NULL
  
-  list(res_out = datas$res_out,
-       crossectional_results = datas$results,
+  crossectional_results <- cros_calc$results
+  if (is.null(names(country))) crossectional_results[, percoun := NULL]
+ 
+  list(res_out = cros_calc$res_out,
+       crossectional_results = crossectional_results,
        crossectional_var_grad = changes_calc$cros_var_grad,
        grad_var = changes_calc$grad_var,
        rho = changes_calc$rho_matrix,
@@ -183,9 +182,10 @@ vardchanges <- function(Y, H, PSU, w_final,
 
 
 vardchanges_calculation <- function(Y, Z, Y1, Z1, Dom, names_country,
-                                    per, PSU, H, period1, period2, cros_var_grad,
-                                    change_type, data_net_changes, linratio,
-                                    annual, percentratio, use.estVar){
+                                    per, PSU, H, period1, period2,
+                                    cros_var_grad, change_type, data,
+                                    linratio, annual, percentratio, 
+                                    use.estVar){
 
   country <- ifelse(!is.null(names_country), names_country, "percoun")
   sarp <- c(country, H, PSU)
@@ -223,6 +223,7 @@ vardchanges_calculation <- function(Y, Z, Y1, Z1, Dom, names_country,
   sar <- names(var_grad1)[!(names(var_grad1) %in% sarc)]
   setnames(var_grad1, sar, paste0(sar, "_1"))
   setnames(var_grad2, sar, paste0(sar, "_2"))
+
   var_grad <- merge(var_grad1, var_grad2, all = TRUE, by = sarc)
   var_grad[, ids_nr := 1 : .N]
 
@@ -265,7 +266,6 @@ vardchanges_calculation <- function(Y, Z, Y1, Z1, Dom, names_country,
   var_grad21 <- var_grad22 <- NULL
 
 
-  data <- datas$data_net_changes
   data[, rot := 1]
   data1 <- merge(period1, data, all.x = TRUE,
                     by.x = per1, by.y = per,
@@ -499,7 +499,7 @@ vardchanges_calculation <- function(Y, Z, Y1, Z1, Dom, names_country,
    boundss <- as.numeric(change_type == "relative")
    changes_results[CI_lower <= boundss & CI_upper >= boundss, significant := FALSE]
 
-   if (!annual & is.null(names_country)) {
+   if (is.null(names_country)) {
             cros_var_grad[, percoun := NULL]
             grad_var[, percoun := NULL]
             rho_matrix[, percoun := NULL]

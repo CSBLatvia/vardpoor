@@ -206,9 +206,9 @@ vardannual <- function(Y, H, PSU, w_final,
                      }))
 
   if (method != "cros") {  
-             yr12 <- data.table(year1 = year1[[1]], year2 = year2[[1]])
-             setnames(yr12, paste0("year", c(1, 2)), paste0(names(year1), c(1, 2)))
-        } else yr12 <- year1
+             yr12 <- rbind(data.table(Nr = 1 : nrow(year1), yearg = year1[[1]]),
+                           data.table(Nr = 1 : nrow(year1), yearg = year2[[1]]))
+        } else yr12 <- data.table(Nr = 1 : nrow(year1), yearg = year1[[1]])
 
   if (!is.null(Dom)) {
             Y1 <- namesD(Y, Dom)
@@ -235,11 +235,11 @@ vardannual <- function(Y, H, PSU, w_final,
                                           use.estVar = use.estVar)
 
    crossectional_results <- cros_calc$results
-   cros_var_grad <- cros_calc$var_grad
+   if (is.null(names(country))) crossectional_results[, percoun := NULL]
    yrs_without <- cros_calc <- NULL
-
-   crossectional_var_grad <- merge(sarak, cros_var_grad,
-                                          all.y = TRUE, by = c("pers"))
+ 
+   cros_var_grad <- merge(sarak, changes_calc$cros_var_grad,
+                                 all.y = TRUE, by = c("pers"))
 
    grad_var <- merge(yrs, changes_calc$grad_var,
                           all.y = TRUE,
@@ -261,47 +261,48 @@ vardannual <- function(Y, H, PSU, w_final,
                          by = c("pers_1", "pers_2"),
                          allow.cartesian = TRUE)
 
-  sar <- c("country", "namesY", "namesZ", namesDom)
+  sar <- c("Nr", "country", "namesY", "namesZ", Dom)
   sar <- sar[sar %in% names(rho)]
+  rho[, Nr_sar := .GRP, by = sar]
+
+  rho1 <- rho[nams == "num2"]
+  rho1[, ids := 1 : .N, by = sar]
+
   rhoj <- rho[,.N, keyby = sar][, N := NULL]
+  max_ids <- max(atsyear[["ids"]])
 
+  yr12cros <- merge(yr12, cros_var_grad, by = "yearg",
+                          allow.cartesian = TRUE, sort = FALSE)
 
-yrs <- yrs[Nr == 1]
+  apstr <- lapply(1 : max(rho[["Nr_sar"]]), function(j){
+                rho2 <- rho1[Nr_sar == j]
+                A_matrix <- diag(1, max_ids, max_ids)
 
-   apstr <- lapply(1 : nrow(rhoj), function(j){
-                               rho0 <- rhoj[j]
-                               rho1 <- merge(rho0, rho, by = sar)[nams == "num2"]
-                               A_matrix <- diag(1, nrow(atsyear), nrow(atsyear))
+                for (k in 1 : max(rho2[["ids"]])) {
+                         at <- rho2[k == ids]
+                         A_matrix[at[["ids_1"]], at[["ids_2"]]] <- at[["rho_num1"]]
+                         A_matrix[at[["ids_2"]], at[["ids_1"]]] <- at[["rho_num1"]]
+                         if (method != "cros") {
+                                if (at[["ids_2"]] > subn & at[["ids_1"]] < subn + 1) {
+                                           A_matrix[at[["ids_1"]], at[["ids_2"]]] <- - at[["rho_num1"]]
+                                           A_matrix[at[["ids_2"]], at[["ids_1"]]] <- - at[["rho_num1"]]
+                                         }}
+                      }
+                cros_rho <- merge(yr12cros, rho2[1, sar, with = FALSE], by = sar, sort = FALSE)
+                cros_rho[, cros_se := sqrt(num1)]
+                X <- cros_rho[["cros_se"]]
 
-                               for (k in 1 : nrow(rho1)) {
-                                     at <- rho1[k == ids]
-                                     A_matrix[at[["ids_1"]], at[["ids_2"]]] <- at[["rho_num1"]]
-                                     A_matrix[at[["ids_2"]], at[["ids_1"]]] <- at[["rho_num1"]]
-                                     if (method != "cros") {
-                                               if (at[["ids_2"]] > subn & at[["ids_1"]] < subn + 1) {
-                                                              A_matrix[at[["ids_1"]], at[["ids_2"]]] <- - at[["rho_num1"]]
-                                                              A_matrix[at[["ids_2"]], at[["ids_1"]]] <- - at[["rho_num1"]]
-                                                             }}
-                                   }
-                               rho1 <- merge(rho0, crossectional_var_grad, by = sar)
-                               rho1 <- merge(atsyear[, c("pers", "ids"), with = FALSE], rho1,
-                                               by = "pers", sort = FALSE, allow.cartesian = TRUE)
-                               rho1[, cros_se := sqrt(num1)]
-                               X <- rho1[["cros_se"]]
+                annual_var <- data.table(rho2[1, sar, with = FALSE],
+                                           1 / (subn)^2 * (t(X) %*% A_matrix) %*% X)
+                setnames(annual_var, "V1", "var")
+                A_matrix <- data.table(rho2[1, sar, with = FALSE], cols = paste0("V", 1 : nrow(A_matrix)), A_matrix)
+                list(A_matrix, annual_var)})
 
-                               annual_var <- data.table(rho0, yr12, 1 / (subn)^2 * (t(X) %*% A_matrix) %*% X)
-                               setnames(annual_var, "V1", "var")
+   rho1[, ids := paste0("V", ids)]
+   setnames(rho1, "ids", "cols")
 
-                               A_matrix <- data.table(rho0, yr12, cols = paste0("V", 1 : nrow(A_matrix)), A_matrix)
-                               rho1[, ids := paste0("V", ids)]
-                               setnames(rho1, "ids", "cols")
-                               rho1 <- data.table(yr12, rho1)
-
-                               list(rho1, A_matrix, annual_var)})
-
-                 rho1 <- rbindlist(lapply(apstr, function(x) x[[1]]))
-                 A_matrix <- rbindlist(lapply(apstr, function(x) x[[2]]))
-                 annual_var <- rbindlist(lapply(apstr, function(x) x[[3]]))
+   A_matrix <- rbindlist(lapply(apstr, function(x) x[[1]]))
+   annual_var <- rbindlist(lapply(apstr, function(x) x[[2]]))
 
                  sars <- c(names(country), yearm, Dom, "namesY", "namesZ")
                  sars <- sars[sars %in% names(crossectional_var_grad)]

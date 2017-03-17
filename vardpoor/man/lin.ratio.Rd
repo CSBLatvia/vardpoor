@@ -47,7 +47,7 @@ data.table(Y, Z, weights,
   \code{\link{vardomh}},
   \code{\link{vardcros}},
   \code{\link{vardchanges}},
-  \code{\link{vardchangannual}}
+  \code{\link{vardannual}}
 }
 
 \keyword{survey}

@@ -209,9 +209,9 @@ vardannual <- function(Y, H, PSU, w_final,
                      }))
 
   if (method != "cros") {  
-             yrNr12 <- rbind(data.table(Nr = 1 : nrow(year1), yearg = year1[[1]]),
+             yr12 <- rbind(data.table(Nr = 1 : nrow(year1), yearg = year1[[1]]),
                              data.table(Nr = 1 : nrow(year1), yearg = year2[[1]]))
-        } else yrNr12 <- data.table(Nr = 1 : nrow(year1), yearg = year1[[1]])
+        } else yr12 <- data.table(Nr = 1 : nrow(year1), yearg = year1[[1]])
 
   if (!is.null(Dom)) {
             Y1 <- namesD(Y, Dom)
@@ -263,6 +263,10 @@ vardannual <- function(Y, H, PSU, w_final,
                            allow.cartesian = TRUE, sort = FALSE)
 
    apstr <- lapply(1 : max(rho[["Nr_sar"]]), function(j){
+
+j=1
+dcast(atsyear, Nr ~ yrs, value.var = yearm)
+
                  rho2 <- rho1[Nr_sar == j]
                  A_matrix <- diag(1, max_ids, max_ids)
 
@@ -284,14 +288,14 @@ vardannual <- function(Y, H, PSU, w_final,
                                             1 / (subn)^2 * (t(X) %*% A_matrix) %*% X)
                  setnames(annual_var, "V1", "var")
                  A_matrix <- data.table(rho2[1, sar, with = FALSE], cols = paste0("V", 1 : nrow(A_matrix)), A_matrix)
-                 list(A_matrix, annual_var)})
+                 list(cros_rho, A_matrix, annual_var)})
+
+   cros_rho <- rbindlist(lapply(apstr, function(x) x[[1]]))
+   A_matrix <- rbindlist(lapply(apstr, function(x) x[[2]]))
+   annual_var <- rbindlist(lapply(apstr, function(x) x[[3]]))
 
    rho1[, ids := paste0("V", ids)]
    setnames(rho1, "ids", "cols")
-
-   A_matrix <- rbindlist(lapply(apstr, function(x) x[[1]]))
-   annual_var <- rbindlist(lapply(apstr, function(x) x[[2]]))
-
 
    sars <- c(names(country), yearm, Dom, "namesY", "namesZ")
    sars <- sars[sars %in% names(cros_var_grad)]
@@ -307,22 +311,17 @@ vardannual <- function(Y, H, PSU, w_final,
    if (method != "cros") {
             ysum1 <- ysum[get(yearm) %in% year1[[yearm]], c(yearm, sarsb, "estim"), with = FALSE]
             ysum2 <- ysum[get(yearm) %in% year2[[yearm]], c(yearm, sarsb, "estim"), with = FALSE]
-            ysum1 <- merge(year1, ysum1, by = yearm, sort = FALSE, allow.cartesian = TRUE)
-            ysum2 <- merge(year2, ysum2, by = yearm, sort = FALSE, allow.cartesian = TRUE)
+            years1 <- copy(year1)[, Nrs := 1: .N]
+            years2 <- copy(year2)[, Nrs := 1: .N]
+            ysum1 <- merge(years1, ysum1, by = yearm, sort = FALSE, allow.cartesian = TRUE)
+            ysum2 <- merge(years2, ysum2, by = yearm, sort = FALSE, allow.cartesian = TRUE)
             setnames(ysum1, c("estim", yearm), c("estim_1", paste0(yearm, "_1")))
             setnames(ysum2, c("estim", yearm), c("estim_2", paste0(yearm, "_2")))
-            yr12 <- data.table(Nr = 1 : nrow(year1), yearg1 = year1[[1]], yearg2 = year2[[1]])
-            setnames(yr12, names(yr12)[2:3], paste(yearm, 1:2, sep = "_"))
-            ysum1[, Nr := 1:.N]
-            ysum1 <- merge(ysum1, yr12, all.x = TRUE, by = c("Nr"))
-            ysum1[, Nr := 1:.N]
-            ysum2[, Nr := 1:.N][, (c(sarsb)) := NULL]
-
-   
-          ysum[, estim := estim_2 - estim_1]  }
-    ysum1 <- ysum2 <- NULL
+            ysum <- merge(ysum1, ysum2, all.x = TRUE, by = c("Nrs", sarsb))   
+            ysum[, estim := estim_2 - estim_1] 
+        }
+   ysum1 <- ysum2 <- NULL
  
-yrs12
     annual_results <- merge(yrs[,.N, by = c("Nr", years12)],
                             annual_var, by = c("Nr"))
     annual_results <- merge(ysum, annual_var, by = c(sarsb, years12))

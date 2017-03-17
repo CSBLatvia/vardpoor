@@ -169,9 +169,14 @@ vardcros <- function(Y, H, PSU, w_final,
 
   # Domains
   size <- data.table(size = rep(1, nrow(Y)))
-  if (!is.null(Dom)) size1 <- domain(size, Dom) else size1 <- copy(size)
-
-  if (!is.null(Dom)) Y1 <- domain(Y, Dom) else Y1 <- Y
+  if (!is.null(Dom)) { size1 <- domain(Y = size, D = Dom,
+                                       dataset = NULL,
+                                       checking = FALSE) 
+                       Y1 <- domain(Y = Y, D = Dom, 
+                                    dataset = NULL,
+                                    checking = FALSE) 
+                 } else { size1 <- copy(size)
+                          Y1 <- Y }
 
   namesDom <- names(Dom)
   if (!is.null(country)) { DTp <- data.table(country)
@@ -182,7 +187,9 @@ vardcros <- function(Y, H, PSU, w_final,
   period_country <- do.call("paste", c(as.list(DTp), sep = "_"))
 
   if (!is.null(Z)) {
-       if (!is.null(Dom)) Z1 <- domain(Z, Dom) else Z1 <- Z
+       if (!is.null(Dom)) Z1 <- domain(Y = Z, D = Dom, 
+                                       dataset = NULL,
+                                       checking = FALSE) else Z1 <- Z
        if (linratio){
                    sorts <- unlist(split(Y1[, .I], period_country))
                    lin1 <- lapply(split(Y1[, .I], period_country),

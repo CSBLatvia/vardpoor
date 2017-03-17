@@ -130,7 +130,9 @@ vardom_othstr <- function(Y, H, H2, PSU, w_final,
   ### Calculation
       
   # Domains
-  if (!is.null(Dom)) Y1 <- domain(Y, Dom) else Y1 <- Y
+  if (!is.null(Dom)) Y1 <- domain(Y = Y, D = Dom,
+                                  dataset = NULL,
+                                  checking = FALSE) else Y1 <- Y
 
   n_nonzero <- copy(Y1)
   if (!is.null(period)){ n_nonzero <- data.table(period, n_nonzero) 
@@ -167,7 +169,9 @@ vardom_othstr <- function(Y, H, H2, PSU, w_final,
 
   Z1 <- NULL
   if (!is.null(Z)) {
-    if (!is.null(Dom)) Z1 <- domain(Z, Dom) else Z1 <- Z
+    if (!is.null(Dom)) Z1 <- domain(Y = Z, D = Dom,
+                                    dataset = NULL,
+                                    checking = FALSE) else Z1 <- Z
     if (is.null(period)) {
           Y2 <- lin.ratio(Y = Y1, Z = Z1, weight = w_final,
                           Dom = NULL, dataset = NULL,

@@ -1,6 +1,7 @@
 
 namesD <- function(Y, D) {
   Dom_agg <- unique(D)
+  setkeyv(Dom_agg, names(Dom_agg))
   h <- vector(mode = "character", length = nrow(Dom_agg))
   for (i in 1:nrow(Dom_agg)) {
     cc <- paste(names(D), Dom_agg[i, ], sep = ".")
@@ -9,24 +10,26 @@ namesD <- function(Y, D) {
   foreach(i = 1 : ncol(Y), .combine = c) %do% paste(names(Y)[i], h, sep="__")
 }
 
-domain <- function(Y, D, dataset = NULL) {
-  Y <- check_var(vars = Y, varn = "Y", dataset = dataset,
-                 check.names = TRUE, isnumeric = TRUE, grepls = "__")
+domain <- function(Y, D, dataset = NULL, checking = TRUE) {
+  if (checking) {
+          Y <- check_var(vars = Y, varn = "Y", dataset = dataset,
+                         check.names = TRUE, isnumeric = TRUE, grepls = "__") }
   Ynrow <- nrow(Y)
-  D <- check_var(vars = D, varn = "Dom", dataset = dataset,
-                 check.names = TRUE, Ynrow = Ynrow, isnumeric = FALSE,
-                 ischaracter = TRUE, dif_name = "percoun", grepls = "__")
+  if (checking) {
+          D <- check_var(vars = D, varn = "Dom", dataset = dataset,
+                         check.names = TRUE, Ynrow = Ynrow, isnumeric = FALSE,
+                         ischaracter = TRUE, dif_name = "percoun", grepls = "__") }
 
   Dom_agg <- unique(D)
   setkeyv(Dom_agg, names(Dom_agg))
   i <- k <- NULL
 
-  domen <- foreach(i = 1 : ncol(Y), .combine = 'data.frame') %:%
-              foreach(k = 1:nrow(Dom_agg), .combine = 'data.table') %do%
+  domen <- foreach(i = 1 : ncol(Y), .combine = data.table) %:%
+              foreach(k = 1:nrow(Dom_agg), .combine = data.table) %do%
                  ifelse(rowSums(D == Dom_agg[k, ][rep(1, Ynrow), ]) == ncol(D), Y[[i]], 0)
 
-  if (!is.data.table(domen)) domen <- data.table(domen)
-  setnames(domen, names(domen), namesD(Y, D))
+  domen <- data.table(domen, check.names = TRUE)
+  setnames(domen, names(domen), namesD(Y = Y, D = D))
   domen <- data.table(domen, check.names = TRUE)
   return(domen[])
 }

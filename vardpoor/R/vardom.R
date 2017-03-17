@@ -103,7 +103,6 @@ vardom <- function(Y, H, PSU, w_final,
     }
   dataset <- NULL
 
-
   # N_h
   if (!is.null(N_h)) {
       N_h <- data.table(N_h)
@@ -127,8 +126,11 @@ vardom <- function(Y, H, PSU, w_final,
 
   ### Calculation
 
+
   # Domains
-  if (!is.null(Dom)) Y1 <- domain(Y, Dom) else Y1 <- Y
+  if (!is.null(Dom)) Y1 <- domain(Y = Y, D = Dom,
+                                  dataset = NULL,
+                                  checking = FALSE) else Y1 <- Y
   Y <- NULL
   n_nonzero <- copy(Y1)
   if (!is.null(period)){ n_nonzero <- data.table(period, n_nonzero)
@@ -139,6 +141,7 @@ vardom <- function(Y, H, PSU, w_final,
                   } else n_nonzero <- n_nonzero[, lapply(.SD, function(x)
                                                           sum(as.integer(abs(x) > .Machine$double.eps))),
                                                          .SDcols = names(Y1)]
+
 
   sar_nr <- respondent_count <- pop_size <- NULL
   nhs <- data.table(respondent_count = 1, pop_size = w_final)
@@ -165,7 +168,9 @@ vardom <- function(Y, H, PSU, w_final,
   if (!is.null(period)) idper <- data.table(idper, period)
 
   if (!is.null(Z)) {
-    if (!is.null(Dom)) Z1 <- domain(Z, Dom) else Z1 <- Z
+    if (!is.null(Dom)) Z1 <- domain(Y = Z, D = Dom,
+                                    dataset = NULL,
+                                    checking = FALSE) else Z1 <- Z
     if (is.null(period)) {
           Y2 <- lin.ratio(Y = Y1, Z = Z1, weight = w_final, Dom = NULL,
                           dataset = NULL, percentratio = percentratio,

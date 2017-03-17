@@ -9,13 +9,14 @@
 }
 
 \usage{
-  domain(Y, D, dataset = NULL)
+  domain(Y, D, dataset = NULL, checking = TRUE)
 }
 
 \arguments{
   \item{Y}{Matrix of study variables. Any object convertable to \code{data.table} with numeric values, \code{NA} values are not allowed. Object convertible to \code{data.table} or variable names as character, column numbers.}
   \item{D}{Matrix of domain variables. Any object convertable to \code{data.table}. The number of rows of \code{D} must match the number of rows of \code{Y}. Duplicated names are not allowed. Object convertible to \code{data.table} or variable names as character, column numbers.}
-\item{dataset}{Optional survey data object convertible to \code{data.table}.}
+  \item{dataset}{Optional survey data object convertible to \code{data.table}.}
+  \item{checking}{Optional variable if this variable is TRUE, then function checks data preparation errors, otherwise not checked. This variable by default is TRUE.}
 }
 
 \value{Numeric \code{data.table} containing extra variables for domain estimation.}

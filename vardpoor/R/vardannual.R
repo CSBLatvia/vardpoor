@@ -153,7 +153,7 @@ vardannual <- function(Y, H, PSU, w_final,
 
    ids <- nams <- cros_se <- num1 <- totalY <- totalZ <- NULL
    estim_1 <- estim_2 <- avar <- N <- estim <- NULL
-   var_est2 <- se <- cv <- CI_lower <- CI_upper <- NULL
+   var_est2 <- se <- rse <- cv <- CI_lower <- CI_upper <- NULL
 
    pers <- data.table(years, subperiods,
                       pers = paste0(years[[1]], "__", subperiods[[1]]))

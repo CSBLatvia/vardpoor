@@ -2,9 +2,9 @@
 
 \alias{vardannual}
 
-\title{Variance estimation for measures of annual net change for single and multistage stage cluster sampling designs}
+\title{Variance estimation for measures of annual net change or annual for single and multistage stage cluster sampling designs}
 
-\description{Computes the variance estimation for measures of annual net change for single and multistage stage cluster sampling designs.}
+\description{Computes the variance estimation for measures of annual net change or annual for single and multistage stage cluster sampling designs.}
 
 \usage{
 vardannual(Y, H, PSU, w_final, ID_level1,
@@ -45,9 +45,9 @@ vardannual(Y, H, PSU, w_final, ID_level1,
 
 \item{dataset}{Optional survey data object convertible to \code{data.table}.}
 
-\item{year1}{The vector of years from variable \code{years} describes the first year.}
+\item{year1}{The vector of years from variable \code{years} describes the first year for measures of annual net change.}
 
-\item{year2}{The vector of years from variable \code{periods} describes the second year.}
+\item{year2}{The vector of years from variable \code{periods} describes the second year for measures of annual net change.}
 
 \item{X}{Optional matrix of the auxiliary variables for the calibration estimator. Object convertible to \code{data.table} or variable names as character, column numbers.}
 
@@ -132,6 +132,8 @@ vardannual(Y, H, PSU, w_final, ID_level1,
         \code{cros_var} - the estimated a design-based variance.}
 
   \item{vardchanges_rho}{ A \code{data.table} containing
+        \code{year} -  survey years of \code{years} for crossectional estimates, \cr
+        \code{subperiods} -  survey subperiods of \code{years} for crossectional estimates, \cr
         \code{year_1} -  survey years of \code{years1}, \cr
         \code{subperiods_1} -  survey subperiods of \code{years1}, \cr
         \code{year_2} -  survey years of \code{years2}, \cr
@@ -156,10 +158,12 @@ vardannual(Y, H, PSU, w_final, ID_level1,
         \code{var_tau} - the estimated covariance matrix.}
 
   \item{vardchanges_results}{ A \code{data.table} containing
-        \code{year_1} -  survey years of \code{years1}, \cr
-        \code{subperiods_1} -  survey subperiods of \code{years1}, \cr
-        \code{year_2} -  survey years of \code{years2}, \cr
-        \code{subperiods_2} -  survey subperiods of \code{years2}, \cr
+        \code{year} -  survey years of \code{years} for measures of annual, \cr
+        \code{subperiods} -  survey subperiods of \code{years} for measures of annual, \cr
+        \code{year_1} -  survey years of \code{years1} for measures of annual net change, \cr
+        \code{subperiods_1} -  survey subperiods of \code{years1} for measures of annual net change, \cr
+        \code{year_2} -  survey years of \code{years2} for measures of annual net change, \cr
+        \code{subperiods_2} -  survey subperiods of \code{years2} for measures of annual net change, \cr
         \code{country} - survey countries, \cr
         \code{Dom} - optional variable of the population domains, \cr
         \code{namesY} - variable with names of variables of interest, \cr
@@ -174,19 +178,20 @@ vardannual(Y, H, PSU, w_final, ID_level1,
         \code{significant} - is the the difference significant}
 
  \item{X_annual}{ A \code{data.table} containing
-        \code{year_1} -  survey years of \code{years1}, \cr
-        \code{year_2} -  survey years of \code{years2}, \cr
-        \code{year} -  survey years, \cr
-        \code{country} - survey countries, \cr
+        \code{year} -  survey years of \code{years} for measures of annual, \cr
+        \code{year_1} -  survey years of \code{years1} for measures of annual net change, \cr
+        \code{year_2} -  survey years of \code{years2} for measures of annual net change, \cr
         \code{period} - period1 and period2 together, \cr
+        \code{country} - survey countries, \cr
         \code{Dom} - optional variable of the population domains, \cr
         \code{namesY} - variable with names of variables of interest, \cr
         \code{namesZ} - optional variable with names of denominator for ratio estimation, \cr
         \code{cros_se} - the estimated cross-sectional standard error.}
 
  \item{A_matrix}{ A \code{data.table} containing
-        \code{year_1} -  survey years of \code{years1}, \cr
-        \code{year_2} -  survey years of \code{years2}, \cr
+        \code{year} -  survey years of \code{years1} for measures of annual, \cr
+        \code{year_1} -  survey years of \code{years1} for measures of annual net change, \cr
+        \code{year_2} -  survey years of \code{years2} for measures of annual net change, \cr
         \code{country} - survey countries, \cr
         \code{Dom} - optional variable of the population domains, \cr
         \code{namesY} - variable with names of variables of interest, \cr
@@ -205,14 +210,15 @@ vardannual(Y, H, PSU, w_final, ID_level1,
         \code{estim} - the estimated value for year .}
 
  \item{annual_results}{ A \code{data.table} containing
-        \code{year_1} -  survey years of \code{years1}, \cr
-        \code{year_2} -  survey years of \code{years2}, \cr
+        \code{year} -  survey years of \code{years} for measures of annual, \cr
+        \code{year_1} -  survey years of \code{years1} for measures of annual net change, \cr
+        \code{year_2} -  survey years of \code{years2} for measures of annual net change, \cr
         \code{country} - survey countries, \cr
         \code{Dom} - optional variable of the population domains, \cr
         \code{namesY} - variable with names of variables of interest, \cr
         \code{namesZ} - optional variable with names of denominator for ratio estimation, \cr
-        \code{estim_1} - the estimated value for period1, \cr
-        \code{estim_2} - the estimated value for period2, \cr
+        \code{estim_1} - the estimated value for period1 for measures of annual net change, \cr
+        \code{estim_2} - the estimated value for period2 for measures of annual net change, \cr
         \code{estim} - the estimated value, \cr
         \code{var} - the estimated variance, \cr
         \code{se} - the estimated standard error, \cr

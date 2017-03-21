@@ -84,7 +84,7 @@ Jean-Claude Deville (1999). Variance estimation for complex statistics and estim
 
 data(eusilc)
 
-dati <- data.table(IDd = 1 : nrow(eusilc), eusilc)
+dati <- data.table(IDd = paste0("V", 1 : nrow(eusilc)), eusilc)
 
 # Full population
 d1 <- linarpt(Y = "eqIncome", id = "IDd",

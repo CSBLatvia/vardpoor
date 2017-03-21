@@ -71,7 +71,8 @@ Jean-Claude Deville (1999). Variance estimation for complex statistics and estim
 \examples{
 data(ses)
 
-dati <- data.table(ID = 1 : nrow(ses), ses)
+
+dati <- data.table(ID = paste0("V", 1 : nrow(ses)), ses)
 setnames(dati, "sex", "sexf")
 dati[sexf == "male", sex:= 1]
 dati[sexf == "female", sex:= 2]

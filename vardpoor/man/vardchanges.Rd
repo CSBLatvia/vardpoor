@@ -17,7 +17,6 @@ vardchanges(Y, H, PSU, w_final,
             periodX = NULL, X_ID_level1 = NULL,
             ind_gr = NULL, g = NULL,
             q = NULL, datasetX = NULL,
-            annual = FALSE,
             linratio = FALSE,
             percentratio = 1,
             use.estVar = FALSE,
@@ -69,8 +68,6 @@ vardchanges(Y, H, PSU, w_final,
 \item{q}{Variable of the positive values accounting for heteroscedasticity. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.}
 
 \item{datasetX}{Optional survey data object in household level convertible to \code{data.table}.}
-
-\item{annual}{Logical value. If value is TRUE, then calculate for annual net changes.}
 
 \item{linratio}{Logical value. If value is \code{TRUE}, then the linearized variables for the ratio estimator is used for variance estimation. If value is \code{FALSE}, then the gradients is used for variance estimation.}
 
@@ -199,7 +196,8 @@ data[, exp := 1]
 
 # At-risk-of-poverty (AROP)
 data[, pov := ifelse (t_pov == 1, 1, 0)]
-data[, id_lev2 := .I]
+data[, id_lev2 := paste0("V", .I)]
+
 
 result <- vardchanges(Y = "pov", H = "strata", 
                       PSU = "PSU", w_final = "rb050",

@@ -102,7 +102,7 @@ data(eusilc)
 
 # Example 1
 eusilc1 <- eusilc[1:1000, ]
-dataset <- data.table(IDd = 1:nrow(eusilc1), eusilc1)
+dataset <- data.table(IDd = paste0("V", 1:nrow(eusilc1)), eusilc1)
 dataset[, db040_2 := get("db040")]
 N_h2 <- dataset[, sum(rb050, na.rm = FALSE), keyby = "db040_2"]
 

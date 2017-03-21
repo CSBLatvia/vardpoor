@@ -257,7 +257,7 @@ data[, unemployed := trunc(runif(nrow(data), 0, 2))]
 data[, labour_force := employed + unemployed]
 data[, gender := (as.character(rb090) == "female") + 1]
 data[, all := 1]
-data[, id_lv2 := .I]
+data[, id_lv2 := paste0("V", .I)]
 
 result <- vardgpgannual(Y = "employed", H = "strata",
                         PSU = "PSU", w_final = "rb050",

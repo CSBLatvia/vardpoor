@@ -261,7 +261,7 @@ data[, strata := c("XXXX")]
 data[, employed := trunc(runif(nrow(data), 0, 2))]
 data[, unemployed := trunc(runif(nrow(data), 0, 2))]
 data[, labour_force := employed + unemployed]
-data[, id_lv2 := .I]
+data[, id_lv2 := paste0("V", .I)]
 
 result <- vardannual(Y = "employed", H = "strata",
                      PSU = "PSU", w_final = "rb050",

@@ -160,7 +160,7 @@ Working group on Statistics on Income and Living Conditions (2004) Common cross-
 
 \examples{
 data(eusilc)
-dataset <- data.table(IDd = 1 : nrow(eusilc), eusilc)
+dataset <- data.table(IDd = paste0("V", 1 : nrow(eusilc)), eusilc)
 dataset1 <- dataset[1 : 1000]
 
 # use dataset1 by default without using fh_zero (finite population correction)

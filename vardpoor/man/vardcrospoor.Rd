@@ -164,7 +164,7 @@ PSU <- eusilc <- NULL
 data[, strata := c("XXXX")]
 data$pl085 <- 12 * trunc(runif(nrow(data), 0, 2))
 data$month_at_work <- 12 * trunc(runif(nrow(data), 0, 2))
-data[, id_l2 := .I]
+data[, id_l2 := paste0("V", .I)]
 
 result <- vardcrospoor(Y = "inc", age = "age",
                        pl085 = "pl085", 

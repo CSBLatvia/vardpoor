@@ -1,11 +1,9 @@
 
-vardannual <- function(Y, H, PSU, w_final,
-                       ID_level1, ID_level2,
-                       Dom = NULL, Z = NULL,
-                       country = NULL, years,
-                       subperiods, dataset = NULL,
-                       year1 = NULL, year2 = NULL, X = NULL,
-                       countryX = NULL, yearsX = NULL,
+vardannual <- function(Y, H, PSU, w_final, ID_level1,
+                       ID_level2, Dom = NULL, Z = NULL,
+                       country = NULL, years, subperiods,
+                       dataset = NULL, year1 = NULL, year2 = NULL,
+                       X = NULL, countryX = NULL, yearsX = NULL,
                        subperiodsX = NULL, X_ID_level1 = NULL,
                        ind_gr = NULL, g = NULL, q = NULL,
                        datasetX = NULL, percentratio = 1,
@@ -42,7 +40,6 @@ vardannual <- function(Y, H, PSU, w_final,
   Z <- check_var(vars = Z, varn = "Z", dataset = dataset,
                  check.names = TRUE, Yncol = Yncol, Ynrow = Ynrow,
                  isnumeric = TRUE, mustbedefined = FALSE)
-  namesZ <- names(Z)
   
   Dom <- check_var(vars = Dom, varn = "Dom", dataset = dataset,
                    ncols = 0, Yncol = 0, Ynrow = Ynrow,
@@ -52,11 +49,11 @@ vardannual <- function(Y, H, PSU, w_final,
   country <- check_var(vars = country, varn = "country",
                        dataset = dataset, ncols = 1, Ynrow = Ynrow,
                        ischaracter = TRUE, mustbedefined = FALSE,
-                       dif_name = c("percoun", "period_country"))
+                       dif_name = c("percoun", "period_country", "Nrs"))
   
   years <- check_var(vars = years, varn = "years", dataset = dataset,
                      ncols = 1, Yncol = 0, Ynrow = Ynrow, ischaracter = TRUE,
-                     dif_name = c("percoun", "period_country", names(country), "yearg"),
+                     dif_name = c("percoun", "period_country", names(country), "yearg", "Nrs"),
                      use.gender = use.gender)
   yearg <- NULL
   years[, yearg := substr(get(names(years)), 1, nchar(get(names(years))) - ifelse(use.gender, 2, 0))]
@@ -73,10 +70,9 @@ vardannual <- function(Y, H, PSU, w_final,
                   year1 <- years[, .N, by = yearm][, N := NULL]
                   year2 <- years[, .N, by = yearm][, N := NULL] }
 
-
   subperiods <- check_var(vars = subperiods, varn = "subperiods",
                           dataset = dataset, ncols = 1, Ynrow = Ynrow,
-                          ischaracter = TRUE, dif_name = c("percoun", names(country)))
+                          ischaracter = TRUE, dif_name = c("percoun", "period_country", names(country), "yearg", "Nrs"))
   subpm <- names(subperiods)
   subn <- data.table(years, subperiods)
   subn <- nrow(subn[, .N, by = names(subn)]) / length(unique(subn[["yearg"]]))
@@ -154,6 +150,7 @@ vardannual <- function(Y, H, PSU, w_final,
    ids <- nams <- cros_se <- num1 <- totalY <- totalZ <- NULL
    estim_1 <- estim_2 <- avar <- N <- estim <- NULL
    var_est2 <- se <- rse <- cv <- CI_lower <- CI_upper <- NULL
+   Nr_sar <- cols <- Nrs <- percoun <- NULL
 
    pers <- data.table(years, subperiods,
                       pers = paste0(years[[1]], "__", subperiods[[1]]))
@@ -162,192 +159,232 @@ vardannual <- function(Y, H, PSU, w_final,
    if (!is.null(X)) persX <- data.table(yearsX, subperiodsX,
                                   pers = paste0(yearsX[[names(yearsX)]], "__", subperiodsX[[names(subperiodsX)]]))
 
-   sarak <- pers[,.N, keyby = names(pers)][, N := NULL]
+   sarak <- pers[,.N, keyby = names(pers)][, N := NULL][]
 
-   namesDom <- names(Dom)
-   apst <- lapply(1 : nrow(year1), function(i) {             
-                 atsyear <- rbindlist(list(year1[i], year2[i]))
-                 if (method == "cros") atsyear <- year1[i]
-                 atsyear <- merge(atsyear, sarak, all.x = TRUE, by = yearm, sort = FALSE)
+   cros_calc <- vardcros(Y = Y, H = H, PSU = PSU, w_final = w_final,
+                         ID_level1 = ID_level1, ID_level2 = ID_level2,
+                         Dom = Dom, Z = Z, country = country,
+                         period = pers[, "pers"], dataset = NULL,
+                         X = X, countryX = countryX, periodX = persX[, "pers"],
+                         X_ID_level1 = X_ID_level1, ind_gr = ind_gr,
+                         g = g, q = q, datasetX = NULL,
+                         linratio = !is.null(Z),
+                         percentratio = percentratio,
+                         use.estVar = use.estVar,
+                         ID_level1_max = is.null(X),
+                         outp_res = outp_res,
+                         withperiod = TRUE,
+                         netchanges = TRUE,
+                         confidence = confidence,
+                         checking = FALSE)
+   countryX <- periodX <- yearX <- NULL
+   X_ID_level1 <- ind_gr <- g <- q <- ID_level2 <- NULL
+   subperiods <- w_final <- NULL   
+   years <- years[, .N, by = c(names(years)[1])][, N := NULL]   
 
-                 if (method != "cros") {  
-                                 yr12 <- data.table(year1 = year1[i][[1]], year2 = year2[i][[1]])
-                                 setnames(yr12, paste0("year", c(1, 2)), paste0(names(year1), c(1, 2)))
-                              } else yr12 <- year1[i]
-                 atsyear[, ids := .I] 
+   pers12 <- paste("pers", 1:2, sep = "_")
+   if (method == "cros") { period12 <- c(yearm, paste(subpm, 1:2, sep = "_"))
+                           years12 <- yearm
+                  } else { period12 <- paste(rep(c(yearm, subpm), 2), c(1, 1, 2, 2), sep = "_")
+                           years12 <- paste(yearm, 1:2, sep = "_") }
 
-                 nr1 <- nrow(atsyear)
-                 yrs <- rbindlist(lapply(1 : (nr1 - 1), function(j) {
-                           atsy1 <- atsyear[j]
-                           atsy2 <- atsyear[(j + 1) : nr1]
-                           if (method == "cros") {
-                                       atsy2[, (yearm) := NULL]
-                                       setnames(atsy1, names(atsy1)[-1], paste0(names(atsy1)[-1], "_1"))
-                                } else setnames(atsy1, names(atsy1), paste0(names(atsy1), "_1"))
-                           setnames(atsy2, names(atsy2), paste0(names(atsy2), "_2"))
-                           data.table(atsy1, atsy2)
-                         }))
-                 yrs[, ids := .I]
+   atsyear <- rbindlist(list(data.table(Nrs = 1 : nrow(year1), yrs = 1, year1),
+                             data.table(Nrs = 1 : nrow(year2), yrs = 2, year2)))
+   if (method == "cros") atsyear <- data.table(Nrs = 1 : nrow(year1), yrs = 1, year1)
 
-                 datas <- vardchanges(Y = Y, H = H, PSU = PSU, w_final = w_final,
-                                      ID_level1 = ID_level1, ID_level2 = ID_level2,
-                                      Dom = Dom, Z = Z, country = country,
-                                      period = pers[, "pers"], dataset = NULL,
-                                      period1 = yrs[, .(pers = get("pers_1"))],
-                                      period2 = yrs[, .(pers = get("pers_2"))],
-                                      X = X, countryX = countryX, periodX = persX[, "pers"],
-                                      X_ID_level1 = X_ID_level1, ind_gr = ind_gr,
-                                      g = g, q = q, datasetX = NULL, annual = TRUE,
-                                      linratio = !is.null(Z), percentratio = percentratio,
-                                      use.estVar = use.estVar, outp_res = outp_res,
-                                      confidence = confidence, change_type = "absolute",
-                                      checking = FALSE)
+   atsyear <- merge(atsyear, sarak, all.x = TRUE, by = yearm,
+                    sort = FALSE, allow.cartesian = TRUE)
 
-                 crossectional_results <- datas$crossectional_results
-                 crossectional_results <- merge(sarak, crossectional_results, all.y = TRUE, by = "pers")
+   atsyear[, ids := 1:.N, by = "Nrs" ] 
 
-                 grad_var <- datas$grad_var
-                 grad_var <- merge(yrs, grad_var, all.y = TRUE, by = c("pers_1", "pers_2"))
+   nr1 <- max(atsyear[["ids"]])
 
-                 crossectional_var_grad <- datas$crossectional_var_grad
-                 crossectional_var_grad <- merge(sarak, crossectional_var_grad,
-                                                 all.y = TRUE, by = c("pers"))
+   yrs <- rbindlist(lapply(1 : (nr1 - 1), function(j) {
+                        atsy1 <- atsyear[ids == j]
+                        atsy2 <- atsyear[ids %in% c((j + 1) : nr1)]
+                        if (method == "cros") {
+                                   atsy2[, (yearm) := NULL]
+                                   setnames(atsy1, names(atsy1)[-c(1:2)], paste0(names(atsy1)[-c(1:2)], "_1"))
+                                   setnames(atsy2, names(atsy2)[-1], paste0(names(atsy2)[-1], "_2"))
+                            } else { setnames(atsy1, names(atsy1)[-2], paste0(names(atsy1)[-2], "_1"))
+                                     setnames(atsy2, names(atsy2)[-2], paste0(names(atsy2)[-2], "_2")) }
+                        merge(atsy1, atsy2, all = TRUE, by = "Nrs")
+                     }))
 
-                 var_tau <- datas$var_tau
-                 var_tau <- merge(yrs, var_tau, all.y = TRUE, by = c("pers_1", "pers_2"))
-                 setkeyv(var_tau, "ids")
+  if (method != "cros") {  
+             yr12 <- rbind(data.table(Nrs = 1 : nrow(year1), yearg = year1[[1]]),
+                             data.table(Nrs = 1 : nrow(year1), yearg = year2[[1]]))
+        } else yr12 <- data.table(Nrs = 1 : nrow(year1), yearg = year1[[1]])
 
-                 vardchanges_results <- datas$changes_results
-                 vardchanges_results <- merge(yrs, vardchanges_results, all.y = TRUE, by = c("pers_1", "pers_2"))
-                 rho <- datas$rho
-                 rho <- merge(yrs, rho, all.y = TRUE, by = c("pers_1", "pers_2"))
-                 sar <- c("country", "namesY", "namesZ", namesDom)
-                 sar <- sar[sar %in% names(rho)]
-                 rhoj <- rho[,.N, keyby = sar][, N := NULL]
+  if (!is.null(Dom)) {
+            Y1 <- namesD(Y, Dom)
+            if (!is.null(Z)) Z1 <- namesD(Z, Dom)
+       } else { Y1 <- names(Y)
+                Z1 <- names(Z) }
 
-                 apstr <- lapply(1 : nrow(rhoj), function(j){
+  Y <- names(Y)
+  Z <- names(Z)
+  names_country <- names(country)
+  PSU <- names(PSU)
+  H <- names(H)
+  Dom <- names(Dom)
+  yrs_without <- yrs[, .N, by = c("pers_1", "pers_2")]
 
-                               rho0 <- rhoj[j]
-                               rho1 <- merge(rho0, rho, by = sar)[nams == "num2"]
-                               A_matrix <- diag(1, nrow(atsyear), nrow(atsyear))
+  changes_calc <- vardchanges_calculation(Y = Y, Z = Z, Y1 = Y1, Z1 = Z1,
+                                          Dom = Dom, names_country = names_country,
+                                          per = "pers", PSU = PSU, H = H,
+                                          period1 = yrs_without[, .(pers = get("pers_1"))],
+                                          period2 = yrs_without[, .(pers = get("pers_2"))],
+                                          cros_var_grad = cros_calc$var_grad, change_type = "absolute",
+                                          data = cros_calc$data_net_changes, linratio = !is.null(Z), 
+                                          annual = TRUE, percentratio = percentratio,
+                                          use.estVar = use.estVar, confidence = confidence)
 
-                               for (k in 1 : nrow(rho1)) {
-                                     at <- rho1[k == ids]
-                                     A_matrix[at[["ids_1"]], at[["ids_2"]]] <- at[["rho_num1"]]
-                                     A_matrix[at[["ids_2"]], at[["ids_1"]]] <- at[["rho_num1"]]
-                                     if (method != "cros") {
-                                               if (at[["ids_2"]] > subn & at[["ids_1"]] < subn + 1) {
-                                                              A_matrix[at[["ids_1"]], at[["ids_2"]]] <- - at[["rho_num1"]]
-                                                              A_matrix[at[["ids_2"]], at[["ids_1"]]] <- - at[["rho_num1"]]
-                                                             }}
-                                   }
-                               rho1 <- merge(rho0, crossectional_var_grad, by = sar)
-                               rho1 <- merge(atsyear[, c("pers", "ids"), with = FALSE], rho1,
-                                               by = "pers", sort = FALSE, allow.cartesian = TRUE)
-                               rho1[, cros_se := sqrt(num1)]
-                               X <- rho1[["cros_se"]]
+   pers <- pers[, .N, keyby = names(pers)][, N := NULL]
+   crossectional_results <- merge(pers, cros_calc$results, all = TRUE, by = "pers")
+   crossectional_results[, (c("pers", "yearg")) := NULL]
+   if (is.null(names(country))) crossectional_results[, percoun := NULL]
+   yrs_without <- cros_calc <- NULL
+ 
+   cros_var_grad <- merge(sarak, changes_calc$cros_var_grad,
+                                 all.y = TRUE, by = c("pers"))
 
-                               annual_var <- data.table(rho0, yr12, 1 / (subn)^2 * (t(X) %*% A_matrix) %*% X)
-                               setnames(annual_var, "V1", "var")
+   rho <- merge(yrs, changes_calc$rho_matrix,
+                          all.y = TRUE,
+                          by = c("pers_1", "pers_2"),
+                          allow.cartesian = TRUE)
 
-                               A_matrix <- data.table(rho0, yr12, cols = paste0("V", 1 : nrow(A_matrix)), A_matrix)
-                               rho1[, ids := paste0("V", ids)]
-                               setnames(rho1, "ids", "cols")
-                               rho1 <- data.table(yr12, rho1)
+   sar <- c("Nrs", names_country, "namesY", "namesZ", Dom)
+   sar <- sar[sar %in% names(rho)]
+   rho[, Nr_sar := .GRP, by = sar]
 
-                               list(rho1, A_matrix, annual_var)})
+   rho1 <- rho[nams == "num2"]
+   rho1[, ids := 1 : .N, by = sar]
 
-                 rho1 <- rbindlist(lapply(apstr, function(x) x[[1]]))
-                 A_matrix <- rbindlist(lapply(apstr, function(x) x[[2]]))
-                 annual_var <- rbindlist(lapply(apstr, function(x) x[[3]]))
+   rhoj <- rho[,.N, keyby = sar][, N := NULL]
+   max_ids <- max(atsyear[["ids"]])
 
-                 sars <- c(names(country), yearm, namesDom, "namesY", "namesZ")
-                 sars <- sars[sars %in% names(crossectional_var_grad)]
-                 sarsb <- sars[!(sars %in% yearm)]
-                 sarc <- c("totalY", "totalZ")
+   yr12cros <- merge(yr12, cros_var_grad, by = "yearg",
+                           allow.cartesian = TRUE, sort = FALSE)
 
-                 sarc <- sarc[sarc %in% names(crossectional_var_grad)]
-                 ysum <- crossectional_var_grad[, lapply(.SD, mean), by = sars, .SDcols = sarc]
-                 if (!is.null(ysum$namesZ)) {
-                              ysum[, estim := totalY / totalZ * percentratio]
-                       } else ysum[, estim := totalY]
+   apstr <- lapply(1 : max(rho[["Nr_sar"]]), function(j){
+                 rho2 <- rho1[Nr_sar == j]
+                 A_matrix <- diag(1, max_ids, max_ids)
 
-                 if (method != "cros") {
-                             ysum1 <- ysum[get(yearm) == year1[i][[1]], c(sarsb, "estim"), with = FALSE]
-                             ysum2 <- ysum[get(yearm) == year2[i][[1]], c(sarsb, "estim"), with = FALSE]
-                             setnames(ysum1, "estim", "estim_1")
-                             setnames(ysum2, "estim", "estim_2")
-                             ysum <- data.table(yr12, merge(ysum1, ysum2, by = sarsb))
-                             ysum[, estim := estim_2 - estim_1]  }
-                 ysum1 <- ysum2 <- NULL
-                 annual_results <- merge(ysum, annual_var, by = c(sarsb, names(yr12)))
+                 for (k in 1 : max(rho2[["ids"]])) {
+                          at <- rho2[k == ids]
+                          A_matrix[at[["ids_1"]], at[["ids_2"]]] <- at[["rho_num1"]]
+                          A_matrix[at[["ids_2"]], at[["ids_1"]]] <- at[["rho_num1"]]
+                          if (method != "cros") {
+                                 if (at[["ids_2"]] > subn & at[["ids_1"]] < subn + 1) {
+                                            A_matrix[at[["ids_1"]], at[["ids_2"]]] <- - at[["rho_num1"]]
+                                            A_matrix[at[["ids_2"]], at[["ids_1"]]] <- - at[["rho_num1"]]
+                                         }}
+                       }
+                 cros_rho <- merge(yr12cros, rho2[1, sar, with = FALSE], by = sar, sort = FALSE)
+                 cros_rho[, cols := paste0("V", 1:.N)]
+                 cros_rho[, cros_se := sqrt(num1)]
+                 X <- cros_rho[["cros_se"]]
 
-                 list(crossectional_results,
-                      crossectional_var_grad, grad_var,
-                      rho, var_tau, vardchanges_results,
-                      rho1, A_matrix, annual_results, ysum)
-   })
+                 annual_var <- data.table(rho2[1, sar, with = FALSE],
+                                            1 / (subn)^2 * (t(X) %*% A_matrix) %*% X)
+                 setnames(annual_var, c("V1"), c("var"))
+                 A_matrix <- data.table(rho2[1, sar, with = FALSE], cols = paste0("V", 1 : nrow(A_matrix)), A_matrix)
+                 list(cros_rho, A_matrix, annual_var)})
 
-  crossectional_results <- rbindlist(lapply(apst, function(x) x[[1]]))
-  crossectional_var_grad <- rbindlist(lapply(apst, function(x) x[[2]]))
-  grad_var <- rbindlist(lapply(apst, function(x) x[[3]]))
-  rho <- rbindlist(lapply(apst, function(x) x[[4]]))
-  var_tau <- rbindlist(lapply(apst, function(x) x[[5]]))
-  vardchanges_results <- rbindlist(lapply(apst, function(x) x[[6]]))
+   cros_rho <- rbindlist(lapply(apstr, function(x) x[[1]]))
+   A_matrix <- rbindlist(lapply(apstr, function(x) x[[2]]))
+   annual_var <- rbindlist(lapply(apstr, function(x) x[[3]]))
 
-  X_annual <- rbindlist(lapply(apst, function(x) x[[7]]))
-  A_matrix <- rbindlist(lapply(apst, function(x) x[[8]]))
-  annual_results <- rbindlist(lapply(apst, function(x) x[[9]]))
-  ysum <- rbindlist(lapply(apst, function(x) x[[10]]))
+   sars <- c(names(country), yearm, Dom, "namesY", "namesZ")
+   sars <- sars[sars %in% names(cros_var_grad)]
+   sarsb <- sars[!(sars %in% yearm)]
+   sarc <- c("totalY", "totalZ")
+   sarc <- sarc[sarc %in% names(cros_var_grad)]
+   
+   ysum <- cros_var_grad[, lapply(.SD, mean), by = sars, .SDcols = sarc]
+   if (!is.null(ysum$namesZ)) {
+           ysum[, estim := totalY / totalZ * percentratio]
+      } else ysum[, estim := totalY]
 
-  crossectional_results[, pers := NULL]
-  crossectional_var_grad[, pers := NULL]
-  grad_var[, (c("pers_1", "pers_2", "ids_1", "ids_2", "ids")) := NULL]
-  rho[, (c("pers_1", "pers_2", "ids_1", "ids_2", "ids")) := NULL]
-  var_tau[, (c("pers_1", "pers_2", "ids_1", "ids_2", "ids")) := NULL]
-  vardchanges_results[, (c("pers_1", "pers_2",
-                           "ids_1", "ids_2", "ids")) := NULL]
+   ysum1 <- ysum[get(yearm) %in% year1[[yearm]], c(sars, "estim"), with = FALSE]
+   years1 <- copy(year1)[, Nrs := 1: .N]
+   ysum1 <- merge(years1, ysum1, by = yearm, sort = FALSE, allow.cartesian = TRUE)
 
-  vars_all <- c(names(country), yearm, paste0(yearm, c(1, 2)),  
-                namesDom, "namesY", "namesZ")
-  vars <- c(vars_all, "cols", "cros_se")
-  X_annual <- X_annual[, vars[vars %in% names(X_annual)], with = FALSE]
+   if (method != "cros") {
+            years2 <- copy(year2)[, Nrs := 1: .N]
+            ysum2 <- ysum[get(yearm) %in% year2[[yearm]], c(sars, "estim"), with = FALSE]
+            ysum2 <- merge(years2, ysum2, by = yearm, sort = FALSE, allow.cartesian = TRUE)
+            setnames(ysum1, c("estim", yearm), c("estim_1", paste0(yearm, "_1")))
+            setnames(ysum2, c("estim", yearm), c("estim_2", paste0(yearm, "_2")))
+            ysum <- merge(ysum1, ysum2, all.x = TRUE, by = c("Nrs", sarsb))   
+            ysum[, estim := estim_2 - estim_1] 
+        } else ysum <- ysum1
+   ysum1 <- ysum2 <- NULL
 
-  vars <- c(vars_all, "cols", "cros_se")
-  A_matrix <- A_matrix[, vars[vars %in% names(A_matrix)], with = FALSE]
+   annual_results <- merge(ysum, annual_var, by = c("Nrs", sarsb), sort = FALSE)
 
-  vars <- c(vars_all, "totalY", "totalZ", "estim")
-  ysum <- ysum[, vars[vars %in% names(ysum)], with = FALSE]
+   estim <- "estim"
+   if(method != "cros") estim <- c("estim_1", "estim_2", "estim")
+   annual_results <- annual_results[, c(years12, sarsb, estim, "var"), with = FALSE]
+   ysum <- ysum[, c(years12, sarsb, estim), with = FALSE]
 
-  vars <- c(vars_all, paste0("estim_", c(1, 2)), "estim", "var") 
-  annual_results <- annual_results[, vars[vars %in% names(annual_results)], with = FALSE]
+   grad_var <- merge(yrs[, c(pers12, period12), with = FALSE],
+                     changes_calc$grad_var, all.y = TRUE,
+                     by = pers12, allow.cartesian = TRUE)
+   grad_var[, (pers12) := NULL]
 
-  annual_results[, var_est2 := var]
-  annual_results[xor(is.na(var_est2), var_est2 < 0), var_est2 := NA]
-  annual_results[, se := sqrt(var_est2)]
-  annual_results[, var_est2 := NULL]
 
-  if (method == "cros")  { annual_results[, rse := se / estim]
-                           annual_results[, cv := rse * 100] }
+   var_tau <- merge(yrs[, c(pers12, period12), with = FALSE],
+                    changes_calc$var_tau, all.y = TRUE,
+                    by = pers12, allow.cartesian = TRUE)
+   var_tau[, (pers12) := NULL]
 
-  tsad <- qnorm(0.5 * (1 + confidence))
-  annual_results[, CI_lower := estim - tsad * se]
-  annual_results[, CI_upper := estim + tsad * se]
+   vardchanges_results <- merge(yrs[, c(pers12, period12), with = FALSE],
+                                changes_calc$changes_results, all.y = TRUE,
+                                by = pers12, allow.cartesian = TRUE)
+   vardchanges_results[, (pers12) := NULL]
 
-  if (method != "cros") {
+
+   X_annual <- cros_rho
+   if(method != "cros") {
+                     atsyear <- data.table(Nrs = 1 : nrow(year1), year1, year2, check.names = TRUE)
+                     setnames(atsyear, names(atsyear)[2:3], years12) 
+                     X_annual <- merge(atsyear, cros_rho, all.y = TRUE, by = "Nrs", sort = FALSE)
+             } else atsyear <- data.table(Nrs = 1 : nrow(years), years, check.names = TRUE)
+   
+   vars <- c(years12, subpm, sarsb, "cols", "cros_se")
+   X_annual <- X_annual[, vars[vars %in% names(X_annual)], with = FALSE]
+
+   A_matrix <- merge(atsyear, A_matrix, all.y = TRUE, by = "Nrs", sort = FALSE)
+   A_matrix[, Nrs := NULL]
+
+   annual_results[, var_est2 := var]
+   annual_results[xor(is.na(var_est2), var_est2 < 0), var_est2 := NA]
+   annual_results[, se := sqrt(var_est2)]
+   annual_results[, var_est2 := NULL]
+
+   if (method == "cros")  { annual_results[, rse := se / estim]
+                            annual_results[, cv := rse * 100] }
+
+   tsad <- qnorm(0.5 * (1 + confidence))
+   annual_results[, CI_lower := estim - tsad * se]
+   annual_results[, CI_upper := estim + tsad * se]
+
+   if (method != "cros") {
               significant <- NULL
               annual_results[, significant := TRUE]
               annual_results[CI_lower <= 0 & CI_upper >= 0, significant := FALSE]
    }
 
-  list(crossectional_results = crossectional_results,
-       crossectional_var_grad = crossectional_var_grad,
-       vardchanges_grad_var = grad_var,
-       vardchanges_rho = rho,
-       vardchanges_var_tau = var_tau,
-       vardchanges_results = vardchanges_results,
-       X_annual = X_annual, A_matrix = A_matrix,
-       annual_sum = ysum,
-       annual_results = annual_results)
+   list(crossectional_results = crossectional_results,
+        crossectional_var_grad = cros_var_grad,
+        vardchanges_grad_var = grad_var,
+        vardchanges_rho = rho,
+        vardchanges_var_tau = var_tau,
+        vardchanges_results = vardchanges_results,
+        X_annual = X_annual, A_matrix = A_matrix,
+        annual_sum = ysum,
+        annual_results = annual_results)
 
-}
+ }

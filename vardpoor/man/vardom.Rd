@@ -128,7 +128,7 @@ Jean-Claude Deville (1999). Variance estimation for complex statistics and estim
 
 \examples{
 data(eusilc)
-dataset <- data.table(IDd = 1 : nrow(eusilc), eusilc)
+dataset <- data.table(IDd = paste0("V", 1 : nrow(eusilc)), eusilc)
 
 aa <- vardom(Y = "eqIncome", H = "db040", PSU = "db030",
            w_final = "rb050", id = "rb030", Dom = "db040",

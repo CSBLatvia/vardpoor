@@ -1,5 +1,6 @@
 Changes in vardpoor version 0.9.0
     + Corrected bug in function domain
+    + Vardannual contains previous varchangannual and vardcrosannual together
 
 Changes in vardpoor version 0.8.6
     + Add new function for variable checking in 

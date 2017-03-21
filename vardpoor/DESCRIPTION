@@ -3,8 +3,8 @@ Type: Package
 Title: Variance Estimation for Sample Surveys by the Ultimate Cluster
         Method
 Version: 0.9.0
-Date: 2017-03-17
-Depends: R (>= 3.2.3), data.table (>= 1.10.0), laeken, stringr
+Date: 2017-03-21
+Depends: R (>= 3.2.3), data.table (>= 1.10.4), laeken, stringr
 Imports: foreach, plyr, gdata, MASS, stats, utils, surveyplanning
 Authors@R: c(person("Juris", "Breidaks", email = "Juris.Breidaks@csb.gov.lv",
         role = c("aut", "cre")), person("Martins", "Liberts", role = "aut"), person("Santa", "Ivanova", role = "aut"))

@@ -329,7 +329,6 @@ vardom <- function(Y, H, PSU, w_final,
   all_result <- merge(all_result, S2_res, all = TRUE, by = c(names(period), "variable"))
   S2_y_HT <- S2_y_ca <- S2_res <- var_srs_HT <- var_srs_ca <- NULL
 
-
   all_result[, estim := Y_est]
   if (!is.null(all_result$Z_est)) all_result[, estim := Y_est / Z_est * percentratio]
 
@@ -391,6 +390,7 @@ vardom <- function(Y, H, PSU, w_final,
                                   all_result[, pop_size := nhs$pop_size]}
 
   all_result[, n_eff := ifelse(is.na(deff) | deff < .Machine$double.eps, NA, respondent_count / deff)]
+
   variab <- c("respondent_count", "n_nonzero", "pop_size")
   if (!is.null(all_result$Z_est)) variab <- c(variab, "Y_est", "Z_est")
   variab <- c(variab, "estim", "var", "se", "rse", "cv",

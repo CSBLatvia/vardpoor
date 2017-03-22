@@ -4,6 +4,7 @@ vardcros <- function(Y, H, PSU, w_final,
                      ID_level2,
                      Dom = NULL,
                      Z = NULL,
+                     gender = NULL,
                      country = NULL,
                      period,
                      dataset = NULL,
@@ -38,6 +39,7 @@ vardcros <- function(Y, H, PSU, w_final,
 
     if (all(ID_level1_max, !is.null(X))) stop("'ID_level1_max' must be ", !ID_level1_max, "!", call. = FALSE)
     if (all(!is.null(Z), !is.null(X), !linratio)) stop("'linratio' must be TRUE", call. = FALSE)
+    if (all(!is.null(gender), !is.null(Z), !linratio)) stop("'linratio' must be TRUE", call. = FALSE)
     if (all(is.null(Z), linratio)) stop("'linratio' must be FALSE", call. = FALSE)
 
     if(!is.null(X)) {
@@ -56,6 +58,10 @@ vardcros <- function(Y, H, PSU, w_final,
                    dif_name = "dataH_stratas")
 
     w_final <- check_var(vars = w_final, varn = "w_final",
+                         dataset = dataset, ncols = 1, Ynrow = Ynrow,
+                         isnumeric = TRUE, isvector = TRUE)
+
+    gender <- check_var(vars = gender, varn = "gender",
                          dataset = dataset, ncols = 1, Ynrow = Ynrow,
                          isnumeric = TRUE, isvector = TRUE)
 
@@ -125,19 +131,19 @@ vardcros <- function(Y, H, PSU, w_final,
                               varnout = "country", varname = names(country),
                               country = country)
                               
-         periodX <- check_var(vars = periodX, varn = "periodX",
-                              dataset = datasetX, ncols = 1, Xnrow = Xnrow,
-                              ischaracter = TRUE, mustbedefined = !is.null(period),
-                              duplicatednames = TRUE, varnout = "period",
-                              varname = names(period), country = country,
-                              countryX = countryX, periods = period)
+        periodX <- check_var(vars = periodX, varn = "periodX",
+                             dataset = datasetX, ncols = 1, Xnrow = Xnrow,
+                             ischaracter = TRUE, mustbedefined = !is.null(period),
+                             duplicatednames = TRUE, varnout = "period",
+                             varname = names(period), country = country,
+                             countryX = countryX, periods = period)
 
-         X_ID_level1 <- check_var(vars = X_ID_level1, varn = "X_ID_level1",
-                                  dataset = datasetX, ncols = 1, Xnrow = Xnrow,
-                                  ischaracter = TRUE, varnout = "ID_level1",
-                                  varname = names(ID_level1), country = country,
-                                  countryX = countryX, periods = period,
-                                  periodsX = periodX, ID_level1 = ID_level1)
+        X_ID_level1 <- check_var(vars = X_ID_level1, varn = "X_ID_level1",
+                                 dataset = datasetX, ncols = 1, Xnrow = Xnrow,
+                                 ischaracter = TRUE, varnout = "ID_level1",
+                                 varname = names(ID_level1), country = country,
+                                 countryX = countryX, periods = period,
+                                 periodsX = periodX, ID_level1 = ID_level1)
       }
    }
   dataset <- datasetX <- NULL
@@ -190,21 +196,39 @@ vardcros <- function(Y, H, PSU, w_final,
        if (!is.null(Dom)) Z1 <- domain(Y = Z, D = Dom, 
                                        dataset = NULL,
                                        checking = FALSE) else Z1 <- Z
+
        if (linratio){
                    sorts <- unlist(split(Y1[, .I], period_country))
                    lin1 <- lapply(split(Y1[, .I], period_country),
-                                  function(i) data.table(sar_nr = i,
-                                                         lin.ratio(Y = Y1[i], Z = Z1[i],
-                                                                   weight = w_final[i],
-                                                                   Dom = NULL, dataset = NULL,
-                                                                   percentratio = percentratio,
-                                                                   checking = FALSE)))
+                                 function(i)  
+                                      if (!is.null(gender)) {
+                                                data.table(sar_nr = i,
+                                                           lin.ratio(Y = Y1[i] * (gender == 1),
+                                                                     Z = Z1[i] * (gender == 1),
+                                                                     weight = w_final[i],
+                                                                     Dom = NULL, dataset = NULL,
+                                                                     percentratio = percentratio,
+                                                                     checking = FALSE)-
+                                                           lin.ratio(Y = Y1[i] * (gender == 2),
+                                                                     Z = Z1[i] * (gender == 2),
+                                                                     weight = w_final[i],
+                                                                     Dom = NULL, dataset = NULL,
+                                                                     percentratio = percentratio,
+                                                                     checking = FALSE))
+                                         } else { data.table(sar_nr = i,
+                                                             lin.ratio(Y = Y1[i], Z = Z1[i],
+                                                                       weight = w_final[i],
+                                                                       Dom = NULL, dataset = NULL,
+                                                                       percentratio = percentratio,
+                                                                       checking = FALSE))})
                    Y2 <- rbindlist(lin1)
                    setkeyv(Y2, "sar_nr")
+
                    Y2[, sar_nr := NULL]
                    if (any(is.na(Y2))) print("Results are calculated, but there are cases where Z = 0")
                   } else Y2 <- data.table(copy(Y1), copy(Z1))
-    } else Y2 <- copy(Y1)
+   } else if (!is.null(gender)) { Y2 <- Y1[i] * (gender == 1) - Y1[i] * (gender == 2)
+                   } else Y2 <- copy(Y1)
 
    namesY2 <- names(Y2)
    namesY2w <- paste0(namesY2, "w")
@@ -238,13 +262,18 @@ vardcros <- function(Y, H, PSU, w_final,
    if (!is.null(Dom)) DTagg <- data.table(DTagg, Dom)
    DTagg <- data.table(DTagg, sample_size = 1,
                        pop_size = w_final, w_final * Y)
+   if (!is.null(gender)) DTagg <- data.table(DTagg, gender)
    if (!is.null(Z)) DTagg <- data.table(DTagg, w_final * Z)
 
-   DTagg <- DTagg[, lapply(.SD, sum, na.rm = TRUE),
+   gnamesDom <- namesDom
+   if (!is.null(gender)) gnamesDom <- c("gender", gnamesDom)
+   DTaggs <- DTagg[, lapply(.SD, sum, na.rm = TRUE),
                             keyby = c(namesperc, namesDom),
-                          .SDcols = c("sample_size", "pop_size", namesYZ)]
-   DTaggs <- DTagg[, c(namesperc, namesDom,
-                       "sample_size", "pop_size"), with = FALSE]
+                          .SDcols = c("sample_size", "pop_size")]
+
+   DTagg <- DTagg[, lapply(.SD, sum, na.rm = TRUE),
+                            keyby = c(namesperc, gnamesDom),
+                           .SDcols = namesYZ]
 
    vars <- data.table(variable = namesY, namesY = namesY)
    if (!is.null(namesZ)) vars <- data.table(variable = as.character(1 : length(namesY)),
@@ -252,12 +281,20 @@ vardcros <- function(Y, H, PSU, w_final,
 
    varsYZ <- list(namesY)
    if (!is.null(namesZ)) varsYZ <- list(namesY, namesZ)
-   DTagg <- melt(DTagg, id = c(namesperc, namesDom),
+   DTagg <- melt(DTagg, id = c(namesperc, gnamesDom),
                         measure = varsYZ,
                         variable.factor = FALSE)
 
    setnames(DTagg, ifelse(!is.null(DTagg$value1), "value1", "value"), "totalY")
-   if (!is.null(Z)) setnames(DTagg, "value2", "totalZ")
+   totYZ <- "totalY"
+   if (!is.null(Z)) {totYZ <- c(totYZ, "totalZ")
+                     setnames(DTagg, "value2", "totalZ")}
+
+   funkc <- as.formula(paste0(paste(c(namesperc, namesDom, "variable"), collapse= "+"), "~ gender2")) 
+   DTagg[gender == 1, gender2 := "male"]
+   DTagg[gender == 2, gender2 := "female"]
+
+   DTagg <- dcast(DTagg, funkc, sum, value.var = totYZ)
 
    DTagg <- merge(DTagg, vars,  by = "variable")[, variable := NULL]
 
@@ -444,9 +481,14 @@ vardcros <- function(Y, H, PSU, w_final,
 
   DTagg <- total <- NULL
 
-  res[, estim := totalY]
   res[, var := num1]
-  if (!is.null(res$totalZ)) res[, estim := totalY / totalZ * percentratio]
+
+  if (!is.null(gender)) {
+           res[, estim := totalY_male - totalY_female]
+           if (!is.null(res$totalZ)) res[, estim := (totalY_male / totalZ_male - totalY_female / totalZ_female) * percentratio]
+          } else {
+           res[, estim := totalY]
+           if (!is.null(res$totalZ)) res[, estim := totalY / totalZ * percentratio] }
 
   if (!is.null(res$totalZ) & !linratio) {
                     res[, var :=  (grad1 * grad1 * num1) +
@@ -457,19 +499,24 @@ vardcros <- function(Y, H, PSU, w_final,
   main <- c(namesperc, namesDom, "namesY", "nameY1")
   if (!is.null(namesDom)) main <- c(main, paste0(namesDom, "_new"))
   if (!is.null(res$namesZ)) main <- c(main, "namesZ", "nameZ1")
-  main2 <- c(main, "estim", "totalY", "valueY1")
-  if (!is.null(res$namesZ)) main <- c(main, "totalZ")
-  if (!is.null(res$namesZ)) main2 <- c(main2, "totalZ")
+  main <- c(main, "sample_size", "pop_size")
+  if (is.null(gender)) { main <- c(main, "totalY")
+           } else main <- c(main, c("totalY_male", "totalY_female"))
+  if (!is.null(res$namesZ)) { if (is.null(gender)) { main <- c(main, "totalZ")
+                                             } else main <- c(main, c("totalY_male", "totalY_female")) }
+  main2 <- c(main, "estim", "valueY1")
   if (!is.null(namesZ1) & !linratio) main2 <- c(main2, "valueZ1")
   main2 <- c(main2, "num1")
   if (!is.null(namesZ1) & !linratio) main2 <- c(main2, "den1", "grad1", "grad2")
 
-  if (netchanges) { res1 <- res[, main2[!(main2 %in% c("nameY1",
-                                     paste0(namesDom, "_new"), "nameZ1"))], with = FALSE]
-                  } else res1 <- NULL
+  if (netchanges) { res1 <- res[, main2[!(main2 %in% c("sample_size",
+                                                       "pop_size", "nameY1",
+                                                       paste0(namesDom, "_new"),
+                                                       "nameZ1"))], with = FALSE]
+                                                     } else res1 <- NULL
 
-  main <- c(main, "totalY", "sample_size", "pop_size", "estim", "var")
-  res <- res[, main, with = FALSE]
+  main <- c(main, "estim", "var")
+  res22 <- res[, main, with = FALSE]
 
   #-------------------------------------------------------------------------*
   # DESIGN EFFECT (DEFF) ESTIMATION - VARIANCE UNDER SIMPLE RANDOM SAMPLING |
@@ -493,10 +540,10 @@ vardcros <- function(Y, H, PSU, w_final,
 
   if (!is.null(namesZ1) & !linratio) {
                    lin1 <- lapply(split(DTs[, .I], DTs$period_country), function(i)
-                                lin.ratio(Y=DTs[i, namesY1,  with = FALSE],
-                                          Z=DTs[i, namesZ1,  with = FALSE],
-                                          weight=DTs[["w_final"]][i], Dom=NULL,
-                                          percentratio=percentratio))
+                                lin.ratio(Y = DTs[i, namesY1,  with = FALSE],
+                                          Z = DTs[i, namesZ1,  with = FALSE],
+                                          weight = DTs[["w_final"]][i], Dom = NULL,
+                                          percentratio = percentratio))
                    Y2a <- rbindlist(lin1)
                    setnames(Y2a, names(Y2a), paste0("lin___", namesY1))
                    DTs <- data.table(DTs, Y2a)

@@ -1,6 +1,7 @@
 vardchanges <- function(Y, H, PSU, w_final,
                         ID_level1, ID_level2,
                         Dom = NULL, Z = NULL,
+                        gender = NULL,
                         country = NULL, period,
                         dataset = NULL,
                         period1, period2,
@@ -44,6 +45,10 @@ vardchanges <- function(Y, H, PSU, w_final,
         w_final <- check_var(vars = w_final, varn = "w_final",
                              dataset = dataset, ncols = 1, Ynrow = Ynrow,
                              isnumeric = TRUE, isvector = TRUE)
+   
+        gender <- check_var(vars = gender, varn = "gender",
+                            dataset = dataset, ncols = 1, Ynrow = Ynrow,
+                            isnumeric = TRUE, isvector = TRUE)
 
         Z <- check_var(vars = Z, varn = "Z", dataset = dataset,
                        check.names = TRUE, Yncol = Yncol, Ynrow = Ynrow,
@@ -133,11 +138,11 @@ vardchanges <- function(Y, H, PSU, w_final,
 
   cros_calc <- vardcros(Y = Y, H = H, PSU = PSU, w_final = w_final,
                         ID_level1 = ID_level1, ID_level2 = ID_level2,
-                        Dom = Dom, Z = Z, country = country,
-                        period = period, dataset = NULL,
-                        X = X, countryX = countryX, periodX = periodX,
-                        X_ID_level1 = X_ID_level1, ind_gr = ind_gr,
-                        g = g, q = q, datasetX = NULL,
+                        Dom = Dom, gender = gender, Z = Z,
+                        country = country, period = period,
+                        dataset = NULL, X = X, countryX = countryX,
+                        periodX = periodX, X_ID_level1 = X_ID_level1,
+                        ind_gr = ind_gr, g = g, q = q, datasetX = NULL,
                         linratio = linratio,
                         percentratio = percentratio,
                         use.estVar = use.estVar,
@@ -150,7 +155,7 @@ vardchanges <- function(Y, H, PSU, w_final,
 
   countryX <- periodX <- X_ID_level1 <- NULL
   X_ID_level1 <- ind_gr <- g  <- q  <- NULL
-  dataset <- w_final <- NULL
+  gender <- dataset <- w_final <- NULL
 
   if (!is.null(Dom)) {
             Y1 <- namesD(Y, Dom)
@@ -158,12 +163,13 @@ vardchanges <- function(Y, H, PSU, w_final,
        } else { Y1 <- names(Y)
                 Z1 <- names(Z) }
 
+  
   changes_calc <- vardchanges_calculation(Y = names(Y), Z = names(Z), Y1 = Y1, Z1 = Z1,
                                           Dom = names(Dom), names_country = names(country),
                                           per = names(period), PSU = names(PSU), H = names(H),
                                           period1 = period1, period2 = period2,
                                           cros_var_grad = cros_calc$var_grad, change_type = change_type,
-                                          data = cros_calc$data_net_changes, linratio = linratio, 
+                                          data = cros_calc$data_net_changes, linratio = linratio,
                                           annual = FALSE, percentratio = percentratio,
                                           use.estVar = use.estVar, confidence = confidence)
   Y <- Z <- Y1 <- Z1 <- Dom <- period <- PSU <- H <- period1 <- period2 <- NULL

@@ -503,7 +503,7 @@ vardcros <- function(Y, H, PSU, w_final,
   if (is.null(gender)) { main <- c(main, "totalY")
            } else main <- c(main, c("totalY_male", "totalY_female"))
   if (!is.null(res$namesZ)) { if (is.null(gender)) { main <- c(main, "totalZ")
-                                             } else main <- c(main, c("totalY_male", "totalY_female")) }
+                                             } else main <- c(main, c("totalZ_male", "totalZ_female")) }
   main2 <- c(main, "estim", "valueY1")
   if (!is.null(namesZ1) & !linratio) main2 <- c(main2, "valueZ1")
   main2 <- c(main2, "num1")

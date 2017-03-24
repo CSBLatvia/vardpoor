@@ -52,7 +52,6 @@ export("vardchangespoor")
 
 export("vardannual")
 
-export("vardgpgannual")
 
 
 

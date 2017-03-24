@@ -10,8 +10,8 @@
 vardchanges(Y, H, PSU, w_final, 
             ID_level1, ID_level2,
             Dom = NULL, Z = NULL,
-            country = NULL, period,
-            dataset = NULL,
+            gender = NULL, country = NULL,
+            period, dataset = NULL,
             period1, period2,
             X = NULL, countryX = NULL,
             periodX = NULL, X_ID_level1 = NULL,
@@ -42,6 +42,8 @@ vardchanges(Y, H, PSU, w_final,
 \item{Dom}{Optional variables used to define population domains. If supplied, variables are calculated for each domain. An object convertible to \code{data.table} or variable names as character vector, column numbers.}
 
 \item{Z}{Optional variables of denominator for ratio estimation. If supplied, the ratio estimation is computed. Object convertible to \code{data.table} or variable names as character, column numbers. This variable is \code{NULL} by default.}
+
+\item{gender}{Numerical variable for gender, where 1 is for males, but 2 is for females. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.}
 
 \item{country}{Variable for the survey countries. The values for each country are computed independently. Object convertible to \code{data.table} or variable names as character, column numbers.}
 

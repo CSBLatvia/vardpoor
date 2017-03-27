@@ -104,10 +104,11 @@ vardom <- function(Y, H, PSU, w_final,
   dataset <- NULL
 
   # N_h
+  np <- sum(ncol(period))
   if (!is.null(N_h)) {
       N_h <- data.table(N_h)
       if (anyNA(N_h)) stop("'N_h' has missing values")
-      if (ncol(N_h) != np+2) stop(paste0("'N_h' should be ", np + 2," columns"))
+      if (ncol(N_h) != np + 2) stop(paste0("'N_h' should be ", np + 2," columns"))
       if (!is.numeric(N_h[[ncol(N_h)]])) stop("The last column of 'N_h' should be numeric")
       nams <- c(names(period), names(H))
       if (all(nams %in% names(N_h))) {N_h[, (nams) := lapply(.SD, as.character), .SDcols = nams]

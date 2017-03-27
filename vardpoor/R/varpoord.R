@@ -157,6 +157,7 @@ varpoord <- function(Y, w_final,
    }
 
  # N_h
+ np <- sum(ncol(period))
  if (!is.null(N_h)) {
    N_h <- data.table(N_h)
    if (anyNA(N_h)) stop("'N_h' has missing values")
@@ -165,21 +166,19 @@ varpoord <- function(Y, w_final,
 
    nams <- c(names(period), names(H))
    if (all(nams %in% names(N_h))) {N_h[, (nams) := lapply(.SD, as.character), .SDcols = nams]
-   } else stop(paste0("All strata titles of 'H'", ifelse(!is.null(period), "and periods titles of 'period'", ""), " have not in 'N_h'"))
+       } else stop(paste0("All strata titles of 'H'", ifelse(!is.null(period), "and periods titles of 'period'", ""), " have not in 'N_h'"))
 
    if (is.null(period)) {
      if (any(is.na(merge(unique(H), N_h, by = names(H), all.x = TRUE)))) stop("'N_h' is not defined for all strata")
      if (any(duplicated(N_h[, head(names(N_h), -1), with = FALSE]))) stop("Strata values for 'N_h' must be unique")
-   } else { pH <- data.table(period, H)
-   if (any(is.na(merge(unique(pH), N_h, by = names(pH), all.x = TRUE)))) stop("'N_h' is not defined for all strata and periods")
-   if (any(duplicated(N_h[, head(names(N_h), -1), with = FALSE]))) stop("Strata values for 'N_h' must be unique in all periods")
-   pH <- NULL
-   }
-   setkeyv(N_h, names(N_h)[c(1 : (1 + np))])
+       } else { pH <- data.table(period, H)
+                if (any(is.na(merge(unique(pH), N_h, by = names(pH), all.x = TRUE)))) stop("'N_h' is not defined for all strata and periods")
+                if (any(duplicated(N_h[, head(names(N_h), -1), with = FALSE]))) stop("Strata values for 'N_h' must be unique in all periods")
+                pH <- NULL }
+     setkeyv(N_h, names(N_h)[c(1 : (1 + np))])
  }
 
   N <- dataset <- datasetX <- NULL
-  np <- sum(ncol(period))
 
   if (is.null(Y_thres)) Y_thres <- Y
   if (is.null(wght_thres)) wght_thres <- w_final

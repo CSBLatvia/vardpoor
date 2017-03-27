@@ -114,6 +114,7 @@ vardomh <- function(Y, H, PSU, w_final,
 
 
   # N_h
+  np <- sum(ncol(period))
   if (!is.null(N_h)) {
       N_h <- data.table(N_h)
       if (anyNA(N_h)) stop("'N_h' has missing values")
@@ -137,7 +138,6 @@ vardomh <- function(Y, H, PSU, w_final,
 
   ### Calculation
   # Domains
-  np <- sum(ncol(period))
   psusn <- as.integer(!is.null(PSU_sort))
   namesDom <- names(Dom)
   aPSU <- names(PSU)

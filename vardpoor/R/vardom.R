@@ -53,7 +53,6 @@ vardom <- function(Y, H, PSU, w_final,
                       dataset = dataset, Ynrow = Ynrow,
                       ischaracter = TRUE, mustbedefined = FALSE,
                       duplicatednames = TRUE)
-  np <- sum(ncol(period))
 
   id <- check_var(vars = id, varn = "id", dataset = dataset,
                   ncols = 1, Ynrow = Ynrow, ischaracter = TRUE,

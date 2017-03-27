@@ -293,11 +293,12 @@ vardcros <- function(Y, H, PSU, w_final,
    if (!is.null(Z)) {totYZ <- c(totYZ, "totalZ")
                      setnames(DTagg, "value2", "totalZ")}
 
-   funkc <- as.formula(paste0(paste(c(namesperc, namesDom, "variable"), collapse= "+"), "~ gender2")) 
-   DTagg[gender == 1, gender2 := "male"]
-   DTagg[gender == 2, gender2 := "female"]
-
-   DTagg <- dcast(DTagg, funkc, sum, value.var = totYZ)
+   if (!is.null(gender)) {
+           funkc <- as.formula(paste0(paste(c(namesperc, namesDom, "variable"), collapse= "+"), "~ gender2"))
+           DTagg[gender == 1, gender2 := "male"]
+           DTagg[gender == 2, gender2 := "female"]
+           DTagg <- dcast(DTagg, funkc, sum, value.var = totYZ)
+         }
 
    DTagg <- merge(DTagg, vars,  by = "variable")[, variable := NULL]
 

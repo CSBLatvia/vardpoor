@@ -40,7 +40,8 @@ vardannual <- function(Y, H, PSU, w_final, ID_level1,
  
   gender <- check_var(vars = gender, varn = "gender",
                       dataset = dataset, ncols = 1, Ynrow = Ynrow,
-                      isnumeric = TRUE, isvector = TRUE)
+                      isnumeric = TRUE, isvector = TRUE,
+                      mustbedefined = FALSE)
 
   Z <- check_var(vars = Z, varn = "Z", dataset = dataset,
                  check.names = TRUE, Yncol = Yncol, Ynrow = Ynrow,
@@ -155,7 +156,8 @@ vardannual <- function(Y, H, PSU, w_final, ID_level1,
    ids <- nams <- cros_se <- num1 <- totalY <- totalZ <- NULL
    estim_1 <- estim_2 <- avar <- N <- estim <- NULL
    var_est2 <- se <- rse <- cv <- CI_lower <- CI_upper <- NULL
-   Nr_sar <- cols <- Nrs <- percoun <- NULL
+   Nr_sar <- cols <- Nrs <- percoun <- totalY_male <- NULL
+   totalZ_male <- totalY_female <- totalZ_female <- NULL  
 
    pers <- data.table(years, subperiods,
                       pers = paste0(years[[1]], "__", subperiods[[1]]))
@@ -215,7 +217,7 @@ vardannual <- function(Y, H, PSU, w_final, ID_level1,
                                      setnames(atsy2, names(atsy2)[-2], paste0(names(atsy2)[-2], "_2")) }
                         merge(atsy1, atsy2, all = TRUE, by = "Nrs")
                      }))
-   y
+   
    if (method != "cros") {  
               yr12 <- rbind(data.table(Nrs = 1 : nrow(year1), yearg = year1[[1]]),
                             data.table(Nrs = 1 : nrow(year1), yearg = year2[[1]]))

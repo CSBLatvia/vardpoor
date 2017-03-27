@@ -63,7 +63,8 @@ vardcros <- function(Y, H, PSU, w_final,
 
     gender <- check_var(vars = gender, varn = "gender",
                          dataset = dataset, ncols = 1, Ynrow = Ynrow,
-                         isnumeric = TRUE, isvector = TRUE)
+                         isnumeric = TRUE, isvector = TRUE,
+                         mustbedefined = FALSE)
 
     Z <- check_var(vars = Z, varn = "Z", dataset = dataset,
                    check.names = TRUE, Yncol = Yncol, Ynrow = Ynrow,
@@ -153,6 +154,8 @@ vardcros <- function(Y, H, PSU, w_final,
 
   sar_nr <- N <- nameY <- nameZ <- variable <- NULL
   sample_size <- totalY <- totalZ <- Z1 <- percoun <- NULL
+  totalY_male <- totalZ_male <- totalY_female <- NULL
+  totalZ_female <- gender2 <- i <- NULL  
 
   # Design weights
   if (!is.null(X)) {

@@ -48,7 +48,8 @@ vardchanges <- function(Y, H, PSU, w_final,
    
         gender <- check_var(vars = gender, varn = "gender",
                             dataset = dataset, ncols = 1, Ynrow = Ynrow,
-                            isnumeric = TRUE, isvector = TRUE)
+                            isnumeric = TRUE, isvector = TRUE,
+                            mustbedefined = FALSE)
 
         Z <- check_var(vars = Z, varn = "Z", dataset = dataset,
                        check.names = TRUE, Yncol = Yncol, Ynrow = Ynrow,

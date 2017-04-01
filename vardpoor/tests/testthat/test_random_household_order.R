@@ -2,7 +2,6 @@
 # Data are randomly ordered
 
 require(vardpoor)
-require(testthat)
 
 # n <- 600L
 # l <- 3L
@@ -59,6 +58,7 @@ test_unordered_residuals <- function(n = 600L, l = 3L) {
                  PSU = "psu",
                  w_final = "wc",
                  ID_level1 = "IDh",
+                 ID_level2 = "IDp",
                  dataset = datY,
                  X = paste0("x", 0:2),
                  X_ID_level1 = "IDh",

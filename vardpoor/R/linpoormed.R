@@ -12,7 +12,7 @@
 
 linpoormed <- function(Y, id = NULL, weight = NULL,
                        sort = NULL, Dom = NULL, period = NULL,
-                       dataset = NULL, percentage = 60,
+                       dataset = NULL, percentage = 60L,
                        order_quant = 50L, var_name = "lin_poormed",
                        checking = TRUE) {
 

@@ -12,7 +12,7 @@
                  fh_zero = FALSE, PSU_level = TRUE, sort = NULL, Dom = NULL, 
                  period = NULL, gender = NULL, dataset = NULL, X = NULL, periodX = NULL,
                  X_ID_level1 = NULL, ind_gr = NULL, g = NULL, q = NULL, datasetX = NULL,
-                 percentage = 60, order_quant = 50L, alpha = 20, confidence = 0.95,
+                 percentage = 60L, order_quant = 50L, alpha = 20, confidence = 0.95,
                   outp_lin = FALSE, outp_res = FALSE, type = "linrmpg") }
                      
 

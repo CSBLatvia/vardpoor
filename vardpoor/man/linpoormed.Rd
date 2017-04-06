@@ -13,7 +13,7 @@ Estimation of the median income of individuals below At Risk of Poverty Threshol
 \usage{
 linpoormed(Y, id = NULL, weight = NULL,
            sort = NULL, Dom = NULL, period = NULL,
-           dataset = NULL, percentage = 60,
+           dataset = NULL, percentage = 60L,
            order_quant = 50L, var_name = "lin_poormed",
            checking = TRUE)
 }

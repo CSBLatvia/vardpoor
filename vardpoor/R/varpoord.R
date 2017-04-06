@@ -23,8 +23,8 @@ varpoord <- function(Y, w_final,
                      g = NULL,
                      q = NULL,
                      datasetX = NULL,
-                     percentage = 60,
-                     order_quant = 50,
+                     percentage = 60L,
+                     order_quant = 50L,
                      alpha = 20,
                      confidence = .95,
                      outp_lin = FALSE,
@@ -43,7 +43,7 @@ varpoord <- function(Y, w_final,
   outp_lin <- check_var(vars = outp_lin, varn = "outp_lin", varntype = "logical") 
   outp_res <- check_var(vars = outp_res, varn = "outp_res", varntype = "logical") 
 
-  p <- check_var(vars = percentage, varn = "percentage", varntype = "numeric0100") 
+  percentage <- check_var(vars = percentage, varn = "percentage", varntype = "numeric0100") 
   order_quant <- check_var(vars = order_quant, varn = "order_quant", varntype = "integer0100") 
   alpha <- check_var(vars = alpha, varn = "alpha", varntype = "numeric0100") 
   confidence <- check_var(vars = confidence, varn = "confidence", varntype = "numeric01") 

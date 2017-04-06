@@ -21,8 +21,8 @@ linpoormed <- function(Y, id = NULL, weight = NULL,
        stop("'var_name' must be defined name of the linearized variable")}
 
    if (checking) {
-          p <- check_var(vars = percentage, varn = "percentage",
-                         varntype = "numeric0100") 
+          percentage <- check_var(vars = percentage, varn = "percentage",
+                                  varntype = "numeric0100") 
 
           order_quant <- check_var(vars = order_quant, varn = "order_quant",
                                    varntype = "integer0100") 
@@ -81,7 +81,7 @@ linpoormed <- function(Y, id = NULL, weight = NULL,
    setnames(quantile, names(quantile)[ncol(quantile)], "quantile")
    if (ncol(quantile) > 1) setkeyv(quantile, head(names(quantile), -1))
    threshold <- copy(quantile)
-   threshold[, threshold := p / 100 * quantile]
+   threshold[, threshold := percentage / 100 * quantile]
    threshold[, quantile := NULL]
 
    poor_med_id <- id
@@ -113,7 +113,7 @@ linpoormed <- function(Y, id = NULL, weight = NULL,
                                                    wght = weight[indj],
                                                    sort = sort[indj],
                                                    ind = ind[indj],
-                                                   percentag = p,
+                                                   percentag = percentage,
                                                    order_quants = order_quant,
                                                    quant_val = rown[["quantile"]])
                       list(poor_people_median = data.table(rown2, poor_people_median = poormed_l$poor_people_median),
@@ -142,7 +142,7 @@ linpoormed <- function(Y, id = NULL, weight = NULL,
                                                        wght = weight[indj],
                                                        sort = sort[indj],
                                                        ind = ind0[indj],
-                                                       percentag = p,
+                                                       percentag = percentage,
                                                        order_quants = order_quant,
                                                        quant_val = rown[["quantile"]])
                            if (!is.null(period)) {

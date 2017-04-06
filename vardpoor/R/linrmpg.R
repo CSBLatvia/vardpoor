@@ -12,7 +12,7 @@
 
 linrmpg <- function(Y, id = NULL, weight = NULL, sort = NULL,
                     Dom = NULL, period = NULL, dataset = NULL,
-                    percentage = 60, order_quant = 50,
+                    percentage = 60, order_quant = 50L,
                     var_name = "lin_rmpg", checking = TRUE) {
 
    ## initializations
@@ -25,7 +25,7 @@ linrmpg <- function(Y, id = NULL, weight = NULL, sort = NULL,
                                   varntype = "numeric0100")
 
           order_quant <- check_var(vars = order_quant, varn = "order_quant",
-                                   varntype = "numeric0100") 
+                                   varntype = "integer0100") 
 
           Y <- check_var(vars = Y, varn = "Y", dataset = dataset,
                          ncols = 1, isnumeric = TRUE,
@@ -174,7 +174,7 @@ linrmpgCalc <- function(inco, ids, wght, sort, ind, percentag, order_quants, qua
 
     poor_people_median <- incPercentile(Y = inc1,
                                         weights = wght1,
-                                        sort=sort1,
+                                        sort = sort1,
                                         Dom = NULL,
                                         period = NULL,
                                         k = order_quants,

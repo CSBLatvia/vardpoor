@@ -31,7 +31,7 @@ vardchangespoor <- function(Y, age = NULL,
   type <- tolower(type)
   type <- match.arg(type, all_choices, length(type) > 1) 
 
-  p <- check_var(vars = percentage, varn = "percentage", varntype = "numeric0100") 
+  percentage <- check_var(vars = percentage, varn = "percentage", varntype = "numeric0100") 
   order_quant <- check_var(vars = order_quant, varn = "order_quant", varntype = "integer0100") 
   alpha <- check_var(vars = alpha, varn = "alpha", varntype = "numeric0100") 
   use.estVar <- check_var(vars = use.estVar, varn = "use.estVar", varntype = "logical") 

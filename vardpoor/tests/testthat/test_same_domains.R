@@ -1,23 +1,16 @@
-# Nodarbināto darbavietas NACE 2 nozares var aprēķināt gan A*21 (burta), gan A*88 (2-zīmju) līmenī
-# Dažās nozarēs (D, L, O, U) domēns ir gan vienā, gan otrā līmenī, jo sīkāk netiek sadalīts.
-# Piemēram, A sadalās A.01, A.02, A.03. D kļūst par D.36.
-# Tests pārbauda, vai šādā gadījumā attiecīgajam domēnam ar vardomh tiek iegūti tie paši ticamības intervāli.
+# Check if confidence intervals are equal for a domain in different domain partitions
 
 require(vardpoor)
-require(testthat)
-
-# n <- 600L
-# l <- 3L
 
 test_domains <- function(n = 600, l = 3) {
-
-  # n - personu skaits izlasē
-  # l - personu skaits mājsaimniecībā
-  # m - mājsaimniecību skaits izlasē
+  
+  # n - numper of persons in sample
+  # l - number of persons in a household
+  # m - number of households in sample
 
   m <- n / l
 
-  # Personu izlases dati
+  # Data of persons
   dat_y <- data.table(IDp = 1:n,
                       IDh = rep(1:m, each = l),
                       y = 1L,
@@ -25,14 +18,13 @@ test_domains <- function(n = 600, l = 3) {
                       domain_a = sample(c("AA", "AB", "AC", "BA"), n,
                                         replace = T))
 
-  # domēns B. BA == B
+  # A = {AA, AB, AC} B = {BA}
   dat_y[, domain_b := substring(domain_a, 0, 1)]
 
   # PSU
   dat_y[, psu := floor((IDh - 1) / 10) + 1L]
 
-  # Mājsaimniecību dati izlasē
-  # 4 apsekojumi
+  # Data of households
   dat_x <- data.table(IDh = 1:m,
                       x0 = 1L,
                       x1 = sample(0:3, m, replace = T),
@@ -42,10 +34,10 @@ test_domains <- function(n = 600, l = 3) {
                       q = runif(m),
                       apsek = rep(1:4, each = m/4))
 
-  # Kalibrētais svars
+  # Calibrated weight
   dat_x[, wc := wd * g]
 
-  # Pievieno kalibrēto svaru un apsekojuma numuru personām
+  # Add calibrated weight to households
   dat_y <- merge(dat_y, dat_x[, .(IDh, wc, apsek)], by = "IDh")
 
   n_h <- data.table(strata = 1:4, pop = sample(500:1500,4))
@@ -55,6 +47,7 @@ test_domains <- function(n = 600, l = 3) {
                       PSU = "psu",
                       w_final = "wc",
                       ID_level1 = "IDh",
+                      ID_level2 = "IDp",
                       Dom = "domain_a",
                       ind_gr = "apsek",
                       N_h = n_h,
@@ -70,6 +63,7 @@ test_domains <- function(n = 600, l = 3) {
                       PSU = "psu",
                       w_final = "wc",
                       ID_level1 = "IDh",
+                      ID_level2 = "IDp",
                       Dom = "domain_b",
                       ind_gr = "apsek",
                       N_h = n_h,
@@ -88,7 +82,7 @@ test_domains <- function(n = 600, l = 3) {
   return(list(ci_a1, ci_a2, ci_b1, ci_b2))
 }
 
-test_that("Parbaude vai identiskiem domeniem dazadas domenu kopas tiek aprekinati identiski ticamibas intervali",{
+test_that("Check if confidence intervals are equal for a domain in different domain partitions",{
   results <- test_domains()
   expect_equal(results[[1]], results[[3]])
   expect_equal(results[[2]], results[[4]])

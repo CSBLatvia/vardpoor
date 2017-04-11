@@ -169,11 +169,17 @@ check_var <- function(vars, varn, varntype = NULL, dataset,
                if (!is.null(country)) peri <- switch(as.integer(!is.null(peri)) + 1, data.table(country), data.table(country, peri))
                peri <- peri[, .N, keyby = names(peri)][, N := NULL]
                periX <- periX[, .N, keyby = names(periX)]
-               if (varn == "X_ID_level1" & nrow(periX[N > 1]) > 0) stop("'X_ID_level1' have duplicates", call. = FALSE)
+               varnsX <- paste0(varns, "X")
 
+               if (varn == "X_ID_level1") {
+                          varns <- c(varns, "ID_level1")
+                          varnsX <- c(varnsX, "X_ID_level1")
+                          if (nrow(periX[N > 1]) > 0) stop("'X_ID_level1' have duplicates", call. = FALSE) }
+  
                periX[, N := NULL]
-               varns <- c(varns, "ID_level1")
-               varnsX <- c(paste0(varns, "X"), "X_ID_level1")
+  
+               print(peri)
+               print(periX)
 
                if (!identical(peri, periX)) {
                  stop(paste0("'unique(", paste(varns, collapse = ", "), ")' and 'unique(",

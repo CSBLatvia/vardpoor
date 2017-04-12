@@ -178,12 +178,9 @@ check_var <- function(vars, varn, varntype = NULL, dataset,
   
                periX[, N := NULL]
   
-               print(peri)
-               print(periX)
-
                if (!identical(peri, periX)) {
                  stop(paste0("'unique(", paste(varns, collapse = ", "), ")' and 'unique(",
-                                          paste(varnsX, collapse = ", "), ")' records have different"), call. = FALSE)
+                                          paste(varnsX, collapse = ", "), ")' records have different"), call. = FALSE)                
                }
                peri <- periX <- NULL
             }

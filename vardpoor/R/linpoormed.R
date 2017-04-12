@@ -22,7 +22,7 @@ linpoormed <- function(Y, id = NULL, weight = NULL,
 
    if (checking) {
           percentage <- check_var(vars = percentage, varn = "percentage",
-                                  varntype = "numeric0100") 
+                         varntype = "numeric0100") 
 
           order_quant <- check_var(vars = order_quant, varn = "order_quant",
                                    varntype = "integer0100") 

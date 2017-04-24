@@ -91,7 +91,7 @@ vardchanges <- function(Y, H, PSU, w_final,
 
         if(!is.null(X)) {
                 X <- check_var(vars = X, varn = "X", dataset = datasetX,
-                               check.names = TRUE, isnumeric = TRUE, grepls = "__",
+                               check.names = TRUE, isnumeric = TRUE,
                                dif_name = c(names(period), names(country), names(H),
                                             names(PSU), names(ID_level1), "w_final",
                                             names(Y), "w_design", "g", "q"))

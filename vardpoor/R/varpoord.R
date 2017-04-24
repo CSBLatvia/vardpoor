@@ -128,7 +128,7 @@ varpoord <- function(Y, w_final,
   if(!is.null(X)) {
        X <- check_var(vars = X, varn = "X", dataset = datasetX,
                       check.names = TRUE, isnumeric = TRUE,
-                      grepls = "__", dif_name = c(names(period) , "g", "q"))
+                      dif_name = c(names(period) , "g", "q"))
        Xnrow <- nrow(X)
 
        ind_gr <- check_var(vars = ind_gr, varn = "ind_gr",

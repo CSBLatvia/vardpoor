@@ -98,7 +98,7 @@ vardannual <- function(Y, H, PSU, w_final, ID_level1,
 
   if(!is.null(X)) {
          X <- check_var(vars = X, varn = "X", dataset = datasetX,
-                        isnumeric = TRUE, grepls = "__",
+                        isnumeric = TRUE,
                         dif_name = c(names(years), names(subperiods),
                                      names(country), names(H), names(PSU),
                                      names(ID_level1), "w_final", names(Y),

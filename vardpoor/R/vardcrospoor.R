@@ -119,7 +119,7 @@ vardcrospoor <- function(Y, age = NULL, pl085 = NULL,
          
         if(!is.null(X)) {
               X <- check_var(vars = X, varn = "X", dataset = datasetX,
-                             check.names = TRUE, isnumeric = TRUE, grepls = "__",
+                             check.names = TRUE, isnumeric = TRUE,
                              dif_name = c(names(period), names(country), names(H),
                                            names(PSU), names(ID_level1), "w_final",
                                            "w_design", "g", "q"))

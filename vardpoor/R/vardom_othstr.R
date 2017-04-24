@@ -65,7 +65,7 @@ vardom_othstr <- function(Y, H, H2, PSU, w_final,
   if (!is.null(X)) {
          X <- check_var(vars = X, varn = "X", dataset = dataset,
                         check.names = TRUE, Ynrow = Ynrow,
-                        isnumeric = TRUE, grepls = "__",
+                        isnumeric = TRUE,
                         dif_name = c(names(period), "g", "q"))
          Xnrow <- nrow(X)
 

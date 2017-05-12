@@ -39,7 +39,7 @@ check_var <- function(vars, varn, varntype = NULL, dataset,
                       Ynrow = 0, Xnrow = 0, isnumeric = FALSE,
                       ischaracter = FALSE, mustbedefined = TRUE,
                       isvector = FALSE, grepls = NULL, dif_name = "",
-                      namesID1 = "id", duplicatednames = FALSE,
+                      namesID1 = "namesid1", duplicatednames = FALSE,
                       withperiod = TRUE, varnout = NULL, varname = NULL,
                       PSUs = NULL, country = NULL, countryX = NULL,
                       years = NULL, yearsX = NULL, periods = NULL,
@@ -93,6 +93,7 @@ check_var <- function(vars, varn, varntype = NULL, dataset,
       if (!is.null(grepls)) if (any(grepl(grepls, names(vars)))) stop(paste0("'", varn, "' is not allowed column names with '", grepls, "'"), call. = FALSE)
       if (any(names(vars) %in% dif_name)) stop(paste0("'", varn, "' must be different name"), call. = FALSE)
       if (any(names(vars) == namesID1)) setnames(vars, names(vars), paste0(names(vars), "_", varn))
+
       if (use.gender & varn %in% c("years", "yearsX")){
                 parb <- unique(substr(vars[[1]], nchar(vars[[1]])-1, nchar(vars[[1]])))
                 if (!all(parb %in% c("_1", "_2")) | length(parb) != 2) {
@@ -137,7 +138,8 @@ check_var <- function(vars, varn, varntype = NULL, dataset,
         if (!is.null(periods)) psuag <- data.table(periods, psuag)
         psuag <- psuag[, .N, by = names(psuag)][, N := NULL]
         psuag <- rbindlist(list(psuag[, .N, by = c(names(periods), names(PSUs))],
-                                psuag[, .N, by = c(names(periods), names(vars))]), use.names = TRUE, fill = TRUE)
+                                psuag[, .N, by = c(names(periods), "vars")]),
+                                use.names = TRUE, fill = TRUE)       
         if (nrow(psuag[N > 1]) > 0) stop("'PSU_sort' must be equal for each 'PSU'", call. = FALSE)}
 
       if (varn == "gender") {

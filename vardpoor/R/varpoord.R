@@ -89,9 +89,19 @@ varpoord <- function(Y, w_final,
                           Ynrow = Ynrow, mustbedefined = FALSE,
                           isnumeric = TRUE, isvector = TRUE)
 
+  ID_level1 <- check_var(vars = ID_level1, varn = "ID_level1",
+                         dataset = dataset, ncols = 1,
+                         Ynrow = Ynrow, ischaracter = TRUE)
+
+  ID_level2 <- check_var(vars = ID_level2, varn = "ID_level2",
+                         dataset = dataset, ncols = 1, 
+                         Ynrow = Ynrow, ischaracter = TRUE,
+                         namesID1 = names(ID_level1), periods = period)
+
   H <- check_var(vars = H, varn = "H", dataset = dataset,
                  ncols = 1, Yncol = 0, Ynrow = Ynrow,
-                 ischaracter = TRUE, dif_name = "dataH_stratas")
+                 ischaracter = TRUE, namesID1 = names(ID_level1),
+                 dif_name = "dataH_stratas")
 
   sort <- check_var(vars = sort, varn = "sort",
                     dataset = dataset, ncols = 1,
@@ -107,15 +117,6 @@ varpoord <- function(Y, w_final,
                    Ynrow = Ynrow, ischaracter = TRUE,
                    mustbedefined = FALSE, duplicatednames = TRUE,
                    grepls = "__")
-
-  ID_level1 <- check_var(vars = ID_level1, varn = "ID_level1",
-                         dataset = dataset, ncols = 1,
-                         Ynrow = Ynrow, ischaracter = TRUE)
-
-  ID_level2 <- check_var(vars = ID_level2, varn = "ID_level2",
-                         dataset = dataset, ncols = 1, 
-                         Ynrow = Ynrow, ischaracter = TRUE,
-                         namesID1 = names(ID_level1), periods = period)
 
   PSU <- check_var(vars = PSU, varn = "PSU", dataset = dataset,
                    ncols = 1, Yncol = 0, Ynrow = Ynrow,

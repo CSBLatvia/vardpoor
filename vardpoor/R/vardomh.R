@@ -39,9 +39,19 @@ vardomh <- function(Y, H, PSU, w_final,
   Ynrow <- nrow(Y)
   Yncol <- ncol(Y)
 
+
+  ID_level1 <- check_var(vars = ID_level1, varn = "ID_level1",
+                         dataset = dataset, ncols = 1,
+                         Ynrow = Ynrow, ischaracter = TRUE)
+
+  ID_level2 <- check_var(vars = ID_level2, varn = "ID_level2",
+                          dataset = dataset, ncols = 1, Ynrow = Ynrow,
+                          ischaracter = TRUE, namesID1 = names(ID_level1),
+                          periods = period)
+
   H <- check_var(vars = H, varn = "H", dataset = dataset,
                  ncols = 1, Ynrow = Ynrow, ischaracter = TRUE,
-                 dif_name = "dataH_stratas")
+                 namesID1 = names(ID_level1), dif_name = "dataH_stratas")
 
   w_final <- check_var(vars = w_final, varn = "w_final",
                        dataset = dataset, ncols = 1,
@@ -60,15 +70,6 @@ vardomh <- function(Y, H, PSU, w_final,
                       dataset = dataset, Ynrow = Ynrow,
                       ischaracter = TRUE, duplicatednames = TRUE,
                       mustbedefined = FALSE)
-
-  ID_level1 <- check_var(vars = ID_level1, varn = "ID_level1",
-                         dataset = dataset, ncols = 1,
-                         Ynrow = Ynrow, ischaracter = TRUE)
-
-  ID_level12 <- check_var(vars = ID_level2, varn = "ID_level2",
-                          dataset = dataset, ncols = 1, Ynrow = Ynrow,
-                          ischaracter = TRUE, namesID1 = names(ID_level1),
-                          periods = period)
 
   PSU <- check_var(vars = PSU, varn = "PSU", dataset = dataset,
                    ncols = 1, Ynrow = Ynrow, ischaracter = TRUE,

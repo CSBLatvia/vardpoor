@@ -179,21 +179,6 @@ aa<-varpoord(Y = "eqIncome", w_final = "rb050",
 aa
 
 \dontrun{
-# use dataset1 by default without using fh_zero (finite population correction)
-aa1 <-varpoord(Y = "eqIncome", w_final = "rb050",
-             Y_thres = NULL, wght_thres = NULL,
-             ID_level1 = "db030", ID_level2 = "IDd", 
-             H = "db040", PSU = "rb030", N_h = NULL,
-             fh_zero = FALSE, sort = NULL, Dom = "db040",
-             gender = NULL, X = NULL,
-             X_ID_level1 = NULL, g = NULL,
-             datasetX = NULL, dataset =  dataset1,
-             percentage = 60, order_quant = 50L,
-             alpha = 20, confidence = .95, outp_lin = FALSE,
-             outp_res = FALSE, type="linarpt")
-aa1
-aa1$all_result
-
 # use dataset1 by default with using fh_zero (finite population correction)
 aa2 <-varpoord(Y = "eqIncome", w_final = "rb050",
              Y_thres = NULL, wght_thres = NULL,
@@ -209,20 +194,6 @@ aa2
 aa2$all_result
 
 
-# using dataset1
-aa3 <-varpoord(Y = "eqIncome", w_final = "rb050",
-               Y_thres = NULL, wght_thres = NULL,
-               ID_level1 = "db030", ID_level2 = "IDd", 
-               H = "db040", PSU = "rb030", N_h = NULL,
-               sort = NULL, Dom = "db040",
-               gender = NULL, X = NULL,
-               X_ID_level1 = NULL, g = NULL,
-               datasetX = NULL, dataset =  dataset1,
-               percentage = 60, order_quant = 50L,
-               alpha = 20, confidence = .95, outp_lin = FALSE,
-               outp_res = FALSE, type = "all_choices")
-aa3
-aa3$all_result[type == "ARPT"]
 
 # using dataset
 aa4 <- varpoord(Y = "eqIncome", w_final = "rb050",
@@ -236,11 +207,8 @@ aa4 <- varpoord(Y = "eqIncome", w_final = "rb050",
              percentage = 60, order_quant = 50L,
              alpha = 20, confidence = .95,
              outp_lin = TRUE, outp_res = TRUE,
-             type = "all_choices")
-aa4$all_result[type == "ARPT"]
-
+             type = "linarpt")
 aa4$lin_out[20 : 40]
-aa4$res_out[20 : 40]
 }
 
 

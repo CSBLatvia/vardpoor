@@ -15,7 +15,7 @@ vardannual(Y, H, PSU, w_final, ID_level1,
            countryX = NULL, yearsX = NULL,
            subperiodsX = NULL, X_ID_level1 = NULL,
            ind_gr = NULL, g = NULL, q = NULL,
-           datasetX = NULL, percentratio = 1,
+           datasetX = NULL, frate = 0, percentratio = 1,
            use.estVar = FALSE, use.gender = FALSE,
            confidence = 0.95, method = "cros")
 }
@@ -70,13 +70,15 @@ vardannual(Y, H, PSU, w_final, ID_level1,
 
 \item{datasetX}{Optional survey data object in household level convertible to \code{data.table}.}
 
+\item{frate}{Positive numeric value. Sampling rate in percentage, by default - 0.}
+
 \item{percentratio}{Positive numeric value. All linearized variables are multiplied with \code{percentratio} value, by default - 1.}
 
 \item{use.estVar}{Logical value. If value is \code{TRUE}, then \code{R} function \code{estVar} is used for the  estimation of covariance matrix of the residuals. If value is \code{FALSE}, then \code{R} function \code{estVar} is not used for the estimation of covariance matrix of the residuals.}
 
 \item{use.gender}{Logical value. If value is \code{TRUE}, then subperiods is defined together with \code{gender}.}
  
-\item{confidence}{optional; either a positive value for confidence interval. This variable by default is 0.95 .}
+\item{confidence}{optional; either a positive value for confidence interval. This variable by default is 0.95.}
 
 \item{method}{character value; value 'cros' is for measures of annual or value 'netchanges' is for measures of annual net change. This variable by default is netchanges.}
 

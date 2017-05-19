@@ -7,7 +7,7 @@ vardannual <- function(Y, H, PSU, w_final, ID_level1,
                        countryX = NULL, yearsX = NULL,
                        subperiodsX = NULL, X_ID_level1 = NULL,
                        ind_gr = NULL, g = NULL, q = NULL,
-                       datasetX = NULL, percentratio = 1,
+                       datasetX = NULL, frate = 0, percentratio = 1,
                        use.estVar = FALSE, use.gender = FALSE,
                        confidence = 0.95, method = "cros") {
 
@@ -18,6 +18,7 @@ vardannual <- function(Y, H, PSU, w_final, ID_level1,
   use.estVar <- check_var(vars = use.estVar, varn = "use.estVar", varntype = "logical")
   use.gender <- check_var(vars = use.gender, varn = "use.gender", varntype = "logical")
   confidence <- check_var(vars = confidence, varn = "confidence", varntype = "numeric01")
+  frate <- check_var(vars = frate, varn = "frate", varntype = "numeric0100")
 
   if(!is.null(X)) {
          if (is.null(datasetX)) datasetX <- copy(dataset)
@@ -152,6 +153,8 @@ vardannual <- function(Y, H, PSU, w_final, ID_level1,
                                     
          }
    dataset <- datasetX <- NULL
+
+
 
    ids <- nams <- cros_se <- num1 <- totalY <- totalZ <- NULL
    estim_1 <- estim_2 <- avar <- N <- estim <- NULL
@@ -295,7 +298,7 @@ vardannual <- function(Y, H, PSU, w_final, ID_level1,
                   X <- cros_rho[["cros_se"]]
 
                   annual_var <- data.table(rho2[1, sar, with = FALSE],
-                                             1 / (subn)^2 * (t(X) %*% A_matrix) %*% X)
+                                             (1 - frate / 100) / (subn)^2 * (t(X) %*% A_matrix) %*% X)
                   setnames(annual_var, c("V1"), c("var"))
                   A_matrix <- data.table(rho2[1, sar, with = FALSE], cols = paste0("V", 1 : nrow(A_matrix)), A_matrix)
                   list(cros_rho, A_matrix, annual_var)})
@@ -387,8 +390,8 @@ vardannual <- function(Y, H, PSU, w_final, ID_level1,
 
    if (method != "cros") {
               significant <- NULL
-              annual_results[, significant := TRUE]
-              annual_results[CI_lower <= 0 & CI_upper >= 0, significant := FALSE]
+              annual_results[, significant := "YES"]
+              annual_results[CI_lower <= 0 & CI_upper >= 0, significant := "NO"]
    }
 
    list(crossectional_results = crossectional_results,

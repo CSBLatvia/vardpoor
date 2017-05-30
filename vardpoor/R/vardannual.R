@@ -79,11 +79,13 @@ vardannual <- function(Y, H, PSU, w_final, ID_level1,
 
   subperiods <- check_var(vars = subperiods, varn = "subperiods",
                           dataset = dataset, ncols = 1, Ynrow = Ynrow,
-                          ischaracter = TRUE, dif_name = c("percoun", "period_country", names(country), "yearg", "Nrs"))
+                          ischaracter = TRUE, years = years,
+                          dif_name = c("percoun", "period_country", names(country), "yearg", "Nrs"))
   subpm <- names(subperiods)
   subn <- data.table(years, subperiods)
-  subn <- nrow(subn[, .N, by = names(subn)]) / length(unique(subn[["yearg"]]))
-  
+  subn <- subn[, .N, by = c(names(subn))]
+  subn <- max(subn[, .N, by = names(years)][["N"]])
+ 
   ID_level1 <- check_var(vars = ID_level1, varn = "ID_level1",
                          dataset = dataset, ncols = 1, Ynrow = Ynrow,
                          ischaracter = TRUE)

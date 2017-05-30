@@ -152,6 +152,13 @@ check_var <- function(vars, varn, varntype = NULL, dataset,
                if (ncolvars != length(varname)) stop(paste0("'", varn, "' length must be equal with '",varnout,"' row count"), call. = FALSE)
       }
 
+      if (varn == "subperiods") {
+               subn <- data.table(years, vars)
+               subn <- subn[, .N, by = c(names(subn))]
+               subn <- subn[, .N, by = names(years)][["N"]]
+               if (all(max(subn) != subn)) stop(paste0("'subperiods' must be ", max(subn)), call. = FALSE)
+      }
+
       if (varn == "countryX") {
                varsX <- vars[, .N, keyby = names(vars)][, N := NULL]
                country <- country[, .N, keyby = names(country)][, N := NULL]

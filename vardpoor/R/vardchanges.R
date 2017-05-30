@@ -303,13 +303,10 @@ vardchanges_calculation <- function(Y, Z, Y1, Z1, Dom, names_country,
 
   data[, nh := .N, by = c("ind", "period_country_1", "period_country_2", H)]
 
-  dataH <- data[[H]]
-  dataH <- factor(dataH)
-  if (length(levels(dataH)) == 1) { data[, stratasf := 1]
-                                  dataH <- "stratasf"
-                         } else { dataH <- data.table(model.matrix( ~ dataH - 1))
-                                  data <- cbind(data, dataH)
-                                  dataH <- names(dataH) }
+  data[, (H) := as.factor(get(H))]
+  data[, paste0(H, "_", levels(get(H)))] -> dataH
+  data[, (dataH) := transpose(lapply(get(H), FUN = function(x){as.numeric(x == levels(get(H)))})) ]
+
   den1 <- den2 <- NULL
   sard <- sard[!(sard %in% "period_country")]
   recode.NA(data, c(paste0(sard, "_1"), paste0(sard, "_2")))
@@ -331,7 +328,7 @@ vardchanges_calculation <- function(Y, Z, Y1, Z1, Dom, names_country,
                                                                      paste0("rot_1 : ", toString(x), "+",
                                                                             "rot_2 : ", toString(x), "+",
                                                                             "rot_1 : rot_2 : ", toString(x))))),
-                                                                            collapse= "+")))
+                                                                            collapse = "+")))
                       res <- lm(funkc, data = DT3c)
                       if (use.estVar) { res <- data.table(estVar(res))
                                   } else res <- data.table(res$res)

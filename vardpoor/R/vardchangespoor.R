@@ -267,13 +267,9 @@ vardchangespoor <- function(Y, age = NULL,
    }
   recode.NA(data, c(paste0(sard, "_1"), paste0(sard, "_2")))
 
-  dataH <- data[[H]]
-  dataH <- factor(dataH)
-  if (length(levels(dataH)) == 1) { data[, stratasf := 1]
-                                  dataH <- "stratasf"
-                         } else { dataH <- data.table(model.matrix( ~ dataH - 1))
-                                  data <- cbind(data, dataH)
-                                  dataH <- names(dataH) }
+  data[, (H) := as.factor(get(H))]
+  data[, paste0(H, "_", levels(get(H)))] -> dataH
+  data[, (dataH) := transpose(lapply(get(H), FUN = function(x){as.numeric(x == levels(get(H)))})) ]
 
   fit <- lapply(1 : (length(sard) - 1), function(i) {
          fitd <- lapply(split(data, data[["ind"]]), function(data1) {

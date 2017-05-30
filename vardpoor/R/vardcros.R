@@ -420,14 +420,9 @@ vardcros <- function(Y, H, PSU, w_final,
  # STANDARD ERROR ESTIMATION 						      |
  #--------------------------------------------------------------------------*
 
-
-  DT1H <- DT1[[names_H]]
-  DT1H <- factor(DT1H)
-  if (length(levels(DT1H)) == 1) { DT1[, stratasf := 1]
-                                 DT1H <- "stratasf"
-                       }  else { DT1H <- data.table(model.matrix( ~ DT1H - 1, DT1H,  contrasts = "contr.SAS"))
-                                 DT1 <- cbind(DT1, DT1H)
-                                 DT1H <- names(DT1H) }
+  DT1[, (names_H) := as.factor(get(names_H))]
+  DT1[, paste0(names_H, "_", levels(get(names_H)))] -> DT1H
+  DT1[, (DT1H) := transpose(lapply(get(names_H), FUN = function(x){as.numeric(x == levels(get(names_H)))})) ]
 
   fits <-lapply(1 : length(namesY1), function(i) {
            fitss <- lapply(split(DT1, DT1$period_country), function(DT1c) {

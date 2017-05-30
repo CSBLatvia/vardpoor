@@ -227,6 +227,8 @@ vardannual(Y, H, PSU, w_final, ID_level1,
         \code{estim} - the estimated value, \cr
         \code{var} - the estimated variance, \cr
         \code{se} - the estimated standard error, \cr
+        \code{absolute_margin_of_error} - the estimated absolute margin of error for period1 for measures of annual, \cr
+        \code{relative_margin_of_error} - the estimated relative margin of error in percentage for measures of annual, \cr
         \code{CI_lower} - the estimated confidence interval lower bound, \cr
         \code{CI_upper} - the estimated confidence interval upper bound, \cr
         \code{significant} - is the the difference significant}

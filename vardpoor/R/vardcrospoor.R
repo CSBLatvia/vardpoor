@@ -401,13 +401,10 @@ vardcrospoor <- function(Y, age = NULL, pl085 = NULL,
    # STANDARD ERROR ESTIMATION 						      |
    #--------------------------------------------------------------------------*
 
-   DTY2H <- DTY2[[names_H]]
-   DTY2H <- factor(DTY2H)
-   if (length(levels(DTY2H)) == 1) { DTY2[, stratasf := 1]
-                                   DTY2H <- "stratasf"
-                          } else { DTY2H <- data.table(model.matrix( ~ DTY2H - 1))
-                                   DTY2 <- cbind(DTY2, DTY2H)
-                                   DTY2H <- names(DTY2H) }
+   DTY2[, (names_H) := as.factor(get(names_H))]
+   DTY2[, paste0(names_H, "_", levels(get(names_H)))] -> DTY2H
+   DTY2[, (DTY2H) := transpose(lapply(get(names_H), FUN = function(x){as.numeric(x == levels(get(names_H)))})) ]
+
    namesY2m <-  make.names(namesY2)
    setnames(DTY2, namesY2, namesY2m)
 

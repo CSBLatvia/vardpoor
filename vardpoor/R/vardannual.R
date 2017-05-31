@@ -388,6 +388,7 @@ vardannual <- function(Y, H, PSU, w_final, ID_level1,
 
    tsad <- qnorm(0.5 * (1 + confidence))
    if (method == "cros") {
+          absolute_margin_of_error <- relative_margin_of_error <- NULL
           annual_results[, absolute_margin_of_error := tsad * se]
           annual_results[, relative_margin_of_error := tsad * cv]
    }

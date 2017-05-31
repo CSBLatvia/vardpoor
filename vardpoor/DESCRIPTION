@@ -2,7 +2,7 @@ Package: vardpoor
 Type: Package
 Title: Variance Estimation for Sample Surveys by the Ultimate Cluster Method
 Version: 0.9.4
-Date: 2017-05-18
+Date: 2017-05-30
 Depends: R (>= 3.2.3), data.table (>= 1.10.4), laeken, stringr
 Imports: foreach, plyr, gdata, MASS, stats, utils, surveyplanning
 Authors@R: c(person("Juris", "Breidaks", email = "Juris.Breidaks@csb.gov.lv", role = c("aut", "cre")),

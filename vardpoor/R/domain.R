@@ -117,7 +117,7 @@ check_var <- function(vars, varn, varntype = NULL, dataset,
              if (!is.null(years)) dd <- data.table(years, dd)
              if (!is.null(periods)) dd <- data.table(periods, dd)
              if (!is.null(country)) dd <- data.table(country, dd)
-             dd <- any(duplicated(dd, by = names(dd)))
+             dd <- nrow(dd[, .N, by = names(dd)][N > 1]) > 0
              if (dd) stop(paste0("'", varn, "' by ", paste(varns, collapse = ", "), " are duplicate values"), call. = FALSE)
         }
 
@@ -176,6 +176,7 @@ check_var <- function(vars, varn, varntype = NULL, dataset,
                if (!is.null(periods)) peri <- switch(as.integer(!is.null(peri)) + 1, data.table(periods), data.table(periods, peri))
                if (!is.null(years)) peri <- switch(as.integer(!is.null(peri)) + 1, data.table(years), data.table(years, peri))
                if (!is.null(country)) peri <- switch(as.integer(!is.null(peri)) + 1, data.table(country), data.table(country, peri))
+
                peri <- peri[, .N, keyby = names(peri)][, N := NULL]
                periX <- periX[, .N, keyby = names(periX)]
                varnsX <- paste0(varns, "X")
@@ -184,7 +185,6 @@ check_var <- function(vars, varn, varntype = NULL, dataset,
                           varns <- c(varns, "ID_level1")
                           varnsX <- c(varnsX, "X_ID_level1")
                           if (nrow(periX[N > 1]) > 0) stop("'X_ID_level1' have duplicates", call. = FALSE) }
-  
                periX[, N := NULL]
   
                if (!identical(peri, periX)) {

@@ -556,7 +556,7 @@ varpoord <- function(Y, w_final,
                "value", "value_eu", "var", "se", "rse", "cv",
                "absolute_margin_of_error", "relative_margin_of_error",
                "CI_lower", "CI_upper")
-print(nDom)
+
   if (is.null(nDom))  variabl <- c(variabl, "S2_y_HT", "S2_y_ca", "S2_res")
   variabl <- c(variabl, "var_srs_HT",  "var_cur_HT", "var_srs_ca",
                "deff_sam", "deff_est", "deff")

@@ -39,10 +39,14 @@ vardomh <- function(Y, H, PSU, w_final,
   Ynrow <- nrow(Y)
   Yncol <- ncol(Y)
 
-
   ID_level1 <- check_var(vars = ID_level1, varn = "ID_level1",
                          dataset = dataset, ncols = 1,
                          Ynrow = Ynrow, ischaracter = TRUE)
+
+  period <- check_var(vars = period, varn = "period",
+                      dataset = dataset, Ynrow = Ynrow,
+                      ischaracter = TRUE, duplicatednames = TRUE,
+                      mustbedefined = FALSE)
 
   ID_level2 <- check_var(vars = ID_level2, varn = "ID_level2",
                           dataset = dataset, ncols = 1, Ynrow = Ynrow,
@@ -66,10 +70,6 @@ vardomh <- function(Y, H, PSU, w_final,
                    mustbedefined = FALSE, duplicatednames = TRUE,
                    grepls = "__")
 
-  period <- check_var(vars = period, varn = "period",
-                      dataset = dataset, Ynrow = Ynrow,
-                      ischaracter = TRUE, duplicatednames = TRUE,
-                      mustbedefined = FALSE)
 
   PSU <- check_var(vars = PSU, varn = "PSU", dataset = dataset,
                    ncols = 1, Ynrow = Ynrow, ischaracter = TRUE,
@@ -103,7 +103,7 @@ vardomh <- function(Y, H, PSU, w_final,
                            dataset = datasetX, ncols = 1, Xnrow = Xnrow,
                            ischaracter = TRUE, mustbedefined = !is.null(period),
                            duplicatednames = TRUE, varnout = "period",
-                           varname = names(period))
+                           varname = names(period), periods = period)
 
       X_ID_level1 <- check_var(vars = X_ID_level1, varn = "X_ID_level1",
                                dataset = datasetX, ncols = 1, Xnrow = Xnrow,
@@ -171,9 +171,9 @@ vardomh <- function(Y, H, PSU, w_final,
   if (!is.null(X)) {
              ID_level1h <- data.table(ID_level1)
              if (!is.null(period)) { ID_level1h <- data.table(period, ID_level1h)
-                                     X_ID_level1 <- data.table(period, X_ID_level1)
+                                     idhx <- data.table(periodX, X_ID_level1)
                                     }
-             idhx <- data.table(X_ID_level1, g = g)
+             idhx <- data.table(idhx, g = g)
              setnames(idhx, names(idhx)[c(1 : (ncol(idhx) - 1))], names(ID_level1h))
              idg <- merge(ID_level1h, idhx, by = names(ID_level1h), sort = FALSE)
              w_design <- w_final / idg[["g"]]
@@ -287,7 +287,6 @@ vardomh <- function(Y, H, PSU, w_final,
   res_outp <- NULL
   if (!is.null(X)) {
        if (np > 0) ID_level1h <- data.table(period, ID_level1h)
-       setnames(ID_level1h, names(ID_level1h), names(X_ID_level1))
        X0 <- data.table(X_ID_level1, ind_gr, q, g, X)
        if (!is.null(periodX)) X0 <- data.table(periodX, X0)
        D1 <- merge(ID_level1h, X0, by = names(ID_level1h), sort = FALSE)

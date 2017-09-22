@@ -378,7 +378,7 @@ vardom <- function(Y, H, PSU, w_final,
     }
 
   all_result <- merge(nosr, all_result, by = "variableD")
-  namesDom <- nosr <- NULL
+  namesDom <- nosr <- confidence_level <- NULL
 
   if (!is.null(all_result$Z_est)) {
        all_result[, variable := paste("R", get("variable"), get("variableZ"), sep = "__")] }

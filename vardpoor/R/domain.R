@@ -77,7 +77,7 @@ check_var <- function(vars, varn, varntype = NULL, dataset,
       if (!withperiod & varn == "period") stop(paste0("'period' must be NULL for those data"), call. = FALSE)
       if(!is.null(dataset)) {
         dataset <- data.table(dataset)
-        if (min(vars %in% names(dataset)) != 1) stop(paste0("'", varn, "' does not exist in "'dataset", dX, "'!"), call. = FALSE)
+        if (min(vars %in% names(dataset)) != 1) stop(paste0("'", varn, "' does not exist in 'dataset", dX, "'!"), call. = FALSE)
         if (min(vars %in% names(dataset)) == 1)  vars <- dataset[, vars, with = FALSE]}
 
       vars <- data.table(vars, check.names = check.names)

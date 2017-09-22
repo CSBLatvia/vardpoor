@@ -208,7 +208,7 @@ vardchanges_calculation <- function(Y, Z, Y1, Z1, Dom, names_country,
   se <-  CI_lower <- valueY1_1 <- valueZ1_1 <- valueY1_2 <- NULL
   valueZ1_2 <- nh <- period_country_1 <- period_country_2 <- NULL
   nhcor <- significant <- id_nams <- nams <- ids_nr <- NULL
-  N <- percoun <- NULL
+  N <- percoun <- confidence_level <- NULL
 
   per1 <- paste0(per, "_1")
   per2 <- paste0(per, "_2")

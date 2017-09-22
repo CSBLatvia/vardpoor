@@ -276,7 +276,7 @@ vardom_othstr <- function(Y, H, H2, PSU, w_final,
 
 
   # Total estimation
-  Y_nov <- Z_nov <- .SD <- NULL
+  Y_nov <- Z_nov <- .SD <- confidence_level <- NULL
 
   hY <- data.table(Y1 * w_final)
   if (is.null(period)) { Y_nov <- hY[, lapply(.SD, sum, na.rm = TRUE), .SDcols = names(Y1)]

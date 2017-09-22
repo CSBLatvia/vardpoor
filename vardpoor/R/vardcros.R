@@ -313,7 +313,7 @@ vardcros <- function(Y, H, PSU, w_final,
     stderr_nw <- nhcor <- num1 <- num <- den1 <- den <- num_den1 <- NULL
     grad1 <- grad2 <- estim <- sd_nw <- stderr_w <- sd_w <- se <- rse <- NULL
     cv <- CI_lower <- absolute_margin_of_error <- CI_upper <- totalZ <- NULL
-    relative_margin_of_error <- NULL
+    relative_margin_of_error <- confidence_level <- NULL
 
 
     # Calibration

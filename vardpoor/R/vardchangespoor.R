@@ -365,7 +365,7 @@ vardchangespoor <- function(Y, age = NULL,
                                "type", "estim_1", "estim_2",
                                "estim", "var", "se",
                                "CI_lower", "CI_upper"), with = FALSE]
-   data <- NULL
+   data <- confidence_level <- NULL
 
    changes_results[, confidence_level := confidence]
    changes_results[, significant := TRUE]

@@ -1,4 +1,4 @@
-
+ 
 vardannual <- function(Y, H, PSU, w_final, ID_level1,
                        ID_level2, Dom = NULL, Z = NULL,
                        gender = NULL, country = NULL,
@@ -162,7 +162,7 @@ vardannual <- function(Y, H, PSU, w_final, ID_level1,
    estim_1 <- estim_2 <- avar <- N <- estim <- NULL
    var_est2 <- se <- rse <- cv <- CI_lower <- CI_upper <- NULL
    Nr_sar <- cols <- Nrs <- percoun <- totalY_male <- NULL
-   totalZ_male <- totalY_female <- totalZ_female <- NULL  
+   totalZ_male <- totalY_female <- totalZ_female <- confidence_level <- NULL  
 
    pers <- data.table(years, subperiods,
                       pers = paste0(years[[1]], "__", subperiods[[1]]))

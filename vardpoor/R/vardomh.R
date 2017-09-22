@@ -83,33 +83,33 @@ vardomh <- function(Y, H, PSU, w_final,
       X <- check_var(vars = X, varn = "X", dataset = datasetX,
                      check.names = TRUE, isnumeric = TRUE,
                      dif_name = c(names(Y), names(period),
-                                  "g", "q", "weight"))
+                                  "g", "q", "weight"), dX = "X")
       Xnrow <- nrow(X)
 
       ind_gr <- check_var(vars = ind_gr, varn = "ind_gr",
                           dataset = datasetX, ncols = 1, Xnrow = Xnrow,
-                          ischaracter = TRUE,
+                          ischaracter = TRUE, dX = "X",
                           dif_name = c(names(Y), names(period), "g", "q", "weight"))
 
       g <- check_var(vars = g, varn = "g", dataset = datasetX,
                      ncols = 1, Xnrow = Xnrow, isnumeric = TRUE,
-                     isvector = TRUE)
+                     isvector = TRUE, dX = "X")
   
       q <- check_var(vars = q, varn = "q", dataset = datasetX,
                      ncols = 1, Xnrow = Xnrow, isnumeric = TRUE,
-                     isvector = TRUE)
+                     isvector = TRUE, dX = "X")
 
       periodX <- check_var(vars = periodX, varn = "periodX",
                            dataset = datasetX, ncols = 1, Xnrow = Xnrow,
                            ischaracter = TRUE, mustbedefined = !is.null(period),
                            duplicatednames = TRUE, varnout = "period",
-                           varname = names(period), periods = period)
+                           varname = names(period), periods = period, dX = "X")
 
       X_ID_level1 <- check_var(vars = X_ID_level1, varn = "X_ID_level1",
                                dataset = datasetX, ncols = 1, Xnrow = Xnrow,
                                ischaracter = TRUE, varnout = "ID_level1",
                                varname = names(ID_level1), periods = period,
-                               periodsX = periodX, ID_level1 = ID_level1)
+                               periodsX = periodX, ID_level1 = ID_level1, dX = "X")
    }
   N <- dataset <- datasetX <- NULL
 
@@ -171,9 +171,8 @@ vardomh <- function(Y, H, PSU, w_final,
   if (!is.null(X)) {
              ID_level1h <- data.table(ID_level1)
              if (!is.null(period)) { ID_level1h <- data.table(period, ID_level1h)
-                                     idhx <- data.table(periodX, X_ID_level1)
-                                    }
-             idhx <- data.table(idhx, g = g)
+                                     X_ID_level1 <- data.table(periodX, X_ID_level1) }
+             idhx <- data.table(X_ID_level1, g = g)
              setnames(idhx, names(idhx)[c(1 : (ncol(idhx) - 1))], names(ID_level1h))
              idg <- merge(ID_level1h, idhx, by = names(ID_level1h), sort = FALSE)
              w_design <- w_final / idg[["g"]]
@@ -448,11 +447,12 @@ vardomh <- function(Y, H, PSU, w_final,
                          } else { all_result[, respondent_count := nhs$respondent_count]
                                   all_result[, pop_size := nhs$pop_size]}
 
+  all_result[, confidence_level := confidence]
   variab <- c("respondent_count", "n_nonzero", "pop_size")
   if (!is.null(all_result$Z_est)) variab <- c(variab, "Y_est", "Z_est")
   variab <- c(variab, "estim", "var", "se", "rse", "cv",
               "absolute_margin_of_error", "relative_margin_of_error",
-              "CI_lower", "CI_upper")
+              "CI_lower", "CI_upper", "confidence_level")
   if (is.null(Dom))  variab <- c(variab, "S2_y_HT", "S2_y_ca", "S2_res")
   variab <- c(variab, "var_srs_HT",  "var_cur_HT", "var_srs_ca",
               "deff_sam", "deff_est", "deff")

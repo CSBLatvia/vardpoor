@@ -104,7 +104,7 @@ vardcros <- function(Y, H, PSU, w_final,
     if(!is.null(X)) {
         X <- check_var(vars = X, varn = "X", dataset = datasetX,
                        check.names = TRUE, isnumeric = TRUE,
-                       grepls = "__",
+                       grepls = "__", dX = "X",
                        dif_name = c(names(period), names(country), names(H),
                                     names(PSU), names(ID_level1), names(Y),
                                     "w_final", "w_design", "g", "q"))
@@ -113,37 +113,37 @@ vardcros <- function(Y, H, PSU, w_final,
 
         ind_gr <- check_var(vars = ind_gr, varn = "ind_gr",
                             dataset = datasetX, ncols = 1,
-                            Xnrow = Xnrow, ischaracter = TRUE,
+                            Xnrow = Xnrow, ischaracter = TRUE, dX = "X",
                             dif_name = c(names(period), names(country), names(H),
                                          names(PSU), names(ID_level1), names(Y),
                                          names(X), "w_final", "w_design", "g", "q"))
 
         g <- check_var(vars = g, varn = "g", dataset = datasetX,
                        ncols = 1, Xnrow = Xnrow, isnumeric = TRUE,
-                       isvector = TRUE)
+                       isvector = TRUE, dX = "X")
 
         q <- check_var(vars = q, varn = "q", dataset = datasetX,
                      ncols = 1, Xnrow = Xnrow, isnumeric = TRUE,
-                     isvector = TRUE)
+                     isvector = TRUE, dX = "X")
 
         countryX <- check_var(vars = countryX, varn = "countryX",
                               dataset = datasetX, ncols = 1, Xnrow = Xnrow,
                               ischaracter = TRUE, mustbedefined = !is.null(country),
                               varnout = "country", varname = names(country),
-                              country = country)
+                              country = country, dX = "X")
                               
         periodX <- check_var(vars = periodX, varn = "periodX",
                              dataset = datasetX, ncols = 1, Xnrow = Xnrow,
                              ischaracter = TRUE, mustbedefined = !is.null(period),
                              duplicatednames = TRUE, varnout = "period",
                              varname = names(period), country = country,
-                             countryX = countryX, periods = period)
+                             countryX = countryX, periods = period, dX = "X")
 
         X_ID_level1 <- check_var(vars = X_ID_level1, varn = "X_ID_level1",
                                  dataset = datasetX, ncols = 1, Xnrow = Xnrow,
                                  ischaracter = TRUE, varnout = "ID_level1",
                                  varname = names(ID_level1), country = country,
-                                 countryX = countryX, periods = period,
+                                 countryX = countryX, periods = period, dX = "X",
                                  periodsX = periodX, ID_level1 = ID_level1)
       }
    }
@@ -639,6 +639,8 @@ vardcros <- function(Y, H, PSU, w_final,
       if (!is.null(DTnet)) DTnet[, percoun := NULL]
       res1[, percoun := NULL]
       res[, percoun := NULL]  }
+
+  res[, confidence_level := confidence]
   list(data_net_changes = DTnet, res_out = res_outp, var_grad = res1, results = res)
 
 }

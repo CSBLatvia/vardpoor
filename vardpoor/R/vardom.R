@@ -83,21 +83,21 @@ vardom <- function(Y, H, PSU, w_final,
   if (!is.null(X)) {
          X <- check_var(vars = X, varn = "X", dataset = dataset,
                         check.names = TRUE, Ynrow = Ynrow, isnumeric = TRUE,
-                        dif_name = c(names(period), "g", "q"))
+                        dif_name = c(names(period), "g", "q"), dX = "X")
          Xnrow <- nrow(X)
 
          ind_gr <- check_var(vars = ind_gr, varn = "ind_gr",
                              dataset = dataset, ncols = 1, Xnrow = Xnrow,
-                             ischaracter = TRUE,
+                             ischaracter = TRUE, dX = "X",
                              dif_name = c(names(period), names(X), "g", "q"))
 
          g <- check_var(vars = g, varn = "g", dataset = dataset,
                         ncols = 1, Xnrow = Xnrow, isnumeric = TRUE,
-                        isvector = TRUE)
+                        isvector = TRUE, dX = "X")
 
          q <- check_var(vars = q, varn = "q", dataset = dataset,
                         ncols = 1, Xnrow = Xnrow, isnumeric = TRUE,
-                        isvector = TRUE)
+                        isvector = TRUE, dX = "X")
     }
   dataset <- NULL
 
@@ -390,11 +390,13 @@ vardom <- function(Y, H, PSU, w_final,
 
   all_result[, n_eff := ifelse(is.na(deff) | deff < .Machine$double.eps, NA, respondent_count / deff)]
 
+
+  all_result[, confidence_level := confidence]
   variab <- c("respondent_count", "n_nonzero", "pop_size")
   if (!is.null(all_result$Z_est)) variab <- c(variab, "Y_est", "Z_est")
   variab <- c(variab, "estim", "var", "se", "rse", "cv",
               "absolute_margin_of_error", "relative_margin_of_error",
-              "CI_lower", "CI_upper")
+              "CI_lower", "CI_upper", "confidence_level")
   if (is.null(Dom))  variab <- c(variab, "S2_y_HT", "S2_y_ca", "S2_res")
   variab <- c(variab, "var_srs_HT",  "var_cur_HT", "var_srs_ca",
               "deff_sam", "deff_est", "deff", "n_eff")

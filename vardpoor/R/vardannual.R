@@ -105,7 +105,7 @@ vardannual <- function(Y, H, PSU, w_final, ID_level1,
                         dif_name = c(names(years), names(subperiods),
                                      names(country), names(H), names(PSU),
                                      names(ID_level1), "w_final", names(Y),
-                                     "w_design", "g", "q"))
+                                     "w_design", "g", "q"), dX = "X")
          Xnrow <- nrow(X)
 
          ind_gr <- check_var(vars = ind_gr, varn = "ind_gr",
@@ -114,35 +114,35 @@ vardannual <- function(Y, H, PSU, w_final, ID_level1,
                              dif_name = c(names(years), names(subperiods),
                                           names(country), names(H), names(PSU),
                                           names(ID_level1), "w_final", names(Y),
-                                          names(X), "w_design", "g", "q"))
+                                          names(X), "w_design", "g", "q"), dX = "X")
  
           g <- check_var(vars = g, varn = "g", dataset = datasetX,
                          ncols = 1, Xnrow = Xnrow, isnumeric = TRUE,
-                         isvector = TRUE)
+                         isvector = TRUE, dX = "X")
 
           q <- check_var(vars = q, varn = "q", dataset = datasetX,
                          ncols = 1, Xnrow = Xnrow, isnumeric = TRUE,
-                         isvector = TRUE)
+                         isvector = TRUE, dX = "X")
 
           countryX <- check_var(vars = countryX, varn = "countryX",
                                  dataset = datasetX, ncols = 1, Xnrow = Xnrow,
                                 ischaracter = TRUE, mustbedefined = !is.null(country),
                                 varnout = "country", varname = names(country),
-                                country = country)
+                                country = country, dX = "X")
  
           yearsX <- check_var(vars = yearsX, varn = "yearsX", dataset = datasetX,
                               ncols = 1, Xnrow = Xnrow, ischaracter = TRUE,
                               mustbedefined = !is.null(years), varnout = "years",
                               varname = names(years)[1], country = country,
                               countryX = countryX, years = years[, 1, with = FALSE],
-                              use.gender = use.gender)
+                              use.gender = use.gender, dX = "X")
 
           subperiodsX <- check_var(vars = subperiodsX, varn = "subperiodsX",
                                    dataset = datasetX, ncols = 1, Xnrow = Xnrow,
                                    ischaracter = TRUE, mustbedefined = !is.null(subperiods),
                                    varnout = "subperiods", varname = names(subperiods),
                                    country = country, countryX = countryX,
-                                   years = years[, 1, with = FALSE],
+                                   years = years[, 1, with = FALSE], dX = "X",
                                    yearsX = yearsX, periods = subperiods)
  
           X_ID_level1 <- check_var(vars = X_ID_level1, varn = "X_ID_level1",
@@ -150,7 +150,7 @@ vardannual <- function(Y, H, PSU, w_final, ID_level1,
                                     ischaracter = TRUE, varnout = "ID_level1",
                                     varname = names(ID_level1), country = country,
                                     countryX = countryX, years = years[, 1, with = FALSE],
-                                    yearsX = yearsX, periods = subperiods,
+                                    yearsX = yearsX, periods = subperiods, dX = "X",
                                     periodsX = subperiodsX, ID_level1 = ID_level1)
                                     
          }
@@ -230,6 +230,7 @@ vardannual <- function(Y, H, PSU, w_final, ID_level1,
  
    if (!is.null(Dom)) {
              Y1 <- namesD(Y, Dom)
+             Z1 <- NULL
              if (!is.null(Z)) Z1 <- namesD(Z, Dom)
         } else { Y1 <- names(Y)
                  Z1 <- names(Z) }
@@ -393,6 +394,7 @@ vardannual <- function(Y, H, PSU, w_final, ID_level1,
  
    annual_results[, CI_lower := estim - tsad * se]
    annual_results[, CI_upper := estim + tsad * se]
+   annual_results[, confidence_level := confidence]
 
    if (method != "cros") {
               significant <- NULL

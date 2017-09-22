@@ -129,32 +129,32 @@ varpoord <- function(Y, w_final,
   if(!is.null(X)) {
        X <- check_var(vars = X, varn = "X", dataset = datasetX,
                       check.names = TRUE, isnumeric = TRUE,
-                      dif_name = c(names(period) , "g", "q"))
+                      dif_name = c(names(period) , "g", "q"), dX = "X")
        Xnrow <- nrow(X)
 
        ind_gr <- check_var(vars = ind_gr, varn = "ind_gr",
-                           dataset = datasetX, ncols = 1, Xnrow = Xnrow,
+                           dataset = datasetX, ncols = 1, Xnrow = Xnrow, dX = "X",
                            ischaracter = TRUE, dif_name = c(names(period) , "g", "q"))
 
        g <- check_var(vars = g, varn = "g", dataset = datasetX,
                       ncols = 1, Xnrow = Xnrow, isnumeric = TRUE,
-                      isvector = TRUE)
+                      isvector = TRUE, dX = "X")
 
        q <- check_var(vars = q, varn = "q", dataset = datasetX,
                       ncols = 1, Xnrow = Xnrow, isnumeric = TRUE,
-                      isvector = TRUE)
+                      isvector = TRUE, dX = "X")
 
        periodX <- check_var(vars = periodX, varn = "periodX",
                             dataset = datasetX, ncols = 1, Xnrow = Xnrow,
                             ischaracter = TRUE, mustbedefined = !is.null(period),
                             duplicatednames = TRUE, varnout = "period",
-                            varname = names(period))
+                            varname = names(period), dX = "X")
 
        X_ID_level1 <- check_var(vars = X_ID_level1, varn = "X_ID_level1",
                                 dataset = datasetX, ncols = 1, Xnrow = Xnrow,
                                 ischaracter = TRUE, varnout = "ID_level1",
                                 varname = names(ID_level1), periods = period,
-                                periodsX = periodX, ID_level1 = ID_level1)
+                                periodsX = periodX, ID_level1 = ID_level1, dX = "X")
    }
 
  # N_h

@@ -94,29 +94,29 @@ vardchanges <- function(Y, H, PSU, w_final,
                                check.names = TRUE, isnumeric = TRUE,
                                dif_name = c(names(period), names(country), names(H),
                                             names(PSU), names(ID_level1), "w_final",
-                                            names(Y), "w_design", "g", "q"))
+                                            names(Y), "w_design", "g", "q"), dX = "X")
                 Xnrow <- nrow(X)
 
                 ind_gr <- check_var(vars = ind_gr, varn = "ind_gr",
                                     dataset = datasetX, ncols = 1,
-                                    Xnrow = Xnrow, ischaracter = TRUE, 
+                                    Xnrow = Xnrow, ischaracter = TRUE, dX = "X", 
                                     dif_name = c(names(period), names(country), names(H),
                                                  names(PSU), names(ID_level1), "w_final",
                                                  names(Y), names(X), "w_design", "g", "q"))
 
                 g <- check_var(vars = g, varn = "g", dataset = datasetX,
                                ncols = 1, Xnrow = Xnrow, isnumeric = TRUE,
-                               isvector = TRUE)
+                               isvector = TRUE, dX = "X")
 
                 q <- check_var(vars = q, varn = "q", dataset = datasetX,
                                ncols = 1, Xnrow = Xnrow, isnumeric = TRUE,
-                               isvector = TRUE)
+                               isvector = TRUE, dX = "X")
 
                 countryX <- check_var(vars = countryX, varn = "countryX",
                                       dataset = datasetX, ncols = 1, Xnrow = Xnrow,
                                       ischaracter = TRUE, mustbedefined = !is.null(country),
                                       varnout = "country", varname = names(country),
-                                      country = country)
+                                      country = country, dX = "X")
 
                 periodX <- check_var(vars = periodX, varn = "periodX",
                                      dataset = datasetX, ncols = 1,
@@ -124,14 +124,14 @@ vardchanges <- function(Y, H, PSU, w_final,
                                      mustbedefined = !is.null(period),
                                      duplicatednames = TRUE, varnout = "period",
                                      varname = names(period), country = country,
-                                     countryX = countryX, periods = period)
+                                     countryX = countryX, periods = period, dX = "X")
 
                 X_ID_level1 <- check_var(vars = X_ID_level1, varn = "X_ID_level1",
                                          dataset = datasetX, ncols = 1, Xnrow = Xnrow,
                                          ischaracter = TRUE, varnout = "ID_level1",
                                          varname = names(ID_level1), country = country,
                                          countryX = countryX, periods = period,
-                                         periodsX = periodX, ID_level1 = ID_level1)
+                                         periodsX = periodX, ID_level1 = ID_level1, dX = "X")
              }
     }
   percoun <- dataset <- datasetX <- NULL
@@ -498,7 +498,7 @@ vardchanges_calculation <- function(Y, Z, Y1, Z1, Dom, names_country,
    changes_results <- datas[, c(paste0(per,"_", c(1, 2)), country, Dom,
                                 namesYZ, "estim_1",  "estim_2", "estim",
                                 "var", "se", "CI_lower", "CI_upper"), with = FALSE]
-
+   changes_results[, confidence_level := confidence]
    changes_results[, significant := TRUE]
    boundss <- as.numeric(change_type == "relative")
    changes_results[CI_lower <= boundss & CI_upper >= boundss, significant := FALSE]

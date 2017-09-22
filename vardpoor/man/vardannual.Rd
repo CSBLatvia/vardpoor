@@ -111,7 +111,8 @@ vardannual(Y, H, PSU, w_final, ID_level1,
        \code{absolute_margin_of_error} - the estimated absolute margin of error, \cr
        \code{relative_margin_of_error} - the estimated relative margin of error, \cr
        \code{CI_lower} - the estimated confidence interval lower bound, \cr
-       \code{CI_upper} - the estimated confidence interval upper bound.}
+       \code{CI_upper} - the estimated confidence interval upper bound, \cr 
+       \code{confidence_level} - the positive value for confidence interval. }
  
  \item{crossectional_var_grad}{ A \code{data.table} containing
         \code{year} -  survey years, \cr
@@ -180,6 +181,7 @@ vardannual(Y, H, PSU, w_final, ID_level1,
         \code{se} - the estimated standard error, \cr
         \code{CI_lower} - the estimated confidence interval lower bound, \cr
         \code{CI_upper} - the estimated confidence interval upper bound, \cr
+        \code{confidence_level} - the positive value for confidence interval, \cr 
         \code{significant} - is the the difference significant}
 
  \item{X_annual}{ A \code{data.table} containing
@@ -233,6 +235,7 @@ vardannual(Y, H, PSU, w_final, ID_level1,
         \code{relative_margin_of_error} - the estimated relative margin of error in percentage for measures of annual, \cr
         \code{CI_lower} - the estimated confidence interval lower bound, \cr
         \code{CI_upper} - the estimated confidence interval upper bound, \cr
+        \code{confidence_level} - the positive value for confidence interval, \cr 
         \code{significant} - is the the difference significant}
 
 }

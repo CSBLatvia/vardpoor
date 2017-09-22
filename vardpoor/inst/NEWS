@@ -1,3 +1,7 @@
+Changes in vardpoor version 0.9.10
+    + add confidence level in vardom, vardomh, varpoord, vardcros
+    +  Bug correction
+
 Changes in vardpoor version 0.9.4
     + Add variable Subperiods checking in function vardannual
     + Corrected some bugs in manual

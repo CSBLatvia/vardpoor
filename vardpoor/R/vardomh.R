@@ -79,7 +79,8 @@ vardomh <- function(Y, H, PSU, w_final,
                         ncols = 1, Ynrow = Ynrow, ischaracter = TRUE,
                         isvector = TRUE, mustbedefined = FALSE, PSUs = PSU)
 
-  if(!is.null(X)) {
+  if(!is.null(X) | !is.null(ind_gr) |!is.null(g) | !is.null(q) |  
+     !is.null(periodX) | !is.null(X_ID_level1) | !is.null(datasetX)) {
       X <- check_var(vars = X, varn = "X", dataset = datasetX,
                      check.names = TRUE, isnumeric = TRUE,
                      dif_name = c(names(Y), names(period),
@@ -148,6 +149,16 @@ vardomh <- function(Y, H, PSU, w_final,
                                   checking = FALSE) else Y1 <- Y
   Y <- NULL
   n_nonzero <- copy(Y1)
+  Z1 <- NULL
+  if (!is.null(Z)) {
+     if (!is.null(Dom)) Z1 <- domain(Y = Z, D = Dom,
+                                     dataset = NULL,
+                                     checking = FALSE) else Z1 <- Z
+     Z0 <- copy(Z1)
+     setnames(Z0, names(Z0), names(Y1))
+     n_nonzero <- n_nonzero + Y1
+     Z0 <- NULL  
+    }
   if (!is.null(period)){ n_nonzero <- data.table(period, n_nonzero)
                          n_nonzero <- n_nonzero[, lapply(.SD, function(x)
                                                          sum(as.integer(abs(x) > .Machine$double.eps))),
@@ -182,8 +193,8 @@ vardomh <- function(Y, H, PSU, w_final,
              idg <- idhx <- ID_level1h <- NULL
       } else w_design <- w_final
 
-  # Ratio of two totals
-  sar_nr <- Z1 <- persort <- linratio_outp <- estim <- NULL
+ # Ratio of two totals
+  sar_nr <- persort <- linratio_outp <- estim <- NULL
   var_est2 <- se <- rse <- cv <- absolute_margin_of_error <- NULL
   relative_margin_of_error <- CI_lower <- S2_y_HT <- NULL
   S2_y_ca <- S2_res <- CI_upper <- variable <- variableZ <- NULL
@@ -195,9 +206,6 @@ vardomh <- function(Y, H, PSU, w_final,
   if (!is.null(period)) idper <- data.table(idper, period)
 
   if (!is.null(Z)) {
-     if (!is.null(Dom)) Z1 <- domain(Y = Z, D = Dom,
-                                     dataset = NULL,
-                                     checking = FALSE) else Z1 <- Z
      if (is.null(period)) {
           Y2 <- lin.ratio(Y = Y1, Z = Z1, weight = w_final, Dom = NULL,
                           dataset = NULL, percentratio = percentratio,
@@ -283,25 +291,29 @@ vardomh <- function(Y, H, PSU, w_final,
   YY <- YY2 <- NULL
 
   # Calibration
-  res_outp <- NULL
+  betas <- res_outp <- NULL
   if (!is.null(X)) {
        if (np > 0) ID_level1h <- data.table(period, ID_level1h)
        X0 <- data.table(X_ID_level1, ind_gr, q, g, X)
-       if (!is.null(periodX)) X0 <- data.table(periodX, X0)
        D1 <- merge(ID_level1h, X0, by = names(ID_level1h), sort = FALSE)
 
        ind_gr <- D1[, np + 2, with = FALSE]
        if (!is.null(period)) ind_gr <- data.table(D1[, names(periodX), with = FALSE], ind_gr)
        ind_period <- do.call("paste", c(as.list(ind_gr), sep = "_"))
 
-       lin1 <- lapply(split(Y3[, .I], ind_period), function(i)
-                 data.table(sar_nr = i,
-                            residual_est(Y = Y3[i],
-                                         X = D1[i, (np + 5) : ncol(D1), with = FALSE],
-                                         weight = w_design2[i],
-                                         q = D1[i][["q"]],
-                                         checking = FALSE)))
-       Y4 <- rbindlist(lin1)
+       lin1 <- lapply(split(Y3[, .I], ind_period), function(i) {
+                      resid <- residual_est(Y = Y3[i],
+                                            X = D1[i, (np + 5) : ncol(D1), with = FALSE],
+                                            weight = w_design2[i],
+                                            q = D1[i][["q"]],
+                                            checking = FALSE)
+                      pers0 <- ind_gr[i, .N, keyby = c(names(ind_gr))]
+                      list(data.table(sar_nr = i, resid$residuals),
+                           data.table(pers0[, N := NULL], resid$betas)) 
+                   })
+
+       Y4 <- rbindlist(lapply(lin1, function(x) x[[1]]))
+       betas <- rbindlist(lapply(lin1, function(x) x[[2]]))
        setkeyv(Y4, "sar_nr")
        Y4[, sar_nr := NULL]
        if (outp_res) res_outp <- data.table(ID_level1h, PSU, w_final2, Y4)

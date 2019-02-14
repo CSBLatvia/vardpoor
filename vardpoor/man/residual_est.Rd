@@ -23,8 +23,12 @@
 \item{checking}{Optional variable if this variable is TRUE, then function checks data preparation errors, otherwise not checked. This variable by default is TRUE.}
 }
 
-\value{
-  A numeric \code{data.frame} containing the estimated residuals of calibration.
+\value{ 
+
+  A list with objects are returned by the function:
+    \item{residuals}{ A numeric \code{data.table} containing the estimated residuals of calibration.}
+    \item{betas}{ A numeric \code{data.table} containing the estimated coeffients of calibration.}
+
 }
 
 \details{

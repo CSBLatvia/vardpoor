@@ -12,7 +12,7 @@
   linrmpg(Y, id = NULL, weight = NULL,
           sort = NULL, Dom = NULL, period = NULL,
           dataset = NULL, percentage = 60,
-          order_quant = 50L, var_name = "lin_rmpg",
+          order_quant = 50, var_name = "lin_rmpg",
           checking = TRUE)
 
 }
@@ -36,7 +36,7 @@
   \deqn{\frac{p}{100} \cdot Z_{\frac{\alpha}{100}}.}{p/100 * Z(\alpha/100).}
   For example, to compute poverty threshold equal to 60\% of some income quantile, \eqn{p} should be set equal to 60.}
   
-  \item{order_quant}{A integer value in range \eqn{[0,100]} for \eqn{\alpha} in the formula for poverty threshold computation:
+  \item{order_quant}{A numeric value in range \eqn{[0,100]} for \eqn{\alpha} in the formula for poverty threshold computation:
   \deqn{\frac{p}{100} \cdot Z_{\frac{\alpha}{100}}.}{p/100 * Z(\alpha/100).}
   For example, to compute poverty threshold equal to some percentage of median income, \eqn{\alpha} should be set equal to 50.}
 

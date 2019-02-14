@@ -22,7 +22,7 @@ Generation of domain variables,
   computation of regression residuals in case of weight calibration, 
   variance estimation of sample surveys by the ultimate cluster method
     (Hansen, Hurwitz and Madow, Theory, vol. I: Methods and Applications; vol. II: Theory.  1953,  New York: John Wiley and Sons.),
-  variance estimation for longitudinal, cross - sectional measures and measures of change for single and multistage stage cluster sampling designs (Berger, Y. G. ,2015, <doi:10.1111/rssa.12116>).
+  variance estimation for longitudinal, cross - sectional measures and measures of change for single and multistage stage cluster sampling designs (Berger, Y. G. ,2015, <doi.org/10.1111/rssa.12116>).
   Several other precision measures are derived - standard error,
     the coefficient of variation,
     the margin of error,
@@ -32,10 +32,10 @@ Generation of domain variables,
 \details{
 \tabular{ll}{
 Package: \tab vardpoor\cr
-Version: \tab 0.9.10\cr
-Date: \tab 2017-09-25\cr
+Version: \tab 0.14.0\cr
+Date: \tab 2019-02-14\cr
 Depends: \tab R (>= 3.2.3), data.table (>= 1.10.4), laeken, stringr\cr
-Imports: \tab reshape, foreach, plyr, gdata, MASS, stats, utils, surveyplanning\cr
+Imports: \tab reshape, foreach, plyr, MASS, stats, utils, surveyplanning, ggplot2, pracma, graphics\cr
 License: \tab GPL (>= 2)\cr
 URL: \tab https://github.com/CSBLatvia/vardpoor/ \cr
 BugReports: \tab https://github.com/CSBLatvia/vardpoor/issues/ \cr
@@ -65,6 +65,7 @@ vardchanges             Variance estimation for measures of change for
                         single and multistage stage cluster sampling designs
 vardchangespoor         Variance estimation for measures of change for sample
                         surveys for indicators on social exclusion and poverty
+vardchangstrs           Variance estimation for measures of change for stratified simple random sampling
 vardcros                Variance estimation for cross-sectional and
                         longitudinal measures for single and multistage
                         stage cluster sampling designs

@@ -13,7 +13,7 @@ Estimates the aggregate replacement ratio (defined as the gross median individua
 linarr(Y, Y_den, id = NULL, age, pl085,
        month_at_work, weight = NULL,
        sort = NULL, Dom = NULL, period = NULL,
-       dataset = NULL, order_quant = 50L,
+       dataset = NULL, order_quant = 50,
        var_name = "lin_arr", checking = TRUE)
 }
 

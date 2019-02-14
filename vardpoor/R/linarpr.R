@@ -13,8 +13,9 @@
 linarpr <- function(Y, id = NULL, weight = NULL, Y_thres = NULL,
                     wght_thres = NULL, sort = NULL, Dom = NULL,
                     period = NULL, dataset = NULL, percentage = 60,
-                    order_quant = 50L, var_name = "lin_arpr",
-                    checking = TRUE) {
+                    order_quant = 50, var_name = "lin_arpr",
+                    kern_method = "gaussian", r = NULL, ro = NULL,
+                    h_breaks = NULL, checking = TRUE) {
 
    ## initializations
    if (min(dim(data.table(var_name)) == 1) != 1) {
@@ -25,7 +26,18 @@ linarpr <- function(Y, id = NULL, weight = NULL, Y_thres = NULL,
                                 varntype = "numeric0100")
 
         order_quant <- check_var(vars = order_quant, varn = "order_quant",
-                                 varntype = "integer0100") 
+                                 varntype = "numeric0100")
+
+        kern_method <- check_var(vars = kern_method, varn = "kern_method", varntype = "kern_method")
+
+        r <- check_var(vars = r, varn = "r", varntype = "pinteger",
+                       kern_method = kern_method)
+
+        ro <- check_var(vars = ro, varn = "ro", varntype = "numeric01",
+                        kern_method = kern_method)
+
+        h_breaks <- check_var(vars = h_breaks, varn = "h_breaks",
+                              varntype = "pinteger", kern_method = kern_method)
 
         Y <- check_var(vars = Y, varn = "Y", dataset = dataset,
                        ncols = 1, isnumeric = TRUE,
@@ -128,7 +140,9 @@ linarpr <- function(Y, id = NULL, weight = NULL, Y_thres = NULL,
                                                      wght_thresh = wght_thres[indj],
                                                      percent = percentage,
                                                      order_quants = order_quant,
-                                                     quant_val = rown[["quantile"]])
+                                                     quant_val = rown[["quantile"]],
+                                                     kern_method = kern_method, r = r,
+                                                     ro = ro, h_breaks = h_breaks)
                       list(arpr = data.table(rown2, arpr = arpr_l$rate_val_pr), lin = arpr_l$lin)
                       })
                  arprs <- rbindlist(lapply(arprl, function(x) x[[1]]))
@@ -154,7 +168,9 @@ linarpr <- function(Y, id = NULL, weight = NULL, Y_thres = NULL,
                                                  wght_thresh = wght_thres[ind2],
                                                  percent = percentage,
                                                  order_quants = order_quant,
-                                                 quant_val = rown[["quantile"]])
+                                                 quant_val = rown[["quantile"]],
+                                                 kern_method = kern_method, r = r,
+                                                 ro = ro, h_breaks = h_breaks)
                           if (!is.null(period)) {
                                    arprs <- data.table(period_agg[j], arpr = arpr_l$rate_val_pr)
                              } else arprs <- data.table(arpr = arpr_l$rate_val_pr)
@@ -171,38 +187,42 @@ linarpr <- function(Y, id = NULL, weight = NULL, Y_thres = NULL,
 
 
 
-
 ## workhorse
-arprlinCalc <- function(Y1, ids, wght1, indicator, Y_thresh, wght_thresh, percent, order_quants = NULL, quant_val) {
+arprlinCalc <- function(Y1, ids, wght1, indicator, Y_thresh,
+                        wght_thresh, percent, order_quants = NULL,
+                        quant_val, kern_method, r, ro, h_breaks) {
 
-    inc2 <- Y_thresh
-    wght2 <- wght_thresh
+    N <- dat <- eqIncome1 <- NULL
 
-    wt <- indicator * wght1
+    #---- 1. Linearization of the poverty threshold ----
+    arpt_calcs <- arptlinCalc(inco = Y_thresh, ids = ids,
+                              wght =  wght_thresh,
+                              indicator = rep(1, length(ids)),
+                              order_quants = order_quants,
+                              quant_val = quant_val, percentag = percent,
+                              kern_method = kern_method, r = r,
+                              ro = ro, h_breaks = h_breaks)
+    lin_thres <- arpt_calcs[[names(arpt_calcs)[2]]]
+
     thres_val <- percent / 100 * quant_val
-    N0 <- sum(wght2)   # Estimated whole population size
+    wt <- indicator * wght1
     N <- sum(wt)       # Estimated (sub)population size
 
     poor <- (Y1 <= thres_val)
     rate_val <- sum(wt * poor) / N  # Estimated poverty rate */
     rate_val_pr <- 100 * rate_val
 
-    h <- sqrt((sum(wght2 * inc2 * inc2) - sum(wght2 * inc2) * sum(wght2 * inc2) / sum(wght2)) / sum(wght2)) / exp(0.2 * log(sum(wght2)))
-    # h=S/N^(1/5)
-
-    #---- 1. Linearization of the poverty threshold ----
-
-    u1 <- (quant_val - inc2) / h
-    vect_f1 <- exp(-(u1^2)/2) / sqrt(2 * pi)
-    f_quant1 <- sum(vect_f1 * wght2)/(N0 * h)   # Estimate of F'(quantile)
-
-    lin_thres <- - (percent / 100) * (1 / N0) * ((inc2 <= quant_val) - order_quants / 100) / f_quant1  # Linearized variable
 
     #---- 2. Linearization of the poverty rate -----
 
-    u2 <-   (thres_val - Y1) / h
-    vect_f2 <- exp(-(u2^2) / 2) / sqrt(2 * pi)
-    f_quant2 <- sum(vect_f2 * wt) / (N * h)      # Estimate of F'(beta*quantile)
+    h <- bandwith_plug(y = Y1, w = wt)
+
+    if (kern_method == "gaussian") {f_quant2 <- gaussian_kern(inco = Y1, wt = wt,
+                                                             quant_val = quant_val, hh = h)}
+    if (kern_method == "smooth_splines") {f_quant2 <- smooth_spline(inco = Y1, wght = wt,
+                                                                   quant_val = quant_val,
+                                                                   r = r, ro = ro,
+                                                                   h_breaks = h_breaks) }
 
  #****************************************************************************************
  #                       LINEARIZED VARIABLE OF THE POVERTY RATE (IN %)                  *

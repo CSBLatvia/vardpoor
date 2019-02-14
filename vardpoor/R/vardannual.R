@@ -99,7 +99,8 @@ vardannual <- function(Y, H, PSU, w_final, ID_level1,
                    ncols = 1, Ynrow = Ynrow, ischaracter = TRUE,
                    namesID1 = names(ID_level1))
 
-  if(!is.null(X)) {
+  if(!is.null(X) | !is.null(ind_gr) | !is.null(g) | !is.null(q) | !is.null(countryX) | 
+      !is.null(yearsX) | !is.null(subperiodsX) | !is.null(X_ID_level1) | !is.null(datasetX)) {
          X <- check_var(vars = X, varn = "X", dataset = datasetX,
                         isnumeric = TRUE,
                         dif_name = c(names(years), names(subperiods),
@@ -229,9 +230,9 @@ vardannual <- function(Y, H, PSU, w_final, ID_level1,
          } else yr12 <- data.table(Nrs = 1 : nrow(year1), yearg = year1[[1]])
  
    if (!is.null(Dom)) {
-             Y1 <- namesD(Y, Dom)
+             Y1 <- namesD(Y, Dom, uniqueD = TRUE)
              Z1 <- NULL
-             if (!is.null(Z)) Z1 <- namesD(Z, Dom)
+             if (!is.null(Z)) Z1 <- namesD(Z, Dom, uniqueD = TRUE)
         } else { Y1 <- names(Y)
                  Z1 <- names(Z) }
 
@@ -244,15 +245,15 @@ vardannual <- function(Y, H, PSU, w_final, ID_level1,
    yrs_without <- yrs[, .N, by = c("pers_1", "pers_2")]
 
    data <- cros_calc$data_net_changes
-   changes_calc <- vardchanges_calculation(Y = Y, Z = Z, Y1 = Y1, Z1 = Z1,
-                                           Dom = Dom, names_country = names_country,
+   changes_calc <- vardchanges_calculation(Y1 = Y1, Z1 = Z1, Dom = Dom, 
+                                           names_country = names_country,
                                            per = "pers", PSU = PSU, H = H,
                                            period1 = yrs_without[, .(pers = get("pers_1"))],
                                            period2 = yrs_without[, .(pers = get("pers_2"))],
                                            cros_var_grad = cros_calc$var_grad, change_type = "absolute",
                                            data = data, linratio = !is.null(Z), annual = TRUE,
                                            percentratio = percentratio, use.estVar = use.estVar,
-                                           confidence = confidence)
+                                           confidence = confidence, poor = FALSE)
 
     pers <- pers[, .N, keyby = names(pers)][, N := NULL]
     crossectional_results <- merge(pers, cros_calc$results, all = TRUE, by = "pers")
@@ -326,28 +327,31 @@ vardannual <- function(Y, H, PSU, w_final, ID_level1,
         } else if (!is.null(ysum$totalZ)) {
              ysum[, estim := totalY / totalZ * percentratio]
          } else ysum[, estim := totalY]
+    
+    year1m <- year1[[yearm]]
+    ysum1 <- ysum[get(yearm) %in% year1m, c(sars, "estim"), with = FALSE]
 
-   ysum1 <- ysum[get(yearm) %in% year1[[yearm]], c(sars, "estim"), with = FALSE]
-   years1 <- copy(year1)[, Nrs := 1: .N]
-   ysum1 <- merge(years1, ysum1, by = yearm, sort = FALSE, allow.cartesian = TRUE)
+    years1 <- copy(year1)[, Nrs := 1: .N]
+    ysum1 <- merge(years1, ysum1, by = yearm, sort = FALSE, allow.cartesian = TRUE)
 
-   if (method != "cros") {
+    if (method != "cros") {
             years2 <- copy(year2)[, Nrs := 1: .N]
-            ysum2 <- ysum[get(yearm) %in% year2[[yearm]], c(sars, "estim"), with = FALSE]
+            year2m <- year2[[yearm]]
+            ysum2 <- ysum[get(yearm) %in% year2m, c(sars, "estim"), with = FALSE]
             ysum2 <- merge(years2, ysum2, by = yearm, sort = FALSE, allow.cartesian = TRUE)
             setnames(ysum1, c("estim", yearm), c("estim_1", paste0(yearm, "_1")))
             setnames(ysum2, c("estim", yearm), c("estim_2", paste0(yearm, "_2")))
             ysum <- merge(ysum1, ysum2, all.x = TRUE, by = c("Nrs", sarsb))   
             ysum[, estim := estim_2 - estim_1] 
         } else ysum <- ysum1
-   ysum1 <- ysum2 <- NULL
+    ysum1 <- ysum2 <- NULL
 
-   annual_results <- merge(ysum, annual_var, by = c("Nrs", sarsb), sort = FALSE)
+    annual_results <- merge(ysum, annual_var, by = c("Nrs", sarsb), sort = FALSE)
 
-   estim <- "estim"
-   if(method != "cros") estim <- c("estim_1", "estim_2", "estim")
-   annual_results <- annual_results[, c(years12, sarsb, estim, "var"), with = FALSE]
-   ysum <- ysum[, c(years12, sarsb, estim), with = FALSE]
+    estim <- "estim"
+    if(method != "cros") estim <- c("estim_1", "estim_2", "estim")
+    annual_results <- annual_results[, c(years12, sarsb, estim, "var"), with = FALSE]
+    ysum <- ysum[, c(years12, sarsb, estim), with = FALSE]
 
    grad_var <- merge(yrs[, c(pers12, period12), with = FALSE],
                      changes_calc$grad_var, all.y = TRUE,

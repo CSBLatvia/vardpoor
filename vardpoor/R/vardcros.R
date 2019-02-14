@@ -101,7 +101,8 @@ vardcros <- function(Y, H, PSU, w_final,
                      ischaracter = TRUE, namesID1 = names(ID_level1))
 
 
-    if(!is.null(X)) {
+    if(!is.null(X) | !is.null(ind_gr) | !is.null(g) | !is.null(q) | !is.null(countryX) | 
+       !is.null(periodX) | !is.null(X_ID_level1) | !is.null(datasetX)) {
         X <- check_var(vars = X, varn = "X", dataset = datasetX,
                        check.names = TRUE, isnumeric = TRUE,
                        grepls = "__", dX = "X",
@@ -317,7 +318,7 @@ vardcros <- function(Y, H, PSU, w_final,
 
 
     # Calibration
-    res_outp <- NULL
+    betas <- res_outp <- NULL
     if (!is.null(X)) {
          X0 <- data.table(X_ID_level1, ind_gr, q, g, X)
          if (!is.null(countryX)) X0 <- data.table(countryX, X0)
@@ -328,14 +329,19 @@ vardcros <- function(Y, H, PSU, w_final,
          ind_gr <- DT1[, c(namesperc, names(ind_gr)), with = FALSE]
          ind_period <- do.call("paste", c(as.list(ind_gr), sep = "_"))
 
-         res <- lapply(split(DT1[, .I], ind_period), function(i)
-                        data.table(DT1[i, nos, with = FALSE],
-                                   res <- residual_est(Y = DT1[i, namesY2, with = FALSE],
-                                                       X = DT1[i, names(X), with = FALSE],
-                                                       weight = DT1[i][["w_design"]],
-                                                       q = DT1[i][["q"]], dataset = NULL,
-                                                       checking = FALSE)))
-         res <- rbindlist(res)
+         res <- lapply(split(DT1[, .I], ind_period), function(i) {
+                         resid <- residual_est(Y = DT1[i, namesY2, with = FALSE],
+                                               X = DT1[i, names(X), with = FALSE],
+                                               weight = DT1[i][["w_design"]],
+                                               q = DT1[i][["q"]], dataset = NULL,
+                                               checking = FALSE)
+                         pers0 <- DT1[i, .N, keyby = c( nos[2:length(nos) - 1])]
+                         
+                         list(data.table(DT1[i, nos, with = FALSE], resid$residuals),
+                              data.table(pers0[, N := NULL], resid$betas))
+                                   })
+         betas <- rbindlist(lapply(res, function(x) x[[2]]))
+         res <- rbindlist(lapply(res, function(x) x[[1]]))
          setnames(res, namesY2, namesY2w)
          DTc <- merge(DTc, res, by = nos)
          if (outp_res) res_outp <- DTc[, c(nos, names_PSU, "w_final", namesY2w), with = FALSE]
@@ -430,7 +436,7 @@ vardcros <- function(Y, H, PSU, w_final,
                         y <- namesY1[i]
                         if ((!is.null(namesZ1))&(!linratio)) z <- paste0(",", toString(namesZ1[i])) else z <- ""
 
-                        funkc <- as.formula(paste("cbind(", trim(toString(y)), z, ")~ 0 + ",
+                        funkc <- as.formula(paste("cbind(", trimws(toString(y)), z, ")~ 0 + ",
                                        paste(c(0, DT1H), collapse= "+")))
 
                         res1 <- lm(funkc, data = DT1c)
@@ -577,20 +583,20 @@ vardcros <- function(Y, H, PSU, w_final,
   DTx[, N := NULL]
 
   main <- melt(DTx[, c(namesperc, paste0("sd_w__", namesY1)), with = FALSE], id = namesperc)
-  main[, nameY1 := substr(variable, 7, nchar(trim(as.character(variable))))]
+  main[, nameY1 := substr(variable, 7, nchar(trimws(as.character(variable))))]
   main[, variable := NULL]
   setnames(main, "value", "sd_w")
   res <- merge(res, main, all.x = TRUE, by = c(namesperc, "nameY1"))
 
   main <- melt(DTx[, c(namesperc, paste0("sd_nw__", namesY1)), with = FALSE], id = namesperc)
-  main[, nameY1 := substr(variable, 8, nchar(trim(as.character(variable))))]
+  main[, nameY1 := substr(variable, 8, nchar(trimws(as.character(variable))))]
   main[, variable := NULL]
   setnames(main, "value", "sd_nw")
   res <- merge(res, main, all = TRUE, by = c(namesperc, "nameY1"))
 
   main <- melt(DTx[, c(namesperc, paste0("pop_", names_size1)), with = FALSE], id = namesperc)
   if (!is.null(namesDom)){
-                   main[, Dom := substr(variable, 11, nchar(trim(as.character(variable))))]
+                   main[, Dom := substr(variable, 11, nchar(trimws(as.character(variable))))]
                    vars <- unique(main[["Dom"]])
                    vars <- data.table(Dom=vars, t(data.frame(strsplit(vars, "__"))))
                    setnames(vars, names(vars)[2 : length(vars)], paste0(namesDom, "_new"))
@@ -602,7 +608,7 @@ vardcros <- function(Y, H, PSU, w_final,
   res <- merge(res, main, all.x = TRUE, by = nds)
 
   main <- melt(DTx[, c(namesperc, paste0("samp_", names_size1)), with = FALSE], id = namesperc)
-  if (!is.null(namesDom)) main[, Dom := substr(variable, 12, nchar(trim(as.character(variable))))]
+  if (!is.null(namesDom)) main[, Dom := substr(variable, 12, nchar(trimws(as.character(variable))))]
   main[, variable := NULL]
   setnames(main, "value", "sampl_siz")
   if (is.null(namesDom)) nds <- namesperc else nds <- c(namesperc, "Dom")
@@ -641,7 +647,10 @@ vardcros <- function(Y, H, PSU, w_final,
       res[, percoun := NULL]  }
 
   res[, confidence_level := confidence]
-  list(data_net_changes = DTnet, res_out = res_outp, var_grad = res1, results = res)
+  list(data_net_changes = DTnet,
+       res_out = res_outp,
+       var_grad = res1,
+       results = res)
 
 }
 

@@ -256,12 +256,13 @@ URL \url{https://ec.europa.eu/eurostat/cros/content/handbook-standard-error-esti
 ### Example 
 data("eusilc")
 set.seed(1)
-eusilc1 <- eusilc[1 : 100,]
+eusilc1 <- eusilc[1 : 20,]
 set.seed(1)
 data <- data.table(rbind(eusilc1, eusilc1),
                    year = c(rep(2010, nrow(eusilc1)),
                             rep(2011, nrow(eusilc1))))
-data[, country := "AT"]
+data[, country:= "AT"]
+data[, half:= .I - 2 * trunc((.I - 1) / 2)]
 data[, quarter:= .I - 4 * trunc((.I - 1) / 4)]
 data[age < 0, age:= 0]
 PSU <- data[, .N, keyby = "db030"][, N:= NULL]
@@ -274,14 +275,14 @@ data[, employed := trunc(runif(nrow(data), 0, 2))]
 data[, unemployed := trunc(runif(nrow(data), 0, 2))]
 data[, labour_force := employed + unemployed]
 data[, id_lv2 := paste0("V", .I)]
-
 result <- vardannual(Y = "employed", H = "strata",
                      PSU = "PSU", w_final = "rb050",
                      ID_level1 = "db030", ID_level2 = "id_lv2",
-                     Dom = NULL, Z = NULL, country = "country",
-                     years = "year", subperiods = "quarter",
+                     Dom = NULL, Z = NULL, years = "year", subperiods = "half",
                      dataset = data, percentratio = 100,
                      confidence = 0.95, method = "cros")
+
+\dontrun{
 
 result2 <- vardannual(Y = "employed", H = "strata",
                       PSU = "PSU", w_final = "rb050",
@@ -292,7 +293,6 @@ result2 <- vardannual(Y = "employed", H = "strata",
                       percentratio = 100, confidence = 0.95,
                       method = "netchanges")
 
-\dontrun{
 result <- vardannual(Y = "unemployed", H = "strata",
                      PSU = "PSU", w_final = "rb050",
                      ID_level1 = "db030", ID_level1 = "id_lv2",

@@ -80,6 +80,8 @@ vardom(Y, H, PSU, w_final,
 
   \item{res_out}{A \code{data.table} containing the estimated residuals of calibration with id and PSU.}
 
+  \item{betas}{ A numeric \code{data.table} containing the estimated coeffients of calibration.}
+
   \item{all_result}{A \code{data.table}, which containing variables:
        \code{variable} - names of variables of interest, \cr
        \code{Dom} - optional variable of the population domains, \cr

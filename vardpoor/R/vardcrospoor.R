@@ -9,7 +9,7 @@ vardcrospoor <- function(Y, age = NULL, pl085 = NULL,
                          countryX = NULL, periodX = NULL, 
                          X_ID_level1 = NULL, ind_gr = NULL,
                          g = NULL, q = NULL, datasetX = NULL,
-                         percentage = 60, order_quant = 50L,
+                         percentage = 60, order_quant = 50,
                          alpha = 20, use.estVar = FALSE,
                          withperiod = TRUE, netchanges = TRUE,
                          confidence = .95, outp_lin = FALSE,
@@ -21,10 +21,10 @@ vardcrospoor <- function(Y, age = NULL, pl085 = NULL,
                    "linpoormed", "linrmpg", "lingini",
                    "lingini2", "linqsr", "linrmir", "linarr")
   type <- tolower(type)
-  type <- match.arg(type, all_choices, length(type)>1) 
+  type <- match.arg(type, all_choices, length(type) > 1) 
 
   percentage <- check_var(vars = percentage, varn = "percentage", varntype = "numeric0100") 
-  order_quant <- check_var(vars = order_quant, varn = "order_quant", varntype = "integer0100") 
+  order_quant <- check_var(vars = order_quant, varn = "order_quant", varntype = "numeric0100") 
   alpha <- check_var(vars = alpha, varn = "alpha", varntype = "numeric0100") 
   netchanges <- check_var(vars = netchanges, varn = "netchanges", varntype = "logical") 
   withperiod <- check_var(vars = withperiod, varn = "withperiod", varntype = "logical") 
@@ -91,18 +91,21 @@ vardcrospoor <- function(Y, age = NULL, pl085 = NULL,
          Dom <- check_var(vars = Dom, varn = "Dom", dataset = dataset,
                           Ynrow = Ynrow, ischaracter = TRUE,
                           mustbedefined = FALSE, duplicatednames = TRUE,
+                          dif_name = c("type", "spectype"),
                           grepls = "__")
     
          country <- check_var(vars = country, varn = "country",
                               dataset = dataset, ncols = 1, Ynrow = Ynrow,
                               ischaracter = TRUE, mustbedefined = FALSE,
-                              dif_name = c("percoun", "period_country"))
+                              dif_name = c("percoun", "period_country",
+                                           "type", "spectype"))
          
          period <- check_var(vars = period, varn = "period",
                              dataset = dataset, Ynrow = Ynrow,
                              ischaracter = TRUE, duplicatednames = TRUE,
                              withperiod = withperiod,
-                             dif_name = c("percoun", "period_country", names(country)))
+                             dif_name = c("percoun", "period_country",
+                                          names(country), "type", "spectype"))
          
          ID_level1 <- check_var(vars = ID_level1, varn = "ID_level1",
                                 dataset = dataset, ncols = 1, Yncol = 0,
@@ -117,12 +120,13 @@ vardcrospoor <- function(Y, age = NULL, pl085 = NULL,
                           ncols = 1, Ynrow = Ynrow, ischaracter = TRUE,
                           namesID1 = names(ID_level1))
          
-        if(!is.null(X)) {
+        if(!is.null(X) | !is.null(ind_gr) | !is.null(g) | !is.null(q) | !is.null(countryX) 
+             | !is.null(periodX) | !is.null(X_ID_level1) | !is.null(datasetX)) {
               X <- check_var(vars = X, varn = "X", dataset = datasetX,
                              check.names = TRUE, isnumeric = TRUE,
                              dif_name = c(names(period), names(country), names(H),
                                            names(PSU), names(ID_level1), "w_final",
-                                           "w_design", "g", "q"), dX = "X")
+                                           "w_design", "g", "q", "type", "spectype"), dX = "X")
               Xnrow <- nrow(X)
            
            
@@ -131,7 +135,8 @@ vardcrospoor <- function(Y, age = NULL, pl085 = NULL,
                                  Xnrow = Xnrow, ischaracter = TRUE,
                                  dif_name = c(names(period), names(country), names(H),
                                               names(PSU), names(ID_level1), "w_final",
-                                              names(X), "w_design", "g", "q"), dX = "X")
+                                              names(X), "w_design", "g", "q",
+                                              "type", "spectype"), dX = "X")
            
              g <- check_var(vars = g, varn = "g", dataset = datasetX,
                             ncols = 1, Xnrow = Xnrow, isnumeric = TRUE,
@@ -389,7 +394,6 @@ vardcrospoor <- function(Y, age = NULL, pl085 = NULL,
    DTY2 <- DTc[, lapply(.SD, sum, na.rm = TRUE), keyby = namesDT1k, .SDcols = namesY2w]
    setnames(DTY2, namesY2w, namesY2)
    DT1 <- copy(DTY2)
-   DT1[, period_country := NULL]
    if (!netchanges) DT1 <- NULL
 
    # NUMBER OF PSUs PER STRATUM
@@ -411,7 +415,7 @@ vardcrospoor <- function(Y, age = NULL, pl085 = NULL,
    fits <- lapply(1 : length(namesY2), function(i) {
               fitss <- lapply(split(DTY2, DTY2$period_country), function(DTY2c) {
                            y <- namesY2m[i]
-                           funkc <- as.formula(paste("cbind(", trim(toString(y)), ") ~ ",
+                           funkc <- as.formula(paste("cbind(", trimws(toString(y)), ") ~ ",
                                           paste(c(- 1, DTY2H), collapse = "+")))
                    	   res1 <- lm(funkc, data = DTY2c)
                             
@@ -456,6 +460,7 @@ vardcrospoor <- function(Y, age = NULL, pl085 = NULL,
     res[, rse := se / estim]
     res[, cv := rse * 100]
    
+    print(res)
     res <- res[, c(names(countryper), namesDom, "type", "count_respondents",
                    "pop_size", "estim", "se", "var", "rse", "cv"), with = FALSE]
 

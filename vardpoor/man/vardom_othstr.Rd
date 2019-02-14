@@ -7,8 +7,8 @@
 
 \usage{vardom_othstr(Y, H, H2, PSU, w_final, id = NULL,
        Dom = NULL, period=NULL, N_h = NULL,
-       N_h2, Z = NULL,
-       X = NULL, g = NULL, q = NULL, dataset = NULL, 
+       N_h2, Z = NULL, X = NULL, ind_gr = NULL,
+       g = NULL, q = NULL, dataset = NULL, 
        confidence = .95,  percentratio=1, 
        outp_lin=FALSE, outp_res=FALSE)}
 
@@ -38,6 +38,8 @@
 
 \item{X}{Optional matrix of the auxiliary variables for the calibration estimator. Object convertible to \code{data.table} or variable names as character, column numbers.}
 
+\item{ind_gr}{Optional variable by which divided independently X matrix of the auxiliary variables for the calibration. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.}
+
 \item{g}{Optional variable of the g weights. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.}
 
 \item{q}{Variable of the positive values accounting for heteroscedasticity. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.}
@@ -61,6 +63,8 @@
   \item{lin_out}{A \code{data.table} containing the linearized values of the ratio estimator with id and PSU.}
 
   \item{res_out}{A \code{data.table} containing the estimated residuals of calibration with id and PSU.}
+
+  \item{betas}{ A numeric \code{data.table} containing the estimated coeffients of calibration.}
 
   \item{s2g}{A \code{data.table} containing the s^2g value.}
 

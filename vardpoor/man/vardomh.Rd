@@ -30,7 +30,7 @@
 
 \item{ID_level1}{Variable for level1 ID codes. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.}
 
-\item{ID_level2}{Optional variable for unit ID codes. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.}
+\item{ID_level2}{Variable for unit ID codes. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.}
 
 \item{period}{Optional variable for the survey periods. If supplied, the values for each period are computed independently. Object convertible to \code{data.table} or variable names as character, column numbers.}
 
@@ -87,6 +87,8 @@
   \item{lin_out}{A \code{data.table} containing the linearized values of the ratio estimator with ID_level2 and PSU.}
 
   \item{res_out}{A \code{data.table} containing the estimated residuals of calibration with ID_level1 and PSU.}
+
+  \item{betas}{ A numeric \code{data.table} containing the estimated coeffients of calibration.}
 
   \item{all_result}{A \code{data.table}, which containing variables:
        \code{variable} - names of variables of interest, \cr

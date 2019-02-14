@@ -16,7 +16,7 @@ linrmir(Y, id = NULL, age,
   Dom = NULL,
   period = NULL,
   dataset = NULL,
-  order_quant = 50L,
+  order_quant = 50,
   var_name = "lin_rmir",
   checking = TRUE)
 }

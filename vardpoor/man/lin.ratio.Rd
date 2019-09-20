@@ -32,6 +32,7 @@ Carl-Erik Sarndal, Bengt Swensson, Jan Wretman. Model Assisted Survey Sampling. 
 }
 
 \examples{
+require(data.table)
 Y <- data.table(Y = rchisq(10, 3))
 Z <- data.table(Z = rchisq(10, 3))
 weights <- rep(2, 10)

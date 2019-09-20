@@ -30,13 +30,16 @@ residual_est <- function (Y, X, weight, q, dataset = NULL, checking = TRUE) {
   matr <- ginv(B %*% X) %*% B
   B <- ws <- q <- weight <- NULL
 
+  betas <- c()
   for (i in 1:ncol(Y)) {
           beta <- matr %*% Y[, i]
           ee[, i] <- Y[, i] - X %*% beta
+          betas <- rbind(betas, data.frame(Yname = names(Y)[i], t(beta)))   
          }
   names(ee) <- names(Y)
   Y <- X <- beta <- NULL
 
-  return(ee)
+  return(list(residuals = data.table(ee),
+                  betas = data.table(betas)))
 }
 

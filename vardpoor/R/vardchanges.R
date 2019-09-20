@@ -89,34 +89,35 @@ vardchanges <- function(Y, H, PSU, w_final,
                          ncols = 1, Yncol = 0, Ynrow = Ynrow,
                          ischaracter = TRUE, namesID1 = names(ID_level1))
 
-        if(!is.null(X)) {
+        if(!is.null(X) | !is.null(ind_gr) | !is.null(g) | !is.null(q) | !is.null(countryX) | 
+             !is.null(periodX) | !is.null(X_ID_level1) | !is.null(datasetX)) {
                 X <- check_var(vars = X, varn = "X", dataset = datasetX,
-                               check.names = TRUE, isnumeric = TRUE, grepls = "__",
+                               check.names = TRUE, isnumeric = TRUE,
                                dif_name = c(names(period), names(country), names(H),
                                             names(PSU), names(ID_level1), "w_final",
-                                            names(Y), "w_design", "g", "q"))
+                                            names(Y), "w_design", "g", "q"), dX = "X")
                 Xnrow <- nrow(X)
 
                 ind_gr <- check_var(vars = ind_gr, varn = "ind_gr",
                                     dataset = datasetX, ncols = 1,
-                                    Xnrow = Xnrow, ischaracter = TRUE, 
+                                    Xnrow = Xnrow, ischaracter = TRUE, dX = "X", 
                                     dif_name = c(names(period), names(country), names(H),
                                                  names(PSU), names(ID_level1), "w_final",
                                                  names(Y), names(X), "w_design", "g", "q"))
 
                 g <- check_var(vars = g, varn = "g", dataset = datasetX,
                                ncols = 1, Xnrow = Xnrow, isnumeric = TRUE,
-                               isvector = TRUE)
+                               isvector = TRUE, dX = "X")
 
                 q <- check_var(vars = q, varn = "q", dataset = datasetX,
                                ncols = 1, Xnrow = Xnrow, isnumeric = TRUE,
-                               isvector = TRUE)
+                               isvector = TRUE, dX = "X")
 
                 countryX <- check_var(vars = countryX, varn = "countryX",
                                       dataset = datasetX, ncols = 1, Xnrow = Xnrow,
                                       ischaracter = TRUE, mustbedefined = !is.null(country),
                                       varnout = "country", varname = names(country),
-                                      country = country)
+                                      country = country, dX = "X")
 
                 periodX <- check_var(vars = periodX, varn = "periodX",
                                      dataset = datasetX, ncols = 1,
@@ -124,18 +125,17 @@ vardchanges <- function(Y, H, PSU, w_final,
                                      mustbedefined = !is.null(period),
                                      duplicatednames = TRUE, varnout = "period",
                                      varname = names(period), country = country,
-                                     countryX = countryX, periods = period)
+                                     countryX = countryX, periods = period, dX = "X")
 
                 X_ID_level1 <- check_var(vars = X_ID_level1, varn = "X_ID_level1",
                                          dataset = datasetX, ncols = 1, Xnrow = Xnrow,
                                          ischaracter = TRUE, varnout = "ID_level1",
                                          varname = names(ID_level1), country = country,
                                          countryX = countryX, periods = period,
-                                         periodsX = periodX, ID_level1 = ID_level1)
+                                         periodsX = periodX, ID_level1 = ID_level1, dX = "X")
              }
     }
   percoun <- dataset <- datasetX <- NULL
-  namesZ <- names(Z)
 
   cros_calc <- vardcros(Y = Y, H = H, PSU = PSU, w_final = w_final,
                         ID_level1 = ID_level1, ID_level2 = ID_level2,
@@ -153,32 +153,32 @@ vardchanges <- function(Y, H, PSU, w_final,
                         netchanges = TRUE,
                         confidence = confidence,
                         checking = FALSE)
+  
+  if (!is.null(Dom)) {
+         Y1 <- namesD(Y, Dom, uniqueD = TRUE)
+         if (!is.null(Z)) Z1 <- namesD(Z, Dom, uniqueD = TRUE)
+    } else { Y1 <- names(Y)
+             Z1 <- names(Z) }
 
   countryX <- periodX <- X_ID_level1 <- NULL
   X_ID_level1 <- ind_gr <- g  <- q  <- NULL
-  gender <- dataset <- w_final <- NULL
+  Y <- Z <- gender <- dataset <- w_final <- NULL
 
-  if (!is.null(Dom)) {
-            Y1 <- namesD(Y, Dom)
-            if (!is.null(Z)) Z1 <- namesD(Z, Dom)
-       } else { Y1 <- names(Y)
-                Z1 <- names(Z) }
-
-  
-  changes_calc <- vardchanges_calculation(Y = names(Y), Z = names(Z), Y1 = Y1, Z1 = Z1,
-                                          Dom = names(Dom), names_country = names(country),
-                                          per = names(period), PSU = names(PSU), H = names(H),
-                                          period1 = period1, period2 = period2,
-                                          cros_var_grad = cros_calc$var_grad, change_type = change_type,
-                                          data = cros_calc$data_net_changes, linratio = linratio,
-                                          annual = FALSE, percentratio = percentratio,
-                                          use.estVar = use.estVar, confidence = confidence)
-  Y <- Z <- Y1 <- Z1 <- Dom <- period <- PSU <- H <- period1 <- period2 <- NULL
+  changes_calc <- vardchanges_calculation(Y1 = Y1, Z1 = Z1, Dom = names(Dom),
+                                          names_country = names(country), per = names(period),
+                                          PSU = names(PSU), H = names(H), period1 = period1,
+                                          period2 = period2, cros_var_grad = cros_calc$var_grad,
+                                          change_type = change_type, data = cros_calc$data_net_changes,
+                                          linratio = linratio, annual = FALSE,
+                                          percentratio = percentratio, use.estVar = use.estVar,
+                                          confidence = confidence, poor = FALSE)
+  Y1 <- Z1 <- Dom <- period <- PSU <- H <- period1 <- period2 <- NULL
  
   crossectional_results <- cros_calc$results
   if (is.null(names(country))) crossectional_results[, percoun := NULL]
  
-  list(res_out = cros_calc$res_out,
+  list(lin_out <- cros_calc$lin_out,
+       res_out = cros_calc$res_out,
        crossectional_results = crossectional_results,
        crossectional_var_grad = changes_calc$cros_var_grad,
        grad_var = changes_calc$grad_var,
@@ -188,15 +188,17 @@ vardchanges <- function(Y, H, PSU, w_final,
  }
 
 
-vardchanges_calculation <- function(Y, Z, Y1, Z1, Dom, names_country,
+vardchanges_calculation <- function(Y1, Z1, Dom, names_country,
                                     per, PSU, H, period1, period2,
                                     cros_var_grad, change_type, data,
                                     linratio, annual, percentratio, 
-                                    use.estVar, confidence){
+                                    use.estVar, confidence,
+                                    poor = FALSE){
 
   country <- ifelse(!is.null(names_country), names_country, "percoun")
-  sarp <- c(country, H, PSU)
-
+  #sarp <- c(country, H, PSU)
+  sarp <- c(country, PSU)
+  
   namesY <- namesZ <- ind <- nameYs <- nameZs <- grad1 <- grad2 <- NULL
   rot_1 <- rot_2 <- rot_1_rot_2 <- stratasf <- name1 <- NULL
   num1 <- num1num1 <- den1den1 <- den1 <- num2num2 <- NULL
@@ -208,8 +210,9 @@ vardchanges_calculation <- function(Y, Z, Y1, Z1, Dom, names_country,
   se <-  CI_lower <- valueY1_1 <- valueZ1_1 <- valueY1_2 <- NULL
   valueZ1_2 <- nh <- period_country_1 <- period_country_2 <- NULL
   nhcor <- significant <- id_nams <- nams <- ids_nr <- NULL
-  N <- percoun <- NULL
+  N <- percoun <- confidence_level <- NULL
 
+  
   per1 <- paste0(per, "_1")
   per2 <- paste0(per, "_2")
   period1[, ind := .I]
@@ -225,7 +228,7 @@ vardchanges_calculation <- function(Y, Z, Y1, Z1, Dom, names_country,
                               by.x = per2, by.y = per,
                               allow.cartesian = TRUE)
 
-  sarc <- c("ind", per1, per2, country, Dom, "namesY", "namesZ")
+  sarc <- c("ind", per1, per2, country, Dom, "type", "namesY", "namesZ")
   sarc <- sarc[sarc %in% names(var_grad1)]
   sar <- names(var_grad1)[!(names(var_grad1) %in% sarc)]
   setnames(var_grad1, sar, paste0(sar, "_1"))
@@ -235,21 +238,21 @@ vardchanges_calculation <- function(Y, Z, Y1, Z1, Dom, names_country,
   var_grad[, ids_nr := 1 : .N]
 
   if (change_type == "relative"){
-        if (!linratio & !is.null(Z)){
-             var_grad[, grad1_1 := - valueY1_2 * valueZ1_1 / (valueZ1_2 * (valueY1_1)^2)]
-             var_grad[, grad1_2 := valueY1_2 / (valueZ1_2 * valueY1_1)]
-             var_grad[, grad2_1 := valueZ1_1 / (valueZ1_2 * valueY1_1)]
-             var_grad[, grad1_1 := - valueY1_2 * valueZ1_1 / ((valueZ1_2)^2 * valueY1_1)]
-          } else {
-             var_grad[, grad1_1 := - valueY1_2 / (valueY1_1)^2]
-             var_grad[, grad1_2 := 1 / valueY1_1] }
-     } else {
-        if (!is.null(var_grad$grad1_1)){
-                var_grad[, grad1_1 := - grad1_1]
-                var_grad[, grad2_1 := - grad2_1]
-           } else {var_grad[, grad1_1 := - 1]
-                   var_grad[, grad1_2 := 1] }}
-
+          if (!linratio & !is.null(Z1)){
+                var_grad[, grad1_1 := - valueY1_2 * valueZ1_1 / (valueZ1_2 * (valueY1_1)^2)]
+                var_grad[, grad1_2 := valueY1_2 / (valueZ1_2 * valueY1_1)]
+                var_grad[, grad2_1 := valueZ1_1 / (valueZ1_2 * valueY1_1)]
+                var_grad[, grad1_1 := - valueY1_2 * valueZ1_1 / ((valueZ1_2)^2 * valueY1_1)]
+             } else {
+                var_grad[, grad1_1 := - valueY1_2 / (valueY1_1)^2]
+                var_grad[, grad1_2 := 1 / valueY1_1] }
+         } else {
+             if (!is.null(var_grad$grad1_1) & !poor){
+                     var_grad[, grad1_1 := - grad1_1]
+                     var_grad[, grad2_1 := - grad2_1]
+                } else {var_grad[, grad1_1 := - 1]
+                        var_grad[, grad1_2 := 1] }}
+ 
   var_grad11 <- copy(var_grad)
   var_grad12 <- copy(var_grad)
   var_grad11[, (c("grad", "cros_var", "id_nams", "nams")) := list(grad1_1, num1_1, 1, "num1")]
@@ -271,7 +274,7 @@ vardchanges_calculation <- function(Y, Z, Y1, Z1, Dom, names_country,
 
   var_grad11 <- var_grad12 <- NULL
   var_grad21 <- var_grad22 <- NULL
-
+  vstrata1 <- vstrata2 <- vstrata12 <- NULL
 
   data[, rot := 1]
   data1 <- merge(period1, data, all.x = TRUE,
@@ -281,7 +284,9 @@ vardchanges_calculation <- function(Y, Z, Y1, Z1, Dom, names_country,
                     by.x = per2, by.y = per,
                     allow.cartesian = TRUE)
   sard <- names(data)[!(names(data) %in% c(sarp, per))]
-
+  
+  data[is.na(ids_nr)]
+  
   setnames(data1, sard, paste0(sard, "_1"))
   setnames(data2, sard, paste0(sard, "_2"))
 
@@ -301,37 +306,44 @@ vardchanges_calculation <- function(Y, Z, Y1, Z1, Dom, names_country,
       set(DT, which(is.na(DT[[j]])), j, ifelse(is.integer(DT[[j]]), 0L, 0))
    }
 
-  data[, nh := .N, by = c("ind", "period_country_1", "period_country_2", H)]
+  data[, nh := .N, by = c("ind", paste0("period_country_", 1:2), paste0(H, "_", 1:2))]
 
-  dataH <- data[[H]]
-  dataH <- factor(dataH)
-  if (length(levels(dataH)) == 1) { data[, stratasf := 1]
-                                  dataH <- "stratasf"
-                         } else { dataH <- data.table(model.matrix( ~ dataH - 1))
-                                  data <- cbind(data, dataH)
-                                  dataH <- names(dataH) }
+  Hq1 <- paste0(H, "q_1")
+  Hq2 <- paste0(H, "q_2")
+
+  data[, (Hq1) := as.factor(get(paste0(H, "_1")))]
+  data[, (Hq2) := as.factor(get(paste0(H, "_2")))]
+  data[, paste0(Hq1, "_", levels(get(Hq1)))] -> dataHq1
+  data[, paste0(Hq2, "_", levels(get(Hq2)))] -> dataHq2
+  data[, (dataHq1) := transpose(lapply(get(Hq1), FUN = function(x){as.numeric(x == levels(get(Hq1)))})) ]
+  data[, (dataHq2) := transpose(lapply(get(Hq2), FUN = function(x){as.numeric(x == levels(get(Hq2)))})) ]
+
   den1 <- den2 <- NULL
-  sard <- sard[!(sard %in% "period_country")]
-  recode.NA(data, c(paste0(sard, "_1"), paste0(sard, "_2")))
+  sard <- sard[!(sard %in% c(H, "period_country"))]
+  recode.NA(data, c(dataHq1, dataHq2, paste0(sard, "_1"), paste0(sard, "_2")))
+  
+  saraks <- CJ(dataHq1, dataHq2, unique = FALSE)
+  saraks[, vstrata1 := paste0(" rot_1 : ", get("dataHq1"), " ")]
+  saraks[, vstrata2 := paste0(" rot_2 : ", get("dataHq2"), " ")]
+  saraks[, vstrata12 := paste0(" rot_1 : rot_2 : ", get("dataHq1"), " : " , get("dataHq2"), " ")]
+  saraks <- unique(unlist(saraks[, c("vstrata1", "vstrata2", "vstrata12")]))
+  saraks <- paste(saraks, collapse = "+")
 
+  if (poor) Y1 <- sard[1:(length(sard) - 1)]
+  
   fit <- lapply(1 : length(Y1), function(i) {
        fitd <- lapply(split(data, data[["ind"]]), function(data1) {
-            fits <- lapply(split(data1, data1[[country]]), function(DT3c) {
+           fits <- lapply(split(data1, data1[[country]]), function(DT3c) {
 
                       y1 <- paste0(Y1[i], "_1")
                       y2 <- paste0(Y1[i], "_2")
                       if (!is.null(namesZ) & !linratio) {
-                                    z1 <- paste0(",", Z1[i], "_1")
-	                              z2 <- paste0(",", Z1[i], "_2")
+                                          z1 <- paste0(",", Z1[i], "_1")
+	                                        z2 <- paste0(",", Z1[i], "_2")
                                } else z1 <- z2 <- ""
 
                       funkc <- as.formula(paste0("cbind(", y1, z1, ", ",
-                                                           y2, z2, ") ~ 0 + ",
-                                                           paste(t(unlist(lapply(dataH, function(x)
-                                                                     paste0("rot_1 : ", toString(x), "+",
-                                                                            "rot_2 : ", toString(x), "+",
-                                                                            "rot_1 : rot_2 : ", toString(x))))),
-                                                                            collapse= "+")))
+                                                           y2, z2, ") ~ 0 + ", saraks))
                       res <- lm(funkc, data = DT3c)
                       if (use.estVar) { res <- data.table(estVar(res))
                                   } else res <- data.table(res$res)
@@ -354,7 +366,7 @@ vardchanges_calculation <- function(Y, Z, Y1, Z1, Dom, names_country,
                             res <- data.table(id_nams = 1 : nrow(res), nams = nosv, res, DT3c[1])
                         } else {
                             res <- data.table(res, DT3c)
-                            if (annual) { res[, nhcor:=ifelse(nh > 1, nh / (nh - 1), 1)]
+                            if (annual) { res[, nhcor := ifelse(nh > 1, nh / (nh - 1), 1)]
                                         } else res[, nhcor := 1]
 
                             res[, num1num1 := num1 * num1 * nhcor]
@@ -417,23 +429,27 @@ vardchanges_calculation <- function(Y, Z, Y1, Z1, Dom, names_country,
             rbindlist(fits)
          })
        rbindlist(fitd)
-     })
+   })
    res <- rbindlist(fit)
 
    set(res, j = country, value = as.character(res[[country]]))
-
+   
+   if (poor) var_gradn[, namesY := paste0("lin_", tolower(get("type")))]
    if (!is.null(Dom)) {
-          var_gradn[, paste0(Dom, "_ss"):=lapply(Dom, function(x) paste0(x,".", get(x)))]
-          var_gradn[, nameYs:=Reduce(function(x, y)
+          var_gradn[, paste0(Dom, "_ss") := lapply(Dom, function(x) paste0(x,".", get(x)))]
+          var_gradn[, nameYs := Reduce(function(x, y)
                                       paste(x, y, sep = "__"), .SD),
-                                     .SDcols=c("namesY", paste0(Dom, "_ss"))]
+                                     .SDcols = c("namesY", paste0(Dom, "_ss"))]
           if (!is.null(namesZ)) { var_gradn[, nameZs := Reduce(function(x, y)
                                                                  paste(x, y, sep = "__"), .SD),
                                                                .SDcols = c("namesZ", paste0(Dom, "_ss"))]
-                                }
+          }
+          var_gradn[, (paste0(Dom, "_ss")) := NULL]
        } else { var_gradn[, nameYs := namesY]
                 if (!is.null(namesZ)) var_gradn[, nameZs := namesZ]}
-
+ 
+   if (poor) var_gradn[, namesY := NULL]
+   
    nameYZ <- c("nameYs", "nameZs")
    nameYZ <- nameYZ[nameYZ %in% names(res)]
 
@@ -443,15 +459,15 @@ vardchanges_calculation <- function(Y, Z, Y1, Z1, Dom, names_country,
    data <- merge(res, var_gradn, all = TRUE, by = c(sars, "id_nams", "nams"))
    res <- fit <- var_gradn <- NULL
 
-   rmax <- max(data[, .N, by = "ids_nr"][["ids_nr"]])
+   rmax <- max(data[!is.na(ids_nr), .N, by = "ids_nr"][["ids_nr"]])
 
    nosv <- c("num1", "den1", "num2", "den2")
    nosv <- names(data)[names(data) %in% nosv]
 
 
    dat <- lapply(1:rmax, function(i) {
-             res <- data[get("ids_nr") == i] 
 
+             res <- data[get("ids_nr") == i] 
              res1 <- as.matrix(res[, nosv, with = FALSE])
              rhod <- diag(sqrt(1 / diag(res1)), length(nosv), length(nosv))
              rhod <- data.table((t(rhod) %*% res1) %*% rhod)
@@ -480,7 +496,7 @@ vardchanges_calculation <- function(Y, Z, Y1, Z1, Dom, names_country,
    datas <- rbindlist(lapply(dat, function(x) x[[2]]))
 
    if (change_type == "relative" | (!is.null(datas$namesZ) & !linratio)) {
-                  datas[, var:=var * (percentratio)^2] }
+                  datas[, var:=var * (percentratio) ^ 2] }
 
    datas[var >= 0, se := sqrt(var)]
    tsad <- qnorm(0.5 * (1 + confidence))
@@ -488,20 +504,19 @@ vardchanges_calculation <- function(Y, Z, Y1, Z1, Dom, names_country,
    datas[, CI_upper := estim + tsad * se]
 
    sarc <- c(sarc, "nams")
-   sarc <- sarc[!(sarc %in% "ind")]
+   sarc <- sarc[!(sarc %in% c("ind"))]
 
    rho_matrix <- matricas[, c(sarc, paste0("rho_", nosv)), with = FALSE]
    var_tau <- matricas[, c(sarc, paste0("var_tau_", nosv)), with = FALSE]
    grad_var <- matricas[, c(sarc, "grad", "cros_var"), with = FALSE]
 
-   namesYZ <- c("namesY", "namesZ")
+   namesYZ <- c("namesY", "namesZ", "type")
    namesYZ <- names(datas)[(names(datas) %in% namesYZ)]
-
 
    changes_results <- datas[, c(paste0(per,"_", c(1, 2)), country, Dom,
                                 namesYZ, "estim_1",  "estim_2", "estim",
                                 "var", "se", "CI_lower", "CI_upper"), with = FALSE]
-
+   changes_results[, confidence_level := confidence]
    changes_results[, significant := TRUE]
    boundss <- as.numeric(change_type == "relative")
    changes_results[CI_lower <= boundss & CI_upper >= boundss, significant := FALSE]

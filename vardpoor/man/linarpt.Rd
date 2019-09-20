@@ -12,7 +12,9 @@ Estimates the at-risk-of-poverty threshold (defined as percentage (usualy 60\%) 
 linarpt(Y, id = NULL, weight = NULL, 
         sort = NULL, Dom = NULL, period = NULL,
         dataset = NULL, percentage = 60,
-        order_quant = 50L, var_name = "lin_arpt",
+        order_quant = 50, var_name = "lin_arpt",
+        kern_method = "gaussian", r = NULL,
+        ro = NULL, h_breaks = NULL,
         checking = TRUE)
 }
 
@@ -37,11 +39,19 @@ linarpt(Y, id = NULL, weight = NULL,
 \deqn{\frac{p}{100} \cdot Z_{\frac{\alpha}{100}}.}{p/100 * Z(\alpha/100).}
 For example, to compute poverty threshold equal to 60\% of some income quantile, \eqn{p} should be set equal to 60.}
   
-\item{order_quant}{A integer value in range \eqn{\left[ 0,100 \right]}{[0,100]} for \eqn{\alpha} in the formula for at-risk-of-poverty threshold computation:
+\item{order_quant}{A numeric value in range \eqn{\left[ 0,100 \right]}{[0,100]} for \eqn{\alpha} in the formula for at-risk-of-poverty threshold computation:
 \deqn{\frac{p}{100} \cdot Z_{\frac{\alpha}{100}}.}{p/100 * Z(\alpha/100).}
 For example, to compute poverty threshold equal to some percentage of median income, \eqn{\alpha} should be set equal to 50.}
 
 \item{var_name}{A character specifying the name of the linearized variable.}
+
+\item{kern_method}{A character specifying the method used for density calculation.}
+
+\item{r}{Value specifying the smoothing spline degree.}
+
+\item{ro}{Value specifying the smoothing spline error from histogram.}
+
+\item{h_breaks}{Value specifying the histogram bins.}
 
 \item{checking}{Optional variable if this variable is TRUE, then function checks data preparation errors, otherwise not checked. This variable by default is TRUE.}
 
@@ -83,7 +93,7 @@ Jean-Claude Deville (1999). Variance estimation for complex statistics and estim
 \examples{
 
 data(eusilc)
-
+require(data.table)
 dati <- data.table(IDd = paste0("V", 1 : nrow(eusilc)), eusilc)
 
 # Full population

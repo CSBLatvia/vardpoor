@@ -58,6 +58,7 @@ Jean-Claude Deville (1999). Variance estimation for complex statistics and estim
 
 \examples{
 data(eusilc)
+require(data.table)
 dati <- data.table(IDd = paste0("V", 1 : nrow(eusilc)), eusilc)
 
 # Full population

@@ -22,7 +22,7 @@ Generation of domain variables,
   computation of regression residuals in case of weight calibration, 
   variance estimation of sample surveys by the ultimate cluster method
     (Hansen, Hurwitz and Madow, Theory, vol. I: Methods and Applications; vol. II: Theory.  1953,  New York: John Wiley and Sons.),
-  variance estimation for longitudinal, cross - sectional measures and measures of change for single and multistage stage cluster sampling designs (Berger, Y. G. ,2015, <doi:10.1111/rssa.12116>).
+  variance estimation for longitudinal, cross - sectional measures and measures of change for single and multistage stage cluster sampling designs (Berger, Y. G. ,2015, <doi.org/10.1111/rssa.12116>).
   Several other precision measures are derived - standard error,
     the coefficient of variation,
     the margin of error,
@@ -32,10 +32,10 @@ Generation of domain variables,
 \details{
 \tabular{ll}{
 Package: \tab vardpoor\cr
-Version: \tab 0.9.0\cr
-Date: \tab 2017-03-21\cr
+Version: \tab 0.15.0\cr
+Date: \tab 2019-04-04\cr
 Depends: \tab R (>= 3.2.3), data.table (>= 1.10.4), laeken, stringr\cr
-Imports: \tab reshape, foreach, plyr, gdata, MASS, stats, utils, surveyplanning\cr
+Imports: \tab reshape, foreach, plyr, MASS, stats, utils, surveyplanning, ggplot2, pracma, graphics\cr
 License: \tab GPL (>= 2)\cr
 URL: \tab https://github.com/CSBLatvia/vardpoor/ \cr
 BugReports: \tab https://github.com/CSBLatvia/vardpoor/issues/ \cr
@@ -61,10 +61,15 @@ linrmpg                 Linearization of the relative median
                         at-risk-of-poverty gap
 residual_est            Residual estimation of calibration
 var_srs                 The estimation of the simple random sampling
+vardbootstr             Variance estimation for measures of annual net change
+                        or annual for single stratified sampling designs
+vardannual              Variance estimation for measures of annual net change
+                        or annual for single and multistage stage cluster sampling designs
 vardchanges             Variance estimation for measures of change for
                         single and multistage stage cluster sampling designs
 vardchangespoor         Variance estimation for measures of change for sample
                         surveys for indicators on social exclusion and poverty
+vardchangstrs           Variance estimation for measures of change for stratified simple random sampling
 vardcros                Variance estimation for cross-sectional and
                         longitudinal measures for single and multistage
                         stage cluster sampling designs

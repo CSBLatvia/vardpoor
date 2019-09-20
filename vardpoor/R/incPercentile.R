@@ -1,12 +1,11 @@
 
 incPercentile <- function(Y, weights = NULL, sort = NULL,
                           Dom = NULL, period = NULL,
-                          k = c(20L, 80L), dataset = NULL,
+                          k = c(20, 80), dataset = NULL,
                           checking = TRUE) {
 
    ## initializations
    if (checking) {
-         k <- check_var(vars = k, varn = "k", varntype = "integer0100") 
 
          Y <- check_var(vars = Y, varn = "Y", dataset = dataset,
                         ncols = 1, isnumeric = TRUE,

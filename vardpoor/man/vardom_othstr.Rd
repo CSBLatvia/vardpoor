@@ -7,8 +7,8 @@
 
 \usage{vardom_othstr(Y, H, H2, PSU, w_final, id = NULL,
        Dom = NULL, period=NULL, N_h = NULL,
-       N_h2, Z = NULL,
-       X = NULL, g = NULL, q = NULL, dataset = NULL, 
+       N_h2, Z = NULL, X = NULL, ind_gr = NULL,
+       g = NULL, q = NULL, dataset = NULL, 
        confidence = .95,  percentratio=1, 
        outp_lin=FALSE, outp_res=FALSE)}
 
@@ -38,6 +38,8 @@
 
 \item{X}{Optional matrix of the auxiliary variables for the calibration estimator. Object convertible to \code{data.table} or variable names as character, column numbers.}
 
+\item{ind_gr}{Optional variable by which divided independently X matrix of the auxiliary variables for the calibration. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.}
+
 \item{g}{Optional variable of the g weights. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.}
 
 \item{q}{Variable of the positive values accounting for heteroscedasticity. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.}
@@ -62,6 +64,8 @@
 
   \item{res_out}{A \code{data.table} containing the estimated residuals of calibration with id and PSU.}
 
+  \item{betas}{ A numeric \code{data.table} containing the estimated coeffients of calibration.}
+
   \item{s2g}{A \code{data.table} containing the s^2g value.}
 
   \item{all_result}{A \code{data.table}, which containing variables:
@@ -78,6 +82,7 @@
        \code{relative_margin_of_error} - the estimated relative margin of error in percentage, \cr
        \code{CI_lower} - the estimated confidence interval lower bound, \cr
        \code{CI_upper} - the estimated confidence interval upper bound, \cr
+       \code{confidence_level} - the positive value for confidence interval, \cr       
        \code{var_srs_HT} - the estimated variance of the HT estimator under SRS, \cr
        \code{var_cur_HT} - the estimated variance of the HT estimator under current design, \cr
        \code{var_srs_ca} - the estimated variance of the calibrated estimator under SRS, \cr
@@ -100,6 +105,7 @@
 data(eusilc)
 
 # Example 1
+require(data.table)
 eusilc1 <- eusilc[1:1000, ]
 dataset <- data.table(IDd = paste0("V", 1:nrow(eusilc1)), eusilc1)
 dataset[, db040_2 := get("db040")]

@@ -31,16 +31,16 @@ Carl-Erik Sarndal, Bengt Swensson, Jan Wretman. Model Assisted Survey Sampling. 
 
 ### Example 0
 
-domain(1, "A")
+domain(Y = 1, D = "A")
 
 
 ### Example 1
 
-Y <- as.matrix(1 : 10)
-colnames(Y) <- "Y1"
-D <- as.matrix(rep(1, 10))
-colnames(D) <- "D1"
-domain(Y, D)
+Y1 <- as.matrix(1 : 10)
+colnames(Y1) <- "Y1"
+D1 <- as.matrix(rep(1, 10))
+colnames(D1) <- "D1"
+domain(Y = Y1, D = D1)
 
 
 ### Example 2

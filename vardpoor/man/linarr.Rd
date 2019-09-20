@@ -13,7 +13,7 @@ Estimates the aggregate replacement ratio (defined as the gross median individua
 linarr(Y, Y_den, id = NULL, age, pl085,
        month_at_work, weight = NULL,
        sort = NULL, Dom = NULL, period = NULL,
-       dataset = NULL, order_quant = 50L,
+       dataset = NULL, order_quant = 50,
        var_name = "lin_arr", checking = TRUE)
 }
 
@@ -77,7 +77,7 @@ Jean-Claude Deville (1999). Variance estimation for complex statistics and estim
 
 \examples{
 data(eusilc)
-
+require(data.table)
 dati <- data.table(IDd = paste0("V", 1 : nrow(eusilc)), eusilc)
 dati$pl085 <- 12 * trunc(runif(nrow(dati), 0, 2))
 dati$month_at_work <- 12 * trunc(runif(nrow(dati), 0, 2))

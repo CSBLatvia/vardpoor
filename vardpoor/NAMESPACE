@@ -48,10 +48,15 @@ export("vardchanges")
 
 export("vardcrospoor")
 
+export("vardchangstrs")
+
 export("vardchangespoor")
 
 export("vardannual")
 
+export("vardbootstr")
+
+
 
 
 
@@ -68,11 +73,17 @@ import("plyr")
 import("utils")
 import("stats")
 
-importFrom("gdata","trim")
-
 import("data.table")
 
 import("MASS")
 
 import("surveyplanning")
+
+
+import("graphics")
+
+import("ggplot2")
+
+
+import("pracma")
 

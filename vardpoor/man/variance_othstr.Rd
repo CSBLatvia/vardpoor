@@ -37,6 +37,8 @@
 
   A list with objects are returned by the function:
 
+  \item{betas}{ A numeric \code{data.table} containing the estimated coeffients of calibration.}
+
   \item{s2g}{A \code{data.table} containing the s^2g value.}
 
   \item{var_est}{A \code{data.table} containing the values of the variance estimation.}
@@ -92,8 +94,7 @@ M. Liberts. (2004) Non-response Analysis and Bias Estimation in a Survey on Tran
 }
 
 \examples{
-period=NULL
-dataset=NULL
+require(data.table)
 Y <- data.table(matrix(runif(50) * 5, ncol = 5))
 
 H <- data.table(H = as.integer(trunc(5 * runif(10))))

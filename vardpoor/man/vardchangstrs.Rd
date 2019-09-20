@@ -92,6 +92,7 @@ data("eusilc")
 set.seed(1)
 eusilc1 <- eusilc[1 : 100,]
 set.seed(1)
+require(data.table)
 datas <- data.table(rbind(eusilc1, eusilc1),
                      year = c(rep(2010, nrow(eusilc1)),
                               rep(2011, nrow(eusilc1))))

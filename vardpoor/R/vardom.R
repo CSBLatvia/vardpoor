@@ -80,27 +80,26 @@ vardom <- function(Y, H, PSU, w_final,
                         ncols = 1, Ynrow = Ynrow, ischaracter = TRUE,
                         isvector = TRUE, mustbedefined = FALSE, PSUs = PSU)
 
-  if (!is.null(X)) {
+  if (!is.null(X) | !is.null(g) | !is.null(q) | !is.null(ind_gr)) {
          X <- check_var(vars = X, varn = "X", dataset = dataset,
-                        check.names = TRUE, Ynrow = Ynrow,
-                        isnumeric = TRUE, grepls = "__",
-                        dif_name = c(names(period), "g", "q"))
+                        check.names = TRUE, Ynrow = Ynrow, isnumeric = TRUE,
+                        dif_name = c(names(period), "g", "q"), dX = "X")
          Xnrow <- nrow(X)
 
          ind_gr <- check_var(vars = ind_gr, varn = "ind_gr",
                              dataset = dataset, ncols = 1, Xnrow = Xnrow,
-                             ischaracter = TRUE,
+                             ischaracter = TRUE, dX = "X",
                              dif_name = c(names(period), names(X), "g", "q"))
 
          g <- check_var(vars = g, varn = "g", dataset = dataset,
                         ncols = 1, Xnrow = Xnrow, isnumeric = TRUE,
-                        isvector = TRUE)
+                        isvector = TRUE, dX = "X")
 
          q <- check_var(vars = q, varn = "q", dataset = dataset,
                         ncols = 1, Xnrow = Xnrow, isnumeric = TRUE,
-                        isvector = TRUE)
+                        isvector = TRUE, dX = "X")
     }
-  dataset <- NULL
+  N <- dataset <- NULL
 
   # N_h
   np <- sum(ncol(period))
@@ -133,6 +132,7 @@ vardom <- function(Y, H, PSU, w_final,
                                   checking = FALSE) else Y1 <- Y
   Y <- NULL
   n_nonzero <- copy(Y1)
+  Z1 <- NULL
   if (!is.null(period)){ n_nonzero <- data.table(period, n_nonzero)
                          n_nonzero <- n_nonzero[, lapply(.SD, function(x)
                                                           sum(as.integer(abs(x) > .Machine$double.eps))),
@@ -160,7 +160,7 @@ vardom <- function(Y, H, PSU, w_final,
   linratio_outp <- variableZ <- estim <- deff_sam <- NULL
   deff_est <- deff <- var_est2 <- se <- rse <- cv <- NULL
   absolute_margin_of_error <- relative_margin_of_error <- NULL
-  S2_y_HT <- S2_y_ca <- S2_res <- Z1 <- CI_lower <- CI_upper <- NULL
+  S2_y_HT <- S2_y_ca <- S2_res <- CI_lower <- CI_upper <- NULL
   variable <- deff_sam <- deff_est <- deff <- n_eff <- NULL
 
   aH <- names(H)
@@ -228,22 +228,29 @@ vardom <- function(Y, H, PSU, w_final,
   # Calibration
 
   res_outp <- NULL
+  betas <- NULL
   if (!is.null(X)) {
         if (!is.null(period)) ind_gr <- data.table(ind_gr, period)
+        ind_gr1 <- copy(ind_gr)
         ind_gr <- do.call("paste", c(as.list(ind_gr), sep = "_"))
 
-        lin1 <- lapply(split(Y2[,.I], ind_gr), function(i)
-                        data.table(sar_nr = i,
-                                   residual_est(Y = Y2[i],
-                                                X = X[i],
-                                                weight = w_design[i],
-                                                q = q[i],
-                                                dataset = NULL,
-                                                checking = FALSE)))
-        Y3 <- rbindlist(lin1)
-        X <- g <- q <- NULL
+        lin1 <- lapply(split(Y2[,.I], ind_gr), function(i) {
+                       resid <- residual_est(Y = Y2[i],
+                                             X = X[i],
+                                             weight = w_design[i],
+                                             q = q[i],
+                                             dataset = NULL,
+                                             checking = FALSE)
+                       pers0 <- ind_gr1[i, .N, keyby = c(names(ind_gr1))]
+                       list(data.table(sar_nr = i, resid$residuals),
+                            data.table(pers0[, N := NULL], resid$betas))
+                                    })
+
+        Y3 <- rbindlist(lapply(lin1, function(x) x[[1]]))
+        betas <- rbindlist(lapply(lin1, function(x) x[[2]]))
         setkeyv(Y3, "sar_nr")
         Y3[, sar_nr := NULL]
+        lin1 <- X <- g <- q <- NULL
         if (outp_res) res_outp <- data.table(idper, PSU, Y3)
     } else Y3 <- Y2
 
@@ -379,7 +386,7 @@ vardom <- function(Y, H, PSU, w_final,
     }
 
   all_result <- merge(nosr, all_result, by = "variableD")
-  namesDom <- nosr <- NULL
+  namesDom <- nosr <- confidence_level <- NULL
 
   if (!is.null(all_result$Z_est)) {
        all_result[, variable := paste("R", get("variable"), get("variableZ"), sep = "__")] }
@@ -391,11 +398,13 @@ vardom <- function(Y, H, PSU, w_final,
 
   all_result[, n_eff := ifelse(is.na(deff) | deff < .Machine$double.eps, NA, respondent_count / deff)]
 
+
+  all_result[, confidence_level := confidence]
   variab <- c("respondent_count", "n_nonzero", "pop_size")
   if (!is.null(all_result$Z_est)) variab <- c(variab, "Y_est", "Z_est")
   variab <- c(variab, "estim", "var", "se", "rse", "cv",
               "absolute_margin_of_error", "relative_margin_of_error",
-              "CI_lower", "CI_upper")
+              "CI_lower", "CI_upper", "confidence_level")
   if (is.null(Dom))  variab <- c(variab, "S2_y_HT", "S2_y_ca", "S2_res")
   variab <- c(variab, "var_srs_HT",  "var_cur_HT", "var_srs_ca",
               "deff_sam", "deff_est", "deff", "n_eff")
@@ -404,5 +413,6 @@ vardom <- function(Y, H, PSU, w_final,
 
   list(lin_out = linratio_outp,
        res_out = res_outp,
+       betas = betas,      
        all_result = all_result)
 }

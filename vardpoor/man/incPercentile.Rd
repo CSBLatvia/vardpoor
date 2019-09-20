@@ -11,7 +11,7 @@ The function computes the estimates of weighted percentiles.
 \usage{
 incPercentile(Y, weights = NULL, sort = NULL,
               Dom = NULL,  period = NULL,
-              k = c(20L, 80L), dataset = NULL,
+              k = c(20, 80), dataset = NULL,
               checking = TRUE)
 }
 
@@ -27,7 +27,7 @@ incPercentile(Y, weights = NULL, sort = NULL,
 
   \item{period}{Optional variable for survey period. If supplied, linearization of at-risk-of-poverty threshold is done for each survey period. Object convertible to \code{data.table} or variable names as character, column numbers as numeric vector.}
 
-  \item{k}{A vector of integers between 0 and 100 specifying the percentiles to be computed (0 gives the minimum, 100 gives the maximum).}
+  \item{k}{A vector of values between 0 and 100 specifying the percentiles to be computed (0 gives the minimum, 100 gives the maximum).}
 
   \item{dataset}{Optional survey data object convertible to \code{data.table}.}
 

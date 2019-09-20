@@ -12,7 +12,7 @@
 
 linrmpg <- function(Y, id = NULL, weight = NULL, sort = NULL,
                     Dom = NULL, period = NULL, dataset = NULL,
-                    percentage = 60, order_quant = 50L,
+                    percentage = 60, order_quant = 50,
                     var_name = "lin_rmpg", checking = TRUE) {
 
    ## initializations
@@ -25,7 +25,7 @@ linrmpg <- function(Y, id = NULL, weight = NULL, sort = NULL,
                                   varntype = "numeric0100")
 
           order_quant <- check_var(vars = order_quant, varn = "order_quant",
-                                   varntype = "integer0100") 
+                                   varntype = "numeric0100") 
 
           Y <- check_var(vars = Y, varn = "Y", dataset = dataset,
                          ncols = 1, isnumeric = TRUE,

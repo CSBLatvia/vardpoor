@@ -12,10 +12,10 @@
                  fh_zero = FALSE, PSU_level = TRUE, sort = NULL, Dom = NULL, 
                  period = NULL, gender = NULL, dataset = NULL, X = NULL, periodX = NULL,
                  X_ID_level1 = NULL, ind_gr = NULL, g = NULL, q = NULL, datasetX = NULL,
-                 percentage = 60, order_quant = 50, alpha = 20, confidence = 0.95,
-                 outp_lin = FALSE, outp_res = FALSE, kern_method = "gaussian",
-                 r = NULL, ro = NULL, h_breaks = NULL, type = "linrmpg") }
+                 percentage = 60, order_quant = 50L, alpha = 20, confidence = 0.95,
+                  outp_lin = FALSE, outp_res = FALSE, type = "linrmpg") }
                      
+
 \arguments{
 
 \item{Y}{Study variable (for example equalized disposable income or gross pension income). One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.}
@@ -85,7 +85,7 @@
 \deqn{\frac{p}{100} \cdot Z_{\frac{\alpha}{100}}.}{p/100 * Z(\alpha/100).}
 For example, to compute poverty threshold equal to 60\% of some income quantile, \eqn{p} should be set equal to 60.}
 
-\item{order_quant}{A numeric value in range \eqn{[0,100]} for \eqn{\alpha} in the formula for poverty threshold computation:
+\item{order_quant}{A integer value in range \eqn{[0,100]} for \eqn{\alpha} in the formula for poverty threshold computation:
 \deqn{\frac{p}{100} \cdot Z_{\frac{\alpha}{100}}.}{p/100 * Z(\alpha/100).}
 For example, to compute poverty threshold equal to some percentage of median income, \eqn{\alpha} should be set equal to 50.}
 
@@ -96,14 +96,6 @@ For example, to compute poverty threshold equal to some percentage of median inc
 \item{outp_lin}{Logical value. If \code{TRUE} linearized values of the ratio estimator will be printed out.}
 
 \item{outp_res}{Logical value. If \code{TRUE} estimated residuals of calibration will be printed out.}
-
-\item{kern_method}{A character specifying the method used for density calculation.}
-
-\item{r}{Value specifying the smoothing spline degree.}
-
-\item{ro}{Value specifying the smoothing spline error from histogram.}
-
-\item{h_breaks}{Value specifying the histogram bins.}
 
 \item{type}{a character vector (of length one unless several.ok is TRUE), example "linarpr","linarpt", "lingpg", "linpoormed", "linrmpg",
    "lingini", "lingini2", "linqsr", "linarr", "linrmir".}
@@ -118,8 +110,6 @@ For example, to compute poverty threshold equal to some percentage of median inc
 
   \item{res_out}{A \code{data.table} containing the estimated residuals of calibration with ID_level1 and PSU.}
 
-  \item{betas}{ A numeric \code{data.table} containing the estimated coeffients of calibration.}
-
   \item{all_result}{A \code{data.table}, which containing variables:
 
        \code{respondent_count} - the count of respondents, \cr
@@ -133,8 +123,7 @@ For example, to compute poverty threshold equal to some percentage of median inc
        \code{absolute_margin_of_error} - the estimated absolute margin of error, \cr
        \code{relative_margin_of_error} - the estimated relative margin of error in percentage, \cr
        \code{CI_lower} - the estimated confidence interval lower bound, \cr
-       \code{CI_upper} - the estimated confidence interval upper bound, \cr
-       \code{confidence_level} - the positive value for confidence interval, \cr 
+       \code{CI_upper} - the estimated confidence interval upper bound, \cr 
        \code{S2_y_HT} - the estimated variance of the y variable in case of total or the estimated variance of the linearised variable in case of the ratio of two totals using non-calibrated weights, \cr
        \code{S2_y_ca} - the estimated variance of the y variable in case of total or the estimated variance of the linearised variable in case of the ratio of two totals using calibrated weights, \cr
        \code{S2_res} - the estimated variance of the regression residuals, \cr
@@ -190,6 +179,21 @@ aa<-varpoord(Y = "eqIncome", w_final = "rb050",
 aa
 
 \dontrun{
+# use dataset1 by default without using fh_zero (finite population correction)
+aa1 <-varpoord(Y = "eqIncome", w_final = "rb050",
+             Y_thres = NULL, wght_thres = NULL,
+             ID_level1 = "db030", ID_level2 = "IDd", 
+             H = "db040", PSU = "rb030", N_h = NULL,
+             fh_zero = FALSE, sort = NULL, Dom = "db040",
+             gender = NULL, X = NULL,
+             X_ID_level1 = NULL, g = NULL,
+             datasetX = NULL, dataset =  dataset1,
+             percentage = 60, order_quant = 50L,
+             alpha = 20, confidence = .95, outp_lin = FALSE,
+             outp_res = FALSE, type="linarpt")
+aa1
+aa1$all_result
+
 # use dataset1 by default with using fh_zero (finite population correction)
 aa2 <-varpoord(Y = "eqIncome", w_final = "rb050",
              Y_thres = NULL, wght_thres = NULL,
@@ -205,6 +209,20 @@ aa2
 aa2$all_result
 
 
+# using dataset1
+aa3 <-varpoord(Y = "eqIncome", w_final = "rb050",
+               Y_thres = NULL, wght_thres = NULL,
+               ID_level1 = "db030", ID_level2 = "IDd", 
+               H = "db040", PSU = "rb030", N_h = NULL,
+               sort = NULL, Dom = "db040",
+               gender = NULL, X = NULL,
+               X_ID_level1 = NULL, g = NULL,
+               datasetX = NULL, dataset =  dataset1,
+               percentage = 60, order_quant = 50L,
+               alpha = 20, confidence = .95, outp_lin = FALSE,
+               outp_res = FALSE, type = "all_choices")
+aa3
+aa3$all_result[type == "ARPT"]
 
 # using dataset
 aa4 <- varpoord(Y = "eqIncome", w_final = "rb050",
@@ -218,8 +236,11 @@ aa4 <- varpoord(Y = "eqIncome", w_final = "rb050",
              percentage = 60, order_quant = 50L,
              alpha = 20, confidence = .95,
              outp_lin = TRUE, outp_res = TRUE,
-             type = "linarpt")
+             type = "all_choices")
+aa4$all_result[type == "ARPT"]
+
 aa4$lin_out[20 : 40]
+aa4$res_out[20 : 40]
 }
 
 

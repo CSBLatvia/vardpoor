@@ -80,8 +80,6 @@ vardom(Y, H, PSU, w_final,
 
   \item{res_out}{A \code{data.table} containing the estimated residuals of calibration with id and PSU.}
 
-  \item{betas}{ A numeric \code{data.table} containing the estimated coeffients of calibration.}
-
   \item{all_result}{A \code{data.table}, which containing variables:
        \code{variable} - names of variables of interest, \cr
        \code{Dom} - optional variable of the population domains, \cr
@@ -98,7 +96,6 @@ vardom(Y, H, PSU, w_final,
        \code{relative_margin_of_error} - the estimated relative margin of error in percentage, \cr
        \code{CI_lower} - the estimated confidence interval lower bound, \cr
        \code{CI_upper} - the estimated confidence interval upper bound, \cr
-       \code{confidence_level} - the positive value for confidence interval, \cr       
        \code{S2_y_HT} - the estimated variance of the y variable in case of total or the estimated variance of the linearised variable in case of the ratio of two totals using non-calibrated weights, \cr
        \code{S2_y_ca} - the estimated variance of the y variable in case of total or the estimated variance of the linearised variable in case of the ratio of two totals using calibrated weights, \cr
        \code{S2_res} - the estimated variance of the regression residuals, \cr

@@ -24,15 +24,11 @@ varpoord <- function(Y, w_final,
                      q = NULL,
                      datasetX = NULL,
                      percentage = 60,
-                     order_quant = 50,
+                     order_quant = 50L,
                      alpha = 20,
                      confidence = .95,
                      outp_lin = FALSE,
                      outp_res = FALSE,
-                     kern_method = "gaussian",
-                     r = NULL,
-                     ro = NULL,
-                     h_breaks = NULL,
                      type="linrmpg") {
 
   ### Checking
@@ -42,21 +38,15 @@ varpoord <- function(Y, w_final,
   type <- tolower(type)
   type <- match.arg(type, all_choices, length(type) > 1)
 
-  fh_zero <- check_var(vars = fh_zero, varn = "fh_zero", varntype = "logical")
-  PSU_level <- check_var(vars = PSU_level, varn = "PSU_level", varntype = "logical")
-  outp_lin <- check_var(vars = outp_lin, varn = "outp_lin", varntype = "logical")
-  outp_res <- check_var(vars = outp_res, varn = "outp_res", varntype = "logical")
+  fh_zero <- check_var(vars = fh_zero, varn = "fh_zero", varntype = "logical") 
+  PSU_level <- check_var(vars = PSU_level, varn = "PSU_level", varntype = "logical") 
+  outp_lin <- check_var(vars = outp_lin, varn = "outp_lin", varntype = "logical") 
+  outp_res <- check_var(vars = outp_res, varn = "outp_res", varntype = "logical") 
 
-  percentage <- check_var(vars = percentage, varn = "percentage", varntype = "numeric0100")
-  order_quant <- check_var(vars = order_quant, varn = "order_quant", varntype = "numeric0100")
-  alpha <- check_var(vars = alpha, varn = "alpha", varntype = "numeric0100")
-  confidence <- check_var(vars = confidence, varn = "confidence", varntype = "numeric01")
-
-  kern_method <- check_var(vars = kern_method, varn = "kern_method", varntype = "kern_method")
-  r <- check_var(vars = r, varn = "r", varntype = "pinteger", kern_method = kern_method)
-  ro <- check_var(vars = ro, varn = "ro", varntype = "numeric01", kern_method = kern_method)
-  h_breaks <- check_var(vars = h_breaks, varn = "h_breaks",
-                        varntype = "pinteger", kern_method = kern_method)
+  percentage <- check_var(vars = percentage, varn = "percentage", varntype = "numeric0100") 
+  order_quant <- check_var(vars = order_quant, varn = "order_quant", varntype = "integer0100") 
+  alpha <- check_var(vars = alpha, varn = "alpha", varntype = "numeric0100") 
+  confidence <- check_var(vars = confidence, varn = "confidence", varntype = "numeric01") 
 
   Y <- check_var(vars = Y, varn = "Y", dataset = dataset,
                  ncols = 1, isnumeric = TRUE,
@@ -99,19 +89,9 @@ varpoord <- function(Y, w_final,
                           Ynrow = Ynrow, mustbedefined = FALSE,
                           isnumeric = TRUE, isvector = TRUE)
 
-  ID_level1 <- check_var(vars = ID_level1, varn = "ID_level1",
-                         dataset = dataset, ncols = 1,
-                         Ynrow = Ynrow, ischaracter = TRUE)
-
-  ID_level2 <- check_var(vars = ID_level2, varn = "ID_level2",
-                         dataset = dataset, ncols = 1,
-                         Ynrow = Ynrow, ischaracter = TRUE,
-                         namesID1 = names(ID_level1), periods = period)
-
   H <- check_var(vars = H, varn = "H", dataset = dataset,
                  ncols = 1, Yncol = 0, Ynrow = Ynrow,
-                 ischaracter = TRUE, namesID1 = names(ID_level1),
-                 dif_name = "dataH_stratas")
+                 ischaracter = TRUE, dif_name = "dataH_stratas")
 
   sort <- check_var(vars = sort, varn = "sort",
                     dataset = dataset, ncols = 1,
@@ -128,6 +108,15 @@ varpoord <- function(Y, w_final,
                    mustbedefined = FALSE, duplicatednames = TRUE,
                    grepls = "__")
 
+  ID_level1 <- check_var(vars = ID_level1, varn = "ID_level1",
+                         dataset = dataset, ncols = 1,
+                         Ynrow = Ynrow, ischaracter = TRUE)
+
+  ID_level2 <- check_var(vars = ID_level2, varn = "ID_level2",
+                         dataset = dataset, ncols = 1, 
+                         Ynrow = Ynrow, ischaracter = TRUE,
+                         namesID1 = names(ID_level1), periods = period)
+
   PSU <- check_var(vars = PSU, varn = "PSU", dataset = dataset,
                    ncols = 1, Yncol = 0, Ynrow = Ynrow,
                    ischaracter = TRUE, namesID1 = names(ID_level1))
@@ -136,36 +125,35 @@ varpoord <- function(Y, w_final,
                         ncols = 1, Ynrow = Ynrow, ischaracter = TRUE,
                         isvector = TRUE, mustbedefined = FALSE, PSUs = PSU)
 
-  if(!is.null(X) | !is.null(ind_gr) | !is.null(g) | !is.null(q) |
-      !is.null(periodX) | !is.null(X_ID_level1) | !is.null(datasetX)) {
+  if(!is.null(X)) {
        X <- check_var(vars = X, varn = "X", dataset = datasetX,
                       check.names = TRUE, isnumeric = TRUE,
-                      dif_name = c(names(period) , "g", "q"), dX = "X")
+                      grepls = "__", dif_name = c(names(period) , "g", "q"))
        Xnrow <- nrow(X)
 
        ind_gr <- check_var(vars = ind_gr, varn = "ind_gr",
-                           dataset = datasetX, ncols = 1, Xnrow = Xnrow, dX = "X",
+                           dataset = datasetX, ncols = 1, Xnrow = Xnrow,
                            ischaracter = TRUE, dif_name = c(names(period) , "g", "q"))
 
        g <- check_var(vars = g, varn = "g", dataset = datasetX,
                       ncols = 1, Xnrow = Xnrow, isnumeric = TRUE,
-                      isvector = TRUE, dX = "X")
+                      isvector = TRUE)
 
        q <- check_var(vars = q, varn = "q", dataset = datasetX,
                       ncols = 1, Xnrow = Xnrow, isnumeric = TRUE,
-                      isvector = TRUE, dX = "X")
+                      isvector = TRUE)
 
        periodX <- check_var(vars = periodX, varn = "periodX",
                             dataset = datasetX, ncols = 1, Xnrow = Xnrow,
                             ischaracter = TRUE, mustbedefined = !is.null(period),
                             duplicatednames = TRUE, varnout = "period",
-                            varname = names(period), dX = "X")
+                            varname = names(period))
 
        X_ID_level1 <- check_var(vars = X_ID_level1, varn = "X_ID_level1",
                                 dataset = datasetX, ncols = 1, Xnrow = Xnrow,
                                 ischaracter = TRUE, varnout = "ID_level1",
                                 varname = names(ID_level1), periods = period,
-                                periodsX = periodX, ID_level1 = ID_level1, dX = "X")
+                                periodsX = periodX, ID_level1 = ID_level1)
    }
 
  # N_h
@@ -219,7 +207,7 @@ varpoord <- function(Y, w_final,
                     n_nonzero = as.integer(abs(Y) > .Machine$double.eps))
   if (!is.null(period)) nhs <- data.table(period, nhs)
   if (!is.null(Dom)) nhs <- data.table(Dom, nhs)
-  if (!is.null(c(Dom, period))) {nhs <- nhs[, lapply(.SD, sum, na.rm = TRUE),
+  if (!is.null(c(Dom, period))) {nhs <- nhs[, lapply(.SD, sum, na.rm=TRUE),
                                                        keyby = eval(names(nhs)[0:2-ncol(nhs)]),
                                                       .SDcols = c("respondent_count", "pop_size", "n_nonzero")]
                           } else nhs <- nhs[, lapply(.SD, sum, na.rm=TRUE),
@@ -246,8 +234,7 @@ varpoord <- function(Y, w_final,
                         sort = sort, Dom = Dom, period = period,
                         dataset = NULL, percentage = percentage,
                         order_quant = order_quant, var_name = "lin_arpt",
-                        kern_method = "gaussian", r = r, ro = ro,
-                        h_breaks = h_breaks, checking = FALSE)
+                        checking = FALSE)
        Y1 <- merge(Y1, varpt$lin, all.x = TRUE)
        esti <- data.table("ARPT", varpt$value, NA)
        setnames(esti, names(esti)[c(1, -1 : 0 + ncol(esti))],
@@ -263,8 +250,6 @@ varpoord <- function(Y, w_final,
                         percentage = percentage,
                         order_quant = order_quant,
                         var_name = "lin_arpr",
-                        kern_method = "gaussian", r = r,
-                        ro = ro, h_breaks = h_breaks,
                         checking = FALSE)
 
        Y1 <- merge(Y1, varpr$lin, all.x = TRUE)
@@ -432,7 +417,7 @@ varpoord <- function(Y, w_final,
 
   # Calibration
 
-  res_outp <- betas <- variable <- NULL
+  res_outp <- variable <- NULL
   if (!is.null(X)) {
        if (np > 0) ID_level1h <- data.table(period, ID_level1h)
        setnames(ID_level1h, names(ID_level1h), names(X_ID_level1))
@@ -440,21 +425,17 @@ varpoord <- function(Y, w_final,
        D1 <- merge(ID_level1h, X0, by = names(ID_level1h), sort = FALSE)
        ind_gr <- D1[, np + 2, with = FALSE]
        if (!is.null(period)) ind_gr <- data.table(D1[, names(periodX), with = FALSE], ind_gr)
-       ind_period <- do.call("paste", c(as.list(ind_gr), sep = "_"))
+       ind_period <- do.call("paste", c(as.list(ind_gr), sep="_"))
 
-       lin1 <- lapply(split(Y3[, .I], ind_period), function(i) {
-                            resid <- residual_est(Y = Y3[i],
-                                                  X = D1[i, (np + 5) : ncol(D1), with = FALSE],
-                                                  weight = w_design2[i],
-                                                  q = D1[i][["q"]],
-                                                  dataset = NULL,
-                                                  checking = FALSE)
-                            pers0 <- ind_gr[i, .N, keyby = c(names(ind_gr))]
-                            list(data.table(sar_nr = i, resid$residuals),
-                                 data.table(pers0[, N := NULL], resid$betas))
-                                    })
-       Y4 <- rbindlist(lapply(lin1, function(x) x[[1]]))
-       betas <- rbindlist(lapply(lin1, function(x) x[[2]]))
+       lin1 <- lapply(split(Y3[, .I], ind_period), function(i)
+                      data.table(sar_nr = i,
+                             residual_est(Y = Y3[i],
+                                          X = D1[i, (np + 5) : ncol(D1), with = FALSE],
+                                          weight = w_design2[i],
+                                          q = D1[i][["q"]],
+                                          dataset = NULL,
+                                          checking = FALSE)))
+       Y4 <- rbindlist(lin1)
        setkeyv(Y4, "sar_nr")
        Y4[, sar_nr := NULL]
        if (outp_res) res_outp <- data.table(ID_level1h, PSU, w_final2, Y4)
@@ -574,7 +555,7 @@ varpoord <- function(Y, w_final,
                "value", "value_eu", "var", "se", "rse", "cv",
                "absolute_margin_of_error", "relative_margin_of_error",
                "CI_lower", "CI_upper")
-
+print(nDom)
   if (is.null(nDom))  variabl <- c(variabl, "S2_y_HT", "S2_y_ca", "S2_res")
   variabl <- c(variabl, "var_srs_HT",  "var_cur_HT", "var_srs_ca",
                "deff_sam", "deff_est", "deff")
@@ -584,6 +565,5 @@ varpoord <- function(Y, w_final,
   setkeyv(all_result, c(type, nDom))
   list(lin_out = lin_outp,
        res_out = res_outp,
-       betas = betas,
        all_result = all_result[, c(type, nDom, variabl), with = FALSE])
 }

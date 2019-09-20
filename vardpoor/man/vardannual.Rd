@@ -15,7 +15,7 @@ vardannual(Y, H, PSU, w_final, ID_level1,
            countryX = NULL, yearsX = NULL,
            subperiodsX = NULL, X_ID_level1 = NULL,
            ind_gr = NULL, g = NULL, q = NULL,
-           datasetX = NULL, frate = 0, percentratio = 1,
+           datasetX = NULL, percentratio = 1,
            use.estVar = FALSE, use.gender = FALSE,
            confidence = 0.95, method = "cros")
 }
@@ -70,15 +70,13 @@ vardannual(Y, H, PSU, w_final, ID_level1,
 
 \item{datasetX}{Optional survey data object in household level convertible to \code{data.table}.}
 
-\item{frate}{Positive numeric value. Sampling rate in percentage, by default - 0.}
-
 \item{percentratio}{Positive numeric value. All linearized variables are multiplied with \code{percentratio} value, by default - 1.}
 
 \item{use.estVar}{Logical value. If value is \code{TRUE}, then \code{R} function \code{estVar} is used for the  estimation of covariance matrix of the residuals. If value is \code{FALSE}, then \code{R} function \code{estVar} is not used for the estimation of covariance matrix of the residuals.}
 
 \item{use.gender}{Logical value. If value is \code{TRUE}, then subperiods is defined together with \code{gender}.}
  
-\item{confidence}{optional; either a positive value for confidence interval. This variable by default is 0.95.}
+\item{confidence}{optional; either a positive value for confidence interval. This variable by default is 0.95 .}
 
 \item{method}{character value; value 'cros' is for measures of annual or value 'netchanges' is for measures of annual net change. This variable by default is netchanges.}
 
@@ -111,8 +109,7 @@ vardannual(Y, H, PSU, w_final, ID_level1,
        \code{absolute_margin_of_error} - the estimated absolute margin of error, \cr
        \code{relative_margin_of_error} - the estimated relative margin of error, \cr
        \code{CI_lower} - the estimated confidence interval lower bound, \cr
-       \code{CI_upper} - the estimated confidence interval upper bound, \cr 
-       \code{confidence_level} - the positive value for confidence interval. }
+       \code{CI_upper} - the estimated confidence interval upper bound.}
  
  \item{crossectional_var_grad}{ A \code{data.table} containing
         \code{year} -  survey years, \cr
@@ -181,7 +178,6 @@ vardannual(Y, H, PSU, w_final, ID_level1,
         \code{se} - the estimated standard error, \cr
         \code{CI_lower} - the estimated confidence interval lower bound, \cr
         \code{CI_upper} - the estimated confidence interval upper bound, \cr
-        \code{confidence_level} - the positive value for confidence interval, \cr 
         \code{significant} - is the the difference significant}
 
  \item{X_annual}{ A \code{data.table} containing
@@ -229,13 +225,8 @@ vardannual(Y, H, PSU, w_final, ID_level1,
         \code{estim} - the estimated value, \cr
         \code{var} - the estimated variance, \cr
         \code{se} - the estimated standard error, \cr
-        \code{rse} - the estimated relative standard error (coefficient of variation), \cr
-        \code{cv} - the estimated relative standard error (coefficient of variation) in percentage, \cr
-        \code{absolute_margin_of_error} - the estimated absolute margin of error for period1 for measures of annual, \cr
-        \code{relative_margin_of_error} - the estimated relative margin of error in percentage for measures of annual, \cr
         \code{CI_lower} - the estimated confidence interval lower bound, \cr
         \code{CI_upper} - the estimated confidence interval upper bound, \cr
-        \code{confidence_level} - the positive value for confidence interval, \cr 
         \code{significant} - is the the difference significant}
 
 }
@@ -256,13 +247,12 @@ URL \url{https://ec.europa.eu/eurostat/cros/content/handbook-standard-error-esti
 ### Example 
 data("eusilc")
 set.seed(1)
-eusilc1 <- eusilc[1 : 20,]
+eusilc1 <- eusilc[1 : 100,]
 set.seed(1)
 data <- data.table(rbind(eusilc1, eusilc1),
                    year = c(rep(2010, nrow(eusilc1)),
                             rep(2011, nrow(eusilc1))))
-data[, country:= "AT"]
-data[, half:= .I - 2 * trunc((.I - 1) / 2)]
+data[, country := "AT"]
 data[, quarter:= .I - 4 * trunc((.I - 1) / 4)]
 data[age < 0, age:= 0]
 PSU <- data[, .N, keyby = "db030"][, N:= NULL]
@@ -275,14 +265,14 @@ data[, employed := trunc(runif(nrow(data), 0, 2))]
 data[, unemployed := trunc(runif(nrow(data), 0, 2))]
 data[, labour_force := employed + unemployed]
 data[, id_lv2 := paste0("V", .I)]
+
 result <- vardannual(Y = "employed", H = "strata",
                      PSU = "PSU", w_final = "rb050",
                      ID_level1 = "db030", ID_level2 = "id_lv2",
-                     Dom = NULL, Z = NULL, years = "year", subperiods = "half",
+                     Dom = NULL, Z = NULL, country = "country",
+                     years = "year", subperiods = "quarter",
                      dataset = data, percentratio = 100,
                      confidence = 0.95, method = "cros")
-
-\dontrun{
 
 result2 <- vardannual(Y = "employed", H = "strata",
                       PSU = "PSU", w_final = "rb050",
@@ -293,6 +283,7 @@ result2 <- vardannual(Y = "employed", H = "strata",
                       percentratio = 100, confidence = 0.95,
                       method = "netchanges")
 
+\dontrun{
 result <- vardannual(Y = "unemployed", H = "strata",
                      PSU = "PSU", w_final = "rb050",
                      ID_level1 = "db030", ID_level1 = "id_lv2",

@@ -1,22 +1,3 @@
-Changes in vardpoor version 0.14.0
-    + Corrected bug in function varchanges
-    + Corrected bug in function vardchangespoor
-
-Changes in vardpoor version 0.10.0
-    + Add new function vardchangstrs
-    + Updated function vardchangespoor 
-
-Changes in vardpoor version 0.9.11
-    + Corrected bug in function vardom_othstr, when calibration is used and not defined variable ind_gr 
-
-Changes in vardpoor version 0.9.10
-    + add confidence level in vardom, vardomh, varpoord, vardcros
-    +  Bug correction
-
-Changes in vardpoor version 0.9.4
-    + Add variable Subperiods checking in function vardannual
-    + Corrected some bugs in manual
-
 Changes in vardpoor version 0.9.0
     + Corrected bug in function domain
     + Vardannual contains previous varchangannual and vardcrosannual together

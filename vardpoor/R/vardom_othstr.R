@@ -1,5 +1,5 @@
 vardom_othstr <- function(Y, H, H2, PSU, w_final,
-                   id = NULL,  
+                   id = NULL,
                    Dom = NULL,
                    period = NULL,
                    N_h = NULL,
@@ -9,18 +9,18 @@ vardom_othstr <- function(Y, H, H2, PSU, w_final,
                    ind_gr = NULL,
                    g = NULL,
                    q = NULL,
-                   dataset = NULL, 
-                   confidence = .95, 
+                   dataset = NULL,
+                   confidence = .95,
                    percentratio = 1,
                    outp_lin = FALSE,
                    outp_res = FALSE) {
- 
+
   ### Checking
 
-  outp_lin <- check_var(vars = outp_lin, varn = "outp_lin", varntype = "logical") 
-  outp_res <- check_var(vars = outp_res, varn = "outp_res", varntype = "logical") 
-  percentratio <- check_var(vars = percentratio, varn = "percentratio", varntype = "pinteger") 
-  confidence <- check_var(vars = confidence, varn = "confidence", varntype = "numeric01") 
+  outp_lin <- check_var(vars = outp_lin, varn = "outp_lin", varntype = "logical")
+  outp_res <- check_var(vars = outp_res, varn = "outp_res", varntype = "logical")
+  percentratio <- check_var(vars = percentratio, varn = "percentratio", varntype = "pinteger")
+  confidence <- check_var(vars = confidence, varn = "confidence", varntype = "numeric01")
 
   Y <- check_var(vars = Y, varn = "Y", dataset = dataset,
                  check.names = TRUE, isnumeric = TRUE, grepls = "__")
@@ -105,31 +105,31 @@ vardom_othstr <- function(Y, H, H2, PSU, w_final,
                 pH <- NULL
      }
     setkeyv(N_h, names(N_h)[c(1 : (1 + np))])
-  } 
+  }
 
   # N_h2
   if (!is.null(N_h2)) {
       N_h2 <- data.table(N_h2)
-      if (anyNA(N_h2)) stop("'N_h2' has missing values") 
+      if (anyNA(N_h2)) stop("'N_h2' has missing values")
       if (ncol(N_h2) != np + 2) stop(paste0("'N_h2' should be ", np + 2, " columns"))
       if (!is.numeric(N_h2[[ncol(N_h2)]])) stop("The last column of 'N_h2' should be numeric")
 
       nams2 <- c(names(period), names(H2))
       if (all(nams2 %in% names(N_h2))) {N_h2[, (nams2) := lapply(.SD, as.character), .SDcols = nams2]
-             } else stop(paste0("All strata titles of 'H2'", ifelse(!is.null(period), "and periods titles of 'period'", ""), " have not in 'N_h2'"))   
+             } else stop(paste0("All strata titles of 'H2'", ifelse(!is.null(period), "and periods titles of 'period'", ""), " have not in 'N_h2'"))
       if (is.null(period)) {
              if (names(H2) != names(N_h2)[1]) stop("Strata titles for 'H2' and 'N_h2' is not equal")
              if (any(is.na(merge(unique(H2), N_h2, by = names(H2), all.x = TRUE)))) stop("'N_h2' is not defined for all strata")
        } else { pH2 <- data.table(period, H2)
                 if (any(names(pH2) != names(N_h2)[c(1 : (1 + np))])) stop("Strata titles for 'period' with 'H2' and 'N_h2' is not equal")
                 if (any(is.na(merge(unique(pH2), N_h2, by = names(pH2), all.x = TRUE)))) stop("'N_h2' is not defined for all strata and periods")
-                } 
+                }
     setkeyv(N_h2, names(N_h2)[c(1 : (1 + np))])
   } else stop ("N_h2 is not defined!")
 
 
   ### Calculation
-      
+
   # Domains
   if (!is.null(Dom)) Y1 <- domain(Y = Y, D = Dom,
                                   dataset = NULL,
@@ -144,14 +144,14 @@ vardom_othstr <- function(Y, H, H2, PSU, w_final,
      Z0 <- copy(Z1)
      setnames(Z0, names(Z0), names(Y1))
      n_nonzero <- n_nonzero + Y1
-     Z0 <- NULL  
+     Z0 <- NULL
     }
-  if (!is.null(period)){ n_nonzero <- data.table(period, n_nonzero) 
-                         n_nonzero <- n_nonzero[, lapply(.SD, function(x) 
+  if (!is.null(period)){ n_nonzero <- data.table(period, n_nonzero)
+                         n_nonzero <- n_nonzero[, lapply(.SD, function(x)
                                                          sum(as.integer(abs(x) > .Machine$double.eps))),
                                                          keyby = names(period),
                                                          .SDcols = names(Y1)]
-                  } else n_nonzero <- n_nonzero[, lapply(.SD, function(x) 
+                  } else n_nonzero <- n_nonzero[, lapply(.SD, function(x)
                                                          sum(as.integer(abs(x) > .Machine$double.eps))),
                                                          .SDcols = names(Y1)]
 
@@ -168,7 +168,7 @@ vardom_othstr <- function(Y, H, H2, PSU, w_final,
 
   # Design weights
   if (!is.null(X)) w_design <- w_final / g else w_design <- w_final
-      
+
   # Ratio of two totals
   linratio_outp <- per <- variableZ <- estim <- deff_sam <- NULL
   deff_est <- deff <- var_est2 <- se <- rse <- cv <- NULL
@@ -187,7 +187,7 @@ vardom_othstr <- function(Y, H, H2, PSU, w_final,
         } else {
             periodap <- do.call("paste", c(as.list(period), sep = "_"))
             lin1 <- lapply(split(Y1[, .I], periodap), function(i)
-                            data.table(sar_nr = i, 
+                            data.table(sar_nr = i,
                                        lin.ratio(Y = Y1[i], Z = Z1[i],
                                                  weight = w_final[i],
                                                  Dom = NULL, dataset = NULL,
@@ -198,7 +198,7 @@ vardom_othstr <- function(Y, H, H2, PSU, w_final,
             Y2[, sar_nr := NULL]
         }
     if (any(is.na(Y2))) print("Results are calculated, but there are cases where Z = 0")
-    if (outp_lin) linratio_outp <- data.table(idper, PSU, Y2) 
+    if (outp_lin) linratio_outp <- data.table(idper, PSU, Y2)
   } else {
           Y2 <- Y1
          }
@@ -227,11 +227,11 @@ vardom_othstr <- function(Y, H, H2, PSU, w_final,
         Y3 <- rbindlist(lapply(lin1, function(x) x[[1]]))
         betas <- rbindlist(lapply(lin1, function(x) x[[2]]))
         setkeyv(Y3, "sar_nr")
-        Y3[, sar_nr := NULL] 
+        Y3[, sar_nr := NULL]
       if (outp_res) res_outp <- data.table(idper, PSU, Y3)
   } else Y3 <- Y2
 
-  var_est <- variance_othstr(Y = Y3, H = H, H2 = H2,  
+  var_est <- variance_othstr(Y = Y3, H = H, H2 = H2,
                              w_final = w_final, N_h = N_h,
                              N_h2 = N_h2, period = period,
                              dataset = NULL, checking = FALSE)
@@ -244,7 +244,7 @@ vardom_othstr <- function(Y, H, H2, PSU, w_final,
   all_result <- merge(all_result, n_nonzero, all = TRUE)
 
   # Variance of HT estimator under current design
-  var_cur_HT <- variance_othstr(Y = Y2, H = H, H2 = H2, 
+  var_cur_HT <- variance_othstr(Y = Y2, H = H, H2 = H2,
                                 w_final = w_design, N_h = N_h,
                                 N_h2 = N_h2, period = period,
                                 dataset = NULL, checking = FALSE)
@@ -261,7 +261,7 @@ vardom_othstr <- function(Y, H, H2, PSU, w_final,
            lin1 <- lapply(1 : nrow(period_agg), function(i) {
                           per <- period_agg[i,][rep(1, nrow(Y2a)),]
                           ind <- (rowSums(per == period) == ncol(period))
-                          data.table(period_agg[i,], 
+                          data.table(period_agg[i,],
                                      var_srs(Y2a[ind], w = w_design[ind])$varsrs)
                         })
            var_srs_HT <- rbindlist(lin1)
@@ -278,7 +278,7 @@ vardom_othstr <- function(Y, H, H2, PSU, w_final,
            lin1 <- lapply(1:nrow(period_agg), function(i) {
                           per <- period_agg[i,][rep(1, nrow(Y2a)),]
                           ind <- (rowSums(per == period) == ncol(period))
-                          data.table(period_agg[i,], 
+                          data.table(period_agg[i,],
                                      var_srs(Y3[ind], w = w_final[ind])$varsrs)
                         })
            var_srs_ca <- rbindlist(lin1)
@@ -298,11 +298,11 @@ vardom_othstr <- function(Y, H, H2, PSU, w_final,
                        }
   Y_nov <- transpos(Y_nov, is.null(period), "Y_nov", names(period))
   all_result <- merge(all_result, Y_nov)
-  
+
   if (!is.null(Z1)) {
          YZnames <- data.table(variable = names(Y1), variableDZ = names(Z1))
          all_result <- merge(all_result, YZnames, by = "variable")
-         
+
          hZ <- data.table(Z1 * w_final)
          if (is.null(period)) { Z_nov <- hZ[, lapply(.SD, sum, na.rm = TRUE), .SDcols = names(Z1)]
                        } else { hZ <- data.table(period, hZ)
@@ -314,22 +314,22 @@ vardom_othstr <- function(Y, H, H2, PSU, w_final,
 
   vars <- data.table(variable = names(Y1), nr_names = 1 : ncol(Y1))
   all_result <- merge(vars, all_result, by = "variable")
-                        
-  vars <- idper <- Y1 <- Z1 <- Y_nov <- NULL
-  Z_nov <- hY <- hZ <- YZnames <- dati <- NULL                            
 
-  
-  all_result[, estim := Y_nov]   
+  vars <- idper <- Y1 <- Z1 <- Y_nov <- NULL
+  Z_nov <- hY <- hZ <- YZnames <- dati <- NULL
+
+
+  all_result[, estim := Y_nov]
   if (!is.null(all_result$Z_nov)) all_result[, estim := Y_nov / Z_nov]
 
   if (nrow(all_result[var_est < 0]) > 0) print("Estimation of variance are negative!")
- 
+
   # Design effect of sample design
   all_result[, deff_sam := var_cur_HT / var_srs_HT]
-  
+
   # Design effect of estimator
   all_result[, deff_est := var_est / var_cur_HT]
-  
+
   # Overall effect of sample design and estimator
   all_result[, deff := deff_sam * deff_est]
 
@@ -343,8 +343,8 @@ vardom_othstr <- function(Y, H, H2, PSU, w_final,
   tsad <- qnorm(0.5 * (1 + confidence))
   all_result[, absolute_margin_of_error := tsad * se]
   all_result[, relative_margin_of_error := tsad * cv]
-  all_result[, CI_lower := estim - tsad * se]
-  all_result[, CI_upper := estim + tsad * se]
+  all_result[, CI_lower := estim - absolute_margin_of_error]
+  all_result[, CI_upper := estim + absolute_margin_of_error]
 
   setnames(all_result, c("variable", "var_est"), c("variableD", "var"))
   if (!is.null(all_result$Z_nov)) {
@@ -370,18 +370,18 @@ vardom_othstr <- function(Y, H, H2, PSU, w_final,
 
   all_result <- merge(nosr, all_result, by = "variableD")
   namesDom <- nosr <- NULL
-  
+
   if (!is.null(all_result$Z_nov)) {
        all_result[, variable := paste("R", get("variable"), get("variableZ"), sep = "__")] }
 
   if (!is.null(c(Dom, period))) { all_result <- merge(all_result, nhs, all = TRUE, by = c(namesDom1, names(period)))
                          } else { all_result[, respondent_count := nhs$respondent_count]
-                                  all_result[, pop_size := nhs$pop_size]} 
+                                  all_result[, pop_size := nhs$pop_size]}
 
   all_result[, confidence_level := confidence]
-  variab <- c("respondent_count", "n_nonzero", "pop_size", "estim", "var", "se", 
+  variab <- c("respondent_count", "n_nonzero", "pop_size", "estim", "var", "se",
               "rse", "cv", "absolute_margin_of_error", "relative_margin_of_error",
-              "CI_lower", "CI_upper", "confidence_level", "var_srs_HT",  "var_cur_HT", 
+              "CI_lower", "CI_upper", "confidence_level", "var_srs_HT",  "var_cur_HT",
               "var_srs_ca", "deff_sam", "deff_est", "deff")
 
   setkeyv(all_result, c("nr_names", names(Dom), names(period)))

@@ -33,12 +33,12 @@ vardom <- function(Y, H, PSU, w_final,
 
   ### Checking
 
-  fh_zero <- check_var(vars = fh_zero, varn = "fh_zero", varntype = "logical") 
-  PSU_level <- check_var(vars = PSU_level, varn = "PSU_level", varntype = "logical") 
-  outp_lin <- check_var(vars = outp_lin, varn = "outp_lin", varntype = "logical") 
-  outp_res <- check_var(vars = outp_res, varn = "outp_res", varntype = "logical") 
-  percentratio <- check_var(vars = percentratio, varn = "percentratio", varntype = "pinteger") 
-  confidence <- check_var(vars = confidence, varn = "confidence", varntype = "numeric01") 
+  fh_zero <- check_var(vars = fh_zero, varn = "fh_zero", varntype = "logical")
+  PSU_level <- check_var(vars = PSU_level, varn = "PSU_level", varntype = "logical")
+  outp_lin <- check_var(vars = outp_lin, varn = "outp_lin", varntype = "logical")
+  outp_res <- check_var(vars = outp_res, varn = "outp_res", varntype = "logical")
+  percentratio <- check_var(vars = percentratio, varn = "percentratio", varntype = "pinteger")
+  confidence <- check_var(vars = confidence, varn = "confidence", varntype = "numeric01")
 
   Y <- check_var(vars = Y, varn = "Y", dataset = dataset,
                  check.names = TRUE, isnumeric = TRUE, grepls = "__")
@@ -360,8 +360,8 @@ vardom <- function(Y, H, PSU, w_final,
   tsad <- qnorm(0.5 * (1 + confidence))
   all_result[, absolute_margin_of_error := tsad * se]
   all_result[, relative_margin_of_error:= tsad * cv]
-  all_result[, CI_lower := estim - tsad * se]
-  all_result[, CI_upper := estim + tsad * se]
+  all_result[, CI_lower := estim - absolute_margin_of_error]
+  all_result[, CI_upper := estim + absolute_margin_of_error]
 
   variableD <- NULL
   setnames(all_result, c("variable", "var_est"), c("variableD", "var"))
@@ -413,6 +413,6 @@ vardom <- function(Y, H, PSU, w_final,
 
   list(lin_out = linratio_outp,
        res_out = res_outp,
-       betas = betas,      
+       betas = betas,
        all_result = all_result)
 }

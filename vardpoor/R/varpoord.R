@@ -559,8 +559,8 @@ varpoord <- function(Y, w_final,
   tsad <- qnorm(0.5 * (1 + confidence))
   all_result[, absolute_margin_of_error := tsad * se]
   all_result[, relative_margin_of_error := tsad * cv]
-  all_result[, CI_lower := value - tsad * se]
-  all_result[, CI_upper := value + tsad * se]
+  all_result[, CI_lower := value - absolute_margin_of_error]
+  all_result[, CI_upper := value + absolute_margin_of_error]
 
   setnames(all_result, "var_est", "var")
 

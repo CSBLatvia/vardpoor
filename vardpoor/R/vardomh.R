@@ -23,12 +23,12 @@ vardomh <- function(Y, H, PSU, w_final,
 
   ### Checking
 
-  fh_zero <- check_var(vars = fh_zero, varn = "fh_zero", varntype = "logical") 
-  PSU_level <- check_var(vars = PSU_level, varn = "PSU_level", varntype = "logical") 
-  outp_lin <- check_var(vars = outp_lin, varn = "outp_lin", varntype = "logical") 
-  outp_res <- check_var(vars = outp_res, varn = "outp_res", varntype = "logical") 
-  percentratio <- check_var(vars = percentratio, varn = "percentratio", varntype = "pinteger") 
-  confidence <- check_var(vars = confidence, varn = "confidence", varntype = "numeric01") 
+  fh_zero <- check_var(vars = fh_zero, varn = "fh_zero", varntype = "logical")
+  PSU_level <- check_var(vars = PSU_level, varn = "PSU_level", varntype = "logical")
+  outp_lin <- check_var(vars = outp_lin, varn = "outp_lin", varntype = "logical")
+  outp_res <- check_var(vars = outp_res, varn = "outp_res", varntype = "logical")
+  percentratio <- check_var(vars = percentratio, varn = "percentratio", varntype = "pinteger")
+  confidence <- check_var(vars = confidence, varn = "confidence", varntype = "numeric01")
 
   if(!is.null(X)) {
     if (is.null(datasetX)) datasetX <- copy(dataset)
@@ -79,7 +79,7 @@ vardomh <- function(Y, H, PSU, w_final,
                         ncols = 1, Ynrow = Ynrow, ischaracter = TRUE,
                         isvector = TRUE, mustbedefined = FALSE, PSUs = PSU)
 
-  if(!is.null(X) | !is.null(ind_gr) |!is.null(g) | !is.null(q) |  
+  if(!is.null(X) | !is.null(ind_gr) |!is.null(g) | !is.null(q) |
      !is.null(periodX) | !is.null(X_ID_level1) | !is.null(datasetX)) {
       X <- check_var(vars = X, varn = "X", dataset = datasetX,
                      check.names = TRUE, isnumeric = TRUE,
@@ -95,7 +95,7 @@ vardomh <- function(Y, H, PSU, w_final,
       g <- check_var(vars = g, varn = "g", dataset = datasetX,
                      ncols = 1, Xnrow = Xnrow, isnumeric = TRUE,
                      isvector = TRUE, dX = "X")
-  
+
       q <- check_var(vars = q, varn = "q", dataset = datasetX,
                      ncols = 1, Xnrow = Xnrow, isnumeric = TRUE,
                      isvector = TRUE, dX = "X")
@@ -157,7 +157,7 @@ vardomh <- function(Y, H, PSU, w_final,
      Z0 <- copy(Z1)
      setnames(Z0, names(Z0), names(Y1))
      n_nonzero <- n_nonzero + Y1
-     Z0 <- NULL  
+     Z0 <- NULL
     }
   if (!is.null(period)){ n_nonzero <- data.table(period, n_nonzero)
                          n_nonzero <- n_nonzero[, lapply(.SD, function(x)
@@ -309,7 +309,7 @@ vardomh <- function(Y, H, PSU, w_final,
                                             checking = FALSE)
                       pers0 <- ind_gr[i, .N, keyby = c(names(ind_gr))]
                       list(data.table(sar_nr = i, resid$residuals),
-                           data.table(pers0[, N := NULL], resid$betas)) 
+                           data.table(pers0[, N := NULL], resid$betas))
                    })
 
        Y4 <- rbindlist(lapply(lin1, function(x) x[[1]]))
@@ -423,8 +423,8 @@ vardomh <- function(Y, H, PSU, w_final,
   tsad <- qnorm(0.5 * (1 + confidence))
   all_result[, absolute_margin_of_error := tsad * se]
   all_result[, relative_margin_of_error := tsad * cv]
-  all_result[, CI_lower := estim - tsad * se]
-  all_result[, CI_upper := estim + tsad * se]
+  all_result[, CI_lower := estim - absolute_margin_of_error]
+  all_result[, CI_upper := estim + absolute_margin_of_error]
 
   variableD <- NULL
   setnames(all_result, c("variable", "var_est"), c("variableD", "var"))

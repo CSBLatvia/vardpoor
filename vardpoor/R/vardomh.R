@@ -1,6 +1,6 @@
 vardomh <- function(Y, H, PSU, w_final,
                     ID_level1,
-                    ID_level2 = NULL,
+                    ID_level2,
                     Dom = NULL,
                     period = NULL,
                     N_h = NULL,

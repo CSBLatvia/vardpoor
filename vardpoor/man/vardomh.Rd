@@ -8,7 +8,7 @@
 \description{Computes the variance estimation in domain for ID_level1.}
 
 \usage{vardomh(Y, H, PSU, w_final, ID_level1,
-               ID_level2 = NULL, Dom = NULL, period = NULL,
+               ID_level2, Dom = NULL, period = NULL,
                N_h = NULL, PSU_sort = NULL,
                fh_zero = FALSE, PSU_level = TRUE,
                Z = NULL, dataset = NULL,

@@ -435,8 +435,8 @@ vardcros <- function(Y, H, PSU, w_final,
                         y <- namesY1[i]
                         if ((!is.null(namesZ1))&(!linratio)) z <- paste0(",", toString(namesZ1[i])) else z <- ""
 
-                        funkc <- as.formula(paste("cbind(", trim(toString(y)), z, ")~ 0 + ",
-                                       paste(c(0, DT1H), collapse= "+")))
+                        funkc <- as.formula(paste("cbind(", trimws(toString(y)), z, ")~ 0 + ",
+                                       paste(c(0, DT1H), collapse = "+")))
 
                         res1 <- lm(funkc, data = DT1c)
                         if (use.estVar == TRUE) {res1 <- data.table(crossprod(res1$res))
@@ -582,20 +582,20 @@ vardcros <- function(Y, H, PSU, w_final,
   DTx[, N := NULL]
 
   main <- melt(DTx[, c(namesperc, paste0("sd_w__", namesY1)), with = FALSE], id = namesperc)
-  main[, nameY1 := substr(variable, 7, nchar(trim(as.character(variable))))]
+  main[, nameY1 := substr(variable, 7, nchar(trimws(as.character(variable))))]
   main[, variable := NULL]
   setnames(main, "value", "sd_w")
   res <- merge(res, main, all.x = TRUE, by = c(namesperc, "nameY1"))
 
   main <- melt(DTx[, c(namesperc, paste0("sd_nw__", namesY1)), with = FALSE], id = namesperc)
-  main[, nameY1 := substr(variable, 8, nchar(trim(as.character(variable))))]
+  main[, nameY1 := substr(variable, 8, nchar(trimws(as.character(variable))))]
   main[, variable := NULL]
   setnames(main, "value", "sd_nw")
   res <- merge(res, main, all = TRUE, by = c(namesperc, "nameY1"))
 
   main <- melt(DTx[, c(namesperc, paste0("pop_", names_size1)), with = FALSE], id = namesperc)
   if (!is.null(namesDom)){
-                   main[, Dom := substr(variable, 11, nchar(trim(as.character(variable))))]
+                   main[, Dom := substr(variable, 11, nchar(trimws(as.character(variable))))]
                    vars <- unique(main[["Dom"]])
                    vars <- data.table(Dom=vars, t(data.frame(strsplit(vars, "__"))))
                    setnames(vars, names(vars)[2 : length(vars)], paste0(namesDom, "_new"))
@@ -607,7 +607,7 @@ vardcros <- function(Y, H, PSU, w_final,
   res <- merge(res, main, all.x = TRUE, by = nds)
 
   main <- melt(DTx[, c(namesperc, paste0("samp_", names_size1)), with = FALSE], id = namesperc)
-  if (!is.null(namesDom)) main[, Dom := substr(variable, 12, nchar(trim(as.character(variable))))]
+  if (!is.null(namesDom)) main[, Dom := substr(variable, 12, nchar(trimws(as.character(variable))))]
   main[, variable := NULL]
   setnames(main, "value", "sampl_siz")
   if (is.null(namesDom)) nds <- namesperc else nds <- c(namesperc, "Dom")

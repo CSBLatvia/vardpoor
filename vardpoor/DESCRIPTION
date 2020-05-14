@@ -2,15 +2,15 @@ Package: vardpoor
 Type: Package
 Title: Variance Estimation for Sample Surveys by the Ultimate Cluster
         Method
-Version: 0.16.0
-Date: 2019-08-28
+Version: 0.17.0
+Date: 2020-05-14
 Depends: R (>= 3.2.3), laeken
 Imports: foreach, data.table (>= 1.11.4), stringr, ggplot2, pracma,
         graphics, plyr, MASS, stats, utils, surveyplanning
-Authors@R: c(person("Juris", "Breidaks", email = "Juris.Breidaks@csb.gov.lv", role = c("aut", "cre")),
+Authors@R: c(person("Juris", "Breidaks", email = "Juris.Breidaks@gmail.com", role = c("aut", "cre")),
              person("Martins", "Liberts", role = "aut"),
              person("Santa", "Ivanova", role = "aut"))
-Maintainer: Juris Breidaks <Juris.Breidaks@csb.gov.lv>
+Maintainer: Juris Breidaks <Juris.Breidaks@gmail.com>
 Description: Generation of domain variables, linearization of several nonlinear population statistics (the ratio of two totals, weighted income percentile, relative median income ratio, at-risk-of-poverty rate, at-risk-of-poverty threshold, Gini coefficient, gender pay gap, the aggregate replacement ratio, the relative median income ratio, median income below at-risk-of-poverty gap, income quintile share ratio, relative median at-risk-of-poverty gap), computation of regression residuals in case of weight calibration, variance estimation of sample surveys by the ultimate cluster method (Hansen, Hurwitz and Madow,Theory, vol. I: Methods and Applications; vol. II: Theory. 1953, New York: John Wiley and Sons), variance estimation for longitudinal, cross-sectional measures and measures of change for single and multistage stage cluster sampling designs (Berger, Y. G., 2015, <doi:10.1111/rssa.12116>). Several other precision measures are derived - standard error, the coefficient of variation, the margin of error, confidence interval, design effect.
 License: GPL (>= 2)
 Encoding: UTF-8
@@ -21,5 +21,3 @@ NeedsCompilation: yes
 Author: Juris Breidaks [aut, cre],
   Martins Liberts [aut],
   Santa Ivanova [aut]
-Packaged: 2019-08-28 11:15:24 UTC; JBreidaks
-RoxygenNote: 6.1.1

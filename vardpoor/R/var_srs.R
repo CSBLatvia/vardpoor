@@ -1,4 +1,38 @@
+#'The estimation of the simple random sampling.
+#'
+#' @description Computes the estimation of the simple random sampling.
+#'
+#' @param Y The variables of interest.
+#' @param w Weight variable. One dimensional object convertible to one-column \code{data.frame}.
+#' 
+#' @return  A list with objects are returned by the function:
+#' \itemize{
+#'  \item \code{S2p} - a \code{data.table} containing the values of the variance estimation of the population.
+#'  \item \code{varsrs} - a \code{data.table} containing the values of the variance estimation of the simple random sampling.
+#'  }
+#'  
+#' @references
+#'Yves G. Berger, Tim Goedeme, Guillame Osier (2013). Handbook on standard error estimation and other related sampling issues in EU-SILC, URL \url{https://ec.europa.eu/eurostat/cros/content/handbook-standard-error-estimation-and-other-related-sampling-issues-ver-29072013_en}
+#'
+#' @seealso \code{\link{vardom}},
+#'          \code{\link{vardomh}},
+#'          \code{\link{varpoord}}
+#'          
+#' @keywords variance
+#' 
+#' @examples
+#' Ys <- matrix(rchisq(10, 3), 10, 1)
+#' ws <- c(rep(2, 5), rep(3, 5))
+#' var_srs(Ys, ws)
+#'
+#' @import data.table
+#' @import surveyplanning
+#' 
+#' @export var_srs
 
+
+
+ 
 var_srs <- function(Y, w = rep(1, length(Y))){
  
   ### Checking

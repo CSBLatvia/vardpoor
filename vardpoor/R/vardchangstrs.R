@@ -1,7 +1,108 @@
-recode.NA <- function(DT, cols = seq_len(ncol(DT))) {
-  for (j in cols) if (is.numeric(DT[[j]]))
-    set(DT, which(is.na(DT[[j]])), j, ifelse(is.integer(DT[[j]]), 0L, 0))
-}
+#' Variance estimation for measures of annual net change or annual for single stratified sampling designs
+#' 
+#' @description Computes the variance estimation for measures of annual net change or annual for single stratified sampling designs.
+#'
+#' @param Y Variables of interest. Object convertible to \code{data.table} or variable names as character, column numbers.
+#' @param H The unit stratum variable. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.
+#' @param PSU Primary sampling unit variable. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.
+#' @param w_final Weight variable. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.
+#' @param Dom Optional variables used to define population domains. If supplied, variables are calculated for each domain. An object convertible to \code{data.table} or variable names as character vector, column numbers.
+#' @param periods Variable for the all survey periods. The values for each period are computed independently. Object convertible to \code{data.table} or variable names as character, column numbers.
+#' @param dataset Optional survey data object convertible to \code{data.table}.
+#' @param periods1 The vector of periods from variable \code{periods} describes the first period for measures of change.
+#' @param periods2 The vector of periods from variable \code{periods} describes the second period for measures of change.
+#' @param in_sample Sample variable. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.
+#' @param in_frame Frame variable. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.
+#' @param percentratio Positive numeric value. All linearized variables are multiplied with \code{percentratio} value, by default - 1.
+#' @param confidence optional; either a positive value for confidence interval. This variable by default is 0.95.
+#' 
+#' 
+#' @return A list with objects are returned by the function:
+#'  \itemize{
+#'     \item \code{crossectional_results} - a \code{data.table} containing: \cr
+#'       \code{year} -  survey years, \cr
+#'       \code{subperiods} -  survey subperiods, \cr
+#'       \code{variable} - names of variables of interest, \cr
+#'       \code{Dom} - optional variable of the population domains, \cr
+#'       \code{estim} - the estimated value, \cr
+#'       \code{var} - the estimated variance of cross-sectional and longitudinal measures, \cr
+#'       \code{sd_w} - the estimated weighted variance of simple random sample, \cr
+#'       \code{se} - the estimated standard error of cross-sectional or longitudinal, \cr
+#'       \code{rse} - the estimated relative standard error (coefficient of variation), \cr
+#'       \code{cv} - the estimated relative standard error (coefficient of variation) in percentage, \cr
+#'       \code{absolute_margin_of_error} - the estimated absolute margin of error, \cr
+#'       \code{relative_margin_of_error} - the estimated relative margin of error, \cr
+#'       \code{CI_lower} - the estimated confidence interval lower bound, \cr
+#'       \code{CI_upper} - the estimated confidence interval upper bound, \cr 
+#'       \code{confidence_level} - the positive value for confidence interval.
+#'    \item \code{annual_results} - a \code{data.table} containing:
+#'       \code{year_1} -  survey years of \code{years1} for measures of annual net change, \cr
+#'       \code{year_2} -  survey years of \code{years2} for measures of annual net change, \cr
+#'       \code{Dom} - optional variable of the population domains, \cr
+#'       \code{variable} - names of variables of interest, \cr
+#'       \code{estim_2} - the estimated value for period2 for measures of annual net change, \cr
+#'       \code{estim_1} - the estimated value for period1 for measures of annual net change, \cr
+#'       \code{estim} - the estimated value, \cr
+#'       \code{var} - the estimated variance, \cr
+#'       \code{se} - the estimated standard error, \cr
+#'       \code{rse} - the estimated relative standard error (coefficient of variation), \cr
+#'       \code{cv} - the estimated relative standard error (coefficient of variation) in percentage, \cr
+#'       \code{absolute_margin_of_error} - the estimated absolute margin of error for period1 for measures of annual, \cr
+#'       \code{relative_margin_of_error} - the estimated relative margin of error in percentage for measures of annual, \cr
+#'       \code{CI_lower} - the estimated confidence interval lower bound, \cr
+#'       \code{CI_upper} - the estimated confidence interval upper bound, \cr
+#'       \code{confidence_level} - the positive value for confidence interval, \cr 
+#'       \code{significant} - is the the difference significant
+#'  }
+#'       
+#' @references
+#' Guillaume OSIER, Virginie RAYMOND, (2015), Development of methodology for the estimate of variance of annual net changes for LFS-based indicators. Deliverable 1 - Short document with derivation of the methodology.
+#' 
+#' @seealso \code{\link{vardchanges}},
+#'          \code{\link{vardannual}}
+#'          
+#' @keywords vardannual
+#' 
+#' @examples
+#' library("data.table")
+#' library("laeken")
+#' 
+#' ### Example 
+#' data("eusilc")
+#' set.seed(1)
+#' eusilc1 <- eusilc[1 : 20,]
+#' set.seed(1)
+#' dataset1 <- data.table(rbind(eusilc1, eusilc1),
+#'                        year = c(rep(2010, nrow(eusilc1)),
+#'                                 rep(2011, nrow(eusilc1))))
+#' dataset1[, half:= .I - 2 * trunc((.I - 1) / 2)]
+#' dataset1[, quarter:= .I - 4 * trunc((.I - 1) / 4)]
+#' dataset1[age < 0, age:= 0]
+#' PSU <- dataset1[, .N, keyby = "db030"][, N:= NULL]
+#' PSU[, PSU:= trunc(runif(nrow(PSU), 0, 5))]
+#' dataset1 <- merge(dataset1, PSU, all = TRUE, by = "db030")
+#' PSU <- eusilc <- NULL
+#' dataset1[, strata := c("XXXX")]
+#' 
+#' dataset1[, employed := trunc(runif(nrow(dataset1), 0, 2))]
+#' dataset1[, id_lv2 := paste0("V", .I)]
+#' dataset1[, fpc := 0]
+#' 
+#' \dontrun{
+#' result <- vardbootstr(boots_count = 500, = "employed", H = "strata",
+#'                       PSU = "PSU", w_final = "rb050", ID_level1 = "ids",
+#'                       Z = NULL, Dom = NULL, dh = 1, fpc = "fpc",
+#'                       dataset = dataset1, years = "year",
+#'                       subperiods = "half", year1 = 2010,
+#'                       year = 2011, percentratio = 100,
+#'                       confidence = 0.95, method = "netchanges") 
+#' result}
+#'
+#'
+#' @import data.table
+#' @import stringr
+#' 
+#' @export vardchangstrs
 
 vardchangstrs <- function(Y, H, PSU, w_final,
                           Dom = NULL, periods = NULL,
@@ -29,7 +130,7 @@ calc3 <- copy(calc)
 outvars <- c("variable", Dom, periods, "estim", "var")
 calc <- calc[, outvars, with = FALSE]
 
-recode.NA(dataset, Y)
+setnafill(dataset, type = "const", fill = 0, cols = Y)
 if (!is.null(Dom)) { dats <- domain(Y, D = Dom, dataset = dataset)
                      Yvars <- names(dats)
                      dataset <- data.table(dataset, dats) 
@@ -57,7 +158,8 @@ setnames(dat_ids, names(dat_ids), c("ids", paste0(periods, "_", 1:2)))
 
 frame <- merge(frame1, frame2, by = c("ids", PSU), all = TRUE)
 rm(list = c(paste0("periods", 1:2), paste0("frame", 1:2)))
-recode.NA(frame, c(paste0(c(in_sample, in_frame), "_1"),
+setnafill(frame, type = "const", fill = 0,
+          cols = c(paste0(c(in_sample, in_frame), "_1"),
                    paste0(c(in_sample, in_frame), "_2")))
 
 frame[, D_l := as.numeric(get(paste0(in_frame, "_1")) == 1 & get(paste0(in_frame, "_2")) == 0)]
@@ -117,8 +219,8 @@ sample_data[B_l == 1, ind_2 := 1]
 
 rm(list = c("frame", "dataset"))
 
-
-recode.NA(sample_data, c(paste0(Yvars, "_1"), paste0(Yvars, "_2")))
+setnafill(sample_data, type = "const", fill = 0,
+          cols = c(paste0(Yvars, "_1"), paste0(Yvars, "_2")))
 
 
 aggr1 <- sample_data[, lapply(Yvars, function(x) { sum(get(paste0(x, "_1")) * get(paste0(x, "_2")) * ind_1 * ind_2  * in_sample_1 * in_sample_2)}), 

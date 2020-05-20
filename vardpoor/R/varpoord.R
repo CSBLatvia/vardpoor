@@ -1,3 +1,158 @@
+#' Estimation of the variance and deff for sample surveys for indicators on social exclusion and poverty
+#' 
+#' @description Computes the estimation of the variance for indicators on social exclusion and poverty.
+#' 
+#' @param Y Study variable (for example equalized disposable income or gross pension income). One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.
+#' @param w_final Weight variable. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.
+#' @param age Age variable. One dimensional object convertible to one-column \code{data.frame} or variable name as character, column number.
+#' @param pl085 Retirement variable (Number of months spent in retirement or early retirement). One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.
+#' @param month_at_work}{Variable for total number of month at work (sum of the number of months spent at full-time work as employee, number of months spent at part-time work as employee, number of months spent at full-time work as self-employed (including family worker), number of months spent at part-time work as self-employed (including family worker)).  One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.
+#' @param Y_den Denominator variable (for example gross individual earnings). One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.
+#' @param Y_thres Variable (for example equalized disposable income) used for computation and linearization of poverty threshold. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number. Variable specified for \code{inc} is used as \code{income_thres} if \code{income_thres} is  not defined.
+#' @param wght_thres Weight variable used for computation and linearization of poverty threshold. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number. Variable specified for \code{weight} is used as \code{wght_thres} if \code{wght_thres} is not defined.
+#' @param  ID_level1 Variable for level1 ID codes. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.
+#' @param ID_level2 Optional variable for unit ID codes. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.
+#' @param H The unit stratum variable. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.
+#' @param PSU Primary sampling unit variable. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.
+#' @param N_h Number of primary sampling units in population for each stratum (and period if \code{period} is not \code{NULL}). If \code{N_h = NULL} and \code{fh_zero = FALSE} (default), \code{N_h} is estimated from sample data as sum of weights (\code{w_final}) in each stratum (and period if \code{period} is not \code{NULL}).
+#' Optional for single-stage sampling design as it will be estimated from sample data. Recommended for multi-stage sampling design as \code{N_h} can not be correctly estimated from the sample data in this case. If \code{N_h} is not used in case of multi-stage sampling design (for example, because this information is not available), it is advisable to set \code{fh_zero = TRUE}.
+#' If \code{period} \bold{is} \code{NULL}. A two-column data object convertible to \code{data.table} with rows for each stratum. The first column should contain stratum code. The second column - the number of primary sampling units in the population of each stratum.
+#' If \code{period} \bold{is not} \code{NULL}. A three-column data object convertible to \code{data.table} with rows for each intersection of strata and period. The first column should contain period. The second column should contain stratum code. The third column - the number of primary sampling units in the population of each stratum and period.
+#' @param PSU_sort optional; if PSU_sort is defined, then variance is calculated for systematic sample.
+#' @param fh_zero by default FALSE; fh is calculated as division of n_h and N_h in each strata, if true, fh value is zero in each strata.
+#' @param PSU_level by default TRUE; if PSU_level is true, in each strata fh is calculated as division of count of PSU in sample (n_h) and count of PSU in frame(N_h). if PSU_level is false, in each strata fh is calculated as division of count of units in sample (n_h) and count of units in frame(N_h), which calculated as sum of weights.
+#' @param sort Optional variable to be used as tie-breaker for sorting. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.
+#' @param Dom Optional variables used to define population domains. If supplied, variables is calculated for each domain. An object convertible to \code{data.table} or variable names as character vector, column numbers.
+#' @param period Optional variable for survey period. If supplied, variables is calculated for each time period. Object convertable to \code{data.table} or variable names as character, column numbers.
+#' @param gender Numerical variable for gender, where 1 is for males, but 2 is for females. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.
+#' @param dataset Optional survey data object convertible to \code{data.frame}.
+#' @param X Optional matrix of the auxiliary variables for the calibration estimator. Object convertible to \code{data.table} or variable names as character, column numbers.
+#' @param periodX Optional variable of the survey periods. If supplied, residual estimation of calibration is done independently for each time period. Object convertible to \code{data.table} or variable names as character, column numbers.
+#' @param X_ID_level1 Variable for level1 ID codes. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.
+#' @param ind_gr Optional variable by which divided independently X matrix of the auxiliary variables for the calibration. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.
+#' @param g Optional variable of the g weights. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.
+#' @param q Variable of the positive values accounting for heteroscedasticity. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.
+#' @param datasetX Optional survey data object in household level convertible to \code{data.table}.
+#' @param percentage A numeric value in range \eqn{[0,100]} for \eqn{p} in the formula for poverty threshold computation:
+#'  \deqn{\frac{p}{100} \cdot Z_{\frac{\alpha}{100}}.}{p/100 * Z(\alpha/100).}
+#'  For example, to compute poverty threshold equal to 60\% of some income quantile, \eqn{p} should be set equal to 60.
+#' @param order_quant A numeric value in range \eqn{[0,100]} for \eqn{\alpha} in the formula for poverty threshold computation:
+#' \deqn{\frac{p}{100} \cdot Z_{\frac{\alpha}{100}}.}{p/100 * Z(\alpha/100).}
+#' For example, to compute poverty threshold equal to some percentage of median income, \eqn{\alpha} should be set equal to 50.
+#' @param alpha a numeric value in range \eqn{[0,100]} for the order of the income quantile share ratio (in percentage).
+#' @param confidence Optional positive value for confidence interval. This variable by default is 0.95.
+#' @param outp_lin Logical value. If \code{TRUE} linearized values of the ratio estimator will be printed out.
+#' @param outp_res Logical value. If \code{TRUE} estimated residuals of calibration will be printed out.
+#' @param type a character vector (of length one unless several.ok is TRUE), example "linarpr","linarpt", "lingpg", "linpoormed", "linrmpg", "lingini", "lingini2", "linqsr", "linarr", "linrmir".
+#' 
+#' @return A list with objects are returned by the function:
+#' \itemize{
+#'    \item \code{lin_out} - a \code{data.table} containing the linearized values of the ratio estimator with ID_level2 and PSU.
+#'    \item \code{res_out} - a \code{data.table} containing the estimated residuals of calibration with ID_level1 and PSU. 
+#'    \item \code{betas} - a numeric \code{data.table} containing the estimated coeffients of calibration.
+#'    \item \code{all_result} - a \code{data.table}, which containing variables: \cr
+#'       \code{respondent_count} - the count of respondents, \cr
+#'       \code{pop_size} - the estimated size of population, \cr
+#'       \code{n_nonzero} - the count of respondents, who answers are larger than zero, \cr
+#'       \code{value} - the estimated value, \cr
+#'       \code{var} - the estimated variance, \cr
+#'       \code{se} - the estimated standard error, \cr
+#'       \code{rse} - the estimated relative standard error (coefficient of variation), \cr
+#'       \code{cv} - the estimated relative standard error (coefficient of variation) in percentage, \cr
+#'       \code{absolute_margin_of_error} - the estimated absolute margin of error, \cr
+#'       \code{relative_margin_of_error} - the estimated relative margin of error in percentage, \cr
+#'       \code{CI_lower} - the estimated confidence interval lower bound, \cr
+#'       \code{CI_upper} - the estimated confidence interval upper bound, \cr
+#'       \code{confidence_level} - the positive value for confidence interval, \cr 
+#'       \code{S2_y_HT} - the estimated variance of the y variable in case of total or the estimated variance of the linearised variable in case of the ratio of two totals using non-calibrated weights, \cr
+#'       \code{S2_y_ca} - the estimated variance of the y variable in case of total or the estimated variance of the linearised variable in case of the ratio of two totals using calibrated weights, \cr
+#'       \code{S2_res} - the estimated variance of the regression residuals, \cr
+#'       \code{var_srs_HT} - the estimated variance of the HT estimator under SRS for household, \cr
+#'       \code{var_cur_HT} - the estimated variance of the HT estimator under current design for household, \cr
+#'       \code{var_srs_ca} - the estimated variance of the calibrated estimator under SRS  for household, \cr
+#'       \code{deff_sam} - the estimated design effect of sample design for household, \cr
+#'       \code{deff_est} - the estimated design effect of estimator for household, \cr
+#'       \code{deff} - the overall estimated design effect of sample design and estimator for household
+#'   }
+#'  
+#'      
+#' @references
+#' Eric Graf and Yves Tille, Variance Estimation Using Linearization for Poverty and Social Exclusion Indicators,  Survey Methodology, June 2014 61 Vol. 40, No. 1, pp. 61-79, Statistics Canada, Catalogue no. 12-001-X, URL \url{http://www.statcan.gc.ca/pub/12-001-x/12-001-x2014001-eng.pdf} \cr
+#' Guillaume Osier and Emilio Di Meglio. The linearisation approach implemented by Eurostat for the first wave of EU-SILC: what could be done from the second wave onwards? 2012 \cr
+#' Guillaume Osier (2009). Variance estimation for complex indicators of poverty and inequality. \emph{Journal of the European Survey Research Association}, Vol.3, No.3, pp. 167-195, ISSN 1864-3361, URL \url{http://ojs.ub.uni-konstanz.de/srm/article/view/369}. \cr
+#' Eurostat Methodologies and Working papers, Standard error estimation for the EU-SILC indicators of poverty and social exclusion, 2013, URL \url{http://ec.europa.eu/eurostat/documents/3859598/5927001/KS-RA-13-029-EN.PDF}. \cr
+#' Jean-Claude Deville (1999). Variance estimation for complex statistics and estimators: linearization and residual techniques. Survey Methodology, 25, 193-203, URL \url{http://www.statcan.gc.ca/pub/12-001-x/1999002/article/4882-eng.pdf}. \cr
+#' Eurostat Methodologies and Working papers, Handbook on precision requirements and variance estimation for ESS household surveys, 2013, URL \url{http://ec.europa.eu/eurostat/documents/3859598/5927001/KS-RA-13-029-EN.PDF}. \cr
+#' MATTI LANGEL - YVES TILLE, Corrado Gini, a pioneer in balanced sampling and inequality theory. \emph{METRON - International Journal of Statistics}, 2011, vol. LXIX, n. 1, pp. 45-65, URL \url{ftp://metron.sta.uniroma1.it/RePEc/articoli/2011-1-3.pdf}. \cr
+#' Morris H. Hansen, William N. Hurwitz, William G. Madow, (1953), Sample survey methods and theory Volume I Methods and applications, 257-258, Wiley. \cr
+#' Yves G. Berger, Tim Goedeme, Guillame Osier (2013). Handbook on standard error estimation and other related sampling issues in EU-SILC, URL \url{https://ec.europa.eu/eurostat/cros/content/handbook-standard-error-estimation-and-other-related-sampling-issues-ver-29072013_en} \cr
+#' Working group on Statistics on Income and Living Conditions (2004) Common cross-sectional EU indicators based on EU-SILC; the gender pay gap.  \emph{EU-SILC 131-rev/04}, Eurostat.\cr
+#' 
+#' 
+#' @seealso \code{\link{vardom}}, \code{\link{vardomh}}, \code{\link{linarpt}}
+#' 
+#' @keywords varpoord
+#' 
+#' 
+#' @examples
+#' library("data.table")
+#' library("laeken")
+#' data("eusilc")
+#' dataset <- data.table(IDd = paste0("V", 1 : nrow(eusilc)), eusilc)
+#' dataset1 <- dataset[1 : 1000]
+#'  
+#' #use dataset1 by default without using fh_zero (finite population correction)
+#' aa <- varpoord(Y = "eqIncome", w_final = "rb050",
+#'                Y_thres = NULL, wght_thres = NULL,
+#'                ID_level1 = "db030", ID_level2 = "IDd", 
+#'                H = "db040", PSU = "rb030", N_h = NULL,
+#'                sort = NULL, Dom = NULL,
+#'                gender = NULL, X = NULL,
+#'                X_ID_level1 = NULL, g = NULL,
+#'                q = NULL, datasetX = NULL,             
+#'                dataset = dataset1, percentage = 60,
+#'                order_quant = 50L, alpha = 20, 
+#'                confidence = .95, outp_lin = FALSE,
+#'                outp_res = FALSE, type = "linarpt")
+#' aa
+#'  
+#' \dontrun{
+#'  # use dataset1 by default with using fh_zero (finite population correction)
+#'  aa2 <- varpoord(Y = "eqIncome", w_final = "rb050",
+#'                  Y_thres = NULL, wght_thres = NULL,
+#'                  ID_level1 = "db030", ID_level2 = "IDd", 
+#'                  H = "db040", PSU = "rb030", N_h = NULL,
+#'                  fh_zero = TRUE, sort = NULL, Dom = "db040",
+#'                  gender = NULL, X = NULL, X_ID_level1 = NULL,
+#'                  g = NULL, datasetX = NULL, dataset =  dataset1,
+#'                  percentage = 60, order_quant = 50L,
+#'                  alpha = 20, confidence = .95, outp_lin = FALSE,
+#'                  outp_res = FALSE, type = "linarpt")
+#'  aa2
+#'  aa2$all_result
+#'  
+#'  
+#'  # using dataset1
+#'  aa4 <- varpoord(Y = "eqIncome", w_final = "rb050",
+#'                  Y_thres = NULL, wght_thres = NULL,
+#'                  ID_level1 = "db030", ID_level2 = "IDd", 
+#'                  H = "db040", PSU = "rb030", N_h = NULL,
+#'                  sort = NULL, Dom = "db040",
+#'                  gender = NULL, X = NULL,
+#'                  X_ID_level1 = NULL, g = NULL,
+#'                  datasetX = NULL, dataset =  dataset,
+#'                  percentage = 60, order_quant = 50L,
+#'                  alpha = 20, confidence = .95,
+#'                  outp_lin = TRUE, outp_res = TRUE,
+#'                  type = "linarpt")
+#'  aa4$lin_out[20 : 40]}
+#'  
+#' 
+#' @import data.table
+#' 
+#' @export varpoord
+
+
 varpoord <- function(Y, w_final,
                      age = NULL,
                      pl085 = NULL,
@@ -29,10 +184,6 @@ varpoord <- function(Y, w_final,
                      confidence = .95,
                      outp_lin = FALSE,
                      outp_res = FALSE,
-                     kern_method = "gaussian",
-                     r = NULL,
-                     ro = NULL,
-                     h_breaks = NULL,
                      type="linrmpg") {
 
   ### Checking
@@ -51,12 +202,6 @@ varpoord <- function(Y, w_final,
   order_quant <- check_var(vars = order_quant, varn = "order_quant", varntype = "numeric0100")
   alpha <- check_var(vars = alpha, varn = "alpha", varntype = "numeric0100")
   confidence <- check_var(vars = confidence, varn = "confidence", varntype = "numeric01")
-
-  kern_method <- check_var(vars = kern_method, varn = "kern_method", varntype = "kern_method")
-  r <- check_var(vars = r, varn = "r", varntype = "pinteger", kern_method = kern_method)
-  ro <- check_var(vars = ro, varn = "ro", varntype = "numeric01", kern_method = kern_method)
-  h_breaks <- check_var(vars = h_breaks, varn = "h_breaks",
-                        varntype = "pinteger", kern_method = kern_method)
 
   Y <- check_var(vars = Y, varn = "Y", dataset = dataset,
                  ncols = 1, isnumeric = TRUE,
@@ -246,8 +391,7 @@ varpoord <- function(Y, w_final,
                         sort = sort, Dom = Dom, period = period,
                         dataset = NULL, percentage = percentage,
                         order_quant = order_quant, var_name = "lin_arpt",
-                        kern_method = "gaussian", r = r, ro = ro,
-                        h_breaks = h_breaks, checking = FALSE)
+                        checking = FALSE)
        Y1 <- merge(Y1, varpt$lin, all.x = TRUE)
        esti <- data.table("ARPT", varpt$value, NA)
        setnames(esti, names(esti)[c(1, -1 : 0 + ncol(esti))],
@@ -263,8 +407,6 @@ varpoord <- function(Y, w_final,
                         percentage = percentage,
                         order_quant = order_quant,
                         var_name = "lin_arpr",
-                        kern_method = "gaussian", r = r,
-                        ro = ro, h_breaks = h_breaks,
                         checking = FALSE)
 
        Y1 <- merge(Y1, varpr$lin, all.x = TRUE)

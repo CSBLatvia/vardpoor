@@ -1,21 +1,80 @@
-#******************************************************************************************
-#******************************************************************************************
-#******************************************************************************************
-#***                                                                                    ***
-#***                                                                                    ***
-#***                    LINEARIZATION OF THE AT-RISK-OF-POVERTY RATE                    ***
-#***                                                                                    ***
-#***                                                                                    ***
-#******************************************************************************************
-#******************************************************************************************
-#******************************************************************************************
+#' Linearization of at-risk-of-poverty rate
+#' 
+#' @description Estimates the at-risk-of-poverty rate (defined as the proportion of persons with equalized disposable income below at-risk-of-poverty threshold) and computes linearized variable for variance estimation.
+#' 
+#' @param Y Study variable (for example equalized disposable income). One dimensional object convertible to one-column \code{data.table} or variable name as character, column number).
+#' @param id Optional variable for unit ID codes. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number or logical vector).
+#' @param weight Optional weight variable. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number or logical vector).
+#' @param Y_thres Variable (for example equalized disposable income) used for computation and linearization of poverty threshold. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number. Variable specified for \code{inc} is used as \code{income_thres} if \code{income_thres} is not defined.
+#' @param wght_thres Weight variable used for computation and linearization of poverty threshold. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number or logical vector. Variable specified for \code{weight} is used as \code{wght_thres} if \code{wght_thres} is not defined.
+#' @param sort Optional variable to be used as tie-breaker for sorting. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.
+#' @param Dom Optional variables used to define population domains. If supplied, linearization of at-risk-of-poverty threshold is done for each domain. An object convertible to \code{data.table} or variable names as character vector, column numbers as numeric vector.
+#' @param period Optional variable for survey period. If supplied, linearization of at-risk-of-poverty threshold is done for each survey period. Object convertible to \code{data.table} or variable names as character, column numbers as numeric vector.
+#' @param dataset Optional survey data object convertible to \code{data.table}.
+#' @param percentage A numeric value in range \eqn{\left[ 0,100 \right]}{[0,100]} for \eqn{p} in the formula for at-risk-of-poverty threshold computation:
+#'            \deqn{\frac{p}{100} \cdot Z_{\frac{\alpha}{100}}.}{p/100 * Z(\alpha/100).}
+#'        For example, to compute at-risk-of-poverty threshold equal to 60\% of some income quantile, \eqn{p} #'should be set equal to 60.
+#' @param order_quant A numeric value in range \eqn{\left[ 0,100 \right]}{[0,100]} for \eqn{\alpha} in the formula #'for at-risk-of-poverty threshold computation:
+#'            \deqn{\frac{p}{100} \cdot Z_{\frac{\alpha}{100}}.}{p/100 * Z(\alpha/100).}
+#'       For example, to compute at-risk-of-poverty threshold equal to some percentage of median income, \eqn{\alpha} should be set equal to 50.
+#' @param var_name A character specifying the name of the linearized variable.
+#' @param checking Optional variable if this variable is TRUE, then function checks data preparation errors, otherwise not checked. This variable by default is TRUE.
+#'
+#' @details The implementation strictly follows the Eurostat definition.
+#'
+#' @return A list with four objects are returned:
+#'        \itemize{
+#'        \item \code{quantile} - a \code{data.table} containing the estimated value of the quintile used for at-risk-of-poverty threshold estimation.
+#'        \item \code{threshold} - a \code{data.table} containing the estimated at-risk-of-poverty threshold.
+#'        \item \code{value} - a \code{data.table} containing the estimated at-risk-of-poverty rate (in percentage).
+#'       \item \code{lin} - a \code{data.table} containing the linearized variables of the at-risk-of-poverty rate (in percentage).
+#'    }
+#'
+#' @references
+#' Working group on Statistics on Income and Living Conditions (2004) Common cross-sectional EU indicators based on EU-SILC; the gender pay gap. \emph{EU-SILC 131-rev/04}, Eurostat. \cr
+#' Guillaume Osier (2009). Variance estimation for complex indicators of poverty and inequality. \emph{Journal of the European Survey Research Association}, Vol.3, No.3, pp. 167-195, ISSN 1864-3361, URL \url{http://ojs.ub.uni-konstanz.de/srm/article/view/369}.  \cr
+#' Jean-Claude Deville (1999). Variance estimation for complex statistics and estimators: linearization and residual techniques. Survey Methodology, 25, 193-203, URL \url{http://www.statcan.gc.ca/pub/12-001-x/1999002/article/4882-eng.pdf}.  \cr
+#' 
+#'
+#' @seealso \code{\link{linarpt}},
+#'          \code{\link{varpoord}},
+#'          \code{\link{vardcrospoor}},
+#'          \code{\link{vardchangespoor}}
+#'
+#' @keywords Linearization
+#'
+#' @examples
+#' library("data.table")
+#' library("laeken")
+#' data("eusilc")
+#' dataset1 <- data.table(IDd = paste0("V", 1 : nrow(eusilc)), eusilc)
+#'     
+#' # Full population
+#' d <- linarpr(Y = "eqIncome", id = "IDd",
+#'              weight = "rb050", Dom = NULL,
+#'              dataset = dataset1, percentage = 60,
+#'              order_quant = 50L)
+#' d$value
+#'     
+#' \dontrun{
+#' # By domains
+#' dd <- linarpr(Y = "eqIncome", id = "IDd",
+#'               weight = "rb050", Dom = "db040",
+#'               dataset = dataset1, percentage = 60,
+#'               order_quant = 50L)
+#' dd}
+#' 
+#' @import data.table
+#' @import laeken
+#' 
+#' @export linarpr
+        
 
 linarpr <- function(Y, id = NULL, weight = NULL, Y_thres = NULL,
                     wght_thres = NULL, sort = NULL, Dom = NULL,
                     period = NULL, dataset = NULL, percentage = 60,
                     order_quant = 50, var_name = "lin_arpr",
-                    kern_method = "gaussian", r = NULL, ro = NULL,
-                    h_breaks = NULL, checking = TRUE) {
+                    checking = TRUE) {
 
    ## initializations
    if (min(dim(data.table(var_name)) == 1) != 1) {
@@ -27,17 +86,6 @@ linarpr <- function(Y, id = NULL, weight = NULL, Y_thres = NULL,
 
         order_quant <- check_var(vars = order_quant, varn = "order_quant",
                                  varntype = "numeric0100")
-
-        kern_method <- check_var(vars = kern_method, varn = "kern_method", varntype = "kern_method")
-
-        r <- check_var(vars = r, varn = "r", varntype = "pinteger",
-                       kern_method = kern_method)
-
-        ro <- check_var(vars = ro, varn = "ro", varntype = "numeric01",
-                        kern_method = kern_method)
-
-        h_breaks <- check_var(vars = h_breaks, varn = "h_breaks",
-                              varntype = "pinteger", kern_method = kern_method)
 
         Y <- check_var(vars = Y, varn = "Y", dataset = dataset,
                        ncols = 1, isnumeric = TRUE,
@@ -140,9 +188,7 @@ linarpr <- function(Y, id = NULL, weight = NULL, Y_thres = NULL,
                                                      wght_thresh = wght_thres[indj],
                                                      percent = percentage,
                                                      order_quants = order_quant,
-                                                     quant_val = rown[["quantile"]],
-                                                     kern_method = kern_method, r = r,
-                                                     ro = ro, h_breaks = h_breaks)
+                                                     quant_val = rown[["quantile"]])
                       list(arpr = data.table(rown2, arpr = arpr_l$rate_val_pr), lin = arpr_l$lin)
                       })
                  arprs <- rbindlist(lapply(arprl, function(x) x[[1]]))
@@ -168,9 +214,7 @@ linarpr <- function(Y, id = NULL, weight = NULL, Y_thres = NULL,
                                                  wght_thresh = wght_thres[ind2],
                                                  percent = percentage,
                                                  order_quants = order_quant,
-                                                 quant_val = rown[["quantile"]],
-                                                 kern_method = kern_method, r = r,
-                                                 ro = ro, h_breaks = h_breaks)
+                                                 quant_val = rown[["quantile"]])
                           if (!is.null(period)) {
                                    arprs <- data.table(period_agg[j], arpr = arpr_l$rate_val_pr)
                              } else arprs <- data.table(arpr = arpr_l$rate_val_pr)
@@ -188,9 +232,9 @@ linarpr <- function(Y, id = NULL, weight = NULL, Y_thres = NULL,
 
 
 ## workhorse
-arprlinCalc <- function(Y1, ids, wght1, indicator, Y_thresh,
-                        wght_thresh, percent, order_quants = NULL,
-                        quant_val, kern_method, r, ro, h_breaks) {
+arprlinCalc <- function(Y1, ids, wght1, indicator,
+                        Y_thresh, wght_thresh, percent,
+                        order_quants = NULL, quant_val) {
 
     N <- dat <- eqIncome1 <- NULL
 
@@ -199,9 +243,8 @@ arprlinCalc <- function(Y1, ids, wght1, indicator, Y_thresh,
                               wght =  wght_thresh,
                               indicator = rep(1, length(ids)),
                               order_quants = order_quants,
-                              quant_val = quant_val, percentag = percent,
-                              kern_method = kern_method, r = r,
-                              ro = ro, h_breaks = h_breaks)
+                              quant_val = quant_val,
+                              percentag = percent)
     lin_thres <- arpt_calcs[[names(arpt_calcs)[2]]]
 
     thres_val <- percent / 100 * quant_val
@@ -217,13 +260,9 @@ arprlinCalc <- function(Y1, ids, wght1, indicator, Y_thresh,
 
     h <- bandwith_plug(y = Y1, w = wt)
 
-    if (kern_method == "gaussian") {f_quant2 <- gaussian_kern(inco = Y1, wt = wt,
-                                                             quant_val = quant_val, hh = h)}
-    if (kern_method == "smooth_splines") {f_quant2 <- smooth_spline(inco = Y1, wght = wt,
-                                                                   quant_val = quant_val,
-                                                                   r = r, ro = ro,
-                                                                   h_breaks = h_breaks) }
-
+    f_quant2 <- gaussian_kern(inco = Y1, wt = wt,
+                              quant_val = quant_val, hh = h)
+    
  #****************************************************************************************
  #                       LINEARIZED VARIABLE OF THE POVERTY RATE (IN %)                  *
  #****************************************************************************************

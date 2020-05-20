@@ -1,3 +1,135 @@
+#' Variance estimation for measures of change for sample surveys for indicators on social exclusion and poverty
+#'
+#' @description Computes the variance estimation for measures of change for indicators on social exclusion and poverty.
+#'
+#' @param Y Study variable (for example equalized disposable income or gross pension income). One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.
+#' @param age Age variable. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.
+#' @param pl085 Retirement variable (Number of months spent in retirement or early retirement). One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.
+#' @param  month_at_work Variable for total number of month at work (sum of the number of months spent at full-time work as employee, number of months spent at part-time work as employee, number of months spent at full-time work as self-employed (including family worker), number of months spent at part-time work as self-employed (including family worker)).  One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.
+#' @param Y_den Denominator variable (for example gross individual earnings). One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.
+#' @param  Y_thres Variable (for example equalized disposable income) used for computation and linearization of poverty threshold. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number. Variable specified for \code{inc} is used as \code{income_thres} if \code{income_thres} is  not defined.
+#' @param wght_thres Weight variable used for computation and linearization of poverty threshold. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number. Variable specified for \code{weight} is used as \code{wght_thres} if \code{wght_thres} is not defined.
+#' @param H The unit stratum variable. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.
+#' @param PSU Primary sampling unit variable. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.
+#' @param w_final Weight variable. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number or logical vector with only one \code{TRUE} value (length of the vector has to be the same as the column count of \code{dataset}).
+#' @param ID_level1 Variable for level1 ID codes. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.
+#' @param ID_level2 Optional variable for unit ID codes. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.
+#' @param Dom Optional variables used to define population domains. If supplied, variables are calculated for each domain. An object convertible to \code{data.table} or variable names as character vector, column numbers.
+#' @param country Variable for the survey countries. The values for each country are computed independently. Object convertible to \code{data.table} or variable names as character, column numbers.
+#' @param period Variable for the all survey periods. The values for each period are computed independently. Object convertible to \code{data.table} or variable names as character, column numbers.
+#' @param sort Optional variable to be used as tie-breaker for sorting. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.
+#' @param period1 The vector from variable \code{period} describes the first period.
+#' @param period2 The vector from variable \code{period} describes the second period.
+#' @param gender Numerical variable for gender, where 1 is for males, but 2 is for females. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.
+#' @param dataset Optional survey data object convertible to \code{data.frame}.
+#' @param X Optional matrix of the auxiliary variables for the calibration estimator. Object convertible to \code{data.table} or variable names as character, column numbers.
+#' @param countryX Optional variable for the survey countries. The values for each country are computed independently. Object convertible to \code{data.table} or variable names as character, column numbers.
+#' @param periodX Optional variable of the survey periods and countries. If supplied, residual estimation of calibration is done independently for each time period. Object convertible to \code{data.table} or variable names as character, column numbers.
+#' @param X_ID_level1 Variable for level1 ID codes. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.
+#' @param ind_gr Optional variable by which divided independently X matrix of the auxiliary variables for the calibration. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.
+#' @param g Optional variable of the g weights. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.
+#' @param q Variable of the positive values accounting for heteroscedasticity. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.
+#' @param datasetX Optional survey data object in household level convertible to \code{data.table}.
+#' @param percentage A numeric value in range \eqn{[0,100]} for \eqn{p} in the formula for poverty threshold computation:
+#'       \deqn{\frac{p}{100} \cdot Z_{\frac{\alpha}{100}}.}{p/100 * Z(\alpha/100).}
+#'     For example, to compute poverty threshold equal to 60\% of some income quantile, \eqn{p} should be set equal to 60.
+#' @param order_quant A numeric value in range \eqn{[0,100]} for \eqn{\alpha} in the formula for poverty threshold computation:
+#'      \deqn{\frac{p}{100} \cdot Z_{\frac{\alpha}{100}}.}{p/100 * Z(\alpha/100).}
+#'For example, to compute poverty threshold equal to some percentage of median income, \eqn{\alpha} should be set equal to 50.
+#' @param alpha a numeric value in range \eqn{[0,100]} for the order of the income quantile share ratio (in percentage).
+#' @param use.estVar Logical value. If value is \code{TRUE}, then \code{R} function \code{estVar} is used for the  estimation of covariance matrix of the residuals. If value is \code{FALSE}, then \code{R} function \code{estVar} is not used for the estimation of covariance matrix of the residuals.
+#' @param confidence optional; either a positive value for confidence interval. This variable by default is 0.95.
+#' @param outp_lin Logical value. If \code{TRUE} linearized values of the ratio estimator will be printed out.
+#' @param outp_res Logical value. If \code{TRUE} estimated residuals of calibration will be printed out.
+#' @param type a character vector (of length one unless several.ok is TRUE), example "linarpr","linarpt", "lingpg", "linpoormed", "linrmpg", "lingini", "lingini2", "linqsr", "linarr", "linrmir", "all_choices".
+#' @param change_type character value net changes type - absolute or relative.
+#' 
+#' @return A list with objects are returned by the function:
+#'  \itemize{    
+#'      \item \code{cros_lin_out} - a \code{data.table} containing the linearized values of the ratio estimator with ID_level2 and PSU by periods and countries (if available).
+#'      \item \code{cros_res_out} - a \code{data.table} containing the estimated residuals of calibration with ID_level1 and PSU by periods and countries (if available).
+#'      \item \code{crossectional_results} - a \code{data.table} containing: \cr
+#'         \code{period} -  survey periods, \cr
+#'         \code{country} - survey countries, \cr
+#'         \code{Dom} - optional variable of the population domains, \cr
+#'         \code{type} - type variable, \cr
+#'         \code{count_respondents} - the count of respondents, \cr
+#'         \code{pop_size} - the population size (in numbers of individuals), \cr
+#'         \code{estim} - the estimated value, \cr
+#'         \code{se} - the estimated standard error, \cr
+#'         \code{var} - the estimated variance, \cr
+#'         \code{rse} - the estimated relative standard error (coefficient of variation), \cr
+#'         \code{cv} - the estimated relative standard error (coefficient of variation) in percentage.
+#'      \item \code{changes_results} - a \code{data.table} containing: \cr
+#'         \code{period} -  survey periods, \cr
+#'         \code{country} - survey countries, \cr
+#'         \code{Dom} - optional variable of the population domains, \cr
+#'         \code{type} - type variable, \cr
+#'         \code{estim_1} - the estimated value for period1, \cr
+#'         \code{estim_2} - the estimated value for period2, \cr
+#'         \code{estim} - the estimated value, \cr
+#'         \code{se} - the estimated standard error, \cr
+#'         \code{var} - the estimated variance, \cr
+#'         \code{rse} - the estimated relative standard error (coefficient of variation), \cr
+#'         \code{cv} - the estimated relative standard error (coefficient of variation) in percentage.}
+#'         
+#' @references 
+#' Guillaume Osier,  Yves Berger,  Tim Goedeme, (2013), Standard error estimation for the EU-SILC indicators of poverty and social exclusion,  Eurostat Methodologies and Working papers, URL \url{http://ec.europa.eu/eurostat/documents/3888793/5855973/KS-RA-13-024-EN.PDF}. \cr
+#' Eurostat Methodologies and Working papers, Handbook on precision requirements and variance estimation for ESS household surveys, 2013, URL \url{http://ec.europa.eu/eurostat/documents/3859598/5927001/KS-RA-13-029-EN.PDF}. \cr
+#' Yves G. Berger, Tim Goedeme, Guillame Osier (2013). Handbook on standard error estimation and other related sampling issues in EU-SILC, URL \url{https://ec.europa.eu/eurostat/cros/content/handbook-standard-error-estimation-and-other-related-sampling-issues-ver-29072013_en} \cr
+#' 
+#' @examples
+#'  
+#' ### Example 
+#' library("laeken")  
+#' library("data.table")
+#' data(eusilc)
+#' set.seed(1)
+#' dataset1 <- data.table(rbind(eusilc, eusilc),
+#'                        year = c(rep(2010, nrow(eusilc)),
+#'                                 rep(2011, nrow(eusilc))),
+#'                        country = c(rep("AT", nrow(eusilc)),
+#'                                    rep("AT", nrow(eusilc))))
+#' dataset1[age < 0, age := 0]
+#' PSU <- dataset1[, .N, keyby = "db030"][, N := NULL]
+#' PSU[, PSU := trunc(runif(nrow(PSU), 0, 100))]
+#' PSU$inc <- runif(nrow(PSU), 20, 100000)
+#' dataset1 <- merge(dataset1, PSU, all = TRUE, by = "db030")
+#' PSU <- eusilc <- NULL
+#' dataset1[, strata := c("XXXX")]
+#' dataset1$pl085 <- 12 * trunc(runif(nrow(dataset1), 0, 2))
+#' dataset1$month_at_work <- 12 * trunc(runif(nrow(dataset1), 0, 2))
+#' dataset1[, id_l2 := paste0("V", .I)]
+#' result <- vardchangespoor(Y = "inc", age = "age",
+#'                           pl085 = "pl085", month_at_work = "month_at_work",
+#'                           Y_den = "inc", Y_thres = "inc",
+#'                           wght_thres = "rb050",  H = "strata", 
+#'                           PSU = "PSU", w_final="rb050",
+#'                           ID_level1 = "db030",  ID_level2 = "id_l2",
+#'                           Dom = c("rb090"), country = "country",
+#'                           period = "year", sort = NULL,  
+#'                           period1 = c(2010, 2011),
+#'                           period2 = c(2011, 2010),
+#'                           gender = NULL, dataset = dataset1,
+#'                           percentage = 60, order_quant = 50L,
+#'                           alpha = 20, confidence = 0.95,
+#'                           type = "linrmpg")
+#' result
+#'
+#'
+#' @seealso \code{\link{domain}},
+#'          \code{\link{vardchanges}},
+#'          \code{\link{vardcros}},
+#'          \code{\link{vardcrospoor}}
+#'          
+#' @keywords vardchanges
+#' 
+#' 
+#' @import data.table
+#' @import laeken
+#' 
+#' @export vardchangespoor
+    
 vardchangespoor <- function(Y, age = NULL,
                             pl085 = NULL,
                             month_at_work = NULL,
@@ -23,6 +155,7 @@ vardchangespoor <- function(Y, age = NULL,
                             change_type = "absolute") {
  
   ### Checking
+  . <- NULL
   change_type <- check_var(vars = change_type, varn = "change_type", varntype = "change_type") 
 
   all_choices <- c("linarpr", "linarpt", "lingpg",

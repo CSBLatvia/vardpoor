@@ -44,8 +44,8 @@ linpoormed(
 \value{
 A list with two objects are returned by the function:
 \itemize{    
-   \item value A \code{data.table} containing the estimated median income of individuals below the At Risk of Poverty Threshold.
- \item lin A \code{data.table} containing the linearized variables of the median income below the At Risk of Poverty Threshold.
+   \item \code{value} - a \code{data.table} containing the estimated median income of individuals below the At Risk of Poverty Threshold.
+ \item \code{lin} - a \code{data.table} containing the linearized variables of the median income below the At Risk of Poverty Threshold.
 }
 }
 \description{
@@ -54,7 +54,7 @@ Estimation of the median income of individuals below At Risk of Poverty Threshol
 \examples{
 library("laeken")
 library("data.table")
-data(eusilc)
+data("eusilc")
 dataset1 <- data.table(IDd = paste0("V", 1 : nrow(eusilc)), eusilc)
  
 # Full population

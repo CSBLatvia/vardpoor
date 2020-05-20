@@ -126,10 +126,10 @@ For example, to compute poverty threshold equal to some percentage of median inc
 \value{
 A list with objects are returned by the function:
   \itemize{
-     \item lin_out A \code{data.table} containing the linearized values of the ratio estimator with ID_level2 and PSU.
-     \item res_out A \code{data.table} containing the estimated residuals of calibration with ID_level1 and PSU.
-     \item data_net_changes A \code{data.table} containing aggregation of weighted data by period (if available), country, strata, PSU.
-     \item results A \code{data.table} containing
+     \item \code{lin_out} - a \code{data.table} containing the linearized values of the ratio estimator with ID_level2 and PSU.
+     \item \code{res_out} - a \code{data.table} containing the estimated residuals of calibration with ID_level1 and PSU.
+     \item \code{data_net_changes} - a \code{data.table} containing aggregation of weighted data by period (if available), country, strata, PSU.
+     \item \code{results} - a \code{data.table} containing: \cr
         \code{period} -  survey periods, \cr
         \code{country} - survey countries, \cr
         \code{Dom} - optional variable of the population domains, \cr

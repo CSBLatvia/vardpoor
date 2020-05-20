@@ -41,8 +41,8 @@ lingpg(
 \value{
 A list with two objects are returned:
 \itemize{
- \item value \code{data.table} containing the estimated gender pay (wage) gap (in percentage).
- \item lin \code{data.table} containing the linearized variables of the gender pay (wage) gap (in percentage) for variance estimation.
+ \item \code{value} - a \code{data.table} containing the estimated gender pay (wage) gap (in percentage).
+ \item \code{lin} - a \code{data.table} containing the linearized variables of the gender pay (wage) gap (in percentage) for variance estimation.
  }
 }
 \description{
@@ -51,7 +51,7 @@ Estimation of gender pay (wage) gap and computation of linearized variables for 
 \examples{
 library("data.table")
 library("laeken")
-data(ses)
+data("ses")
 dataset1 <- data.table(ID = paste0("V", 1 : nrow(ses)), ses)
 setnames(dataset1, "sex", "sexf")
 dataset1[sexf == "male", sex:= 1]

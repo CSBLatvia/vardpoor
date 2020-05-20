@@ -98,10 +98,10 @@ vardcros(
 \value{
 A list with four objects are returned by the function:
 \itemize{
-   \item res_out A \code{data.table} containing the estimated residuals of calibration with ID_level1 and PSU.
-   \item data_net_changes A \code{data.table} containing aggregation of weighted data by period (if available) and countries (if available), country, strata, PSU.
-   \item var_grad A \code{data.table} containing estimation for Y, the variance, gradient for numerator and denominator by period, country (if available) and population domains (if available).
-   \item results A \code{data.table} containing
+   \item \code{res_out} - a \code{data.table} containing the estimated residuals of calibration with ID_level1 and PSU.
+   \item \code{data_net_changes} - a \code{data.table} containing aggregation of weighted data by period (if available) and countries (if available), country, strata, PSU.
+   \item \code{var_grad} - a \code{data.table} containing estimation for Y, the variance, gradient for numerator and denominator by period, country (if available) and population domains (if available).
+   \item results A \code{data.table} containing: \cr
      \code{period} -  survey periods, \cr
      \code{country} - survey countries (if available), \cr
      \code{Dom} - optional variable of the population domains, \cr

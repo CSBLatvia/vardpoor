@@ -40,7 +40,7 @@ The function computes the estimates of weighted percentiles.
 }
 \examples{
 library("laeken")
-data(eusilc)
+data("eusilc")
 incPercentile(Y = "eqIncome", weights = "rb050", Dom = "db040", dataset = eusilc)
 
 }

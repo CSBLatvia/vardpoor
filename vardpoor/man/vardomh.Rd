@@ -129,7 +129,7 @@ Calculate variance estimation in domains for household surveys based on book of 
 \examples{
 library("data.table")
 library("laeken")
-data(eusilc)
+data("eusilc")
 dataset1 <- data.table(IDd = paste0("V", 1 : nrow(eusilc)), eusilc)
 aa <- vardomh(Y = "eqIncome", H = "db040", PSU = "db030",
              w_final = "rb050", ID_level1 = "db030",

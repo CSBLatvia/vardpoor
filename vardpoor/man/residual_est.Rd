@@ -22,8 +22,8 @@ residual_est(Y, X, weight, q, dataset = NULL, checking = TRUE)
 \value{
 A list with objects are returned by the function:
 \itemize{
- \item residuals A numeric \code{data.table} containing the estimated residuals of calibration.
- \item betas A numeric \code{data.table} containing the estimated coeffients of calibration.
+ \item \code{residuals} - a numeric \code{data.table} containing the estimated residuals of calibration.
+ \item \code{betas} - a numeric \code{data.table} containing the estimated coeffients of calibration.
 }
 }
 \description{

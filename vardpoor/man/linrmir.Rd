@@ -46,8 +46,8 @@ For example, to compute the relative median income ratio to some percentage of m
 \value{
 A list with four objects are returned:
  \itemize{ 
- \item value A \code{data.table} containing the estimated relative median income ratio.
- \item lin A \code{data.table} containing the linearized variables of the relative median income ratio.
+ \item \code{value} - a \code{data.table} containing the estimated relative median income ratio.
+ \item \code{lin} - a \code{data.table} containing the linearized variables of the relative median income ratio.
  }
 }
 \description{
@@ -59,7 +59,7 @@ The implementation strictly follows the Eurostat definition.
 \examples{
 library("laeken")
 library("data.table")
-data(eusilc)
+data("eusilc")
 dataset1 <- data.table(IDd = paste0("V", 1 : nrow(eusilc)), eusilc)
  
 # Full population

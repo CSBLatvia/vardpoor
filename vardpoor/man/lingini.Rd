@@ -37,8 +37,8 @@ lingini(
 
 return A list with two objects are returned by the function:
 \itemize{
-\item value A \code{data.table} containing the estimated Gini coefficients (in percentage) by G. Osier and Eurostat.
-\item lin A \code{data.table} containing the linearized variables of the Gini coefficients (in percentage) by G. Osier.}}
+\item \code{value} - a \code{data.table} containing the estimated Gini coefficients (in percentage) by G. Osier and Eurostat.
+\item \code{lin} - a \code{data.table} containing the linearized variables of the Gini coefficients (in percentage) by G. Osier.}}
 }
 \description{
 Estimate the Gini coefficient, which is a measure for inequality, and its linearization.
@@ -46,7 +46,7 @@ Estimate the Gini coefficient, which is a measure for inequality, and its linear
 \examples{
 library("laeken")
 library("data.table")
-data(eusilc)
+data("eusilc")
 dataset1 <- data.table(IDd = paste0("V", 1 : nrow(eusilc)), eusilc)[1 : 3,]
  
 # Full population

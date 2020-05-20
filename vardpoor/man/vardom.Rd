@@ -74,10 +74,10 @@ vardom(
 \value{
 A list with objects is returned by the function:
   \itemize{
-        \item lin_out A \code{data.table} containing the linearized values of the ratio estimator with id and PSU.
-        \item res_out A \code{data.table} containing the estimated residuals of calibration with id and PSU.
-        \item betas A numeric \code{data.table} containing the estimated coeffients of calibration.
-        \item all_result A \code{data.table}, which containing variables:
+        \item \code{lin_out} - a \code{data.table} containing the linearized values of the ratio estimator with id and PSU.
+        \item \code{res_out} - a \code{data.table} containing the estimated residuals of calibration with id and PSU.
+        \item \code{betas} - a numeric \code{data.table} containing the estimated coeffients of calibration.
+        \item \code{all_result} - a \code{data.table}, which containing variables:
           \code{variable} - names of variables of interest, \cr
           \code{Dom} - optional variable of the population domains, \cr
           \code{period} - optional variable of the survey periods, \cr

@@ -14,8 +14,8 @@ var_srs(Y, w = rep(1, length(Y)))
 \value{
 A list with objects are returned by the function:
 \itemize{
- \item S2p A \code{data.table} containing the values of the variance estimation of the population.
- \item varsrs A \code{data.table} containing the values of the variance estimation of the simple random sampling.
+ \item \code{S2p} - a \code{data.table} containing the values of the variance estimation of the population.
+ \item \code{varsrs} - a \code{data.table} containing the values of the variance estimation of the simple random sampling.
  }
 }
 \description{
@@ -25,7 +25,6 @@ Computes the estimation of the simple random sampling.
 Ys <- matrix(rchisq(10, 3), 10, 1)
 ws <- c(rep(2, 5), rep(3, 5))
 var_srs(Ys, ws)
-
 
 }
 \references{

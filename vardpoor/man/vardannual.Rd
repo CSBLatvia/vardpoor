@@ -101,7 +101,7 @@ vardannual(
 \value{
 A list with objects are returned by the function:
 \itemize{
-   \item crossectional_results  A \code{data.table} containing:
+   \item \code{crossectional_results} -  a \code{data.table} containing: \cr
        \code{year} -  survey years, \cr
        \code{subperiods} -  survey subperiods, \cr
        \code{country} - survey countries, \cr
@@ -126,7 +126,7 @@ A list with objects are returned by the function:
        \code{CI_lower} - the estimated confidence interval lower bound, \cr
        \code{CI_upper} - the estimated confidence interval upper bound, \cr 
        \code{confidence_level} - the positive value for confidence interval. 
-  \item crossectional_var_grad A \code{data.table} containing
+  \item \code{crossectional_var_grad} - a \code{data.table} containing: \cr
       \code{year} -  survey years, \cr
       \code{subperiods} -  survey subperiods, \cr
       \code{country} - survey countries, \cr
@@ -135,7 +135,7 @@ A list with objects are returned by the function:
       \code{namesZ} - optional variable with names of denominator for ratio estimation, \cr
       \code{grad} - the estimated gradient, \cr
       \code{var} - the estimated a design-based variance.
-\item vardchanges_grad_var A \code{data.table} containing
+\item \code{vardchanges_grad_var} - a \code{data.table} containing: \cr
       \code{year_1} -  survey years of \code{years1}, \cr
       \code{subperiods_1} -  survey subperiods of \code{years1}, \cr
       \code{year_2} -  survey years of \code{years2}, \cr
@@ -147,7 +147,7 @@ A list with objects are returned by the function:
       \code{nams} - gradient names, numenator (num) and denominator (den), for each year, \cr 
       \code{grad} - the estimated gradient, \cr
       \code{cros_var} - the estimated a design-based variance.
-   \item vardchanges_rho  A \code{data.table} containing
+   \item \code{vardchanges_rho} - a \code{data.table} containing: \cr
      \code{year} -  survey years of \code{years} for crossectional estimates, \cr
      \code{subperiods} -  survey subperiods of \code{years} for crossectional estimates, \cr
      \code{year_1} -  survey years of \code{years1}, \cr
@@ -160,7 +160,7 @@ A list with objects are returned by the function:
      \code{namesZ} - optional variable with names of denominator for ratio estimation, \cr
      \code{nams} - gradient names, numenator (num) and denominator (den), for each year, \cr
      \code{rho} - the estimated correlation matrix.
-   \item vardchanges_var_tau A \code{data.table} containing
+   \item \code{vardchanges_var_tau} - a \code{data.table} containing: \cr
      \code{year_1} -  survey years of \code{years1}, \cr
      \code{subperiods_1} -  survey subperiods of \code{years1}, \cr
      \code{year_2} -  survey years of \code{years2}, \cr
@@ -171,7 +171,7 @@ A list with objects are returned by the function:
      \code{namesZ} - optional variable with names of denominator for ratio estimation, \cr
      \code{nams} - gradient names, numenator (num) and denominator (den), for each year, \cr
      \code{var_tau} - the estimated covariance matrix.
-  \item vardchanges_results A \code{data.table} containing
+  \item \code{vardchanges_results} - a \code{data.table} containing: \cr
      \code{year} -  survey years of \code{years} for measures of annual, \cr
      \code{subperiods} -  survey subperiods of \code{years} for measures of annual, \cr
      \code{year_1} -  survey years of \code{years1} for measures of annual net change, \cr
@@ -191,7 +191,7 @@ A list with objects are returned by the function:
      \code{CI_upper} - the estimated confidence interval upper bound, \cr
      \code{confidence_level} - the positive value for confidence interval, \cr 
      \code{significant} - is the the difference significant
- \item X_annual A \code{data.table} containing
+ \item \code{X_annual} - a \code{data.table} containing: \cr
      \code{year} -  survey years of \code{years} for measures of annual, \cr
      \code{year_1} -  survey years of \code{years1} for measures of annual net change, \cr
      \code{year_2} -  survey years of \code{years2} for measures of annual net change, \cr
@@ -201,7 +201,7 @@ A list with objects are returned by the function:
      \code{namesY} - variable with names of variables of interest, \cr
      \code{namesZ} - optional variable with names of denominator for ratio estimation, \cr
      \code{cros_se} - the estimated cross-sectional standard error.
- \item A_matrix A \code{data.table} containing
+ \item \code{A_matrix} - a \code{data.table} containing: \cr
      \code{year} -  survey years of \code{years1} for measures of annual, \cr
      \code{year_1} -  survey years of \code{years1} for measures of annual net change, \cr
      \code{year_2} -  survey years of \code{years2} for measures of annual net change, \cr
@@ -211,7 +211,7 @@ A list with objects are returned by the function:
      \code{namesZ} - optional variable with names of denominator for ratio estimation, \cr
      \code{cols} - the estimated matrix_A columns, \cr
      \code{matrix_A} - the estimated matrix A.
- \item annual_sum A \code{data.table} containing
+ \item \code{annual_sum} - a \code{data.table} containing: \cr
      \code{year} - survey years, \cr
      \code{country} - survey countries, \cr
      \code{Dom} - optional variable of the population domains, \cr
@@ -220,7 +220,7 @@ A list with objects are returned by the function:
      \code{totalY} - the estimated value of variables of interest for period1, \cr
      \code{totalZ} - optional the estimated value of denominator for period2, \cr
      \code{estim} - the estimated value for year.
- \item annual_results A \code{data.table} containing
+ \item \code{annual_results} - a \code{data.table} containing: \cr
      \code{year} -  survey years of \code{years} for measures of annual, \cr
      \code{year_1} -  survey years of \code{years1} for measures of annual net change, \cr
      \code{year_2} -  survey years of \code{years2} for measures of annual net change, \cr

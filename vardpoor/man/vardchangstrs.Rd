@@ -50,7 +50,7 @@ vardchangstrs(
 \value{
 A list with objects are returned by the function:
  \itemize{
-    \item crossectional_results A \code{data.table} containing:
+    \item \code{crossectional_results} - a \code{data.table} containing: \cr
       \code{year} -  survey years, \cr
       \code{subperiods} -  survey subperiods, \cr
       \code{variable} - names of variables of interest, \cr
@@ -66,7 +66,7 @@ A list with objects are returned by the function:
       \code{CI_lower} - the estimated confidence interval lower bound, \cr
       \code{CI_upper} - the estimated confidence interval upper bound, \cr 
       \code{confidence_level} - the positive value for confidence interval.
-   \item annual_results  A \code{data.table} containing
+   \item \code{annual_results} - a \code{data.table} containing:
       \code{year_1} -  survey years of \code{years1} for measures of annual net change, \cr
       \code{year_2} -  survey years of \code{years2} for measures of annual net change, \cr
       \code{Dom} - optional variable of the population domains, \cr

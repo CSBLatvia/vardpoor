@@ -54,10 +54,10 @@ For example, to compute at-risk-of-poverty threshold equal to some percentage of
 \value{
 A list with four objects are returned:
        \itemize{
-       \item quantile A \code{data.table} containing the estimated value of the quintile used for at-risk-of-poverty threshold estimation.
-       \item threshold A \code{data.table} containing the estimated at-risk-of-poverty threshold.
-       \item value A \code{data.table} containing the estimated at-risk-of-poverty rate (in percentage).
-      \item lin A \code{data.table} containing the linearized variables of the at-risk-of-poverty rate (in percentage).
+       \item \code{quantile} - a \code{data.table} containing the estimated value of the quintile used for at-risk-of-poverty threshold estimation.
+       \item \code{threshold} - a \code{data.table} containing the estimated at-risk-of-poverty threshold.
+       \item \code{value} - a \code{data.table} containing the estimated at-risk-of-poverty rate (in percentage).
+      \item \code{lin} - a \code{data.table} containing the linearized variables of the at-risk-of-poverty rate (in percentage).
    }
 }
 \description{
@@ -69,7 +69,7 @@ The implementation strictly follows the Eurostat definition.
 \examples{
 library("data.table")
 library("laeken")
-data(eusilc)
+data("eusilc")
 dataset1 <- data.table(IDd = paste0("V", 1 : nrow(eusilc)), eusilc)
     
 # Full population

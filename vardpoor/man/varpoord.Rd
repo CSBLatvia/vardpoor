@@ -123,10 +123,10 @@ For example, to compute poverty threshold equal to some percentage of median inc
 \value{
 A list with objects are returned by the function:
 \itemize{
-   \item lin_out A \code{data.table} containing the linearized values of the ratio estimator with ID_level2 and PSU.
-   \item res_out A \code{data.table} containing the estimated residuals of calibration with ID_level1 and PSU. 
-   \item betas A numeric \code{data.table} containing the estimated coeffients of calibration.
-   \item all_result A \code{data.table}, which containing variables:
+   \item \code{lin_out} - a \code{data.table} containing the linearized values of the ratio estimator with ID_level2 and PSU.
+   \item \code{res_out} - a \code{data.table} containing the estimated residuals of calibration with ID_level1 and PSU. 
+   \item \code{betas} - a numeric \code{data.table} containing the estimated coeffients of calibration.
+   \item \code{all_result} - a \code{data.table}, which containing variables: \cr
       \code{respondent_count} - the count of respondents, \cr
       \code{pop_size} - the estimated size of population, \cr
       \code{n_nonzero} - the count of respondents, who answers are larger than zero, \cr
@@ -157,7 +157,7 @@ Computes the estimation of the variance for indicators on social exclusion and p
 \examples{
 library("data.table")
 library("laeken")
-data(eusilc)
+data("eusilc")
 dataset <- data.table(IDd = paste0("V", 1 : nrow(eusilc)), eusilc)
 dataset1 <- dataset[1 : 1000]
  
@@ -178,16 +178,16 @@ aa
  
 \dontrun{
  # use dataset1 by default with using fh_zero (finite population correction)
- aa2 <-varpoord(Y = "eqIncome", w_final = "rb050",
-                Y_thres = NULL, wght_thres = NULL,
-                ID_level1 = "db030", ID_level2 = "IDd", 
-                H = "db040", PSU = "rb030", N_h = NULL,
-                fh_zero = TRUE, sort = NULL, Dom = "db040",
-                gender = NULL, X = NULL, X_ID_level1 = NULL,
-                g = NULL, datasetX = NULL, dataset =  dataset1,
-                percentage = 60, order_quant = 50L,
-                alpha = 20, confidence = .95, outp_lin = FALSE,
-                outp_res = FALSE, type = "linarpt")
+ aa2 <- varpoord(Y = "eqIncome", w_final = "rb050",
+                 Y_thres = NULL, wght_thres = NULL,
+                 ID_level1 = "db030", ID_level2 = "IDd", 
+                 H = "db040", PSU = "rb030", N_h = NULL,
+                 fh_zero = TRUE, sort = NULL, Dom = "db040",
+                 gender = NULL, X = NULL, X_ID_level1 = NULL,
+                 g = NULL, datasetX = NULL, dataset =  dataset1,
+                 percentage = 60, order_quant = 50L,
+                 alpha = 20, confidence = .95, outp_lin = FALSE,
+                 outp_res = FALSE, type = "linarpt")
  aa2
  aa2$all_result
  

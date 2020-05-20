@@ -47,8 +47,8 @@ For example, to compute poverty threshold equal to some percentage of median inc
 
 return A list with two objects are returned by the function:
 \itemize{
- \item value A \code{data.table} containing the estimated relative median at-risk-of-poverty gap (in percentage).
- \item lin A \code{data.table} containing the linearized variables of the relative median at-risk-of-poverty gap (in precentage).
+ \item \code{value} - a \code{data.table} containing the estimated relative median at-risk-of-poverty gap (in percentage).
+ \item \code{lin} - a \code{data.table} containing the linearized variables of the relative median at-risk-of-poverty gap (in precentage).
  }}
 }
 \description{
@@ -57,7 +57,7 @@ Estimate the relative median at-risk-of-poverty gap, which is defined as the rel
 \examples{
 library("data.table")
 library("laeken")
-data(eusilc)
+data("eusilc")
 dataset1 <- data.table(IDd = paste0("V", 1 : nrow(eusilc)), eusilc)
 
 # Full population

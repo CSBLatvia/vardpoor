@@ -55,8 +55,8 @@ For example, to compute at-risk-of-poverty threshold equal to some percentage of
 \value{
 A list with four objects are returned:
  \itemize{  
-    \item value A \code{data.table} containing the estimated the aggregate replacement ratio.
-    \item lin A \code{data.table} containing the linearized variables of the aggregate replacement ratio.
+    \item \code{value} - a \code{data.table} containing the estimated the aggregate replacement ratio.
+    \item \code{lin} - a \code{data.table} containing the linearized variables of the aggregate replacement ratio.
   }
 }
 \description{
@@ -68,7 +68,7 @@ The implementation strictly follows the Eurostat definition.
 \examples{
 library("data.table")
 library("laeken")
-data(eusilc)
+data("eusilc")
 dataset1 <- data.table(IDd = paste0("V", 1 : nrow(eusilc)), eusilc)
 dataset1$pl085 <- 12 * trunc(runif(nrow(dataset1), 0, 2))
 dataset1$month_at_work <- 12 * trunc(runif(nrow(dataset1), 0, 2))

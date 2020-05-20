@@ -71,11 +71,11 @@ vardom_othstr(
 \value{
 A list with objects are returned by the function:
  \itemize{
-      \item lin_out A \code{data.table} containing the linearized values of the ratio estimator with id and PSU.
-      \item res_out A \code{data.table} containing the estimated residuals of calibration with id and PSU.
-      \item betas A numeric \code{data.table} containing the estimated coeffients of calibration.
-      \item s2g A \code{data.table} containing the s^2g value.
-      \item all_result A \code{data.table}, which containing variables:
+      \item \code{lin_out} - a \code{data.table} containing the linearized values of the ratio estimator with id and PSU.
+      \item \code{res_out} - a \code{data.table} containing the estimated residuals of calibration with id and PSU.
+      \item \code{betas} - a numeric \code{data.table} containing the estimated coeffients of calibration.
+      \item \code{s2g} - a \code{data.table} containing the s^2g value.
+      \item \code{all_result} - a \code{data.table}, which containing variables: \cr
         \code{respondent_count} - the count of respondents, \cr
         \code{pop_size} - the estimated size of population, \cr
         \code{n_nonzero} - the count of respondents, who answers are larger than zero, \cr
@@ -94,7 +94,7 @@ A list with objects are returned by the function:
         \code{var_srs_ca} - the estimated variance of the calibrated estimator under SRS, \cr
         \code{deff_sam} - the estimated design effect of sample design, \cr
         \code{deff_est} - the estimated design effect of estimator, \cr
-        \code{deff} - the overall estimated design effect of sample design and estimator
+        \code{deff} - the overall estimated design effect of sample design and estimator. \cr
    }
 }
 \description{
@@ -103,7 +103,7 @@ Computes the variance estimation for sample surveys in domain by the two stratif
 \examples{
 library("laeken")
 library("data.table")
-data(eusilc)
+data("eusilc")
   
 # Example 1
 eusilc1 <- eusilc[1:1000, ]

@@ -41,8 +41,8 @@ linqsr(
 \value{
 A list with two objects are returned by the function:
 \itemize{
- \item value A \code{data.table} containing the estimated Quintile Share Ratio by G. Osier and Eurostat papers.
- \item lin A \code{data.table} containing the linearized variables of the Quintile Share Ratio by G. Osier paper.
+ \item \code{value} - a \code{data.table} containing the estimated Quintile Share Ratio by G. Osier and Eurostat papers.
+ \item \code{lin} - a \code{data.table} containing the linearized variables of the Quintile Share Ratio by G. Osier paper.
  }
 }
 \description{
@@ -51,7 +51,7 @@ Estimate the Quintile Share Ratio, which is defined as the ratio of the sum of e
 \examples{
 library("data.table")
 library("laeken")
-data(eusilc)
+data("eusilc")
 dataset1 <- data.table(IDd = paste0("V", 1 : nrow(eusilc)), eusilc)
 
 # Full population

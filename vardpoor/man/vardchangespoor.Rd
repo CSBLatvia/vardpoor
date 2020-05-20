@@ -126,9 +126,9 @@ For example, to compute poverty threshold equal to some percentage of median inc
 \value{
 A list with objects are returned by the function:
  \itemize{    
-     \item cros_lin_out A \code{data.table} containing the linearized values of the ratio estimator with ID_level2 and PSU by periods and countries (if available).
-     \item cros_res_out A \code{data.table} containing the estimated residuals of calibration with ID_level1 and PSU by periods and countries (if available).
-     \item crossectional_results A \code{data.table} containing:
+     \item \code{cros_lin_out} - a \code{data.table} containing the linearized values of the ratio estimator with ID_level2 and PSU by periods and countries (if available).
+     \item \code{cros_res_out} - a \code{data.table} containing the estimated residuals of calibration with ID_level1 and PSU by periods and countries (if available).
+     \item \code{crossectional_results} - a \code{data.table} containing: \cr
         \code{period} -  survey periods, \cr
         \code{country} - survey countries, \cr
         \code{Dom} - optional variable of the population domains, \cr
@@ -140,7 +140,7 @@ A list with objects are returned by the function:
         \code{var} - the estimated variance, \cr
         \code{rse} - the estimated relative standard error (coefficient of variation), \cr
         \code{cv} - the estimated relative standard error (coefficient of variation) in percentage.
-     \item changes_results A \code{data.table} containing:
+     \item \code{changes_results} - a \code{data.table} containing: \cr
         \code{period} -  survey periods, \cr
         \code{country} - survey countries, \cr
         \code{Dom} - optional variable of the population domains, \cr

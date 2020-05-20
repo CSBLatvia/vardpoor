@@ -96,73 +96,7 @@ vardchanges(
 \item{checking}{Optional variable if this variable is TRUE, then function checks data preparation errors, otherwise not checked. This variable by default is TRUE.}
 }
 \value{
-A list with objects are returned by the function:
-\itemize{
-    \item res_out A \code{data.table} containing the estimated residuals of calibration with ID_level1 and PSU by periods and countries (if available).
-    \item crossectional_results  A \code{data.table} containing:
-       \code{period} -  survey periods, \cr
-       \code{country} - survey countries, \cr
-       \code{Dom} - optional variable of the population domains, \cr
-       \code{namesY} - variable with names of variables of interest, \cr
-       \code{namesZ} - optional variable with names of denominator for ratio estimation, \cr
-       \code{sample_size} - the sample size (in numbers of individuals), \cr
-       \code{pop_size} - the population size (in numbers of individuals), \cr
-       \code{total} - the estimated totals, \cr
-       \code{variance} - the estimated variance of cross-sectional or longitudinal measures, \cr
-       \code{sd_w} - the estimated weighted variance of simple random sample, \cr
-       \code{sd_nw} - the estimated variance estimation of simple random sample, \cr
-       \code{pop} - the population size (in numbers of households), \cr
-       \code{sampl_siz} - the sample size (in numbers of households), \cr
-       \code{stderr_w} - the estimated weighted standard error of simple random sample, \cr
-       \code{stderr_nw} - the estimated standard error of simple random sample, \cr
-       \code{se} - the estimated standard error of cross-sectional or longitudinal, \cr
-       \code{rse} - the estimated relative standard error (coefficient of variation), \cr
-       \code{cv} - the estimated relative standard error (coefficient of variation) in percentage, \cr
-       \code{absolute_margin_of_error} - the estimated absolute margin of error, \cr
-       \code{relative_margin_of_error} - the estimated relative margin of error, \cr
-       \code{CI_lower} - the estimated confidence interval lower bound, \cr
-       \code{CI_upper} - the estimated confidence interval upper bound.
-    \item crossectional_var_grad A #'        \code{data.table} containing
-       \code{periods} -  survey periods, \cr
-       \code{country} - survey countries, \cr
-       \code{Dom} - optional variable of the population domains, \cr
-       \code{namesY} - variable with names of variables of interest, \cr
-       \code{namesZ} - optional variable with names of denominator for ratio estimation, \cr
-       \code{grad} - the estimated gradient, \cr
-       \code{var} - the estimated a design-based variance.}
-    \item{rho}{ A \code{data.table} containing
-       \code{periods_1} -  survey periods of \code{periods1}, \cr
-       \code{periods_2} -  survey periods of \code{periods2}, \cr
-       \code{country} - survey countries, \cr
-       \code{Dom} - optional variable of the population domains, \cr
-       \code{namesY} - variable with names of variables of interest, \cr
-       \code{namesZ} - optional variable with names of denominator for ratio estimation, \cr
-       \code{nams} - the variable names in correlation matrix, \cr
-       \code{rho} - the estimated correlation matrix.}
-   \item{var_tau}{ A \code{data.table} containing
-       \code{periods_1} -  survey periods of \code{periods1}, \cr
-       \code{periods_2} -  survey periods of \code{periods2}, \cr
-       \code{country} - survey countries, \cr
-       \code{Dom} - optional variable of the population domains, \cr
-       \code{namesY} - variable with names of variables of interest, \cr
-       \code{namesZ} - optional variable with names of denominator for ratio estimation, \cr
-       \code{nams} - the variable names in correlation matrix, \cr
-       \code{var_tau} - the estimated covariance matrix.}
-   \item{changes_results}{ A \code{data.table} containing
-       \code{periods_1} -  survey periods of #'        \code{periods1}, \cr
-       \code{periods_2} -  survey periods of #'        \code{periods2}, \cr
-       \code{country} - survey countries, \cr
-       \code{Dom} - optional variable of the population domains, \cr
-       \code{namesY} - variable with names of variables of interest, \cr
-       \code{namesZ} - optional variable with names of denominator for ratio estimation, \cr
-       \code{estim_1} - the estimated value for period1, \cr
-       \code{estim_2} - the estimated value for period2, \cr
-       \code{estim} - the estimated value, \cr
-       \code{var} - the estimated variance, \cr
-       \code{se} - the estimated standard error, \cr
-       \code{CI_lower} - the estimated confidence interval lower bound, \cr
-       \code{CI_upper} - the estimated confidence interval upper bound. \cr
-       \code{significant} - is the the difference significant}
+
 }
 \description{
 Computes the variance estimation for measures of change for single and multistage stage cluster sampling designs.

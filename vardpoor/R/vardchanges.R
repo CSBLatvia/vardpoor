@@ -35,7 +35,7 @@
 #' @return A list with objects are returned by the function:
 #' \itemize{
 #'     \item \code{res_out} - a \code{data.table} containing the estimated residuals of calibration with ID_level1 and PSU by periods and countries (if available).
-#'     \item \code{crossectional_results} - a \code{data.table} containing: \cr
+#'     #'     \item \code{crossectional_results} - a \code{data.table} containing: \cr
 #'        \code{period} -  survey periods, \cr
 #'        \code{country} - survey countries, \cr
 #'        \code{Dom} - optional variable of the population domains, \cr
@@ -58,15 +58,15 @@
 #'        \code{relative_margin_of_error} - the estimated relative margin of error, \cr
 #'        \code{CI_lower} - the estimated confidence interval lower bound, \cr
 #'        \code{CI_upper} - the estimated confidence interval upper bound.
-#'     \item \code{crossectional_var_grad} - a \code{data.table} containing: \cr
+#'        #'     \item \code{crossectional_var_grad} - a \code{data.table} containing: \cr
 #'        \code{periods} -  survey periods, \cr
 #'        \code{country} - survey countries, \cr
 #'        \code{Dom} - optional variable of the population domains, \cr
 #'        \code{namesY} - variable with names of variables of interest, \cr
 #'        \code{namesZ} - optional variable with names of denominator for ratio estimation, \cr
 #'        \code{grad} - the estimated gradient, \cr
-#'        \code{var} - the estimated a design-based variance.}
-#'     \item \code{rho A \code{data.table} containing: \cr
+#'        \code{var} - the estimated a design-based variance.
+#'     \item \code{rho} - a \code{data.table} containing: \cr
 #'        \code{periods_1} -  survey periods of \code{periods1}, \cr
 #'        \code{periods_2} -  survey periods of \code{periods2}, \cr
 #'        \code{country} - survey countries, \cr
@@ -83,7 +83,7 @@
 #'        \code{namesY} - variable with names of variables of interest, \cr
 #'        \code{namesZ} - optional variable with names of denominator for ratio estimation, \cr
 #'        \code{nams} - the variable names in correlation matrix, \cr
-#'        \code{var_tau} - the estimated covariance matrix.}
+#'        \code{var_tau} - the estimated covariance matrix.
 #'    \item \code{changes_results} - a \code{data.table} containing: \cr
 #'        \code{periods_1} -  survey periods of \code{periods1}, \cr
 #'        \code{periods_2} -  survey periods of \code{periods2}, \cr
@@ -98,7 +98,8 @@
 #'        \code{se} - the estimated standard error, \cr
 #'        \code{CI_lower} - the estimated confidence interval lower bound, \cr
 #'        \code{CI_upper} - the estimated confidence interval upper bound. \cr
-#'        \code{significant} - is the the difference significant} \cr
+#'        \code{significant} - is the the difference significant.
+#'        }
 #'
 #' @references
 #'Guillaume Osier,  Yves Berger,  Tim Goedeme, (2013), Standard error estimation for the EU-SILC indicators of poverty and social exclusion,  Eurostat Methodologies and Working papers, URL \url{http://ec.europa.eu/eurostat/documents/3888793/5855973/KS-RA-13-024-EN.PDF}. \cr

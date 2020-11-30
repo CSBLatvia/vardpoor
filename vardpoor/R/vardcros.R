@@ -185,10 +185,10 @@
 #' dataset1[, strata := "XXXX"]
 #' PSU <- dataset1[, .N, keyby = "db030"][, N:=NULL]
 #' PSU[, PSU := trunc(runif(nrow(PSU), 0, 100))]
-#' dataset <- merge(dataset, PSU, by = "db030", all = TRUE)
+#' dataset1 <- merge(dataset1, PSU, by = "db030", all = TRUE)
 #' thres <- data.table(rb020 = as.character(rep("AT", 4)),
 #'                    thres = c(11406, 11931, 12371, 12791),
-#'                    rb010 = 2008 : 2011)
+#'                    rb010 = 2008:2011)
 #' dataset1 <- merge(dataset1, thres, all.x = TRUE, by = c("rb010", "rb020"))
 #' dataset1[is.na(u), u := 0]
 #' dataset1 <- dataset1[u == 1]
@@ -203,7 +203,7 @@
 #' T3[, w1 := rb050]
 #' T3[, inc1 := eqIncome]
 #' T3[, rb110_1 := db030]
-#' T3[, pov1 := inc1 <= thres1]
+#' T3[, pov1 := inc1 <= thres]
 #' T3 <- T3[, c("rb020", "rb030", "strata", "PSU", "inc1", "pov1"), with = FALSE]
 #'     
 #' #############
@@ -243,7 +243,7 @@
 #' T0[, rb110_4 := db030]
 #' setnames(T0, "thres", "thres4")
 #' T0[, pov4 := inc4 <= thres4]
-#' T0 <- T0[, c("rb020", "rb030", "strata4", "PSU4", "w4", "inc4", "pov4"), with = FALSE]
+#' T0 <- T0[, c("rb010", "rb020", "rb030", "strata4", "PSU4", "w4", "inc4", "pov4"), with = FALSE]
 #' apv <- merge(T3, T2, all = TRUE, by = c("rb020", "rb030"))
 #' apv <- merge(apv, T1, all = TRUE, by = c("rb020", "rb030"))
 #' apv <- merge(apv, T0, all = TRUE, by = c("rb020", "rb030"))
@@ -252,13 +252,14 @@
 #'                                   | (pov1 == 1 & pov2 == 1 & pov3 == 0)
 #'                                   | (pov1 == 1 & pov2 == 0 & pov3 == 1)
 #'                                   | (pov1 == 0 & pov2 ==1 & pov3 == 1))), 1, 0)]
+#'                                   
 #' result20 <- vardcros(Y = "ppr", H = "strata", PSU = "PSU",
-#'                      w_final = "w4", ID_level1="rb030",
+#'                      w_final = "w4", ID_level1 = "rb030",
 #'                      ID_level2 = "rb030", Dom = NULL,
 #'                      Z = NULL, country = "rb020",
-#'                      period = NULL, dataset = apv,
+#'                      period = "rb010", dataset = apv,
 #'                      linratio = FALSE, 
-#'                      withperiod = FALSE,
+#'                      withperiod = TRUE,
 #'                      netchanges = FALSE,
 #'                      confidence = .95)
 #' result20}

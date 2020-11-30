@@ -30,5 +30,4 @@ Stable version from [CRAN](https://cran.r-project.org/package=vardpoor)
 
 Development version from [github](https://github.com/CSBLatvia/vardpoor)
 
-    library(devtools)
-    install_github("CSBLatvia/vardpoor/vardpoor")
+    remotes::install_github("CSBLatvia/vardpoor/vardpoor")

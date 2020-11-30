@@ -25,7 +25,7 @@ lin.ratio(
 
 \item{dataset}{Optional survey data object convertible to \code{data.table}.}
 
-\item{percentratio}{Positive integer value. All linearized variables are multiplied with percentratio value, by default - 1.}
+\item{percentratio}{Positive integer value. All linearized variables are multiplied with \code{percentratio} value, by default - 1.}
 
 \item{checking}{Optional variable if this variable is TRUE, then function checks data preparation errors, otherwise not checked. This variable by default is TRUE.}
 }

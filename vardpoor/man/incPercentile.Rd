@@ -22,7 +22,7 @@ incPercentile(
 
 \item{sort}{Optional variable to be used as tie-breaker for sorting. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.}
 
-\item{Dom}{Optional variables used to define population domains. If supplied, the estimates of percentiles are computed for each domain. An object convertable to \code{data.table} or variable names as character vector, column numbers.}
+\item{Dom}{Optional variables used to define population domains. If supplied, the estimates of percentiles are computed for each domain. An object convertible to \code{data.table} or variable names as character vector, column numbers.}
 
 \item{period}{Optional variable for survey period. If supplied, linearization of at-risk-of-poverty threshold is done for each survey period. Object convertible to \code{data.table} or variable names as character, column numbers as numeric vector.}
 

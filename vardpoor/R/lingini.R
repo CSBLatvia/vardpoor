@@ -1,4 +1,4 @@
-#' Linearization of the GINI coefficient I
+#' Linearization of the Gini coefficient I
 #'
 #' @description Estimate the Gini coefficient, which is a measure for inequality, and its linearization.
 #' 
@@ -6,8 +6,8 @@
 #' @param id Optional variable for unit ID codes. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.
 #' @param weight Optional weight variable. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.
 #' @param sort Optional variable to be used as tie-breaker for sorting. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.
-#' @param Dom Optional variables used to define population domains. If supplied, linearization of the GINI is done for each domain. An object convertible to \code{data.table} or variable names as character vector, column numbers.
-#' @param period Optional variable for survey period. If supplied, linearization of the GINI is done for each time period. Object convertible to \code{data.table} or variable names as character, column numbers.
+#' @param Dom Optional variables used to define population domains. If supplied, linearization of the Gini is done for each domain. An object convertible to \code{data.table} or variable names as character vector, column numbers.
+#' @param period Optional variable for survey period. If supplied, linearization of the Gini is done for each time period. Object convertible to \code{data.table} or variable names as character, column numbers.
 #' @param dataset Optional survey data object convertible to \code{data.table}.
 #' @param var_name A character specifying the name of the linearized variable.
 #' @param checking Optional variable if this variable is TRUE, then function checks data preparation errors, otherwise not checked. This variable by default is TRUE.
@@ -19,8 +19,8 @@
 #'
 #' @references
 #' Working group on Statistics on Income and Living  Conditions (2004) Common cross-sectional EU indicators based on EU-SILC; the gender pay gap.  \emph{EU-SILC 131-rev/04}, Eurostat.  \cr
-#' Guillaume Osier (2009). Variance estimation for complex indicators of poverty and inequality. \emph{Journal of the European Survey Research Association}, Vol.3, No.3, pp. 167-195, ISSN 1864-3361, URL \url{http://ojs.ub.uni-konstanz.de/srm/article/view/369}.  \cr
-#' Jean-Claude Deville (1999). Variance estimation for complex statistics and estimators: linearization and residual techniques. Survey Methodology, 25, 193-203, URL \url{http://www.statcan.gc.ca/pub/12-001-x/1999002/article/4882-eng.pdf}.  \cr
+#' Guillaume Osier (2009). Variance estimation for complex indicators of poverty and inequality. \emph{Journal of the European Survey Research Association}, Vol.3, No.3, pp. 167-195, ISSN 1864-3361, URL \url{https://ojs.ub.uni-konstanz.de/srm/article/view/369}.  \cr
+#' Jean-Claude Deville (1999). Variance estimation for complex statistics and estimators: linearization and residual techniques. Survey Methodology, 25, 193-203, URL \url{https://www150.statcan.gc.ca/n1/pub/12-001-x/1999002/article/4882-eng.pdf}.  \cr
 #' 
 #' @seealso \code{\link{lingini2}},
 #'          \code{\link{linqsr}},

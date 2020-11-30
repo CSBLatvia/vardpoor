@@ -13,6 +13,9 @@ RnwWeave: Sweave
 LaTeX: XeLaTeX
 
 BuildType: Package
+PackageUseDevtools: Yes
 PackagePath: vardpoor
 PackageInstallArgs: --no-multiarch --with-keep.source
 PackageBuildArgs: --md5
+PackageCheckArgs: --as-cran
+PackageRoxygenize: rd,collate,namespace

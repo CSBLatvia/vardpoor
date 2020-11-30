@@ -72,15 +72,15 @@ If \code{period} \bold{is not} \code{NULL}. A three-column data object convertib
 
 \item{PSU_sort}{optional; if PSU_sort is defined, then variance is calculated for systematic sample.}
 
-\item{fh_zero}{by default FALSE; fh is calculated as division of n_h and N_h in each strata, if true, fh value is zero in each strata.}
+\item{fh_zero}{by default FALSE; \code{fh} is calculated as division of n_h and N_h in each strata, if TRUE, \code{fh} value is zero in each strata.}
 
-\item{PSU_level}{by default TRUE; if PSU_level is true, in each strata fh is calculated as division of count of PSU in sample (n_h) and count of PSU in frame(N_h). if PSU_level is false, in each strata fh is calculated as division of count of units in sample (n_h) and count of units in frame(N_h), which calculated as sum of weights.}
+\item{PSU_level}{by default TRUE; if PSU_level is TRUE, in each strata \code{fh} is calculated as division of count of PSU in sample (n_h) and count of PSU in frame(N_h). if PSU_level is FALSE, in each strata \code{fh} is calculated as division of count of units in sample (n_h) and count of units in frame(N_h), which calculated as sum of weights.}
 
 \item{sort}{Optional variable to be used as tie-breaker for sorting. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.}
 
 \item{Dom}{Optional variables used to define population domains. If supplied, variables is calculated for each domain. An object convertible to \code{data.table} or variable names as character vector, column numbers.}
 
-\item{period}{Optional variable for survey period. If supplied, variables is calculated for each time period. Object convertable to \code{data.table} or variable names as character, column numbers.}
+\item{period}{Optional variable for survey period. If supplied, variables is calculated for each time period. Object convertible to \code{data.table} or variable names as character, column numbers.}
 
 \item{gender}{Numerical variable for gender, where 1 is for males, but 2 is for females. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.}
 
@@ -125,7 +125,7 @@ A list with objects are returned by the function:
 \itemize{
    \item \code{lin_out} - a \code{data.table} containing the linearized values of the ratio estimator with ID_level2 and PSU.
    \item \code{res_out} - a \code{data.table} containing the estimated residuals of calibration with ID_level1 and PSU. 
-   \item \code{betas} - a numeric \code{data.table} containing the estimated coeffients of calibration.
+   \item \code{betas} - a numeric \code{data.table} containing the estimated coefficients of calibration.
    \item \code{all_result} - a \code{data.table}, which containing variables: \cr
       \code{respondent_count} - the count of respondents, \cr
       \code{pop_size} - the estimated size of population, \cr
@@ -210,13 +210,13 @@ aa
 
 }
 \references{
-Eric Graf and Yves Tille, Variance Estimation Using Linearization for Poverty and Social Exclusion Indicators,  Survey Methodology, June 2014 61 Vol. 40, No. 1, pp. 61-79, Statistics Canada, Catalogue no. 12-001-X, URL \url{http://www.statcan.gc.ca/pub/12-001-x/12-001-x2014001-eng.pdf} \cr
+Eric Graf and Yves Tille, Variance Estimation Using Linearization for Poverty and Social Exclusion Indicators,  Survey Methodology, June 2014 61 Vol. 40, No. 1, pp. 61-79, Statistics Canada, Catalogue no. 12-001-X, URL \url{https://www150.statcan.gc.ca/n1/pub/12-001-x/12-001-x2014001-eng.pdf} \cr
 Guillaume Osier and Emilio Di Meglio. The linearisation approach implemented by Eurostat for the first wave of EU-SILC: what could be done from the second wave onwards? 2012 \cr
-Guillaume Osier (2009). Variance estimation for complex indicators of poverty and inequality. \emph{Journal of the European Survey Research Association}, Vol.3, No.3, pp. 167-195, ISSN 1864-3361, URL \url{http://ojs.ub.uni-konstanz.de/srm/article/view/369}. \cr
+Guillaume Osier (2009). Variance estimation for complex indicators of poverty and inequality. \emph{Journal of the European Survey Research Association}, Vol.3, No.3, pp. 167-195, ISSN 1864-3361, URL \url{https://ojs.ub.uni-konstanz.de/srm/article/view/369}. \cr
 Eurostat Methodologies and Working papers, Standard error estimation for the EU-SILC indicators of poverty and social exclusion, 2013, URL \url{http://ec.europa.eu/eurostat/documents/3859598/5927001/KS-RA-13-029-EN.PDF}. \cr
-Jean-Claude Deville (1999). Variance estimation for complex statistics and estimators: linearization and residual techniques. Survey Methodology, 25, 193-203, URL \url{http://www.statcan.gc.ca/pub/12-001-x/1999002/article/4882-eng.pdf}. \cr
+Jean-Claude Deville (1999). Variance estimation for complex statistics and estimators: linearization and residual techniques. Survey Methodology, 25, 193-203, URL \url{https://www150.statcan.gc.ca/n1/pub/12-001-x/1999002/article/4882-eng.pdf}. \cr
 Eurostat Methodologies and Working papers, Handbook on precision requirements and variance estimation for ESS household surveys, 2013, URL \url{http://ec.europa.eu/eurostat/documents/3859598/5927001/KS-RA-13-029-EN.PDF}. \cr
-MATTI LANGEL - YVES TILLE, Corrado Gini, a pioneer in balanced sampling and inequality theory. \emph{METRON - International Journal of Statistics}, 2011, vol. LXIX, n. 1, pp. 45-65, URL \url{ftp://metron.sta.uniroma1.it/RePEc/articoli/2011-1-3.pdf}. \cr
+Matti Langel, Yves Tille, Corrado Gini, a pioneer in balanced sampling and inequality theory. \emph{Metron - International Journal of Statistics}, 2011, vol. LXIX, n. 1, pp. 45-65, URL \url{http://dx.doi.org/10.1007/BF03263549}. \cr
 Morris H. Hansen, William N. Hurwitz, William G. Madow, (1953), Sample survey methods and theory Volume I Methods and applications, 257-258, Wiley. \cr
 Yves G. Berger, Tim Goedeme, Guillame Osier (2013). Handbook on standard error estimation and other related sampling issues in EU-SILC, URL \url{https://ec.europa.eu/eurostat/cros/content/handbook-standard-error-estimation-and-other-related-sampling-issues-ver-29072013_en} \cr
 Working group on Statistics on Income and Living Conditions (2004) Common cross-sectional EU indicators based on EU-SILC; the gender pay gap.  \emph{EU-SILC 131-rev/04}, Eurostat.\cr

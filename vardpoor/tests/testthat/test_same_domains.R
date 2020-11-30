@@ -1,6 +1,7 @@
 # Check if confidence intervals are equal for a domain in different domain partitions
 
-require(vardpoor)
+# require(testthat)
+# devtools::load_all(path = "vardpoor")
 
 test_domains <- function(n = 600, l = 3) {
   
@@ -82,7 +83,7 @@ test_domains <- function(n = 600, l = 3) {
   return(list(ci_a1, ci_a2, ci_b1, ci_b2))
 }
 
-test_that("Check if confidence intervals are equal for a domain in different domain partitions",{
+test_that("Confidence intervals are equal in different domain partitions", {
   results <- test_domains()
   expect_equal(results[[1]], results[[3]])
   expect_equal(results[[2]], results[[4]])

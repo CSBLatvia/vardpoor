@@ -1,21 +1,26 @@
 Package: vardpoor
 Type: Package
-Title: Variance Estimation for Sample Surveys by the Ultimate Cluster
-        Method
-Version: 0.20.0
-Date: 2020-05-20
+Title: Variance Estimation for Sample Surveys by the Ultimate Cluster Method
+Version: 0.20.1
 Depends: R (>= 3.2.3)
-Imports: foreach, data.table (>= 1.12.6), MASS, stats, utils, stringr, surveyplanning, laeken
-Authors@R: c(person("Juris", "Breidaks", email = "rcsb@csb.gov.lv", role = c("aut", "cre")),
-             person("Martins", "Liberts", role = "aut"),
-             person("Santa", "Ivanova", role = "aut"))
-Maintainer: Juris Breidaks <rcsb@csb.gov.lv>
-Description: Generation of domain variables, linearization of several nonlinear population statistics (the ratio of two totals, weighted income percentile, relative median income ratio, at-risk-of-poverty rate, at-risk-of-poverty threshold, Gini coefficient, gender pay gap, the aggregate replacement ratio, the relative median income ratio, median income below at-risk-of-poverty gap, income quintile share ratio, relative median at-risk-of-poverty gap), computation of regression residuals in case of weight calibration, variance estimation of sample surveys by the ultimate cluster method (Hansen, Hurwitz and Madow,Theory, vol. I: Methods and Applications; vol. II: Theory. 1953, New York: John Wiley and Sons), variance estimation for longitudinal, cross-sectional measures and measures of change for single and multistage stage cluster sampling designs (Berger, Y. G., 2015, <doi:10.1111/rssa.12116>). Several other precision measures are derived - standard error, the coefficient of variation, the margin of error, confidence interval, design effect.
-URL: https://csblatvia.github.io/vardpoor/
+Imports: foreach, data.table (>= 1.12.6), MASS, stats, utils, stringr,
+ surveyplanning, laeken
+Authors@R: c(
+  person("Juris",   "Breidaks",   role = "aut"),
+  person("Martins", "Liberts",    role = c("aut", "cre"),
+         email = "martins.liberts@csb.gov.lv"),
+  person("Santa",   "Ivanova",    role = "aut"),
+  person("Aleksis", "Jursevskis", role = "ctb"),
+  person("Anthony", "Damico",     role = "ctb"),
+  person("Central Statistical Bureau of Latvia", role = c("cph", "fnd"),
+         email = "rcsb@csb.gov.lv"))
+Description: Generation of domain variables, linearization of several non-linear population statistics (the ratio of two totals, weighted income percentile, relative median income ratio, at-risk-of-poverty rate, at-risk-of-poverty threshold, Gini coefficient, gender pay gap, the aggregate replacement ratio, the relative median income ratio, median income below at-risk-of-poverty gap, income quintile share ratio, relative median at-risk-of-poverty gap), computation of regression residuals in case of weight calibration, variance estimation of sample surveys by the ultimate cluster method (Hansen, Hurwitz and Madow, Sample Survey Methods And Theory, vol. I: Methods and Applications; vol. II: Theory. 1953, New York: John Wiley and Sons), variance estimation for longitudinal, cross-sectional measures and measures of change for single and multistage stage cluster sampling designs (Berger, Y. G., 2015, <doi:10.1111/rssa.12116>). Several other precision measures are derived - standard error, the coefficient of variation, the margin of error, confidence interval, design effect.
+URL: https://csblatvia.github.io/vardpoor/, https://github.com/CSBLatvia/vardpoor/
 BugReports: https://github.com/CSBLatvia/vardpoor/issues/
-License: EUPL
+License: EUPL | file LICENSE
 Encoding: UTF-8
+Language: en-GB
 Repository: CRAN
-NeedsCompilation: yes
+NeedsCompilation: no
 LazyData: true
-RoxygenNote: 7.1.0
+RoxygenNote: 7.1.1

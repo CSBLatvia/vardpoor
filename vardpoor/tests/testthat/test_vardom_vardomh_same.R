@@ -1,4 +1,7 @@
-require(vardpoor)
+# Check that vardom and vardomh results match if level1 == level2
+
+# require(testthat)
+# devtools::load_all(path = "vardpoor")
 
 test_dom_domh <- function(n = 600) {
   # n - number of persons in sample
@@ -50,7 +53,7 @@ test_dom_domh <- function(n = 600) {
   return(list(result_a, result_b[, .SD, .SDcols = names_a]))
 }
 
-test_that("Check that vardom and vardomh results match if level1 == level2", {
+test_that("vardom and vardomh results match if level1 == level2", {
   results <- test_dom_domh()
   expect_equal(results[[1]], results[[2]])
 })

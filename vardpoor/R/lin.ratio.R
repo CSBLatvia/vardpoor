@@ -8,7 +8,7 @@
 #' @param weight Weight variable. One dimensional object convertible to one-column \code{data.table}.
 #' @param Dom Optional variables used to define population domains. If supplied, the linearized variables are computed for each domain. An object convertible to \code{data.table}.
 #' @param dataset Optional survey data object convertible to \code{data.table}.
-#' @param percentratio Positive integer value. All linearized variables are multiplied with percentratio value, by default - 1.
+#' @param percentratio Positive integer value. All linearized variables are multiplied with \code{percentratio} value, by default - 1.
 #' @param checking Optional variable if this variable is TRUE, then function checks data preparation errors, otherwise not checked. This variable by default is TRUE.
 #'
 #' @return The function returns the \code{data.table} of the linearized variables for the ratio estimator.

@@ -3,18 +3,18 @@
 #' @description Computes the variance estimation for measures of annual net change or annual for single stratified sampling designs.
 #' 
 #' @param boots_count Positive numeric value. Number of replicates, by default - 100
-#' @param  Y Variables of interest. Object convertible to \code{data.table} or variable names as character, column numbers.
+#' @param Y Variables of interest. Object convertible to \code{data.table} or variable names as character, column numbers.
 #' @param H The unit stratum variable. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.
 #' @param PSU Primary sampling unit variable. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.
 #' @param w_final Weight variable. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.
 #' @param ID_level1 Variable for unit ID codes. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.
 #' @param Z Optional variables of denominator for ratio estimation. If supplied, the ratio estimation is computed. Object convertible to \code{data.table} or variable names as character, column numbers. This variable is \code{NULL} by default.
 #' @param Dom Optional variables used to define population domains. If supplied, variables are calculated for each domain. An object convertible to \code{data.table} or variable names as character vector, column numbers.
-#' @param dh n_h-m_h, where n_h is the stratum size and m_h the number of units sampled with replacement. By default, dh=1 (HFCN recommendation)
+#' @param dh n_h-m_h, where n_h is the stratum size and m_h the number of units sampled with replacement. By default, \code{dh=1} (HFCN recommendation)
 #' @param fpc Variable for the finite population correction (sampling rate = n_h/N_h). Default = 0.
 #' @param dataset Optional survey data object convertible to \code{data.table}.
 #' @param years Variable for the all survey years. The values for each year are computed independently. Object convertible to \code{data.table} or variable names as character, column numbers.
-#' @param subperiods Variable for the all survey subperiods. The values for each subperiod are computed independently. Object convertible to \code{data.table} or variable names as character, column numbers.
+#' @param subperiods Variable for the all survey sub-periods. The values for each sub-period are computed independently. Object convertible to \code{data.table} or variable names as character, column numbers.
 #' @param year1 The vector of years from variable \code{years} describes the first year for measures of annual net change.
 #' @param year2 The vector of years from variable \code{periods} describes the second year for measures of annual net change.
 #' @param percentratio Positive numeric value. All linearized variables are multiplied with \code{percentratio} value, by default - 1.
@@ -26,7 +26,7 @@
 #'  \itemize{
 #'  \item \code{crossectional_results} - a \code{data.table} containing: \cr
 #'     \code{year} -  survey years, \cr
-#'     \code{subperiods} -  survey subperiods, \cr
+#'     \code{subperiods} -  survey sub-periods, \cr
 #'     \code{variable} - names of variables of interest, \cr
 #'     \code{Dom} - optional variable of the population domains, \cr
 #'     \code{estim} - the estimated value, \cr
@@ -68,33 +68,37 @@
 #' ### Example
 #' library("laeken")
 #' library("data.table")
+#' set.seed(1)
+#' 
 #' data("eusilc")
-#' set.seed(1)
-#' eusilc1 <- eusilc[1 : 20,]
-#' set.seed(1)
-#' dataset1 <- data.table(rbind(eusilc1, eusilc1),
+#' eusilc1 <- eusilc[1:20,]
+#' setDT(eusilc1)
+#' eusilc1[, id_lv2 := paste0("V", .I)]
+#' 
+#' dataset1 <- data.table(rbindlist(list(eusilc1, eusilc1)),
 #'                        year = c(rep(2010, nrow(eusilc1)),
 #'                                 rep(2011, nrow(eusilc1))))
+#'                                 
 #' dataset1[, half:= .I - 2 * trunc((.I - 1) / 2)]
 #' dataset1[, quarter:= .I - 4 * trunc((.I - 1) / 4)]
 #' dataset1[age < 0, age:= 0]
+#' 
 #' PSU <- dataset1[, .N, keyby = "db030"][, N:= NULL]
 #' PSU[, PSU:= trunc(runif(nrow(PSU), 0, 5))]
 #' dataset1 <- merge(dataset1, PSU, all = TRUE, by = "db030")
 #' PSU <- eusilc <- NULL
-#' dataset1[, strata := c("XXXX")]
 #' 
+#' dataset1[, strata := c("XXXX")]
 #' dataset1[, employed := trunc(runif(nrow(dataset1), 0, 2))]
-#' dataset1[, id_lv2 := paste0("V", .I)]
 #' dataset1[, fpc := 0]
 #' 
 #' \dontrun{
-#' result <- vardbootstr(boots_count = 500, = "employed", H = "strata",
-#'                       PSU = "PSU", w_final = "rb050", ID_level1 = "ids",
+#' result <- vardbootstr(boots_count = 500, Y = "employed", H = "strata",
+#'                       PSU = "PSU", w_final = "rb050", ID_level1 = "id_lv2",
 #'                       Z = NULL, Dom = NULL, dh = 1, fpc = "fpc",
 #'                       dataset = dataset1, years = "year",
 #'                       subperiods = "half", year1 = 2010,
-#'                       year = 2011, percentratio = 100,
+#'                       year2 = 2011, percentratio = 100,
 #'                       confidence = 0.95, method = "netchanges")
 #' result}
 #'
@@ -102,10 +106,36 @@
 #'          \code{\link{vardannual}}
 #'          
 #' @keywords vardannual
+#' 
 #' @import data.table
 #' @import laeken
 #' 
-#' @export vardannual
+#' @export vardbootstr
+
+
+# Development ####
+# Test arguments
+# Use data from the example
+
+# boots_count <- 500
+# Y <- "employed"
+# H <- "strata"
+# PSU <- "PSU"
+# w_final <- "rb050"
+# ID_level1 <- "id_lv2"
+# Z <- NULL
+# Dom <- NULL
+# dh <- 1
+# fpc <- "fpc"
+# dataset <- dataset1
+# years <- "year"
+# subperiods <- "half"
+# year1 <- 2010
+# year2 <- 2011
+# percentratio <- 100
+# confidence <- 0.95
+# method <- "netchanges"
+
 
 vardbootstr <- function(boots_count = 500, Y, H, PSU,
                         w_final, ID_level1, Z = NULL,
@@ -113,7 +143,7 @@ vardbootstr <- function(boots_count = 500, Y, H, PSU,
                         dataset = NULL, years,
                         subperiods = NULL, year1 = NULL,
                         year2 = NULL, percentratio = 100,
-                        confidence = 0.95, method = "cros"){
+                        confidence = 0.95, method = "cros") {
   . <- NULL
   method <- check_var(vars = method, varn = "method", varntype = "method") 
   boots_count <- check_var(vars = boots_count, varn = "boots_count", varntype = "pinteger")
@@ -152,6 +182,7 @@ vardbootstr <- function(boots_count = 500, Y, H, PSU,
                      ncols = 1, Yncol = 0, Ynrow = Ynrow, ischaracter = TRUE,
                      dif_name = c(names(H), "n_sk", "COUNT", 
                                   "sample_size", "Nrs", "iteration_nr"))
+  
   if (method != "cros") {
     year1 <- check_var(vars = year1, varn = "year1", dataset = NULL, ncols = 1,
                        ischaracter = TRUE, years = years)
@@ -162,8 +193,7 @@ vardbootstr <- function(boots_count = 500, Y, H, PSU,
     if (!missing(year2)) if (!is.null(year2)) stop("'year2' must be NULL")
     year1 <- years[, .N, by = yearm][, N := NULL]
     year2 <- years[, .N, by = yearm][, N := NULL] }
-  
-  
+
   subperiods <- check_var(vars = subperiods, varn = "subperiods",
                           dataset = dataset, ncols = 1, Ynrow = Ynrow,
                           ischaracter = TRUE, years = years,
@@ -233,6 +263,9 @@ vardbootstr <- function(boots_count = 500, Y, H, PSU,
   samples[, WA := NumberHits]
   setkeyv(samples, c(period, PSU, H, "iteration_nr"))
   setkeyv(dataset, c(period, PSU, H))
+  
+  # Looks to be en error!
+  # y is not unique by key
   samples <- merge(samples, dataset, by = c(period, PSU, H), all.x = TRUE)
   
   samples[, WR := w_final * ((1 - sqrt(sample_size / (COUNT - 1) * (1 - fpc))) +

@@ -1,6 +1,6 @@
 #' Linearization of at-risk-of-poverty threshold
 #' 
-#' @description Estimates the at-risk-of-poverty threshold (defined as percentage (usualy 60\%) of equalised disposable income after social transfers quantile (usualy median)) and computes linearized variable for variance estimation.
+#' @description Estimates the at-risk-of-poverty threshold (defined as percentage (usually 60\%) of equalised disposable income after social transfers quantile (usually median)) and computes linearized variable for variance estimation.
 #'
 #' @param Y Study variable (for example equalised disposable income after social transfers). One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.
 #' @param id Optional variable for unit ID codes. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.
@@ -8,7 +8,7 @@
 #' @param sort Optional variable to be used as tie-breaker for sorting. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.
 #' @param Dom Optional variables used to define population domains. If supplied, linearization of at-risk-of-poverty threshold is done for each domain. An object convertible to \code{data.table} or variable names as character vector, column numbers as numeric vector.
 #' @param period Optional variable for survey period. If supplied, linearization of at-risk-of-poverty threshold is done for each survey period. Object convertible to \code{data.table} or variable names as character, column numbers as numeric vector.
-#' @param dataset Optional survey data object convertable to \code{data.table}.
+#' @param dataset Optional survey data object convertible to \code{data.table}.
 #' @param percentage A numeric value in range \eqn{\left[ 0,100 \right]}{[0,100]} for \eqn{p} in the formula for at-risk-of-poverty threshold computation:
 #' \deqn{\frac{p}{100} \cdot Z_{\frac{\alpha}{100}}.}{p/100 * Z(\alpha/100).}
 #' For example, to compute poverty threshold equal to 60\% of some income quantile, \eqn{p} should be set equal to 60.
@@ -23,7 +23,7 @@
 #' 
 #' @return A list with three objects are returned:
 #' \itemize{
-#'   \item \code{quantile} - a \code{data.table} containing the estimated value of the quintile used for at-risk-of-poverty threshold estimation.
+#'   \item \code{quantile} - a \code{data.table} containing the estimated value of the quantile used for at-risk-of-poverty threshold estimation.
 #'   \item \code{value} - a \code{data.table} containing the estimated at-risk-of-poverty threshold (in percentage).
 #'   \item \code{lin} - a \code{data.table} containing the linearized variables of the at-risk-of-poverty threshold (in percentage).
 #' }
@@ -31,8 +31,8 @@
 #'
 #' @references
 #' Working group on Statistics on Income and Living  Conditions (2004) Common cross-sectional EU indicators based on EU-SILC; the gender pay gap. \emph{EU-SILC 131-rev/04}, Eurostat.  \cr
-#' Guillaume Osier (2009). Variance estimation for complex indicators of poverty and inequality. \emph{Journal of the European Survey Research Association}, Vol.3, No.3, pp. 167-195, ISSN 1864-3361, URL \url{http://ojs.ub.uni-konstanz.de/srm/article/view/369}.  \cr
-#' Jean-Claude Deville (1999). Variance estimation for complex statistics and estimators: linearization and residual techniques. Survey Methodology, 25, 193-203, URL \url{http://www.statcan.gc.ca/pub/12-001-x/1999002/article/4882-eng.pdf}.  \cr
+#' Guillaume Osier (2009). Variance estimation for complex indicators of poverty and inequality. \emph{Journal of the European Survey Research Association}, Vol.3, No.3, pp. 167-195, ISSN 1864-3361, URL \url{https://ojs.ub.uni-konstanz.de/srm/article/view/369}.  \cr
+#' Jean-Claude Deville (1999). Variance estimation for complex statistics and estimators: linearization and residual techniques. Survey Methodology, 25, 193-203, URL \url{https://www150.statcan.gc.ca/n1/pub/12-001-x/1999002/article/4882-eng.pdf}.  \cr
 #'
 #' @seealso \code{\link{linarpr}}, \code{\link{incPercentile}},
 #'           \code{\link{varpoord}} , \code{\link{vardcrospoor}},

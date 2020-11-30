@@ -1,7 +1,8 @@
 # Test for estimation of regression residuals for vardomh
 # Data are randomly ordered
 
-require(vardpoor)
+# require(testthat)
+# devtools::load_all(path = "vardpoor")
 
 # n <- 600L
 # l <- 3L
@@ -51,7 +52,7 @@ test_unordered_residuals <- function(n = 600L, l = 3L) {
   tmpX <- merge(datX, totY, by = "IDh")
 
   tmpX[, yres := residual_est(Y = y, X = .SD[, .(x0, x1, x2)],
-                              weight = wd, q = q)]
+                              weight = wd, q = q)$residuals]
 
   res <- vardomh(Y = "y",
                  H = "strata",
@@ -72,7 +73,7 @@ test_unordered_residuals <- function(n = 600L, l = 3L) {
   return(list(tmp[, yres], tmp[, yres2]))
 }
 
-test_that("Test estimatation of residuals in vardomh",{
+test_that("Test estimatation of residuals in vardomh", {
   results <- test_unordered_residuals()
   expect_equal(results[[1]], results[[2]])
 })

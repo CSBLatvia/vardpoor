@@ -1,21 +1,16 @@
 .Rproj.user
 .Rhistory
 .RData
-History
-doc
-vardpoor.Rcheck
+*.Rcheck
 *.xlsx
 *.xls
 *.csv
 *.pdf
 *.docx
 *.doc
+*.html
 *.tar
 *.gz
 *.zip
 *.7z
-Thumbs.db
-"Paketes veidosana.txt"
-Paketes veidosana.txt
-vardpoor7z
-test.R
+*.db

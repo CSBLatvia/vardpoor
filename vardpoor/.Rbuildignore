@@ -1,0 +1,4 @@
+_snaps
+.*html$
+vardbootstr.R
+cran-comments.md

@@ -27,7 +27,7 @@
 #'  \itemize{
 #'       \item \code{lin_out} - a \code{data.table} containing the linearized values of the ratio estimator with id and PSU.
 #'       \item \code{res_out} - a \code{data.table} containing the estimated residuals of calibration with id and PSU.
-#'       \item \code{betas} - a numeric \code{data.table} containing the estimated coeffients of calibration.
+#'       \item \code{betas} - a numeric \code{data.table} containing the estimated coefficients of calibration.
 #'       \item \code{s2g} - a \code{data.table} containing the s^2g value.
 #'       \item \code{all_result} - a \code{data.table}, which containing variables: \cr
 #'         \code{respondent_count} - the count of respondents, \cr
@@ -51,7 +51,7 @@
 #'         \code{deff} - the overall estimated design effect of sample design and estimator. \cr
 #'    }
 #' @references
-#'Jean-Claude Deville (1999). Variance estimation for complex statistics and estimators: linearization and residual techniques. Survey Methodology, 25, 193-203, URL \url{http://www.statcan.gc.ca/pub/12-001-x/1999002/article/4882-eng.pdf}. \cr
+#'Jean-Claude Deville (1999). Variance estimation for complex statistics and estimators: linearization and residual techniques. Survey Methodology, 25, 193-203, URL \url{https://www150.statcan.gc.ca/n1/pub/12-001-x/1999002/article/4882-eng.pdf}. \cr
 #'M. Liberts. (2004) Non-response Analysis and Bias Estimation in a Survey on Transportation of Goods by Road. \cr
 #'
 #' @seealso \code{\link{domain}},

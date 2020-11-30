@@ -38,7 +38,7 @@ variance_othstr(
 \value{
 A list with objects are returned by the function:
   \itemize{
-      \item betas A numeric \code{data.table} containing the estimated coeffients of calibration.
+      \item betas A numeric \code{data.table} containing the estimated coefficients of calibration.
       \item s2g A \code{data.table} containing the s^2g value.        
       \item var_est A \code{data.table} containing the values of the variance estimation.
   }
@@ -50,7 +50,7 @@ Computes s2g and the variance estimation by the new stratification.
 It is possible to compute population size \eqn{M_g} from sampling frame. The standard deviation of \eqn{g}-th stratum is
 \deqn{S_g^2 =\frac{1}{M_g-1} \sum\limits_{k=1}^{M_g} \left(y_{gk}-\bar{Y}_g \right)^2= \frac{1}{M_g-1} \sum\limits_{k=1}^{M_g} y_{gk}^2 - \frac{M_g}{M_g-1}\bar{Y}_g^2}{S_g^2 =1/(M_g-1) \sum k=1...M_g (y_gk - Ym_g)^2= 1/(M_g-1) \sum k=1...M_g  (y_gk)^2 - M_g/(M_g-1)*(Ym_g)^2}
 
-\eqn{\sum\limits_{k=1}^{M_g} y_{gk} ^2}{\sum k=1...M_g (y_gk)^2} and \eqn{\bar{Y}_g^2}{Ym_g^2} have to be estimeted to estimate \eqn{S_g^2}. Estimate of \eqn{\sum\limits_{k=1}^{M_g} y_{gk}^2}{\sum k=1...M_g (y_gk)^2} is \eqn{\sum\limits_{h=1}^{H} \frac{N_h}{n_h} \sum\limits_{i=1}^{n_h} y_{gi}^2 z_{hi}}{\sum h=1...H N_h/n_h \sum i=1...n_h (y_gi)^2*z_hi}, where
+\eqn{\sum\limits_{k=1}^{M_g} y_{gk} ^2}{\sum k=1...M_g (y_gk)^2} and \eqn{\bar{Y}_g^2}{Ym_g^2} have to be estimated to estimate \eqn{S_g^2}. Estimate of \eqn{\sum\limits_{k=1}^{M_g} y_{gk}^2}{\sum k=1...M_g (y_gk)^2} is \eqn{\sum\limits_{h=1}^{H} \frac{N_h}{n_h} \sum\limits_{i=1}^{n_h} y_{gi}^2 z_{hi}}{\sum h=1...H N_h/n_h \sum i=1...n_h (y_gi)^2*z_hi}, where
 
 \eqn{ z_{hi} = \left\{
  \begin{array}{ll}

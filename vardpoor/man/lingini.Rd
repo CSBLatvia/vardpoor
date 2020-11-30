@@ -2,7 +2,7 @@
 % Please edit documentation in R/lingini.R
 \name{lingini}
 \alias{lingini}
-\title{Linearization of the GINI coefficient I}
+\title{Linearization of the Gini coefficient I}
 \usage{
 lingini(
   Y,
@@ -25,9 +25,9 @@ lingini(
 
 \item{sort}{Optional variable to be used as tie-breaker for sorting. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.}
 
-\item{Dom}{Optional variables used to define population domains. If supplied, linearization of the GINI is done for each domain. An object convertible to \code{data.table} or variable names as character vector, column numbers.}
+\item{Dom}{Optional variables used to define population domains. If supplied, linearization of the Gini is done for each domain. An object convertible to \code{data.table} or variable names as character vector, column numbers.}
 
-\item{period}{Optional variable for survey period. If supplied, linearization of the GINI is done for each time period. Object convertible to \code{data.table} or variable names as character, column numbers.}
+\item{period}{Optional variable for survey period. If supplied, linearization of the Gini is done for each time period. Object convertible to \code{data.table} or variable names as character, column numbers.}
 
 \item{dataset}{Optional survey data object convertible to \code{data.table}.}
 
@@ -63,8 +63,8 @@ dat2$value}
 }
 \references{
 Working group on Statistics on Income and Living  Conditions (2004) Common cross-sectional EU indicators based on EU-SILC; the gender pay gap.  \emph{EU-SILC 131-rev/04}, Eurostat.  \cr
-Guillaume Osier (2009). Variance estimation for complex indicators of poverty and inequality. \emph{Journal of the European Survey Research Association}, Vol.3, No.3, pp. 167-195, ISSN 1864-3361, URL \url{http://ojs.ub.uni-konstanz.de/srm/article/view/369}.  \cr
-Jean-Claude Deville (1999). Variance estimation for complex statistics and estimators: linearization and residual techniques. Survey Methodology, 25, 193-203, URL \url{http://www.statcan.gc.ca/pub/12-001-x/1999002/article/4882-eng.pdf}.  \cr
+Guillaume Osier (2009). Variance estimation for complex indicators of poverty and inequality. \emph{Journal of the European Survey Research Association}, Vol.3, No.3, pp. 167-195, ISSN 1864-3361, URL \url{https://ojs.ub.uni-konstanz.de/srm/article/view/369}.  \cr
+Jean-Claude Deville (1999). Variance estimation for complex statistics and estimators: linearization and residual techniques. Survey Methodology, 25, 193-203, URL \url{https://www150.statcan.gc.ca/n1/pub/12-001-x/1999002/article/4882-eng.pdf}.  \cr
 }
 \seealso{
 \code{\link{lingini2}},

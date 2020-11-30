@@ -3,8 +3,8 @@
 #' @description The function computes extra variables for domain estimation. Each unique \code{D} row defines a domain. Extra variables are computed for each \code{Y} variable.
 #' 
 #' 
-#' @param Y Matrix of study variables. Any object convertable to \code{data.table} with numeric values, \code{NA} values are not allowed. Object convertible to \code{data.table} or variable names as character, column numbers.
-#' @param D Matrix of domain variables. Any object convertable to \code{data.table}. The number of rows of \code{D} must match the number of rows of \code{Y}. Duplicated names are not allowed. Object convertible to \code{data.table} or variable names as character, column numbers.
+#' @param Y Matrix of study variables. Any object convertible to \code{data.table} with numeric values, \code{NA} values are not allowed. Object convertible to \code{data.table} or variable names as character, column numbers.
+#' @param D Matrix of domain variables. Any object convertible to \code{data.table}. The number of rows of \code{D} must match the number of rows of \code{Y}. Duplicated names are not allowed. Object convertible to \code{data.table} or variable names as character, column numbers.
 #' @param dataset Optional survey data object convertible to \code{data.table}.
 #' @param checking Optional variable if this variable is TRUE, then function checks data preparation errors, otherwise not checked. This variable by default is TRUE.
 #' 

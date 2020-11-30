@@ -12,7 +12,7 @@
 #' @return A list with objects are returned by the function:
 #' \itemize{
 #'  \item \code{residuals} - a numeric \code{data.table} containing the estimated residuals of calibration.
-#'  \item \code{betas} - a numeric \code{data.table} containing the estimated coeffients of calibration.
+#'  \item \code{betas} - a numeric \code{data.table} containing the estimated coefficients of calibration.
 #' }
 #' 
 #' @details

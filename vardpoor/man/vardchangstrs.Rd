@@ -52,7 +52,7 @@ A list with objects are returned by the function:
  \itemize{
     \item \code{crossectional_results} - a \code{data.table} containing: \cr
       \code{year} -  survey years, \cr
-      \code{subperiods} -  survey subperiods, \cr
+      \code{subperiods} -  survey sub-periods, \cr
       \code{variable} - names of variables of interest, \cr
       \code{Dom} - optional variable of the population domains, \cr
       \code{estim} - the estimated value, \cr
@@ -88,43 +88,6 @@ A list with objects are returned by the function:
 }
 \description{
 Computes the variance estimation for measures of annual net change or annual for single stratified sampling designs.
-}
-\examples{
-library("data.table")
-library("laeken")
-
-### Example 
-data("eusilc")
-set.seed(1)
-eusilc1 <- eusilc[1 : 20,]
-set.seed(1)
-dataset1 <- data.table(rbind(eusilc1, eusilc1),
-                       year = c(rep(2010, nrow(eusilc1)),
-                                rep(2011, nrow(eusilc1))))
-dataset1[, half:= .I - 2 * trunc((.I - 1) / 2)]
-dataset1[, quarter:= .I - 4 * trunc((.I - 1) / 4)]
-dataset1[age < 0, age:= 0]
-PSU <- dataset1[, .N, keyby = "db030"][, N:= NULL]
-PSU[, PSU:= trunc(runif(nrow(PSU), 0, 5))]
-dataset1 <- merge(dataset1, PSU, all = TRUE, by = "db030")
-PSU <- eusilc <- NULL
-dataset1[, strata := c("XXXX")]
-
-dataset1[, employed := trunc(runif(nrow(dataset1), 0, 2))]
-dataset1[, id_lv2 := paste0("V", .I)]
-dataset1[, fpc := 0]
-
-\dontrun{
-result <- vardbootstr(boots_count = 500, = "employed", H = "strata",
-                      PSU = "PSU", w_final = "rb050", ID_level1 = "ids",
-                      Z = NULL, Dom = NULL, dh = 1, fpc = "fpc",
-                      dataset = dataset1, years = "year",
-                      subperiods = "half", year1 = 2010,
-                      year = 2011, percentratio = 100,
-                      confidence = 0.95, method = "netchanges") 
-result}
-
-
 }
 \references{
 Guillaume OSIER, Virginie RAYMOND, (2015), Development of methodology for the estimate of variance of annual net changes for LFS-based indicators. Deliverable 1 - Short document with derivation of the methodology.

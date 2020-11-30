@@ -56,9 +56,9 @@ If \code{period} \bold{is not} \code{NULL}. A three-column data object convertib
 
 \item{PSU_sort}{optional; if PSU_sort is defined, then variance is calculated for systematic sample.}
 
-\item{fh_zero}{by default FALSE; fh is calculated as division of n_h and N_h in each strata, if true, fh value is zero in each strata.}
+\item{fh_zero}{by default FALSE; \code{fh} is calculated as division of n_h and N_h in each strata, if TRUE, \code{fh} value is zero in each strata.}
 
-\item{PSU_level}{by default TRUE; if PSU_level is true, in each strata fh is calculated as division of count of PSU in sample (n_h) and count of PSU in frame (N_h). if PSU_level is false, in each strata fh is calculated as division of count of units in sample (n_h) and count of units in frame (N_h), which calculated as sum of weights.}
+\item{PSU_level}{by default TRUE; if PSU_level is TRUE, in each strata \code{fh} is calculated as division of count of PSU in sample (n_h) and count of PSU in frame (N_h). if PSU_level is FALSE, in each strata \code{fh} is calculated as division of count of units in sample (n_h) and count of units in frame (N_h), which calculated as sum of weights.}
 
 \item{Z}{Optional variables of denominator for ratio estimation. Object convertible to \code{data.table} or variable names as character, column numbers or logical vector (length of the vector has to be the same as the column count of \code{dataset}).}
 
@@ -91,7 +91,7 @@ A list with objects are returned by the function:
   \itemize{
      \item lin_out A \code{data.table} containing the linearized values of the ratio estimator with ID_level2 and PSU.
      \item res_out A \code{data.table} containing the estimated residuals of calibration with ID_level1 and PSU.
-     \item betas A numeric \code{data.table} containing the estimated coeffients of calibration.
+     \item betas A numeric \code{data.table} containing the estimated coefficients of calibration.
      \item all_result A \code{data.table}, which containing variables:
         \code{variable} - names of variables of interest, \cr
         \code{Dom} - optional variable of the population domains, \cr
@@ -188,7 +188,7 @@ Guillaume Osier and Emilio Di Meglio. The linearisation approach implemented by 
 Guillaume Osier,  Yves Berger,  Tim Goedeme, (2013), Standard error estimation for the EU-SILC indicators of poverty and social exclusion,  Eurostat Methodologies and Working papers, URL \url{http://ec.europa.eu/eurostat/documents/3888793/5855973/KS-RA-13-024-EN.PDF}. \cr
 Eurostat Methodologies and Working papers, Handbook on precision requirements and variance estimation for ESS household surveys, 2013, URL \url{http://ec.europa.eu/eurostat/documents/3859598/5927001/KS-RA-13-029-EN.PDF}. \cr
 Yves G. Berger, Tim Goedeme, Guillame Osier (2013). Handbook on standard error estimation and other related sampling issues in EU-SILC, URL \url{https://ec.europa.eu/eurostat/cros/content/handbook-standard-error-estimation-and-other-related-sampling-issues-ver-29072013_en} \cr
-Jean-Claude Deville (1999). Variance estimation for complex statistics and estimators: linearization and residual techniques. Survey Methodology, 25, 193-203, URL \url{http://www.statcan.gc.ca/pub/12-001-x/1999002/article/4882-eng.pdf}. \cr
+Jean-Claude Deville (1999). Variance estimation for complex statistics and estimators: linearization and residual techniques. Survey Methodology, 25, 193-203, URL \url{https://www150.statcan.gc.ca/n1/pub/12-001-x/1999002/article/4882-eng.pdf}. \cr
 }
 \seealso{
 \code{\link{domain}},

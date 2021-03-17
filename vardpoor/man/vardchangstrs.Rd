@@ -17,7 +17,8 @@ vardchangstrs(
   in_sample,
   in_frame,
   confidence = 0.95,
-  percentratio = 1
+  percentratio = 1,
+  correction = FALSE
 )
 }
 \arguments{
@@ -46,6 +47,8 @@ vardchangstrs(
 \item{confidence}{optional; either a positive value for confidence interval. This variable by default is 0.95.}
 
 \item{percentratio}{Positive numeric value. All linearized variables are multiplied with \code{percentratio} value, by default - 1.}
+
+\item{correction}{Logical value. If TRUE calculate variance without covariance (negative variance correction).}
 }
 \value{
 A list with objects are returned by the function:
@@ -83,7 +86,25 @@ A list with objects are returned by the function:
       \code{CI_lower} - the estimated confidence interval lower bound, \cr
       \code{CI_upper} - the estimated confidence interval upper bound, \cr
       \code{confidence_level} - the positive value for confidence interval, \cr 
-      \code{significant} - is the the difference significant
+      \code{significant} - is the the difference significant.
+  \item\code{annual_results_correction} - a \code{data.table} of corrected variables (if correction TRUE) containing:
+   \code{year_1} -  survey years of \code{years1} for measures of annual net change, \cr
+      \code{year_2} -  survey years of \code{years2} for measures of annual net change, \cr
+      \code{Dom} - optional variable of the population domains, \cr
+      \code{variable} - names of variables of interest, \cr
+      \code{estim_2} - the estimated value for period2 for measures of annual net change, \cr
+      \code{estim_1} - the estimated value for period1 for measures of annual net change, \cr
+      \code{estim} - the estimated value, \cr
+      \code{var} - the estimated variance, \cr
+      \code{se} - the estimated standard error, \cr
+      \code{rse} - the estimated relative standard error (coefficient of variation), \cr
+      \code{cv} - the estimated relative standard error (coefficient of variation) in percentage, \cr
+      \code{absolute_margin_of_error} - the estimated absolute margin of error for period1 for measures of annual, \cr
+      \code{relative_margin_of_error} - the estimated relative margin of error in percentage for measures of annual, \cr
+      \code{CI_lower} - the estimated confidence interval lower bound, \cr
+      \code{CI_upper} - the estimated confidence interval upper bound, \cr
+      \code{confidence_level} - the positive value for confidence interval, \cr 
+      \code{significant} - is the the difference significant.
  }
 }
 \description{

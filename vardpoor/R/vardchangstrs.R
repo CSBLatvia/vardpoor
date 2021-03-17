@@ -101,6 +101,7 @@ ind_2 <- kor <- n_q <- nh1 <- nh2 <- pop1 <- pop2 <- NULL
 pop_q <- rse <- rse2 <- sa1_hl <- sa1hl_sum <- NULL
 sa2_hl <- sa2hl_sum <- se <- sghl_sum <- type <- NULL
 var_1 <- var_2 <- variable_new <- NULL
+index_correct <- NULL
   
 dataset[, (periods) := lapply(.SD[, periods, with = FALSE], as.character)]
 calc <- vardom(Y = Y, H = H, PSU = PSU,

@@ -1,6 +1,8 @@
 # R for travis: see documentation at https://docs.travis-ci.com/user/languages/r
 
-language: R
-cache: packages
+language: r
+r:
+  - release
+  - devel
 before_install:
   - cd vardpoor

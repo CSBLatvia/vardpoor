@@ -3,7 +3,7 @@
 [![CRAN version](http://www.r-pkg.org/badges/version/vardpoor "CRAN version")](https://cran.r-project.org/package=vardpoor)
 [![CRAN last release](http://www.r-pkg.org/badges/last-release/vardpoor "CRAN last release")](https://cran.r-project.org/package=vardpoor)
 [![CRAN last release](http://www.r-pkg.org/badges/ago/vardpoor "CRAN last release")](https://cran.r-project.org/package=vardpoor)
-[![Travis CI](https://travis-ci.org/CSBLatvia/vardpoor.svg?branch=master "Travis CI")](https://travis-ci.org/github/CSBLatvia/vardpoor)
+[![Build Status](https://app.travis-ci.com/CSBLatvia/vardpoor.svg?branch=master)](https://app.travis-ci.com/CSBLatvia/vardpoor)
 
 [![CRAN total downloads](http://cranlogs.r-pkg.org/badges/grand-total/vardpoor "CRAN total downloads")](https://cran.r-project.org/package=vardpoor)
 [![CRAN monthly downloads](http://cranlogs.r-pkg.org/badges/vardpoor "CRAN monthly downloads")](https://cran.r-project.org/package=vardpoor)

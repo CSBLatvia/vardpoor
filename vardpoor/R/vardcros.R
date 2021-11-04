@@ -600,14 +600,36 @@ vardcros <- function(Y, H, PSU, w_final,
          ind_gr <- DT1[, c(namesperc, names(ind_gr)), with = FALSE]
          ind_period <- do.call("paste", c(as.list(ind_gr), sep = "_"))
 
-         res <- lapply(split(DT1[, .I], ind_period), function(i)
-                        data.table(DT1[i, nos, with = FALSE],
-                                   res <- residual_est(Y = DT1[i, namesY2, with = FALSE],
-                                                       X = DT1[i, names(X), with = FALSE],
-                                                       weight = DT1[i][["w_design"]],
-                                                       q = DT1[i][["q"]], dataset = NULL,
-                                                       checking = FALSE)))
-         res <- rbindlist(res)
+    # Correction according
+    # https://github.com/CSBLatvia/vardpoor/issues/19#issuecomment-953656472
+    
+    # res <- lapply(split(DT1[, .I], ind_period), function(i)
+    #                data.table(DT1[i, nos, with = FALSE],
+    #                           res <- residual_est(Y = DT1[i, namesY2, with = FALSE],
+    #                                               X = DT1[i, names(X), with = FALSE],
+    #                                               weight = DT1[i][["w_design"]],
+    #                                               q = DT1[i][["q"]], dataset = NULL,
+    #                                               checking = FALSE)))
+    # res <- rbindlist(res)
+    
+    res <- lapply(split(DT1[, .I], ind_period), function(i) {
+      resid <- residual_est(Y = DT1[i, namesY2, with = FALSE],
+                            X = DT1[i, names(X), with = FALSE],
+                            weight = DT1[i][["w_design"]],
+                            q = DT1[i][["q"]],
+                            dataset = NULL,
+                            checking = FALSE)
+      
+      pers0 <- DT1[i, .N, keyby = c(nos[2:length(nos) - 1])]
+      pers0[, N := NULL]
+      
+      list(data.table(DT1[i, nos, with = FALSE], resid$residuals),
+           data.table(pers0, resid$betas))
+    })
+    
+    betas <- rbindlist(lapply(res, function(x) x[[2]]))
+    res   <- rbindlist(lapply(res, function(x) x[[1]]))
+    
          setnames(res, namesY2, namesY2w)
          DTc <- merge(DTc, res, by = nos)
          if (outp_res) res_outp <- DTc[, c(nos, names_PSU, "w_final", namesY2w), with = FALSE]

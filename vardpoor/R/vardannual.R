@@ -180,8 +180,8 @@
 #'
 #' @references
 #' Guillaume Osier, Virginie Raymond, (2015), Development of methodology for the estimate of variance of annual net changes for LFS-based indicators. Deliverable 1 - Short document with derivation of the methodology. \cr
-#' Guillaume Osier, Yves Berger,  Tim Goedeme, (2013), Standard error estimation for the EU-SILC indicators of poverty and social exclusion,  Eurostat Methodologies and Working papers, URL \url{http://ec.europa.eu/eurostat/documents/3888793/5855973/KS-RA-13-024-EN.PDF}. \cr
-#' Eurostat Methodologies and Working papers, Handbook on precision requirements and variance estimation for ESS household surveys, 2013, URL \url{http://ec.europa.eu/eurostat/documents/3859598/5927001/KS-RA-13-029-EN.PDF}. \cr
+#' Guillaume Osier, Yves Berger,  Tim Goedeme, (2013), Standard error estimation for the EU-SILC indicators of poverty and social exclusion,  Eurostat Methodologies and Working papers, URL \url{https://ec.europa.eu/eurostat/documents/3888793/5855973/KS-RA-13-024-EN.PDF}. \cr
+#' Eurostat Methodologies and Working papers, Handbook on precision requirements and variance estimation for ESS household surveys, 2013, URL \url{https://ec.europa.eu/eurostat/documents/3859598/5927001/KS-RA-13-029-EN.PDF}. \cr
 #' Yves G. Berger, Tim Goedeme, Guillame Osier (2013). Handbook on standard error estimation and other related sampling issues in EU-SILC, URL \url{https://ec.europa.eu/eurostat/cros/content/handbook-standard-error-estimation-and-other-related-sampling-issues-ver-29072013_en} \cr
 #'
 #' @seealso \code{\link{domain}},
@@ -191,31 +191,27 @@
 #' @keywords vardannual
 #' 
 #' @examples
-#'  
+#' 
 #' ### Example
 #' library("data.table")
+#' data("eusilc", package = "laeken")
 #' 
 #' set.seed(1)
-#' 
-#' data("eusilc", package = "laeken")
 #' eusilc1 <- eusilc[1:20, ]
-#' rm(eusilc)
 #' 
 #' dataset1 <- data.table(rbind(eusilc1, eusilc1),
 #'                        year = c(rep(2010, nrow(eusilc1)),
 #'                                 rep(2011, nrow(eusilc1))))
-#' rm(eusilc1)
 #' 
 #' dataset1[, country := "AT"]
 #' dataset1[, half := .I - 2 * trunc((.I - 1) / 2)]
 #' dataset1[, quarter := .I - 4 * trunc((.I - 1) / 4)]
 #' dataset1[age < 0, age := 0]
 #' 
-#' PSU <- dataset1[, .N, keyby = "db030"][, N := NULL][]
+#' PSU <- dataset1[, .N, keyby = "db030"][, N := NULL]
 #' PSU[, PSU := trunc(runif(.N, 0, 5))]
 #' 
 #' dataset1 <- merge(dataset1, PSU, all = TRUE, by = "db030")
-#' rm(PSU)
 #' 
 #' dataset1[, strata := "XXXX"]
 #' dataset1[, employed := trunc(runif(.N, 0, 2))]
@@ -231,7 +227,6 @@
 #'            percentratio = 100, confidence = 0.95,
 #'            method = "cros")
 #'   
-#' \dontrun{
 #' vardannual(Y = "employed", H = "strata",
 #'            PSU = "PSU", w_final = "rb050",
 #'            ID_level1 = "db030", ID_level2 = "id_lv2",
@@ -250,7 +245,6 @@
 #'            year1 = 2010, year2 = 2011,
 #'            percentratio = 100, confidence = 0.95,
 #'            method = "netchanges")
-#' }
 #' 
 #' @import data.table
 #' @import MASS
@@ -359,7 +353,7 @@ vardannual <- function(Y, H, PSU, w_final, ID_level1,
                           varntype = "numeric01")
   frate <- check_var(vars = frate, varn = "frate", varntype = "numeric0100")
   
-  if(!is.null(X)) {
+  if (!is.null(X)) {
     if (is.null(datasetX)) datasetX <- copy(dataset)
     equal_dataset <- identical(dataset, datasetX) & !is.null(dataset)
     if (equal_dataset) {

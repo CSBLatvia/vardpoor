@@ -91,7 +91,7 @@ namesD <- function(Y, D, uniqueD = TRUE) {
     cc <- paste(names(D), Dom_agg[i, ], sep = ".")
     h[i] <- paste(cc, collapse = "__")
   }
-  foreach(i = 1 : ncol(Y), .combine = c) %do% paste(names(Y)[i], h, sep="__")
+  foreach(i = 1:ncol(Y), .combine = c) %do% paste(names(Y)[i], h, sep = "__")
 }
 
 check_var <- function(vars, varn, varntype = NULL, dataset,

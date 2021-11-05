@@ -9,6 +9,9 @@ description <- readLines(file.path(package_name, "DESCRIPTION"))
 ver <- gsub("^.* ", "", grep("Version", description, value = T))
 cat(ver)
 
+# Style
+# styler::style_pkg(pkg = package_name, dry = "on")
+
 # Run tests from the test folder
 devtools::test(package_name)
 
@@ -31,7 +34,8 @@ devtools::check(package_name, manual = TRUE, cran = TRUE, remote = TRUE,
 devtools::build(package_name)
 
 # Check localy wit R CMD
-system(paste0("R CMD check --as-cran ", package_name, "_", ver, ".tar.gz"))
+system(paste0("R CMD check --as-cran ",
+              package_name, "_", ver, ".tar.gz"))
 
 
 # # revdepcheck

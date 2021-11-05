@@ -1,1 +1,1 @@
-The maintainer of the vardpoor package has changed. The previous maintainer Juris Breidaks does not work at the Central Statistical Bureau of Latvia anymore. Martins Liberts has taken the maintainer role now.
+There was a domain name change for the maintainer's e-mail address. The domain 'csb.gov.lv' was changed to 'csp.gov.lv'.

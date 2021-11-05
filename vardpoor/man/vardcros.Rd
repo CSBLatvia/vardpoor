@@ -133,6 +133,7 @@ Computes the variance estimation for cross-sectional and longitudinal measures f
 \examples{
 library("data.table")
 library("laeken")
+library("foreach")
 
 # Example 1
 data(eusilc)
@@ -144,7 +145,7 @@ dataset1[age < 0, age := 0]
 PSU <- dataset1[, .N, keyby = "db030"][, N := NULL]
 PSU[, PSU := trunc(runif(nrow(PSU), 0, 100))]
 dataset1 <- merge(dataset1, PSU, by = "db030", all = TRUE)
-PSU <- eusilc <- 0
+PSU <- eusilc <- NULL
   
 dataset1[, strata := "XXXX"]
 dataset1[, t_pov := trunc(runif(nrow(dataset1), 0, 2))]
@@ -154,16 +155,16 @@ dataset1[, exp := 1]
 dataset1[, exp2 := 1 * (age < 60)]
   
 # At-risk-of-poverty (AROP)
-dataset1[, pov := ifelse (t_pov == 1, 1, 0)]
+dataset1[, pov := ifelse(t_pov == 1, 1, 0)]
   
 # Severe material deprivation (DEP)
-dataset1[, dep := ifelse (t_dep == 1, 1, 0)]
+dataset1[, dep := ifelse(t_dep == 1, 1, 0)]
   
 # Low work intensity (LWI)
-dataset1[, lwi := ifelse (t_lwi == 1 & exp2 == 1, 1, 0)]
+dataset1[, lwi := ifelse(t_lwi == 1 & exp2 == 1, 1, 0)]
   
 # At-risk-of-poverty or social exclusion (AROPE)
-dataset1[, arope := ifelse (pov == 1 | dep == 1 | lwi == 1, 1, 0)]
+dataset1[, arope := ifelse(pov == 1 | dep == 1 | lwi == 1, 1, 0)]
 
 result11 <- vardcros(Y="arope", H = "strata",
                      PSU = "PSU", w_final = "rb050",
@@ -173,7 +174,6 @@ result11 <- vardcros(Y="arope", H = "strata",
                      linratio = FALSE, withperiod = TRUE,
                      netchanges = TRUE, confidence = .95)
    
-\dontrun{
 # Example 2
 data(eusilc)
 set.seed(1)
@@ -185,7 +185,7 @@ dataset1[age < 0, age := 0]
 PSU <- dataset1[, .N, keyby = "db030"][, N := NULL]
 PSU[, PSU := trunc(runif(nrow(PSU), 0, 100))]
 dataset1 <- merge(dataset1, PSU, by = "db030", all = TRUE)
-PSU <- eusilc <- 0
+PSU <- eusilc <- NULL
 dataset1[, strata := "XXXX"]
 dataset1[, strata := as.character(strata)]
 dataset1[, t_pov := trunc(runif(nrow(dataset1), 0, 2))]
@@ -238,7 +238,7 @@ dataset1[, rb020 := "AT"]
 dataset1[, u := 1]
 dataset1[age < 0, age := 0]
 dataset1[, strata := "XXXX"]
-PSU <- dataset1[, .N, keyby = "db030"][, N:=NULL]
+PSU <- dataset1[, .N, keyby = "db030"][, N := NULL]
 PSU[, PSU := trunc(runif(nrow(PSU), 0, 100))]
 dataset1 <- merge(dataset1, PSU, by = "db030", all = TRUE)
 thres <- data.table(rb020 = as.character(rep("AT", 4)),
@@ -259,11 +259,13 @@ T3[, w1 := rb050]
 T3[, inc1 := eqIncome]
 T3[, rb110_1 := db030]
 T3[, pov1 := inc1 <= thres]
-T3 <- T3[, c("rb020", "rb030", "strata", "PSU", "inc1", "pov1"), with = FALSE]
+T3 <- T3[, c("rb020", "rb030", "strata", "PSU", "inc1", "pov1"),
+           with = FALSE]
     
 #############
 # T2        #
 #############
+
 T2 <- dataset1[rb010 == year - 2]
 T2[, strata2 := strata]
 T2[, PSU2 := PSU]
@@ -272,11 +274,13 @@ T2[, inc2 := eqIncome]
 T2[, rb110_2 := db030]
 setnames(T2, "thres", "thres2")
 T2[, pov2 := inc2 <= thres2]
-T2 <- T2[, c("rb020", "rb030", "strata2", "PSU2", "inc2", "pov2"), with = FALSE]
+T2 <- T2[, c("rb020", "rb030", "strata2", "PSU2", "inc2", "pov2"),
+           with = FALSE]
     
 #############
 # T1        #
 #############
+
 T1 <- dataset1[rb010 == year - 1]
 T1[, strata3 := strata]
 T1[, PSU3 := PSU]
@@ -285,11 +289,13 @@ T1[, inc3 := eqIncome]
 T1[, rb110_3 := db030]
 setnames(T1, "thres", "thres3")
 T1[, pov3 := inc3 <= thres3]
-T1 <- T1[, c("rb020", "rb030", "strata3", "PSU3", "inc3", "pov3"), with = FALSE]
+T1 <- T1[, c("rb020", "rb030", "strata3", "PSU3", "inc3", "pov3"),
+           with = FALSE]
     
 #############
 # T0        #
 #############
+
 T0 <- dataset1[rb010 == year]
 T0[, PSU4 := PSU]
 T0[, strata4 := strata]
@@ -298,15 +304,16 @@ T0[, inc4 := eqIncome]
 T0[, rb110_4 := db030]
 setnames(T0, "thres", "thres4")
 T0[, pov4 := inc4 <= thres4]
-T0 <- T0[, c("rb010", "rb020", "rb030", "strata4", "PSU4", "w4", "inc4", "pov4"), with = FALSE]
+T0 <- T0[, c("rb010", "rb020", "rb030", "strata4", "PSU4",
+             "w4", "inc4", "pov4"), with = FALSE]
 apv <- merge(T3, T2, all = TRUE, by = c("rb020", "rb030"))
 apv <- merge(apv, T1, all = TRUE, by = c("rb020", "rb030"))
 apv <- merge(apv, T0, all = TRUE, by = c("rb020", "rb030"))
 apv <- apv[(!is.na(inc1)) & (!is.na(inc2)) & (!is.na(inc3)) & (!is.na(inc4))]
-apv[, ppr := ifelse(((pov4 == 1) & ((pov1 == 1 & pov2 == 1 & pov3 == 1) 
-                                  | (pov1 == 1 & pov2 == 1 & pov3 == 0)
-                                  | (pov1 == 1 & pov2 == 0 & pov3 == 1)
-                                  | (pov1 == 0 & pov2 ==1 & pov3 == 1))), 1, 0)]
+apv[, ppr := as.integer(((pov4 == 1) & ((pov1 == 1 & pov2 == 1 & pov3 == 1) 
+                           | (pov1 == 1 & pov2 == 1 & pov3 == 0)
+                           | (pov1 == 1 & pov2 == 0 & pov3 == 1)
+                           | (pov1 == 0 & pov2 ==1 & pov3 == 1))))]
                                   
 result20 <- vardcros(Y = "ppr", H = "strata", PSU = "PSU",
                      w_final = "w4", ID_level1 = "rb030",
@@ -317,14 +324,14 @@ result20 <- vardcros(Y = "ppr", H = "strata", PSU = "PSU",
                      withperiod = TRUE,
                      netchanges = FALSE,
                      confidence = .95)
-result20}
+result20
 
 
 }
 \references{
-Guillaume Osier,  Yves Berger,  Tim Goedeme, (2013), Standard error estimation for the EU-SILC indicators of poverty and social exclusion,  Eurostat Methodologies and Working papers, URL \url{http://ec.europa.eu/eurostat/documents/3888793/5855973/KS-RA-13-024-EN.PDF}. \cr
+Guillaume Osier,  Yves Berger,  Tim Goedeme, (2013), Standard error estimation for the EU-SILC indicators of poverty and social exclusion,  Eurostat Methodologies and Working papers, URL \url{https://ec.europa.eu/eurostat/documents/3888793/5855973/KS-RA-13-024-EN.PDF}. \cr
 Yves G. Berger, Tim Goedeme, Guillame Osier (2013). Handbook on standard error estimation and other related sampling issues in EU-SILC, URL \url{https://ec.europa.eu/eurostat/cros/content/handbook-standard-error-estimation-and-other-related-sampling-issues-ver-29072013_en} \cr
-Eurostat Methodologies and Working papers, Handbook on precision requirements and variance estimation for ESS household surveys, 2013, URL \url{http://ec.europa.eu/eurostat/documents/3859598/5927001/KS-RA-13-029-EN.PDF}. \cr
+Eurostat Methodologies and Working papers, Handbook on precision requirements and variance estimation for ESS household surveys, 2013, URL \url{https://ec.europa.eu/eurostat/documents/3859598/5927001/KS-RA-13-029-EN.PDF}. \cr
 }
 \seealso{
 \code{\link{domain}},

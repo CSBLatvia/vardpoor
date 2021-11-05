@@ -148,66 +148,50 @@ Computes the variance estimation for cross-sectional and longitudinal measures f
 \examples{
 
 library("data.table")
-library("laeken")
-data(eusilc)
+data("eusilc", package = "laeken")
+setDT(eusilc)
+
 set.seed(1)
-dataset1 <- data.table(rbind(eusilc, eusilc),
+eusilc <- eusilc[sample(x = .N, size = 3000)]
+
+dataset1 <- data.table(rbindlist(list(eusilc, eusilc)),
                        year = c(rep(2010, nrow(eusilc)),
                                 rep(2011, nrow(eusilc))))
 dataset1[age < 0, age := 0]
+
 PSU <- dataset1[, .N, keyby = "db030"][, N := NULL]
 PSU[, PSU := trunc(runif(nrow(PSU), 0, 100))]
-PSU$inc <- runif(nrow(PSU), 20, 100000)
+PSU[, inc := runif(.N, 20, 100000)]
+
 dataset1 <- merge(dataset1, PSU, all = TRUE, by = "db030")
-PSU <- eusilc <- NULL
 dataset1[, strata := "XXXX"]
-dataset1[, strata := as.character(strata)]
-dataset1$pl085 <- 12 * trunc(runif(nrow(dataset1), 0, 2))
-dataset1$month_at_work <- 12 * trunc(runif(nrow(dataset1), 0, 2))
+dataset1[, pl085 := 12 * trunc(runif(.N, 0, 2))]
+dataset1[, month_at_work := 12 * trunc(runif(.N, 0, 2))]
 dataset1[, id_l2 := paste0("V", .I)]
 
-result <- vardcrospoor(Y = "inc", age = "age",
-                       pl085 = "pl085", 
-                       month_at_work = "month_at_work",
-                       Y_den = "inc", Y_thres = "inc",
-                       wght_thres = "rb050",
-                       H = "strata", PSU = "PSU", 
-                       w_final = "rb050", ID_level1 = "db030",
-                       ID_level2 = "id_l2",
-                       Dom = c("rb090", "db040"),
-                       country = NULL, period = "year",
-                       sort = NULL, gender = NULL,
-                       dataset = dataset1,
-                       percentage = 60,
-                       order_quant = 50L,
-                       alpha = 20,
-                       confidence = 0.95,
-                       type = "linrmpg")
- 
- \dontrun{
- result2 <- vardcrospoor(Y = "inc", age = "age",
-                         pl085 = "pl085", 
-                         month_at_work = "month_at_work",
-                         Y_den = "inc", Y_thres = "inc",
-                         wght_thres = "rb050",
-                         H = "strata", PSU = "PSU", 
-                         w_final = "rb050", ID_level1 = "db030",
-                         ID_level2 = "id_l2",
-                         Dom = c("rb090", "db040"),
-                         period = "year", sort = NULL,
-                         gender = NULL, dataset = dataset1,
-                         percentage = 60,
-                         order_quant = 50L,
-                         alpha = 20,
-                         confidence = 0.95,
-                         type = "linrmpg")
-result2}
+vardcrospoor(Y = "inc", age = "age",
+             pl085 = "pl085", 
+             month_at_work = "month_at_work",
+             Y_den = "inc", Y_thres = "inc",
+             wght_thres = "rb050",
+             H = "strata", PSU = "PSU", 
+             w_final = "rb050", ID_level1 = "db030",
+             ID_level2 = "id_l2",
+             Dom = c("rb090", "db040"),
+             country = NULL, period = "year",
+             sort = NULL, gender = NULL,
+             dataset = dataset1,
+             percentage = 60,
+             order_quant = 50L,
+             alpha = 20,
+             confidence = 0.95,
+             type = "linrmpg")
   
 }
 \references{
-Guillaume Osier,  Yves Berger,  Tim Goedeme, (2013), Standard error estimation for the EU-SILC indicators of poverty and social exclusion,  Eurostat Methodologies and Working papers, URL \url{http://ec.europa.eu/eurostat/documents/3888793/5855973/KS-RA-13-024-EN.PDF}.
+Guillaume Osier,  Yves Berger,  Tim Goedeme, (2013), Standard error estimation for the EU-SILC indicators of poverty and social exclusion,  Eurostat Methodologies and Working papers, URL \url{https://ec.europa.eu/eurostat/documents/3888793/5855973/KS-RA-13-024-EN.PDF}.
 Yves G. Berger, Tim Goedeme, Guillame Osier (2013). Handbook on standard error estimation and other related sampling issues in EU-SILC, URL \url{https://ec.europa.eu/eurostat/cros/content/handbook-standard-error-estimation-and-other-related-sampling-issues-ver-29072013_en}
-Eurostat Methodologies and Working papers, Handbook on precision requirements and variance estimation for ESS household surveys, 2013, URL \url{http://ec.europa.eu/eurostat/documents/3859598/5927001/KS-RA-13-029-EN.PDF}
+Eurostat Methodologies and Working papers, Handbook on precision requirements and variance estimation for ESS household surveys, 2013, URL \url{https://ec.europa.eu/eurostat/documents/3859598/5927001/KS-RA-13-029-EN.PDF}
 }
 \seealso{
 \code{\link{linrmir}},

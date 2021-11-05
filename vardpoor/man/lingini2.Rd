@@ -68,7 +68,7 @@ dat2$value}
 \references{
 Eric Graf, Yves Tille, Variance Estimation Using Linearization for Poverty and Social Exclusion Indicators,  Survey Methodology, June 2014 61 Vol. 40, No. 1, pp. 61-79, Statistics Canada, Catalogue no. 12-001-X, URL \url{https://www150.statcan.gc.ca/n1/pub/12-001-x/12-001-x2014001-eng.pdf}  \cr
 Jean-Claude Deville (1999). Variance estimation for complex statistics and estimators: linearization and residual techniques. Survey Methodology, 25, 193-203, URL \url{https://www150.statcan.gc.ca/n1/pub/12-001-x/1999002/article/4882-eng.pdf}.  \cr
-Matti Langel, Yves Tille, Corrado Gini, a pioneer in balanced sampling and inequality theory. \emph{Metron - International Journal of Statistics}, 2011, vol. LXIX, n. 1, pp. 45-65, URL \url{http://dx.doi.org/10.1007/BF03263549}. \cr
+Matti Langel, Yves Tille, Corrado Gini, a pioneer in balanced sampling and inequality theory. \emph{Metron - International Journal of Statistics}, 2011, vol. LXIX, n. 1, pp. 45-65, URL \doi{10.1007/BF03263549}. \cr
 Working group on Statistics on Income and Living Conditions (2004) Common cross-sectional EU indicators based on EU-SILC; the gender pay gap.  \emph{EU-SILC 131-rev/04}, Eurostat.  \cr
 }
 \seealso{

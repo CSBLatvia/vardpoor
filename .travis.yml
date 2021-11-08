@@ -1,8 +1,11 @@
-# R for travis: see documentation at https://docs.travis-ci.com/user/languages/r
+# R for travis: see documentation at
+# https://docs.travis-ci.com/user/languages/r
+# 
+# R build script
+# https://github.com/travis-ci/travis-build/blob/master/lib/travis/build/script/r.rb
 
 language: r
 r:
-  - release
-  - devel
+  - 4.1.2
 before_install:
   - cd vardpoor

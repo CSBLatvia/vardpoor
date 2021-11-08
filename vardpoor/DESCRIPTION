@@ -18,7 +18,7 @@ Authors@R: c(
 Description: Generation of domain variables, linearization of several non-linear population statistics (the ratio of two totals, weighted income percentile, relative median income ratio, at-risk-of-poverty rate, at-risk-of-poverty threshold, Gini coefficient, gender pay gap, the aggregate replacement ratio, the relative median income ratio, median income below at-risk-of-poverty gap, income quintile share ratio, relative median at-risk-of-poverty gap), computation of regression residuals in case of weight calibration, variance estimation of sample surveys by the ultimate cluster method (Hansen, Hurwitz and Madow, Sample Survey Methods And Theory, vol. I: Methods and Applications; vol. II: Theory. 1953, New York: John Wiley and Sons), variance estimation for longitudinal, cross-sectional measures and measures of change for single and multistage stage cluster sampling designs (Berger, Y. G., 2015, <doi:10.1111/rssa.12116>). Several other precision measures are derived - standard error, the coefficient of variation, the margin of error, confidence interval, design effect.
 URL: https://csblatvia.github.io/vardpoor/, https://github.com/CSBLatvia/vardpoor/
 BugReports: https://github.com/CSBLatvia/vardpoor/issues/
-License: EUPL | file LICENSE
+License: EUPL
 Encoding: UTF-8
 Language: en-GB
 Repository: CRAN

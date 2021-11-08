@@ -8,6 +8,7 @@ package_name <- "vardpoor"
 description <- readLines(file.path(package_name, "DESCRIPTION"))
 ver <- gsub("^.* ", "", grep("Version", description, value = T))
 cat(ver)
+rm(description)
 
 # Style
 # styler::style_pkg(pkg = package_name, dry = "on")
@@ -33,9 +34,9 @@ devtools::check(package_name, manual = TRUE, cran = TRUE, remote = TRUE,
 # Build source package
 devtools::build(package_name)
 
-# Check localy wit R CMD
-system(paste0("R CMD check --as-cran ",
-              package_name, "_", ver, ".tar.gz"))
+# # Check localy wit R CMD
+# system(paste0("R CMD check --as-cran ",
+#               package_name, "_", ver, ".tar.gz"))
 
 
 # # revdepcheck
@@ -65,7 +66,9 @@ detach("package:vardpoor", unload = TRUE)
 install.packages(paste0(package_name, "_", ver, ".tar.gz"), repos = NULL)
 
 # Install Windows binary package
-install.packages(paste0(package_name, "_", ver, ".zip"), repos = NULL)
+if (.Platform$OS.type == "windows") {
+  install.packages(paste0(package_name, "_", ver, ".zip"), repos = NULL)
+}
 
 # Load package
 library(package_name, character.only = TRUE)
@@ -77,13 +80,13 @@ library(package_name, character.only = TRUE)
 
 # Building and checking R source packages for Windows
 # https://win-builder.r-project.org/
-devtools::check_win_oldrelease(package_name) # R previous release
-devtools::check_win_release(package_name) # R current release
-devtools::check_win_devel(package_name)   # R devel version
+# devtools::check_win_oldrelease(package_name) # R previous release
+devtools::check_win_release(package_name)    # R current release
+devtools::check_win_devel(package_name)      # R devel version
 
 # R-hub builder
 # https://builder.r-hub.io/
-devtools::check_rhub(package_name)
+devtools::check_rhub(package_name, email = "martins.liberts@csp.gov.lv")
 
 
 

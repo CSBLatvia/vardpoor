@@ -9,3 +9,6 @@ r:
   - 4.1.2
 before_install:
   - cd vardpoor
+notifications:
+  email:
+    - rcsb@csp.gov.lv

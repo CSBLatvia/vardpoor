@@ -261,7 +261,7 @@ arprlinCalc <- function(Y1, ids, wght1, indicator,
     h <- bandwith_plug(y = Y1, w = wt)
 
     f_quant2 <- gaussian_kern(inco = Y1, wt = wt,
-                              quant_val = quant_val, hh = h)
+                              quant_val = thres_val, hh = h)
     
  #****************************************************************************************
  #                       LINEARIZED VARIABLE OF THE POVERTY RATE (IN %)                  *

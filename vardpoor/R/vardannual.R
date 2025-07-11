@@ -694,9 +694,8 @@ vardannual <- function(Y, H, PSU, w_final, ID_level1,
     X <- cros_rho[["cros_se"]]
     
     annual_var <- data.table(rho2[1, sar, with = FALSE],
-                             (1 - frate / 100) / (subn) ^ 2 *
-                               (t(X) %*% A_matrix) %*% X)
-    setnames(annual_var, c("V1"), c("var"))
+                             var = (1 - frate / 100) / (subn) ^ 2 *
+                                    (t(X) %*% A_matrix) %*% X)
     A_matrix <- data.table(rho2[1, sar, with = FALSE],
                            cols = paste0("V", 1:nrow(A_matrix)), A_matrix)
     list(cros_rho, A_matrix, annual_var)

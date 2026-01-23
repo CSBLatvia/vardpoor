@@ -625,10 +625,10 @@ vardcros <- function(Y, H, PSU, w_final,
   
   varsYZ <- list(namesY)
   if (!is.null(namesZ)) varsYZ <- list(namesY, namesZ)
+  if (length(varsYZ)==1) varsYZ <- unlist(varsYZ)
   DTagg <- melt(DTagg, id = c(namesperc, gnamesDom),
                 measure = varsYZ,
                 variable.factor = FALSE)
-  
   setnames(DTagg, ifelse(!is.null(DTagg$value1), "value1", "value"), "totalY")
   totYZ <- "totalY"
   if (!is.null(Z)) {totYZ <- c(totYZ, "totalZ")
@@ -731,7 +731,7 @@ vardcros <- function(Y, H, PSU, w_final,
              keyby = namesperc, .SDcols = namesY2]
   varsYZ <- list(namesY1)
   if (!is.null(namesZ1) & !linratio) varsYZ <- list(namesY1, namesZ1)
-  
+  if (length(varsYZ)==1) varsYZ <- unlist(varsYZ)
   DT2 <- melt(DT2, id = namesperc,
               measure = varsYZ,
               variable.factor = FALSE)

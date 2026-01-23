@@ -1,14 +1,15 @@
 Package: vardpoor
 Type: Package
 Title: Variance Estimation for Sample Surveys by the Ultimate Cluster Method
-Version: 0.20.3
-Depends: R (>= 4.1.0)
-Imports: foreach, data.table (>= 1.12.6), MASS, stats, utils, stringr,
+Version: 0.21.0
+Depends: R (>= 4.5.0)
+Imports: foreach, data.table (>= 1.18.0), MASS, stats, utils, stringr,
  surveyplanning, laeken
 Authors@R: c(
   person("Juris",   "Breidaks",   role = "aut"),
-  person("Martins", "Liberts",    role = c("aut", "cre"),
-         email = "martins.liberts@csp.gov.lv"),
+  person("Martins", "Liberts",    role = "aut"),
+  person("Jelena", "Voronova",  role = "cre", 
+    email = "jelena.voronova@csp.gov.lv"),
   person("Santa",   "Ivanova",    role = "aut"),
   person("Aleksis", "Jursevskis", role = "ctb"),
   person("Anthony", "Damico",     role = "ctb"),
@@ -23,4 +24,4 @@ Encoding: UTF-8
 Language: en-GB
 Repository: CRAN
 NeedsCompilation: no
-RoxygenNote: 7.1.2
+RoxygenNote: 7.3.3

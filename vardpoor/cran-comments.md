@@ -1,1 +1,1 @@
-There was a domain name change for the maintainer's e-mail address. The domain 'csb.gov.lv' was changed to 'csp.gov.lv'.
+The package maintainer has changed from Martins Liberts to Jelena Voronova.

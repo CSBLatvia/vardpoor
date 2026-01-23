@@ -1,8 +1,9 @@
-Changes in vardpoor version 0.20.3 (dev)
+# Changes in vardpoor version 0.21.0 (CRAN)
 
-+ Corrected bug in function vardcros (thanks to @lilianaroze).
++ Corrected bugs in function vardcros and vardannual.
++ Change of the package maintainer.
 
-Changes in vardpoor version 0.20.1 (CRAN)
+# Changes in vardpoor version 0.20.1 (CRAN)
 
 + Bug fix in vardannual regarding the R version 4.1.0 (get() now signal an error if the first argument has length greater than 1)
 + Function `vardbootstr` has been removed from the package as it is in development (exporting of the function has been disabled, see the .Rbuildignore)

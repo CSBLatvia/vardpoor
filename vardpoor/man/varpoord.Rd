@@ -218,7 +218,7 @@ Jean-Claude Deville (1999). Variance estimation for complex statistics and estim
 Eurostat Methodologies and Working papers, Handbook on precision requirements and variance estimation for ESS household surveys, 2013, URL \url{https://ec.europa.eu/eurostat/documents/3859598/5927001/KS-RA-13-029-EN.PDF}. \cr
 Matti Langel, Yves Tille, Corrado Gini, a pioneer in balanced sampling and inequality theory. \emph{Metron - International Journal of Statistics}, 2011, vol. LXIX, n. 1, pp. 45-65, URL \doi{10.1007/BF03263549}. \cr
 Morris H. Hansen, William N. Hurwitz, William G. Madow, (1953), Sample survey methods and theory Volume I Methods and applications, 257-258, Wiley. \cr
-Yves G. Berger, Tim Goedeme, Guillame Osier (2013). Handbook on standard error estimation and other related sampling issues in EU-SILC, URL \url{https://ec.europa.eu/eurostat/cros/content/handbook-standard-error-estimation-and-other-related-sampling-issues-ver-29072013_en} \cr
+Yves G. Berger, Tim Goedeme, Guillame Osier (2013). Handbook on standard error estimation and other related sampling issues in EU-SILC, URL \url{https://wayback.archive-it.org/12090/20231228140953/https://cros-legacy.ec.europa.eu/content/handbook-standard-error-estimation-and-other-related-sampling-issues-ver-29072013_en} \cr
 Working group on Statistics on Income and Living Conditions (2004) Common cross-sectional EU indicators based on EU-SILC; the gender pay gap.  \emph{EU-SILC 131-rev/04}, Eurostat.\cr
 }
 \seealso{

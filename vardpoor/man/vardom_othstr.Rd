@@ -62,11 +62,11 @@ vardom_othstr(
 
 \item{confidence}{Optional positive value for confidence interval. This variable by default is 0.95.}
 
+\item{percentratio}{Positive numeric value. All linearized variables are multiplied with \code{percentratio} value, by default - 1.}
+
 \item{outp_lin}{Logical value. If \code{TRUE} linearized values of the ratio estimator will be printed out.}
 
 \item{outp_res}{Logical value. If \code{TRUE} estimated residuals of calibration will be printed out.}
-
-\item{percentratio}{Positive}{numeric value. All linearized variables are multiplied with \code{percentratio} value, by default - 1.}
 }
 \value{
 A list with objects are returned by the function:

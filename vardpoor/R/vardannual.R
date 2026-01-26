@@ -7,14 +7,14 @@
 #' @param PSU Primary sampling unit variable. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.
 #' @param w_final Weight variable. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.
 #' @param ID_level1 Variable for level1 ID codes. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.
-#' @param ID_level2}{Optional variable for unit ID codes. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.
+#' @param ID_level2 Optional variable for unit ID codes. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.
 #' @param Dom Optional variables used to define population domains. If supplied, variables are calculated for each domain. An object convertible to \code{data.table} or variable names as character vector, column numbers.
 #' @param Z Optional variables of denominator for ratio estimation. If supplied, the ratio estimation is computed. Object convertible to \code{data.table} or variable names as character, column numbers. This variable is \code{NULL} by default.
 #' @param gender Numerical variable for gender, where 1 is for males, but 2 is for females. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.
 #' @param country Variable for the survey countries. The values for each country are computed independently. Object convertible to \code{data.table} or variable names as character, column numbers.
 #' @param years Variable for the all survey years. The values for each year are computed independently. Object convertible to \code{data.table} or variable names as character, column numbers.
 #' @param subperiods Variable for the all survey sub-periods. The values for each sub-period are computed independently. Object convertible to \code{data.table} or variable names as character, column numbers.
-#' @param dataset}{Optional survey data object convertible to \code{data.table}.
+#' @param dataset Optional survey data object convertible to \code{data.table}.
 #' @param year1 The vector of years from variable \code{years} describes the first year for measures of annual net change.
 #' @param year2 The vector of years from variable \code{periods} describes the second year for measures of annual net change.
 #' @param X Optional matrix of the auxiliary variables for the calibration estimator. Object convertible to \code{data.table} or variable names as character, column numbers.

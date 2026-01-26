@@ -19,7 +19,7 @@
 #' @param q Variable of the positive values accounting for heteroscedasticity. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.
 #' @param dataset Optional survey data object convertible to \code{data.table}.
 #' @param confidence Optional positive value for confidence interval. This variable by default is 0.95.
-#' @param percentratio}{Positive numeric value. All linearized variables are multiplied with \code{percentratio} value, by default - 1.
+#' @param percentratio Positive numeric value. All linearized variables are multiplied with \code{percentratio} value, by default - 1.
 #' @param outp_lin Logical value. If \code{TRUE} linearized values of the ratio estimator will be printed out.
 #' @param outp_res Logical value. If \code{TRUE} estimated residuals of calibration will be printed out.
 #' 

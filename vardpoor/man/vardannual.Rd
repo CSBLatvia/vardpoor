@@ -48,6 +48,8 @@ vardannual(
 
 \item{ID_level1}{Variable for level1 ID codes. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.}
 
+\item{ID_level2}{Optional variable for unit ID codes. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.}
+
 \item{Dom}{Optional variables used to define population domains. If supplied, variables are calculated for each domain. An object convertible to \code{data.table} or variable names as character vector, column numbers.}
 
 \item{Z}{Optional variables of denominator for ratio estimation. If supplied, the ratio estimation is computed. Object convertible to \code{data.table} or variable names as character, column numbers. This variable is \code{NULL} by default.}
@@ -59,6 +61,8 @@ vardannual(
 \item{years}{Variable for the all survey years. The values for each year are computed independently. Object convertible to \code{data.table} or variable names as character, column numbers.}
 
 \item{subperiods}{Variable for the all survey sub-periods. The values for each sub-period are computed independently. Object convertible to \code{data.table} or variable names as character, column numbers.}
+
+\item{dataset}{Optional survey data object convertible to \code{data.table}.}
 
 \item{year1}{The vector of years from variable \code{years} describes the first year for measures of annual net change.}
 
@@ -93,10 +97,6 @@ vardannual(
 \item{confidence}{optional; either a positive value for confidence interval. This variable by default is 0.95.}
 
 \item{method}{character value; value 'cros' is for measures of annual or value 'netchanges' is for measures of annual net change. This variable by default is netchanges.}
-
-\item{ID_level2}{Optional}{variable for unit ID codes. One dimensional object convertible to one-column \code{data.table} or variable name as character, column number.}
-
-\item{dataset}{Optional}{survey data object convertible to \code{data.table}.}
 }
 \value{
 A list with objects are returned by the function:

@@ -1,4 +1,4 @@
-#' Linearization of the gender pay (wage) gap.
+#' Linearization of the gender pay (wage) gap
 #'
 #' @description Estimation of gender pay (wage) gap and computation of linearized variables for variance estimation.
 #'

@@ -2,7 +2,7 @@
 % Please edit documentation in R/lingpg.R
 \name{lingpg}
 \alias{lingpg}
-\title{Linearization of the gender pay (wage) gap.}
+\title{Linearization of the gender pay (wage) gap}
 \usage{
 lingpg(
   Y,

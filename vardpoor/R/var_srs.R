@@ -1,4 +1,4 @@
-#'The estimation of the simple random sampling.
+#'The estimation of the simple random sampling
 #'
 #' @description Computes the estimation of the simple random sampling.
 #'

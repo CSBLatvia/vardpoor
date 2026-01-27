@@ -1,6 +1,19 @@
 # Package test, check, build & publish to CRAN
 options(encoding = "UTF-8")
 
+# Specify the exact path to pdflatex for R (for manual building)
+pdflatex_path <- Sys.which("pdflatex")
+# If Sys.which("pdflatex") returns "" (empty),
+# then use Sys.setenv to add the path to your pdflatex installation
+# Example for windows:
+#Sys.setenv(PATH = paste("C:/texlive/2024/bin/windows", Sys.getenv("PATH"), sep = ";"))
+
+# Set the texi2dvi command to use pdflatex
+options(texi2dvi_cmd = pdflatex_path)
+# Set the PDFLATEX environment variable
+Sys.setenv(PDFLATEX = pdflatex_path)
+
+
 # Package name
 package_name <- "vardpoor"
 
@@ -49,8 +62,8 @@ devtools::build(package_name, binary = TRUE, args = c('--preclean'))
 # Build manual
 # file.copy(from = paste0(package_name, ".Rcheck/", package_name, "-manual.pdf"),
 #           to = paste0(package_name, "_", ver, ".pdf"), overwrite = TRUE)
+devtools::check_man(package_name)
 devtools::build_manual(package_name)
-
 
 # MD5
 md5sums <- tools::md5sum(list.files(pattern = "zip$|tar.gz$|pdf$"))
@@ -86,9 +99,11 @@ devtools::check_win_devel(package_name)      # R devel version
 
 # R-hub builder
 # https://builder.r-hub.io/
-devtools::check_rhub(package_name, email = "martins.liberts@csp.gov.lv")
-
-
+#devtools::check_rhub is deprecated (This function is deprecated since 
+# the underlying function rhub::check_for_cran() is now deprecated and defunct.
+# See rhub::rhubv2 learn about the new check system, R-hub v2.) (Experimental)
+#devtools::check_rhub(package_name, email = "martins.liberts@csp.gov.lv")
+#rhub::rhub_check()
 
 # Publish to CRAN
 # https://cran.r-project.org/web/packages/policies.html

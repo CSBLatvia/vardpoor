@@ -2,7 +2,7 @@
 % Please edit documentation in R/var_srs.R
 \name{var_srs}
 \alias{var_srs}
-\title{The estimation of the simple random sampling.}
+\title{The estimation of the simple random sampling}
 \usage{
 var_srs(Y, w = rep(1, length(Y)))
 }
